@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>John Rice — Collage Prototype</title>
+  <script>
+    (() => {
+      const saved = localStorage.getItem('theme');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = saved || (systemDark ? 'dark' : 'light');
+    })();
+  </script>
+  <style>
+    :root{color-scheme:light;--bg:#f7f7f5;--text:#111;--muted:#6a6a66;--faint:#979792;--rule:rgba(0,0,0,.14);--button:rgba(0,0,0,.05)}
+    :root[data-theme="dark"]{color-scheme:dark;--bg:#111;--text:#f5f5f2;--muted:#aaa9a4;--faint:#777772;--rule:rgba(255,255,255,.15);--button:rgba(255,255,255,.07)}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background-color .18s ease,color .18s ease}
+    .site-header,.page{width:min(1240px,calc(100% - 96px));margin:0 auto}.site-header{display:grid;grid-template-columns:auto 1fr auto;gap:38px;align-items:start;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
+    .brand{color:var(--text);text-decoration:none;font-size:1.15rem;font-weight:700;letter-spacing:-.02em;padding-top:4px}.desktop-nav{display:flex;justify-content:flex-end;gap:30px}.desktop-nav a{position:relative;color:var(--text);text-decoration:none;font-size:clamp(1rem,1.55vw,1.35rem);line-height:1.1;font-weight:650;letter-spacing:-.025em;padding:4px 0 20px}.desktop-nav .nav-description{position:absolute;top:46px;left:-12px;width:230px;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:color-mix(in srgb,var(--bg) 94%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.10);font-size:.72rem;line-height:1.35;font-weight:450;letter-spacing:0;color:var(--faint);opacity:0;transform:translateY(-3px);pointer-events:none;transition:opacity .16s ease,transform .16s ease}.desktop-nav a:hover .nav-description,.desktop-nav a:focus-visible .nav-description{opacity:1;transform:none}
+    .icon-button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.icon-button:hover{background:var(--button)}.icon-button svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.sun,:root[data-theme="light"] .moon{display:none}:root[data-theme="light"] .sun,:root[data-theme="dark"] .moon{display:block}
+    .intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:70px;padding:92px 0 72px}.intro h1{margin:0;font-size:clamp(3.5rem,7vw,7.4rem);line-height:.92;letter-spacing:-.05em;font-weight:650}.intro p{align-self:end;margin:0;max-width:460px;font-size:1.05rem;line-height:1.6;color:var(--muted)}
+    .mode-switch{display:flex;gap:7px;margin-bottom:28px}.mode-switch button{border:1px solid var(--rule);border-radius:999px;background:transparent;color:var(--faint);font:inherit;font-size:.72rem;padding:7px 10px;cursor:pointer}.mode-switch button.active,.mode-switch button:hover{background:var(--button);color:var(--text)}
+    .collage-wrap{position:relative;padding-bottom:130px}.collage{position:relative;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:72px;gap:18px;isolation:isolate}
+    .object{position:relative;z-index:2;margin:0;overflow:hidden;background:transparent;transform:scale(1);transition:transform .42s cubic-bezier(.2,.8,.2,1),filter .38s ease,opacity .38s ease;cursor:default}.object img{display:block;width:100%;height:100%;object-fit:cover}.object.contain img{object-fit:contain}.object.transparent{background:transparent}.object.solid{background:#fff}.object[data-n="1"]{grid-column:1/span 5;grid-row:1/span 5}.object[data-n="2"]{grid-column:6/span 3;grid-row:1/span 3}.object[data-n="3"]{grid-column:9/span 4;grid-row:1/span 6}.object[data-n="4"]{grid-column:1/span 3;grid-row:6/span 4}.object[data-n="5"]{grid-column:4/span 5;grid-row:4/span 5}.object[data-n="6"]{grid-column:9/span 2;grid-row:7/span 3}.object[data-n="7"]{grid-column:11/span 2;grid-row:7/span 5}.object[data-n="8"]{grid-column:1/span 5;grid-row:10/span 4}.object[data-n="9"]{grid-column:6/span 5;grid-row:9/span 5}.object[data-n="10"]{grid-column:11/span 2;grid-row:13/span 3}
+    .object.focused{z-index:10;transform:scale(1.045)}
+    .spotlight{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;transition:opacity .35s ease;background:radial-gradient(circle 360px at var(--spot-x,50%) var(--spot-y,50%),rgba(0,0,0,0) 0,rgba(0,0,0,.05) 35%,rgba(0,0,0,.52) 100%)}.spotlight.on{opacity:1}
+    body.mode-deep .collage.focused .object:not(.focused){filter:blur(2px);opacity:.42} body.mode-deep .spotlight{background:radial-gradient(circle 330px at var(--spot-x,50%) var(--spot-y,50%),rgba(0,0,0,0) 0,rgba(0,0,0,.12) 37%,rgba(0,0,0,.64) 100%)}
+    body.mode-falloff .object.focused{transform:scale(1.02)} body.mode-falloff .spotlight{background:radial-gradient(circle 470px at var(--spot-x,50%) var(--spot-y,50%),rgba(0,0,0,0) 0,rgba(0,0,0,.08) 32%,rgba(0,0,0,.72) 100%)}
+    .object-label{position:absolute;left:10px;bottom:9px;padding:5px 7px;border-radius:6px;background:rgba(0,0,0,.58);color:#fff;font-size:.65rem;line-height:1;opacity:0;transition:opacity .2s ease}.object.focused .object-label{opacity:1}
+    @media(max-width:850px){.site-header,.page{width:min(100% - 36px,1240px)}.desktop-nav{display:none}.site-header{grid-template-columns:1fr auto}.intro{grid-template-columns:1fr;gap:24px;padding:68px 0 48px}.intro h1{font-size:clamp(3.2rem,15vw,5rem)}.mode-switch{display:none}.collage{grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:12px}.object,.object[data-n]{grid-column:auto!important;grid-row:auto!important;aspect-ratio:4/3}.object:nth-child(3n){grid-column:1/-1!important;aspect-ratio:16/9}.spotlight{display:none}.object.focused{transform:none}.object-label{display:none}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+  </style>
+</head>
+<body class="mode-soft">
+  <header class="site-header"><a class="brand" href="/ai-website-test/">John Rice</a><nav class="desktop-nav" aria-label="Main navigation"><a href="/ai-website-test/work/">Selected Work<span class="nav-description">Products, platforms, games, and new ventures.</span></a><a href="/ai-website-test/career/">Career<span class="nav-description">A chronology of the work and places that shaped it.</span></a><a href="/ai-website-test/barber-game/">The Barber Game<span class="nav-description">Building a product and company from zero.</span></a><a href="/ai-website-test/playground/">Playground<span class="nav-description">Experiments, prototypes, drafts, and curiosities.</span></a></nav><button class="icon-button" id="themeToggle" type="button" aria-label="Switch theme"><svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"></path></svg><svg class="moon" viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"></path></svg></button></header>
+  <main class="page">
+    <section class="intro"><h1>Objects in focus.</h1><p>A spatial collage experiment. Hover an object and the composition stays where it is; attention shifts through scale, dimming, and a soft falloff around the object.</p></section>
+    <div class="mode-switch" aria-label="Focus treatment"><button class="active" data-mode="soft">Soft spotlight</button><button data-mode="deep">Deep focus</button><button data-mode="falloff">Light falloff</button></div>
+    <section class="collage-wrap"><div class="collage" id="collage">
+      <figure class="object solid contain" data-n="1"><img src="../assets/publicis/agency-hero-1.png" alt="T-Mobile work overview"><span class="object-label">T-Mobile overview</span></figure>
+      <figure class="object transparent contain" data-n="2"><img src="../assets/microsoft-csg/Mask group.png" alt="Handwriting research"><span class="object-label">Handwriting research</span></figure>
+      <figure class="object" data-n="3"><img src="../assets/bing/featured-bing-03.png" alt="Bing Maps"><span class="object-label">Bing Maps</span></figure>
+      <figure class="object solid contain" data-n="4"><img src="../assets/publicis/featured-agency-05.png" alt="Color palette"><span class="object-label">Color system</span></figure>
+      <figure class="object" data-n="5"><img src="../assets/microsoft-csg/featured-msft-01.png" alt="Home of the Future"><span class="object-label">Home of the Future</span></figure>
+      <figure class="object transparent contain" data-n="6"><img src="../assets/publicis/featured-agency-12.png" alt="Typeface"><span class="object-label">Typeface</span></figure>
+      <figure class="object" data-n="7"><img src="../assets/bing/featured-bing-04.png" alt="Bing games"><span class="object-label">Bing games</span></figure>
+      <figure class="object" data-n="8"><img src="../assets/publicis/featured-agency-04.png" alt="T-Mobile concept store"><span class="object-label">Concept store</span></figure>
+      <figure class="object solid contain" data-n="9"><img src="../assets/microsoft-csg/Canvas Ink Illustration 1.png" alt="Pen and ink exploration"><span class="object-label">Pen and ink</span></figure>
+      <figure class="object" data-n="10"><img src="../assets/bing/featured-bing-05.png" alt="Sharing work"><span class="object-label">Sharing</span></figure>
+    </div></section>
+  </main>
+  <div class="spotlight" id="spotlight" aria-hidden="true"></div>
+  <script>
+    const themeToggle=document.getElementById('themeToggle');themeToggle.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('theme',next)});
+    const spotlight=document.getElementById('spotlight');const collage=document.getElementById('collage');const objects=[...document.querySelectorAll('.object')];let hoverTimer;
+    function focusObject(el){const r=el.getBoundingClientRect();document.documentElement.style.setProperty('--spot-x',`${r.left+r.width/2}px`);document.documentElement.style.setProperty('--spot-y',`${r.top+r.height/2}px`);objects.forEach(o=>o.classList.toggle('focused',o===el));collage.classList.add('focused');spotlight.classList.add('on')}
+    function clearFocus(){clearTimeout(hoverTimer);objects.forEach(o=>o.classList.remove('focused'));collage.classList.remove('focused');spotlight.classList.remove('on')}
+    if(matchMedia('(hover:hover) and (pointer:fine)').matches){objects.forEach(el=>{el.addEventListener('mouseenter',()=>{clearTimeout(hoverTimer);hoverTimer=setTimeout(()=>focusObject(el),140)});el.addEventListener('mouseleave',clearFocus)})}
+    document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-mode]').forEach(b=>b.classList.remove('active'));button.classList.add('active');document.body.classList.remove('mode-soft','mode-deep','mode-falloff');document.body.classList.add(`mode-${button.dataset.mode}`)}));
+  </script>
+</body>
+</html>
