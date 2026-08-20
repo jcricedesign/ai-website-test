@@ -12,383 +12,60 @@
     })();
   </script>
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #f7f7f5;
-      --text: #111111;
-      --muted: #666663;
-      --faint: #989894;
-      --rule: rgba(0, 0, 0, 0.14);
-      --button-bg: rgba(0, 0, 0, 0.045);
-      --button-border: rgba(0, 0, 0, 0.09);
-      --button-hover: rgba(0, 0, 0, 0.08);
-      --media-bg: #ffffff;
-    }
+    :root { color-scheme: light; --bg:#f7f7f5; --text:#111; --muted:#666663; --faint:#989894; --rule:rgba(0,0,0,.14); --button-bg:rgba(0,0,0,.045); --button-hover:rgba(0,0,0,.08); --media-bg:#fff; }
+    :root[data-theme="dark"] { color-scheme:dark; --bg:#111; --text:#f5f5f2; --muted:#aaa9a4; --faint:#777772; --rule:rgba(255,255,255,.15); --button-bg:rgba(255,255,255,.06); --button-hover:rgba(255,255,255,.1); --media-bg:#171717; }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);transition:background-color 180ms ease,color 180ms ease}.page{width:min(1240px,calc(100% - 96px));margin:0 auto}
 
-    :root[data-theme="dark"] {
-      color-scheme: dark;
-      --bg: #111111;
-      --text: #f5f5f2;
-      --muted: #aaa9a4;
-      --faint: #777772;
-      --rule: rgba(255, 255, 255, 0.15);
-      --button-bg: rgba(255, 255, 255, 0.06);
-      --button-border: rgba(255, 255, 255, 0.12);
-      --button-hover: rgba(255, 255, 255, 0.1);
-      --media-bg: #171717;
-    }
+    .site-header{width:min(1240px,calc(100% - 96px));margin:0 auto;display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:38px;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
+    .brand{color:var(--text);text-decoration:none;font-weight:700;font-size:1.15rem;letter-spacing:-.02em;white-space:nowrap;padding-top:4px}.desktop-nav{display:flex;justify-content:flex-end;gap:30px}.desktop-nav a{position:relative;color:var(--text);text-decoration:none;font-size:clamp(1rem,1.55vw,1.35rem);line-height:1.1;font-weight:650;letter-spacing:-.025em;padding:4px 0 20px}.desktop-nav .nav-description{position:absolute;top:32px;left:0;width:220px;font-size:.72rem;line-height:1.35;font-weight:450;letter-spacing:0;color:var(--faint);opacity:0;transform:translateY(-3px);pointer-events:none;transition:opacity 160ms ease,transform 160ms ease}.desktop-nav a:hover .nav-description,.desktop-nav a:focus-visible .nav-description{opacity:1;transform:none}.desktop-nav a[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:9px;height:2px;background:currentColor}
+    .header-actions{display:flex;gap:6px;align-items:center}.icon-button,.menu-button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.icon-button:hover,.menu-button:hover{background:var(--button-bg)}.icon-button svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.sun,:root[data-theme="light"] .moon{display:none}:root[data-theme="light"] .sun,:root[data-theme="dark"] .moon{display:block}.menu-button{display:none;width:auto;padding:0 10px;font-size:.9rem;font-weight:650}
+    .mobile-panel{display:none}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    .hero{max-width:1180px;padding:110px 0 110px}.hero h1{margin:0;max-width:1120px;font-size:clamp(3.2rem,6.3vw,6.7rem);line-height:.98;letter-spacing:-.035em;font-weight:650;text-wrap:balance}.intro{max-width:760px;margin:34px 0 0;font-size:clamp(1.2rem,1.8vw,1.5rem);line-height:1.5;letter-spacing:-.01em;color:var(--muted)}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      transition: background-color 180ms ease, color 180ms ease;
-    }
+    .project-module{position:relative;border-top:1px solid var(--rule);padding:28px 0 140px}.project-controls{position:absolute;top:20px;right:0;z-index:5;display:flex;gap:4px}.project-control{width:34px;height:34px;display:grid;place-items:center;padding:0;border:0;border-radius:999px;background:transparent;color:var(--faint);cursor:pointer;font-size:18px;line-height:1;transition:color 180ms ease,background 180ms ease,transform 180ms ease}.project-control:hover{color:var(--text);background:var(--button-bg)}.project-control:active{transform:scale(.94)}
+    .project-editorial{display:grid;grid-template-columns:minmax(230px,.68fr) minmax(0,1.55fr);gap:64px;align-items:start;padding-top:38px}.project-story{position:sticky;top:28px;min-height:340px;padding-right:8px}.project-count{margin:0 0 16px;font-size:.72rem;line-height:1;color:var(--faint);letter-spacing:.08em}.project-story h2{margin:0 0 18px;max-width:390px;font-size:clamp(1.65rem,2.35vw,2.35rem);line-height:1.08;letter-spacing:-.03em;font-weight:650}.project-story p{margin:0;max-width:390px;font-size:.95rem;line-height:1.62;color:var(--muted)}.project-meta{margin-top:20px;font-size:.72rem;color:var(--faint)}.project-stream{display:grid;gap:34px;justify-items:start}.project-media{width:80%;margin:0;opacity:0;transform:translateY(34px);transition:opacity .65s ease,transform 1.05s cubic-bezier(.18,.88,.22,1.08)}.project-media.visible{opacity:1;transform:none}.project-frame{display:grid;place-items:center;width:100%;min-height:208px;overflow:hidden;background:var(--media-bg)}.project-frame.transparent-media{background:transparent}.project-frame img{display:block;width:100%;height:auto}.project-caption{display:flex;justify-content:space-between;gap:16px;padding-top:9px;font-size:.72rem;color:var(--faint)}
+    .project-module:fullscreen{overflow:auto;background:var(--bg);padding:42px 64px 80px}.project-module:fullscreen .project-editorial{max-width:1500px;margin:0 auto;grid-template-columns:minmax(280px,.72fr) minmax(0,1.75fr);gap:76px}.project-module:fullscreen .project-controls{top:22px;right:24px}.project-module:fullscreen .project-frame img{max-height:78vh;object-fit:contain}
 
-    .page {
-      width: min(1240px, calc(100% - 96px));
-      margin: 0 auto;
-    }
-
-    .hero {
-      min-height: 62vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      max-width: 1180px;
-      padding: 92px 0 68px;
-    }
-
-    .identity {
-      margin: 0 0 34px;
-      font-size: 1rem;
-      line-height: 1.3;
-      font-weight: 650;
-      letter-spacing: -0.005em;
-    }
-
-    h1 {
-      margin: 0;
-      max-width: 1120px;
-      font-size: clamp(3.2rem, 6.3vw, 6.7rem);
-      line-height: 0.98;
-      letter-spacing: -0.035em;
-      font-weight: 650;
-      text-wrap: balance;
-    }
-
-    .intro {
-      max-width: 760px;
-      margin: 34px 0 0;
-      font-size: clamp(1.2rem, 1.8vw, 1.5rem);
-      line-height: 1.5;
-      letter-spacing: -0.01em;
-      color: var(--muted);
-    }
-
-    .navigation {
-      padding: 20px 0 120px;
-    }
-
-    .nav-label {
-      margin: 0 0 24px;
-      font-size: 0.82rem;
-      font-weight: 650;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--faint);
-    }
-
-    .nav-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      border-top: 1px solid var(--rule);
-    }
-
-    .nav-link {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 32px;
-      padding: 34px 0 38px;
-      border-bottom: 1px solid var(--rule);
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .nav-title {
-      display: block;
-      font-size: clamp(2.6rem, 5.6vw, 5.6rem);
-      line-height: 0.98;
-      font-weight: 650;
-      letter-spacing: -0.035em;
-    }
-
-    .nav-meta {
-      display: block;
-      max-width: 680px;
-      margin-top: 12px;
-      font-size: 1rem;
-      line-height: 1.5;
-      color: var(--faint);
-    }
-
-    .nav-arrow {
-      font-size: clamp(2rem, 3vw, 3rem);
-      font-weight: 300;
-      line-height: 1;
-      transition: transform 160ms ease;
-    }
-
-    .nav-link:hover .nav-arrow,
-    .nav-link:focus-visible .nav-arrow { transform: translateX(8px); }
-
-    .theme-toggle {
-      position: fixed;
-      z-index: 20;
-      top: 1.25rem;
-      right: 1.25rem;
-      width: 2.5rem;
-      height: 2.5rem;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--button-border);
-      border-radius: 999px;
-      background: var(--button-bg);
-      color: var(--text);
-      cursor: pointer;
-      transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
-    }
-
-    .theme-toggle:hover { background: var(--button-hover); }
-    .theme-toggle:active { transform: scale(0.96); }
-    .theme-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-
-    .theme-toggle svg {
-      width: 1.1rem;
-      height: 1.1rem;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .sun,
-    :root[data-theme="light"] .moon { display: none; }
-    :root[data-theme="light"] .sun,
-    :root[data-theme="dark"] .moon { display: block; }
-
-    /* Reusable editorial project module */
-    .project-module {
-      position: relative;
-      border-top: 1px solid var(--rule);
-      padding: 22px 0 140px;
-    }
-
-    .project-controls {
-      position: absolute;
-      top: 18px;
-      right: 0;
-      z-index: 5;
-      display: flex;
-      gap: 4px;
-    }
-
-    .project-control {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      border: 0;
-      border-radius: 999px;
-      background: transparent;
-      color: var(--faint);
-      cursor: pointer;
-      font-size: 18px;
-      line-height: 1;
-      transition: color 180ms ease, background 180ms ease, transform 180ms ease;
-    }
-
-    .project-control:hover { color: var(--text); background: var(--button-bg); }
-    .project-control:active { transform: scale(.94); }
-
-    .project-editorial {
-      display: grid;
-      grid-template-columns: minmax(240px, .7fr) minmax(0, 1.55fr);
-      gap: 58px;
-      align-items: start;
-      padding-top: 34px;
-    }
-
-    .project-story {
-      position: sticky;
-      top: 34px;
-      min-height: 390px;
-      padding-right: 8px;
-    }
-
-    .project-count {
-      margin: 0 0 18px;
-      font-size: 0.72rem;
-      line-height: 1;
-      color: var(--faint);
-      letter-spacing: 0.08em;
-    }
-
-    .project-story h2 {
-      margin: 0 0 22px;
-      max-width: 410px;
-      font-size: clamp(2rem, 3.1vw, 3.05rem);
-      line-height: 1.04;
-      letter-spacing: -0.035em;
-      font-weight: 650;
-    }
-
-    .project-story p {
-      margin: 0;
-      max-width: 410px;
-      font-size: 1rem;
-      line-height: 1.62;
-      color: var(--muted);
-    }
-
-    .project-meta {
-      margin-top: 22px;
-      font-size: 0.75rem;
-      color: var(--faint);
-    }
-
-    .project-stream {
-      display: grid;
-      gap: 34px;
-      justify-items: start;
-    }
-
-    .project-media {
-      width: 80%;
-      margin: 0;
-      opacity: 0;
-      transform: translateY(34px);
-      transition: opacity .65s ease, transform 1.05s cubic-bezier(.18,.88,.22,1.08);
-    }
-
-    .project-media.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    .project-frame {
-      display: grid;
-      place-items: center;
-      width: 100%;
-      min-height: 208px;
-      overflow: hidden;
-      background: var(--media-bg);
-    }
-
-    .project-frame.transparent-media { background: transparent; }
-
-    .project-frame img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .project-caption {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      padding-top: 9px;
-      font-size: 0.72rem;
-      color: var(--faint);
-    }
-
-    .project-module:fullscreen {
-      overflow: auto;
-      background: var(--bg);
-      padding: 42px 64px 80px;
-    }
-
-    .project-module:fullscreen .project-editorial {
-      max-width: 1500px;
-      margin: 0 auto;
-      grid-template-columns: minmax(280px, .72fr) minmax(0, 1.75fr);
-      gap: 76px;
-    }
-
-    .project-module:fullscreen .project-controls {
-      top: 22px;
-      right: 24px;
-    }
-
-    .project-module:fullscreen .project-frame img {
-      max-height: 78vh;
-      object-fit: contain;
-    }
-
-    @media (max-width: 800px) {
-      .page { width: min(100% - 36px, 1240px); }
-      .hero { min-height: 84vh; padding: 90px 0 70px; }
-      .identity { margin-bottom: 30px; }
-      h1 { font-size: clamp(3rem, 14vw, 5rem); }
-      .intro { margin-top: 32px; }
-      .navigation { padding-bottom: 90px; }
-      .nav-link { gap: 16px; padding: 26px 0 30px; }
-      .nav-title { font-size: clamp(2.3rem, 11vw, 4rem); }
-      .nav-meta { font-size: 0.95rem; margin-top: 8px; }
-      .project-module { padding-bottom: 90px; }
-      .project-editorial { grid-template-columns: 1fr; gap: 30px; }
-      .project-story { position: relative; top: auto; min-height: 0; padding-right: 44px; }
-      .project-media { width: 100%; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
-    }
+    @media(max-width:850px){.site-header{width:min(100% - 36px,1240px);grid-template-columns:1fr auto;padding:18px 0 14px}.desktop-nav{display:none}.header-actions{grid-column:2}.menu-button{display:grid}.mobile-panel{display:grid;grid-template-rows:0fr;grid-column:1/-1;transition:grid-template-rows .25s ease}.mobile-panel>div{overflow:hidden}.mobile-panel.open{grid-template-rows:1fr}.mobile-nav{padding:20px 0 8px;border-top:1px solid var(--rule);margin-top:12px}.mobile-nav a{display:block;color:var(--text);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--rule);font-size:clamp(1.9rem,9vw,3.3rem);line-height:1;font-weight:650;letter-spacing:-.035em}.mobile-nav small{display:block;margin-top:7px;font-size:.8rem;line-height:1.4;font-weight:450;letter-spacing:0;color:var(--faint)}.page{width:min(100% - 36px,1240px)}.hero{padding:82px 0 90px}.hero h1{font-size:clamp(3rem,14vw,5rem)}.intro{margin-top:32px}.project-module{padding-bottom:90px}.project-editorial{grid-template-columns:1fr;gap:30px}.project-story{position:relative;top:auto;min-height:0;padding-right:44px}.project-media{width:100%}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
 <body>
-  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">
-    <svg class="sun" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="3.5"></circle>
-      <path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"></path>
-    </svg>
-    <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"></path>
-    </svg>
-  </button>
+  <header class="site-header">
+    <a class="brand" href="/ai-website-test/">John Rice</a>
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="/ai-website-test/work/">Selected Work<span class="nav-description">Products, platforms, games, and new ventures.</span></a>
+      <a href="/ai-website-test/career/">Career<span class="nav-description">A chronology of the work and places that shaped it.</span></a>
+      <a href="/ai-website-test/barber-game/">The Barber Game<span class="nav-description">Building a product and company from zero.</span></a>
+      <a href="/ai-website-test/playground/">Playground<span class="nav-description">Experiments, prototypes, drafts, and curiosities.</span></a>
+    </nav>
+    <div class="header-actions">
+      <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="mobilePanel">Menu</button>
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"></path></svg>
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"></path></svg>
+      </button>
+    </div>
+    <div class="mobile-panel" id="mobilePanel"><div><nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="/ai-website-test/work/">Selected Work<small>Products, platforms, games, and new ventures.</small></a>
+      <a href="/ai-website-test/career/">Career<small>A chronology of the work and places that shaped it.</small></a>
+      <a href="/ai-website-test/barber-game/">The Barber Game<small>Building a product and company from zero.</small></a>
+      <a href="/ai-website-test/playground/">Playground<small>Experiments, prototypes, drafts, and curiosities.</small></a>
+    </nav></div></div>
+  </header>
 
   <main class="page">
     <section class="hero">
-      <p class="identity">John Rice — Designer</p>
       <h1>I work on products and businesses before the answers are obvious.</h1>
       <p class="intro">I’m a product designer and generalist who works comfortably across research, strategy, interaction, prototyping, and the messy work of turning an idea into something real.</p>
     </section>
 
-    <nav class="navigation" aria-label="Main navigation">
-      <p class="nav-label">Explore</p>
-      <ul class="nav-list">
-        <li><a class="nav-link" href="#selected-work"><span><span class="nav-title">Selected work</span><span class="nav-meta">Products, platforms, games, and new ventures.</span></span><span class="nav-arrow" aria-hidden="true">→</span></a></li>
-        <li><a class="nav-link" href="#career"><span><span class="nav-title">Career</span><span class="nav-meta">A chronology of the work and the places that shaped it.</span></span><span class="nav-arrow" aria-hidden="true">→</span></a></li>
-        <li><a class="nav-link" href="#barber-game"><span><span class="nav-title">The Barber Game</span><span class="nav-meta">Building a product and company from zero.</span></span><span class="nav-arrow" aria-hidden="true">→</span></a></li>
-        <li><a class="nav-link" href="#playground"><span><span class="nav-title">Playground</span><span class="nav-meta">Experiments, prototypes, drafts, and things made because they were interesting.</span></span><span class="nav-arrow" aria-hidden="true">→</span></a></li>
-      </ul>
-    </nav>
-
-    <section class="project-module" id="selected-work" aria-labelledby="publicis-title">
+    <section class="project-module" id="publicis" aria-labelledby="publicis-title">
       <div class="project-controls">
         <button class="project-control" id="projectReplay" type="button" aria-label="Replay project sequence" title="Replay">↻</button>
         <button class="project-control" id="projectFullscreen" type="button" aria-label="Expand project fullscreen" title="Expand fullscreen">↗</button>
       </div>
-
       <div class="project-editorial" id="projectEditorial">
         <aside class="project-story">
           <p class="project-count" id="projectCount">01 / 05</p>
@@ -396,142 +73,32 @@
           <p>T-Mobile’s flagship stores combined physical retail with touch kiosks, wall displays, product storytelling, and changing campaigns. The work behaved less like a single ad and more like an evolving system.</p>
           <div class="project-meta">Publicis · T-Mobile · 2007–2008</div>
         </aside>
-
         <div class="project-stream" id="projectStream"></div>
       </div>
     </section>
   </main>
 
   <script>
-    const toggle = document.getElementById('themeToggle');
-    toggle.addEventListener('click', () => {
-      const current = document.documentElement.dataset.theme;
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem('theme', next);
-    });
+    const themeToggle=document.getElementById('themeToggle');
+    themeToggle.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('theme',next)});
+    const menuButton=document.getElementById('menuButton'); const mobilePanel=document.getElementById('mobilePanel');
+    menuButton.addEventListener('click',()=>{const open=mobilePanel.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(open));menuButton.textContent=open?'Close':'Menu'});
 
-    const publicisItems = [
-      { src: 'assets/publicis/agency-hero-1.png', label: 'T-Mobile / Publicis', kicker: 'Overview' },
-      { src: 'assets/publicis/featured-agency-04.png', label: 'Concept store', kicker: 'Retail + interaction' },
-      { src: 'assets/publicis/featured-agency-05.png', label: 'Color system', kicker: 'Brand' },
-      { src: 'assets/publicis/featured-agency-07.png', label: 'myFaves', kicker: 'Digital' },
-      { src: 'assets/publicis/featured-agency-12.png', label: 'Custom typeface', kicker: 'Type' }
+    const projectItems=[
+      {src:'assets/publicis/agency-hero-1.png',label:'T-Mobile / Publicis',kicker:'Overview'},
+      {src:'assets/publicis/featured-agency-04.png',label:'Concept store',kicker:'Retail + interaction'},
+      {src:'assets/publicis/featured-agency-05.png',label:'Color system',kicker:'Brand'},
+      {src:'assets/publicis/featured-agency-07.png',label:'myFaves',kicker:'Digital'},
+      {src:'assets/publicis/featured-agency-12.png',label:'Custom typeface',kicker:'Type'}
     ];
-
-    const projectModule = document.getElementById('selected-work');
-    const projectEditorial = document.getElementById('projectEditorial');
-    const projectStream = document.getElementById('projectStream');
-    const projectCount = document.getElementById('projectCount');
-    const projectReplay = document.getElementById('projectReplay');
-    const projectFullscreen = document.getElementById('projectFullscreen');
-    let projectPlayed = false;
-    let projectTimers = [];
-
-    function detectTransparency(img, frame) {
-      img.addEventListener('load', () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d', { willReadFrequently: true });
-          const sampleWidth = Math.min(img.naturalWidth, 420);
-          const scale = sampleWidth / img.naturalWidth;
-          canvas.width = sampleWidth;
-          canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-          context.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
-          let transparent = false;
-          const step = Math.max(4, Math.floor((canvas.width * canvas.height) / 8000)) * 4;
-          for (let i = 3; i < data.length; i += step) {
-            if (data[i] < 250) { transparent = true; break; }
-          }
-          frame.classList.toggle('transparent-media', transparent);
-        } catch (error) {
-          // Keep the normal media background if the browser cannot inspect pixels.
-        }
-      });
-    }
-
-    publicisItems.forEach((item, index) => {
-      const figure = document.createElement('figure');
-      figure.className = 'project-media';
-
-      const frame = document.createElement('div');
-      frame.className = 'project-frame';
-
-      const image = document.createElement('img');
-      image.src = item.src;
-      image.alt = item.label;
-      image.loading = index === 0 ? 'eager' : 'lazy';
-      detectTransparency(image, frame);
-
-      const caption = document.createElement('figcaption');
-      caption.className = 'project-caption';
-      caption.innerHTML = `<span>${item.label}</span><span>${item.kicker}</span>`;
-
-      frame.appendChild(image);
-      figure.appendChild(frame);
-      figure.appendChild(caption);
-      projectStream.appendChild(figure);
-    });
-
-    const projectCards = [...projectStream.querySelectorAll('.project-media')];
-
-    function setProjectCount(index) {
-      projectCount.textContent = `${String(index + 1).padStart(2, '0')} / ${String(projectCards.length).padStart(2, '0')}`;
-    }
-
-    function clearProjectTimers() {
-      projectTimers.forEach(clearTimeout);
-      projectTimers = [];
-    }
-
-    function playProjectSequence() {
-      clearProjectTimers();
-      projectCards.forEach(card => card.classList.remove('visible'));
-      setProjectCount(0);
-
-      requestAnimationFrame(() => {
-        projectCards.forEach((card, index) => {
-          const timer = setTimeout(() => {
-            card.classList.add('visible');
-            setProjectCount(index);
-          }, index * 560);
-          projectTimers.push(timer);
-        });
-      });
-    }
-
-    const projectObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !projectPlayed) {
-          projectPlayed = true;
-          playProjectSequence();
-          projectObserver.disconnect();
-        }
-      });
-    }, { threshold: 0.16 });
-
-    projectObserver.observe(projectEditorial);
-    projectReplay.addEventListener('click', playProjectSequence);
-
-    projectFullscreen.addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await projectModule.requestFullscreen();
-        } else {
-          await document.exitFullscreen();
-        }
-      } catch (error) {
-        // Fullscreen may be unavailable in some embedded contexts.
-      }
-    });
-
-    document.addEventListener('fullscreenchange', () => {
-      const expanded = Boolean(document.fullscreenElement);
-      projectFullscreen.textContent = expanded ? '↙' : '↗';
-      projectFullscreen.setAttribute('aria-label', expanded ? 'Exit project fullscreen' : 'Expand project fullscreen');
-      projectFullscreen.setAttribute('title', expanded ? 'Exit fullscreen' : 'Expand fullscreen');
-    });
+    const stream=document.getElementById('projectStream'); const count=document.getElementById('projectCount'); const editorial=document.getElementById('projectEditorial'); const module=document.querySelector('.project-module'); const replay=document.getElementById('projectReplay'); const fullscreen=document.getElementById('projectFullscreen'); let played=false; let timers=[];
+    function detectTransparency(img,frame){img.addEventListener('load',()=>{try{const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d',{willReadFrequently:true});canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;const step=Math.max(4,Math.floor((canvas.width*canvas.height)/12000))*4;for(let i=3;i<data.length;i+=step){if(data[i]<250){frame.classList.add('transparent-media');break}}}catch(e){}})}
+    projectItems.forEach((item,index)=>{const figure=document.createElement('figure');figure.className='project-media';const frame=document.createElement('div');frame.className='project-frame';const img=document.createElement('img');img.src=item.src;img.alt=item.label;detectTransparency(img,frame);frame.appendChild(img);const caption=document.createElement('figcaption');caption.className='project-caption';caption.innerHTML=`<span>${item.label}</span><span>${item.kicker}</span>`;figure.append(frame,caption);figure.addEventListener('click',()=>{count.textContent=`${String(index+1).padStart(2,'0')} / 05`});stream.appendChild(figure)});
+    const cards=[...document.querySelectorAll('.project-media')];
+    function clearTimers(){timers.forEach(clearTimeout);timers=[]}
+    function playSequence(){clearTimers();cards.forEach(card=>card.classList.remove('visible'));count.textContent='01 / 05';cards.forEach((card,i)=>{timers.push(setTimeout(()=>{card.classList.add('visible');count.textContent=`${String(i+1).padStart(2,'0')} / 05`},i*560))})}
+    const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting&&!played){played=true;playSequence();observer.disconnect()}})},{threshold:.18}); observer.observe(editorial); replay.addEventListener('click',playSequence);
+    fullscreen.addEventListener('click',async()=>{try{if(!document.fullscreenElement){await module.requestFullscreen()}else{await document.exitFullscreen()}}catch(e){}}); document.addEventListener('fullscreenchange',()=>{const expanded=!!document.fullscreenElement;fullscreen.textContent=expanded?'↙':'↗';fullscreen.setAttribute('aria-label',expanded?'Exit project fullscreen':'Expand project fullscreen');fullscreen.setAttribute('title',expanded?'Exit fullscreen':'Expand fullscreen')});
   </script>
 </body>
 </html>
