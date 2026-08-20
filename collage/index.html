@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>John Rice — Collage Prototype</title>
+  <title>John Rice — Grid Prototype</title>
   <script>
     (() => {
       const saved = localStorage.getItem('theme');
@@ -12,63 +12,34 @@
     })();
   </script>
   <style>
-    :root{color-scheme:light;--bg:#f7f7f5;--text:#111;--muted:#6a6a66;--faint:#979792;--rule:rgba(0,0,0,.14);--button:rgba(0,0,0,.05)}
-    :root[data-theme="dark"]{color-scheme:dark;--bg:#111;--text:#f5f5f2;--muted:#aaa9a4;--faint:#777772;--rule:rgba(255,255,255,.15);--button:rgba(255,255,255,.07)}
-    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background-color .18s ease,color .18s ease}
-    .site-header,.page{width:min(1240px,calc(100% - 96px));margin:0 auto}.site-header{display:grid;grid-template-columns:auto 1fr auto;gap:38px;align-items:start;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
-    .brand{color:var(--text);text-decoration:none;font-size:1.15rem;font-weight:700;letter-spacing:-.02em;padding-top:4px}.desktop-nav{display:flex;justify-content:flex-end;gap:30px}.desktop-nav a{position:relative;color:var(--text);text-decoration:none;font-size:clamp(1rem,1.55vw,1.35rem);line-height:1.1;font-weight:650;letter-spacing:-.025em;padding:4px 0 20px}.desktop-nav .nav-description{position:absolute;top:46px;left:-12px;width:230px;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:color-mix(in srgb,var(--bg) 94%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.10);font-size:.72rem;line-height:1.35;font-weight:450;letter-spacing:0;color:var(--faint);opacity:0;transform:translateY(-3px);pointer-events:none;transition:opacity .16s ease,transform .16s ease}.desktop-nav a:hover .nav-description,.desktop-nav a:focus-visible .nav-description{opacity:1;transform:none}
+    :root{color-scheme:light;--bg:#f7f7f5;--text:#111;--muted:#6a6a66;--faint:#979792;--rule:rgba(0,0,0,.14);--button:rgba(0,0,0,.05);--grid-line:#111;--cream:#f1eee5;--red:#d6251f;--blue:#155ba5;--yellow:#f0d23b;--black:#111}
+    :root[data-theme="dark"]{color-scheme:dark;--bg:#111;--text:#f5f5f2;--muted:#aaa9a4;--faint:#777772;--rule:rgba(255,255,255,.15);--button:rgba(255,255,255,.07);--grid-line:#050505}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background-color .18s ease,color .18s ease}
+    .site-header,.page{width:min(1240px,calc(100% - 96px));margin:0 auto}
+    .site-header{display:grid;grid-template-columns:auto 1fr auto;gap:38px;align-items:start;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
+    .brand{color:var(--text);text-decoration:none;font-size:1.15rem;font-weight:700;letter-spacing:-.02em;padding-top:4px}
+    .desktop-nav{display:flex;justify-content:flex-end;gap:30px}.desktop-nav a{position:relative;color:var(--text);text-decoration:none;font-size:clamp(1rem,1.55vw,1.35rem);line-height:1.1;font-weight:650;letter-spacing:-.025em;padding:4px 0 20px}.desktop-nav .nav-description{position:absolute;top:46px;left:-12px;width:230px;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:color-mix(in srgb,var(--bg) 94%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.10);font-size:.72rem;line-height:1.35;font-weight:450;letter-spacing:0;color:var(--faint);opacity:0;transform:translateY(-3px);pointer-events:none;transition:opacity .16s ease,transform .16s ease}.desktop-nav a:hover .nav-description,.desktop-nav a:focus-visible .nav-description{opacity:1;transform:none}
     .icon-button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.icon-button:hover{background:var(--button)}.icon-button svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.sun,:root[data-theme="light"] .moon{display:none}:root[data-theme="light"] .sun,:root[data-theme="dark"] .moon{display:block}
-    .intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:70px;padding:92px 0 72px}.intro h1{margin:0;font-size:clamp(3.5rem,7vw,7.4rem);line-height:.92;letter-spacing:-.05em;font-weight:650}.intro p{align-self:end;margin:0;max-width:460px;font-size:1.05rem;line-height:1.6;color:var(--muted)}
-    .mode-switch{display:flex;gap:7px;margin-bottom:28px}.mode-switch button{border:1px solid var(--rule);border-radius:999px;background:transparent;color:var(--faint);font:inherit;font-size:.72rem;padding:7px 10px;cursor:pointer}.mode-switch button.active,.mode-switch button:hover{background:var(--button);color:var(--text)}
-    .collage-wrap{position:relative;padding-bottom:130px}.collage{position:relative;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:72px;gap:18px;isolation:isolate}
-    .object{position:relative;z-index:2;margin:0;overflow:hidden;background:transparent;--shift-x:0px;--shift-y:0px;transform:translate(var(--shift-x),var(--shift-y)) scale(1);transition:transform .62s cubic-bezier(.18,.84,.18,1),filter .38s ease,opacity .38s ease;cursor:default}.object img{display:block;width:100%;height:100%;object-fit:cover}.object.contain img{object-fit:contain}.object.transparent{background:transparent}.object.solid{background:#fff}.object[data-n="1"]{grid-column:1/span 5;grid-row:1/span 5}.object[data-n="2"]{grid-column:6/span 3;grid-row:1/span 3}.object[data-n="3"]{grid-column:9/span 4;grid-row:1/span 6}.object[data-n="4"]{grid-column:1/span 3;grid-row:6/span 4}.object[data-n="5"]{grid-column:4/span 5;grid-row:4/span 5}.object[data-n="6"]{grid-column:9/span 2;grid-row:7/span 3}.object[data-n="7"]{grid-column:11/span 2;grid-row:7/span 5}.object[data-n="8"]{grid-column:1/span 5;grid-row:10/span 4}.object[data-n="9"]{grid-column:6/span 5;grid-row:9/span 5}.object[data-n="10"]{grid-column:11/span 2;grid-row:13/span 3}
-    .object.focused{z-index:10;transform:translate(var(--shift-x),var(--shift-y)) scale(1.07)}
-    .spotlight{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;transition:opacity .35s ease,background-position .45s ease;background:radial-gradient(circle 420px at 50% 50%,rgba(0,0,0,0) 0,rgba(0,0,0,.06) 36%,rgba(0,0,0,.54) 100%)}.spotlight.on{opacity:1}
-    body.mode-deep .collage.focused .object:not(.focused){filter:blur(2px);opacity:.42} body.mode-deep .spotlight{background:radial-gradient(circle 390px at 50% 50%,rgba(0,0,0,0) 0,rgba(0,0,0,.12) 38%,rgba(0,0,0,.64) 100%)}
-    body.mode-falloff .object.focused{transform:translate(var(--shift-x),var(--shift-y)) scale(1.03)} body.mode-falloff .spotlight{background:radial-gradient(circle 510px at 50% 50%,rgba(0,0,0,0) 0,rgba(0,0,0,.08) 32%,rgba(0,0,0,.72) 100%)}
-    .object-label{position:absolute;left:10px;bottom:9px;padding:5px 7px;border-radius:6px;background:rgba(0,0,0,.58);color:#fff;font-size:.65rem;line-height:1;opacity:0;transition:opacity .2s ease}.object.focused .object-label{opacity:1}
-    .key-hint{position:fixed;left:50%;bottom:22px;z-index:20;transform:translateX(-50%);padding:7px 10px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(17,17,17,.62);backdrop-filter:blur(10px);color:rgba(255,255,255,.72);font-size:.68rem;letter-spacing:.02em;opacity:0;pointer-events:none;transition:opacity .22s ease}.key-hint.on{opacity:1}
-    @media(max-width:850px){.site-header,.page{width:min(100% - 36px,1240px)}.desktop-nav{display:none}.site-header{grid-template-columns:1fr auto}.intro{grid-template-columns:1fr;gap:24px;padding:68px 0 48px}.intro h1{font-size:clamp(3.2rem,15vw,5rem)}.mode-switch{display:none}.collage{grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:12px}.object,.object[data-n]{grid-column:auto!important;grid-row:auto!important;aspect-ratio:4/3}.object:nth-child(3n){grid-column:1/-1!important;aspect-ratio:16/9}.spotlight,.key-hint{display:none}.object.focused{transform:none}.object-label{display:none}}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+    .intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:70px;padding:92px 0 60px}.intro h1{margin:0;font-size:clamp(3.5rem,7vw,7.4rem);line-height:.92;letter-spacing:-.05em;font-weight:650}.intro p{align-self:end;margin:0;max-width:460px;font-size:1.05rem;line-height:1.6;color:var(--muted)}
+    .mondrian-wrap{padding:0 0 130px}
+    .mondrian{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(12,62px);gap:10px;background:var(--grid-line);padding:10px;min-height:760px;overflow:hidden}
+    .tile{min-width:0;min-height:0;background:var(--cream)}
+    .red{background:var(--red)}.blue{background:var(--blue)}.yellow{background:var(--yellow)}.black{background:var(--black)}.cream{background:var(--cream)}
+    .t1{grid-column:1/4;grid-row:1/4}.t2{grid-column:4/8;grid-row:1/3}.t3{grid-column:8/10;grid-row:1/5}.t4{grid-column:10/13;grid-row:1/4}.t5{grid-column:1/3;grid-row:4/8}.t6{grid-column:3/6;grid-row:3/7}.t7{grid-column:6/8;grid-row:3/5}.t8{grid-column:6/10;grid-row:5/8}.t9{grid-column:10/13;grid-row:4/7}.t10{grid-column:1/5;grid-row:8/11}.t11{grid-column:5/7;grid-row:7/10}.t12{grid-column:7/11;grid-row:8/12}.t13{grid-column:11/13;grid-row:7/10}.t14{grid-column:1/3;grid-row:11/13}.t15{grid-column:3/7;grid-row:10/13}.t16{grid-column:7/9;grid-row:12/13}.t17{grid-column:9/11;grid-row:12/13}.t18{grid-column:11/13;grid-row:10/13}
+    @media(max-width:850px){.site-header,.page{width:min(100% - 36px,1240px)}.desktop-nav{display:none}.site-header{grid-template-columns:1fr auto}.intro{grid-template-columns:1fr;gap:24px;padding:68px 0 44px}.intro h1{font-size:clamp(3.2rem,15vw,5rem)}.mondrian{grid-template-rows:repeat(12,42px);gap:7px;padding:7px;min-height:0}}
   </style>
 </head>
-<body class="mode-soft">
+<body>
   <header class="site-header"><a class="brand" href="/ai-website-test/">John Rice</a><nav class="desktop-nav" aria-label="Main navigation"><a href="/ai-website-test/work/">Selected Work<span class="nav-description">Products, platforms, games, and new ventures.</span></a><a href="/ai-website-test/career/">Career<span class="nav-description">A chronology of the work and places that shaped it.</span></a><a href="/ai-website-test/barber-game/">The Barber Game<span class="nav-description">Building a product and company from zero.</span></a><a href="/ai-website-test/playground/">Playground<span class="nav-description">Experiments, prototypes, drafts, and curiosities.</span></a></nav><button class="icon-button" id="themeToggle" type="button" aria-label="Switch theme"><svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"></path></svg><svg class="moon" viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"></path></svg></button></header>
   <main class="page">
-    <section class="intro"><h1>Objects in focus.</h1><p>A spatial collage experiment. Hover an object and the composition stays where it is; attention shifts through scale, dimming, and a soft falloff around the object.</p></section>
-    <div class="mode-switch" aria-label="Focus treatment"><button class="active" data-mode="soft">Soft spotlight</button><button data-mode="deep">Deep focus</button><button data-mode="falloff">Light falloff</button></div>
-    <section class="collage-wrap"><div class="collage" id="collage">
-      <figure class="object solid contain" data-n="1"><img src="../assets/publicis/agency-hero-1.png" alt="T-Mobile work overview"><span class="object-label">T-Mobile overview</span></figure>
-      <figure class="object transparent contain" data-n="2"><img src="../assets/microsoft-csg/Mask group.png" alt="Handwriting research"><span class="object-label">Handwriting research</span></figure>
-      <figure class="object" data-n="3"><img src="../assets/bing/featured-bing-03.png" alt="Bing Maps"><span class="object-label">Bing Maps</span></figure>
-      <figure class="object solid contain" data-n="4"><img src="../assets/publicis/featured-agency-05.png" alt="Color palette"><span class="object-label">Color system</span></figure>
-      <figure class="object" data-n="5"><img src="../assets/microsoft-csg/featured-msft-01.png" alt="Home of the Future"><span class="object-label">Home of the Future</span></figure>
-      <figure class="object transparent contain" data-n="6"><img src="../assets/publicis/featured-agency-12.png" alt="Typeface"><span class="object-label">Typeface</span></figure>
-      <figure class="object" data-n="7"><img src="../assets/bing/featured-bing-04.png" alt="Bing games"><span class="object-label">Bing games</span></figure>
-      <figure class="object" data-n="8"><img src="../assets/publicis/featured-agency-04.png" alt="T-Mobile concept store"><span class="object-label">Concept store</span></figure>
-      <figure class="object solid contain" data-n="9"><img src="../assets/microsoft-csg/Canvas Ink Illustration 1.png" alt="Pen and ink exploration"><span class="object-label">Pen and ink</span></figure>
-      <figure class="object" data-n="10"><img src="../assets/bing/featured-bing-05.png" alt="Sharing work"><span class="object-label">Sharing</span></figure>
+    <section class="intro"><h1>Objects in a grid.</h1><p>A large compositional field with eighteen independent rectangles. For now, the objects are only color and proportion—no imagery and no spotlight behavior.</p></section>
+    <section class="mondrian-wrap" aria-label="Mondrian-style grid prototype"><div class="mondrian">
+      <div class="tile red t1"></div><div class="tile cream t2"></div><div class="tile yellow t3"></div><div class="tile blue t4"></div><div class="tile cream t5"></div><div class="tile red t6"></div><div class="tile black t7"></div><div class="tile cream t8"></div><div class="tile yellow t9"></div><div class="tile blue t10"></div><div class="tile cream t11"></div><div class="tile red t12"></div><div class="tile cream t13"></div><div class="tile black t14"></div><div class="tile yellow t15"></div><div class="tile blue t16"></div><div class="tile cream t17"></div><div class="tile red t18"></div>
     </div></section>
   </main>
-  <div class="spotlight" id="spotlight" aria-hidden="true"></div>
-  <div class="key-hint" id="keyHint" aria-hidden="true">← ↑ ↓ → navigate · Esc exit</div>
   <script>
     const themeToggle=document.getElementById('themeToggle');themeToggle.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('theme',next)});
-    const spotlight=document.getElementById('spotlight');const keyHint=document.getElementById('keyHint');const collage=document.getElementById('collage');const objects=[...document.querySelectorAll('.object')];let hoverTimer;let currentObject=null;let keyboardMode=false;
-
-    function centerShift(el){const r=el.getBoundingClientRect();const cx=r.left+r.width/2;const cy=r.top+r.height/2;return {x:window.innerWidth/2-cx,y:window.innerHeight/2-cy};}
-    function focusObject(el,{keyboard=false}={}){currentObject=el;keyboardMode=keyboard;objects.forEach(o=>{o.classList.toggle('focused',o===el);if(o!==el){o.style.setProperty('--shift-x','0px');o.style.setProperty('--shift-y','0px')}});const shift=centerShift(el);el.style.setProperty('--shift-x',`${shift.x}px`);el.style.setProperty('--shift-y',`${shift.y}px`);collage.classList.add('focused');spotlight.classList.add('on');keyHint.classList.add('on')}
-    function clearFocus(){clearTimeout(hoverTimer);objects.forEach(o=>{o.classList.remove('focused');o.style.setProperty('--shift-x','0px');o.style.setProperty('--shift-y','0px')});collage.classList.remove('focused');spotlight.classList.remove('on');keyHint.classList.remove('on');currentObject=null;keyboardMode=false}
-
-    function geometricCenter(el){const r=el.getBoundingClientRect();const sx=parseFloat(getComputedStyle(el).getPropertyValue('--shift-x'))||0;const sy=parseFloat(getComputedStyle(el).getPropertyValue('--shift-y'))||0;return {x:r.left+r.width/2-sx,y:r.top+r.height/2-sy}}
-    function adjacentObject(from,direction){const origin=geometricCenter(from);const candidates=objects.filter(o=>o!==from).map(o=>({el:o,c:geometricCenter(o)})).filter(({c})=>direction==='left'?c.x<origin.x-4:direction==='right'?c.x>origin.x+4:direction==='up'?c.y<origin.y-4:c.y>origin.y+4);if(!candidates.length)return null;const horizontal=direction==='left'||direction==='right';candidates.sort((a,b)=>{const aMain=Math.abs((horizontal?a.c.x:a.c.y)-(horizontal?origin.x:origin.y));const bMain=Math.abs((horizontal?b.c.x:b.c.y)-(horizontal?origin.x:origin.y));const aCross=Math.abs((horizontal?a.c.y:a.c.x)-(horizontal?origin.y:origin.x));const bCross=Math.abs((horizontal?b.c.y:b.c.x)-(horizontal?origin.y:origin.x));return (aMain+aCross*.72)-(bMain+bCross*.72)});return candidates[0].el}
-
-    if(matchMedia('(hover:hover) and (pointer:fine)').matches){objects.forEach(el=>{el.addEventListener('mouseenter',()=>{clearTimeout(hoverTimer);keyboardMode=false;hoverTimer=setTimeout(()=>focusObject(el),140)});el.addEventListener('mouseleave',()=>{if(!keyboardMode)clearFocus()})})}
-
-    document.addEventListener('keydown',e=>{if(!currentObject)return;const map={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};if(e.key==='Escape'){e.preventDefault();clearFocus();return}if(!map[e.key])return;e.preventDefault();const next=adjacentObject(currentObject,map[e.key]);if(next)focusObject(next,{keyboard:true})});
-
-    window.addEventListener('resize',()=>{if(currentObject)focusObject(currentObject,{keyboard:keyboardMode})});
-    document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-mode]').forEach(b=>b.classList.remove('active'));button.classList.add('active');document.body.classList.remove('mode-soft','mode-deep','mode-falloff');document.body.classList.add(`mode-${button.dataset.mode}`)}));
   </script>
 </body>
 </html>
