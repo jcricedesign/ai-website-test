@@ -22,6 +22,7 @@
       --button-bg: rgba(0, 0, 0, 0.045);
       --button-border: rgba(0, 0, 0, 0.09);
       --button-hover: rgba(0, 0, 0, 0.08);
+      --media-bg: #ffffff;
     }
 
     :root[data-theme="dark"] {
@@ -34,6 +35,7 @@
       --button-bg: rgba(255, 255, 255, 0.06);
       --button-border: rgba(255, 255, 255, 0.12);
       --button-hover: rgba(255, 255, 255, 0.1);
+      --media-bg: #171717;
     }
 
     * { box-sizing: border-box; }
@@ -90,7 +92,7 @@
     }
 
     .navigation {
-      padding: 20px 0 150px;
+      padding: 20px 0 120px;
     }
 
     .nav-label {
@@ -149,7 +151,7 @@
 
     .theme-toggle {
       position: fixed;
-      z-index: 10;
+      z-index: 20;
       top: 1.25rem;
       right: 1.25rem;
       width: 2.5rem;
@@ -183,7 +185,156 @@
     :root[data-theme="light"] .sun,
     :root[data-theme="dark"] .moon { display: block; }
 
-    @media (max-width: 700px) {
+    /* Reusable editorial project module */
+    .project-module {
+      position: relative;
+      border-top: 1px solid var(--rule);
+      padding: 22px 0 140px;
+    }
+
+    .project-controls {
+      position: absolute;
+      top: 18px;
+      right: 0;
+      z-index: 5;
+      display: flex;
+      gap: 4px;
+    }
+
+    .project-control {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--faint);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+    }
+
+    .project-control:hover { color: var(--text); background: var(--button-bg); }
+    .project-control:active { transform: scale(.94); }
+
+    .project-editorial {
+      display: grid;
+      grid-template-columns: minmax(240px, .7fr) minmax(0, 1.55fr);
+      gap: 58px;
+      align-items: start;
+      padding-top: 34px;
+    }
+
+    .project-story {
+      position: sticky;
+      top: 34px;
+      min-height: 390px;
+      padding-right: 8px;
+    }
+
+    .project-count {
+      margin: 0 0 18px;
+      font-size: 0.72rem;
+      line-height: 1;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+    }
+
+    .project-story h2 {
+      margin: 0 0 22px;
+      max-width: 410px;
+      font-size: clamp(2rem, 3.1vw, 3.05rem);
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      font-weight: 650;
+    }
+
+    .project-story p {
+      margin: 0;
+      max-width: 410px;
+      font-size: 1rem;
+      line-height: 1.62;
+      color: var(--muted);
+    }
+
+    .project-meta {
+      margin-top: 22px;
+      font-size: 0.75rem;
+      color: var(--faint);
+    }
+
+    .project-stream {
+      display: grid;
+      gap: 34px;
+      justify-items: start;
+    }
+
+    .project-media {
+      width: 80%;
+      margin: 0;
+      opacity: 0;
+      transform: translateY(34px);
+      transition: opacity .65s ease, transform 1.05s cubic-bezier(.18,.88,.22,1.08);
+    }
+
+    .project-media.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .project-frame {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 208px;
+      overflow: hidden;
+      background: var(--media-bg);
+    }
+
+    .project-frame.transparent-media { background: transparent; }
+
+    .project-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .project-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 9px;
+      font-size: 0.72rem;
+      color: var(--faint);
+    }
+
+    .project-module:fullscreen {
+      overflow: auto;
+      background: var(--bg);
+      padding: 42px 64px 80px;
+    }
+
+    .project-module:fullscreen .project-editorial {
+      max-width: 1500px;
+      margin: 0 auto;
+      grid-template-columns: minmax(280px, .72fr) minmax(0, 1.75fr);
+      gap: 76px;
+    }
+
+    .project-module:fullscreen .project-controls {
+      top: 22px;
+      right: 24px;
+    }
+
+    .project-module:fullscreen .project-frame img {
+      max-height: 78vh;
+      object-fit: contain;
+    }
+
+    @media (max-width: 800px) {
       .page { width: min(100% - 36px, 1240px); }
       .hero { min-height: 84vh; padding: 90px 0 70px; }
       .identity { margin-bottom: 30px; }
@@ -193,6 +344,14 @@
       .nav-link { gap: 16px; padding: 26px 0 30px; }
       .nav-title { font-size: clamp(2.3rem, 11vw, 4rem); }
       .nav-meta { font-size: 0.95rem; margin-top: 8px; }
+      .project-module { padding-bottom: 90px; }
+      .project-editorial { grid-template-columns: 1fr; gap: 30px; }
+      .project-story { position: relative; top: auto; min-height: 0; padding-right: 44px; }
+      .project-media { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
     }
   </style>
 </head>
@@ -223,6 +382,24 @@
         <li><a class="nav-link" href="#playground"><span><span class="nav-title">Playground</span><span class="nav-meta">Experiments, prototypes, drafts, and things made because they were interesting.</span></span><span class="nav-arrow" aria-hidden="true">→</span></a></li>
       </ul>
     </nav>
+
+    <section class="project-module" id="selected-work" aria-labelledby="publicis-title">
+      <div class="project-controls">
+        <button class="project-control" id="projectReplay" type="button" aria-label="Replay project sequence" title="Replay">↻</button>
+        <button class="project-control" id="projectFullscreen" type="button" aria-label="Expand project fullscreen" title="Expand fullscreen">↗</button>
+      </div>
+
+      <div class="project-editorial" id="projectEditorial">
+        <aside class="project-story">
+          <p class="project-count" id="projectCount">01 / 05</p>
+          <h2 id="publicis-title">The store became a place to test the brand in public.</h2>
+          <p>T-Mobile’s flagship stores combined physical retail with touch kiosks, wall displays, product storytelling, and changing campaigns. The work behaved less like a single ad and more like an evolving system.</p>
+          <div class="project-meta">Publicis · T-Mobile · 2007–2008</div>
+        </aside>
+
+        <div class="project-stream" id="projectStream"></div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -232,6 +409,128 @@
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.dataset.theme = next;
       localStorage.setItem('theme', next);
+    });
+
+    const publicisItems = [
+      { src: 'assets/publicis/agency-hero-1.png', label: 'T-Mobile / Publicis', kicker: 'Overview' },
+      { src: 'assets/publicis/featured-agency-04.png', label: 'Concept store', kicker: 'Retail + interaction' },
+      { src: 'assets/publicis/featured-agency-05.png', label: 'Color system', kicker: 'Brand' },
+      { src: 'assets/publicis/featured-agency-07.png', label: 'myFaves', kicker: 'Digital' },
+      { src: 'assets/publicis/featured-agency-12.png', label: 'Custom typeface', kicker: 'Type' }
+    ];
+
+    const projectModule = document.getElementById('selected-work');
+    const projectEditorial = document.getElementById('projectEditorial');
+    const projectStream = document.getElementById('projectStream');
+    const projectCount = document.getElementById('projectCount');
+    const projectReplay = document.getElementById('projectReplay');
+    const projectFullscreen = document.getElementById('projectFullscreen');
+    let projectPlayed = false;
+    let projectTimers = [];
+
+    function detectTransparency(img, frame) {
+      img.addEventListener('load', () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d', { willReadFrequently: true });
+          const sampleWidth = Math.min(img.naturalWidth, 420);
+          const scale = sampleWidth / img.naturalWidth;
+          canvas.width = sampleWidth;
+          canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+          let transparent = false;
+          const step = Math.max(4, Math.floor((canvas.width * canvas.height) / 8000)) * 4;
+          for (let i = 3; i < data.length; i += step) {
+            if (data[i] < 250) { transparent = true; break; }
+          }
+          frame.classList.toggle('transparent-media', transparent);
+        } catch (error) {
+          // Keep the normal media background if the browser cannot inspect pixels.
+        }
+      });
+    }
+
+    publicisItems.forEach((item, index) => {
+      const figure = document.createElement('figure');
+      figure.className = 'project-media';
+
+      const frame = document.createElement('div');
+      frame.className = 'project-frame';
+
+      const image = document.createElement('img');
+      image.src = item.src;
+      image.alt = item.label;
+      image.loading = index === 0 ? 'eager' : 'lazy';
+      detectTransparency(image, frame);
+
+      const caption = document.createElement('figcaption');
+      caption.className = 'project-caption';
+      caption.innerHTML = `<span>${item.label}</span><span>${item.kicker}</span>`;
+
+      frame.appendChild(image);
+      figure.appendChild(frame);
+      figure.appendChild(caption);
+      projectStream.appendChild(figure);
+    });
+
+    const projectCards = [...projectStream.querySelectorAll('.project-media')];
+
+    function setProjectCount(index) {
+      projectCount.textContent = `${String(index + 1).padStart(2, '0')} / ${String(projectCards.length).padStart(2, '0')}`;
+    }
+
+    function clearProjectTimers() {
+      projectTimers.forEach(clearTimeout);
+      projectTimers = [];
+    }
+
+    function playProjectSequence() {
+      clearProjectTimers();
+      projectCards.forEach(card => card.classList.remove('visible'));
+      setProjectCount(0);
+
+      requestAnimationFrame(() => {
+        projectCards.forEach((card, index) => {
+          const timer = setTimeout(() => {
+            card.classList.add('visible');
+            setProjectCount(index);
+          }, index * 560);
+          projectTimers.push(timer);
+        });
+      });
+    }
+
+    const projectObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !projectPlayed) {
+          projectPlayed = true;
+          playProjectSequence();
+          projectObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.16 });
+
+    projectObserver.observe(projectEditorial);
+    projectReplay.addEventListener('click', playProjectSequence);
+
+    projectFullscreen.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await projectModule.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (error) {
+        // Fullscreen may be unavailable in some embedded contexts.
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      const expanded = Boolean(document.fullscreenElement);
+      projectFullscreen.textContent = expanded ? '↙' : '↗';
+      projectFullscreen.setAttribute('aria-label', expanded ? 'Exit project fullscreen' : 'Expand project fullscreen');
+      projectFullscreen.setAttribute('title', expanded ? 'Exit fullscreen' : 'Expand fullscreen');
     });
   </script>
 </body>
