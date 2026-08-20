@@ -18,7 +18,7 @@
       --text: #111111;
       --muted: #666663;
       --faint: #989894;
-      --rule: rgba(0, 0, 0, 0.12);
+      --rule: rgba(0, 0, 0, 0.14);
       --button-bg: rgba(0, 0, 0, 0.045);
       --button-border: rgba(0, 0, 0, 0.09);
       --button-hover: rgba(0, 0, 0, 0.08);
@@ -30,14 +30,13 @@
       --text: #f5f5f2;
       --muted: #aaa9a4;
       --faint: #777772;
-      --rule: rgba(255, 255, 255, 0.14);
+      --rule: rgba(255, 255, 255, 0.15);
       --button-bg: rgba(255, 255, 255, 0.06);
       --button-border: rgba(255, 255, 255, 0.12);
       --button-hover: rgba(255, 255, 255, 0.1);
     }
 
     * { box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -50,17 +49,17 @@
     }
 
     .page {
-      width: min(1180px, calc(100% - 64px));
+      width: min(1240px, calc(100% - 96px));
       margin: 0 auto;
     }
 
     .hero {
-      min-height: 92vh;
+      min-height: 88vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      max-width: 980px;
-      padding: 100px 0 120px;
+      max-width: 1180px;
+      padding: 110px 0 100px;
     }
 
     .identity {
@@ -68,58 +67,86 @@
       font-size: 1rem;
       line-height: 1.3;
       font-weight: 650;
-      letter-spacing: -0.015em;
+      letter-spacing: -0.005em;
     }
 
     h1 {
       margin: 0;
-      max-width: 950px;
-      font-size: clamp(3.25rem, 7.4vw, 7.2rem);
-      line-height: 0.96;
-      letter-spacing: -0.062em;
+      max-width: 1120px;
+      font-size: clamp(3.2rem, 6.3vw, 6.7rem);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
       font-weight: 650;
+      text-wrap: balance;
     }
 
     .intro {
-      max-width: 720px;
-      margin: 44px 0 0;
-      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      max-width: 760px;
+      margin: 42px 0 0;
+      font-size: clamp(1.2rem, 1.8vw, 1.5rem);
       line-height: 1.5;
-      letter-spacing: -0.022em;
+      letter-spacing: -0.01em;
       color: var(--muted);
     }
 
-    .outline {
-      padding: 20px 0 150px;
+    .navigation {
+      padding: 24px 0 150px;
     }
 
-    .outline-item {
-      display: grid;
-      grid-template-columns: minmax(150px, 0.7fr) minmax(0, 2fr);
-      gap: 40px;
-      padding: 34px 0 42px;
+    .nav-label {
+      margin: 0 0 24px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+    }
+
+    .nav-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
       border-top: 1px solid var(--rule);
     }
 
-    .outline-item:last-child {
+    .nav-link {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 32px;
+      padding: 34px 0 38px;
       border-bottom: 1px solid var(--rule);
+      color: var(--text);
+      text-decoration: none;
     }
 
-    .outline h2 {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.4;
+    .nav-title {
+      display: block;
+      font-size: clamp(2.6rem, 5.6vw, 5.6rem);
+      line-height: 0.98;
       font-weight: 650;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.035em;
     }
 
-    .outline p {
-      margin: 0;
-      max-width: 650px;
-      font-size: 1.08rem;
-      line-height: 1.55;
-      letter-spacing: -0.012em;
+    .nav-meta {
+      display: block;
+      max-width: 680px;
+      margin-top: 12px;
+      font-size: 1rem;
+      line-height: 1.5;
       color: var(--faint);
+    }
+
+    .nav-arrow {
+      font-size: clamp(2rem, 3vw, 3rem);
+      font-weight: 300;
+      line-height: 1;
+      transition: transform 160ms ease;
+    }
+
+    .nav-link:hover .nav-arrow,
+    .nav-link:focus-visible .nav-arrow {
+      transform: translateX(8px);
     }
 
     .theme-toggle {
@@ -159,13 +186,15 @@
     :root[data-theme="dark"] .moon { display: block; }
 
     @media (max-width: 700px) {
-      .page { width: min(100% - 36px, 1180px); }
-      .hero { min-height: 88vh; padding: 90px 0 80px; }
+      .page { width: min(100% - 36px, 1240px); }
+      .hero { min-height: 84vh; padding: 90px 0 70px; }
       .identity { margin-bottom: 30px; }
-      h1 { font-size: clamp(3rem, 15vw, 5.2rem); }
-      .intro { margin-top: 34px; }
-      .outline { padding-bottom: 90px; }
-      .outline-item { grid-template-columns: 1fr; gap: 12px; padding: 26px 0 30px; }
+      h1 { font-size: clamp(3rem, 14vw, 5rem); }
+      .intro { margin-top: 32px; }
+      .navigation { padding-bottom: 90px; }
+      .nav-link { gap: 16px; padding: 26px 0 30px; }
+      .nav-title { font-size: clamp(2.3rem, 11vw, 4rem); }
+      .nav-meta { font-size: 0.95rem; margin-top: 8px; }
     }
   </style>
 </head>
@@ -183,28 +212,51 @@
   <main class="page">
     <section class="hero">
       <p class="identity">John Rice — Designer</p>
-      <h1>I work on products and businesses while they’re still being figured out.</h1>
+      <h1>I work on products and businesses before the answers are obvious.</h1>
       <p class="intro">I’m a product designer and generalist who works comfortably across research, strategy, interaction, prototyping, and the messy work of turning an idea into something real.</p>
     </section>
 
-    <section class="outline" aria-label="Site outline">
-      <div class="outline-item">
-        <h2>Selected work</h2>
-        <p>A few representative projects across products, platforms, games, and new ventures.</p>
-      </div>
-      <div class="outline-item">
-        <h2>Career</h2>
-        <p>A chronology from publishing and games through Microsoft, Xbox, Mozilla, independent work, and The Barber Game.</p>
-      </div>
-      <div class="outline-item">
-        <h2>The Barber Game</h2>
-        <p>A deeper look at the last two years of building a product and company from zero.</p>
-      </div>
-      <div class="outline-item">
-        <h2>Playground</h2>
-        <p>Experiments, unfinished ideas, prototypes, and things made simply because they were interesting.</p>
-      </div>
-    </section>
+    <nav class="navigation" aria-label="Main navigation">
+      <p class="nav-label">Explore</p>
+      <ul class="nav-list">
+        <li>
+          <a class="nav-link" href="#selected-work">
+            <span>
+              <span class="nav-title">Selected work</span>
+              <span class="nav-meta">Products, platforms, games, and new ventures.</span>
+            </span>
+            <span class="nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" href="#career">
+            <span>
+              <span class="nav-title">Career</span>
+              <span class="nav-meta">A chronology of the work and the places that shaped it.</span>
+            </span>
+            <span class="nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" href="#barber-game">
+            <span>
+              <span class="nav-title">The Barber Game</span>
+              <span class="nav-meta">Building a product and company from zero.</span>
+            </span>
+            <span class="nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" href="#playground">
+            <span>
+              <span class="nav-title">Playground</span>
+              <span class="nav-meta">Experiments, prototypes, drafts, and things made because they were interesting.</span>
+            </span>
+            <span class="nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </main>
 
   <script>
