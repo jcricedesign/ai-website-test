@@ -21,14 +21,14 @@
     .header-actions{display:flex;gap:6px;align-items:center}.icon-button,.menu-button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.icon-button:hover,.menu-button:hover{background:var(--button-bg)}.icon-button svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.sun,:root[data-theme="light"] .moon{display:none}:root[data-theme="light"] .sun,:root[data-theme="dark"] .moon{display:block}.menu-button{display:none;width:auto;padding:0 10px;font-size:.9rem;font-weight:650}
     .mobile-panel{display:none}
 
-    .hero{max-width:1180px;padding:110px 0 110px}.hero h1{margin:0;max-width:1120px;font-size:clamp(3.2rem,6.3vw,6.7rem);line-height:.98;letter-spacing:-.035em;font-weight:650;text-wrap:balance}.intro{max-width:760px;margin:34px 0 0;font-size:clamp(1.2rem,1.8vw,1.5rem);line-height:1.5;letter-spacing:-.01em;color:var(--muted)}
+    .hero{max-width:1180px;padding:110px 0 110px}.hero h1{margin:0;max-width:1120px;font-size:clamp(3.2rem,6.3vw,6.7rem);line-height:.98;letter-spacing:-.035em;font-weight:650;text-wrap:balance}.hero-word{display:inline-block;opacity:0;transform:translateY(.08em);filter:blur(2px);transition:opacity .22s ease,transform .34s cubic-bezier(.2,.8,.2,1),filter .28s ease}.hero-word.visible{opacity:1;transform:none;filter:blur(0)}.intro{max-width:760px;margin:34px 0 0;font-size:clamp(1.2rem,1.8vw,1.5rem);line-height:1.5;letter-spacing:-.01em;color:var(--muted)}
 
     .project-module{position:relative;border-top:1px solid var(--rule);padding:28px 0 140px}.project-controls{position:absolute;top:20px;right:0;z-index:5;display:flex;gap:4px}.project-control{width:34px;height:34px;display:grid;place-items:center;padding:0;border:0;border-radius:999px;background:transparent;color:var(--faint);cursor:pointer;font-size:18px;line-height:1;transition:color 180ms ease,background 180ms ease,transform 180ms ease}.project-control:hover{color:var(--text);background:var(--button-bg)}.project-control:active{transform:scale(.94)}
     .project-editorial{display:grid;grid-template-columns:minmax(230px,.68fr) minmax(0,1.55fr);gap:64px;align-items:start;padding-top:38px}.project-story{position:sticky;top:28px;min-height:340px;padding-right:8px}.project-count{margin:0 0 16px;font-size:.72rem;line-height:1;color:var(--faint);letter-spacing:.08em}.project-story h2{margin:0 0 18px;max-width:390px;font-size:clamp(1.65rem,2.35vw,2.35rem);line-height:1.08;letter-spacing:-.03em;font-weight:650}.project-story p{margin:0;max-width:390px;font-size:.95rem;line-height:1.62;color:var(--muted)}.project-meta{margin-top:20px;font-size:.72rem;color:var(--faint)}.project-stream{display:grid;gap:34px;justify-items:start}.project-media{width:80%;margin:0;opacity:0;transform:translateY(34px);transition:opacity .65s ease,transform 1.05s cubic-bezier(.18,.88,.22,1.08)}.project-media.visible{opacity:1;transform:none}.project-frame{display:grid;place-items:center;width:100%;min-height:208px;overflow:hidden;background:var(--media-bg)}.project-frame.transparent-media{background:transparent}.project-frame img{display:block;width:100%;height:auto}.project-caption{display:flex;justify-content:space-between;gap:16px;padding-top:9px;font-size:.72rem;color:var(--faint)}
     .project-module:fullscreen{overflow:auto;background:var(--bg);padding:42px 64px 80px}.project-module:fullscreen .project-editorial{max-width:1500px;margin:0 auto;grid-template-columns:minmax(280px,.72fr) minmax(0,1.75fr);gap:76px}.project-module:fullscreen .project-controls{top:22px;right:24px}.project-module:fullscreen .project-frame img{max-height:78vh;object-fit:contain}
 
     @media(max-width:850px){.site-header{width:min(100% - 36px,1240px);grid-template-columns:1fr auto;padding:18px 0 14px}.desktop-nav{display:none}.header-actions{grid-column:2}.menu-button{display:grid}.mobile-panel{display:grid;grid-template-rows:0fr;grid-column:1/-1;transition:grid-template-rows .25s ease}.mobile-panel>div{overflow:hidden}.mobile-panel.open{grid-template-rows:1fr}.mobile-nav{padding:20px 0 8px;border-top:1px solid var(--rule);margin-top:12px}.mobile-nav a{display:block;color:var(--text);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--rule);font-size:clamp(1.9rem,9vw,3.3rem);line-height:1;font-weight:650;letter-spacing:-.035em}.mobile-nav small{display:block;margin-top:7px;font-size:.8rem;line-height:1.4;font-weight:450;letter-spacing:0;color:var(--faint)}.page{width:min(100% - 36px,1240px)}.hero{padding:82px 0 90px}.hero h1{font-size:clamp(3rem,14vw,5rem)}.intro{margin-top:32px}.project-module{padding-bottom:90px}.project-editorial{grid-template-columns:1fr;gap:30px}.project-story{position:relative;top:auto;min-height:0;padding-right:44px}.project-media{width:100%}}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}.hero-word{opacity:1!important;transform:none!important;filter:none!important}}
   </style>
 </head>
 <body>
@@ -57,7 +57,7 @@
 
   <main class="page">
     <section class="hero">
-      <h1>I work on products and businesses before the answers are obvious.</h1>
+      <h1 id="heroHeadline" aria-label="I work on products and businesses before the answers are obvious.">I work on products and businesses before the answers are obvious.</h1>
       <p class="intro">I’m a product designer and generalist who works comfortably across research, strategy, interaction, prototyping, and the messy work of turning an idea into something real.</p>
     </section>
 
@@ -79,6 +79,24 @@
   </main>
 
   <script>
+    const heroHeadline=document.getElementById('heroHeadline');
+    const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduceMotion){
+      const headlineText=heroHeadline.textContent.trim();
+      const words=headlineText.split(' ');
+      heroHeadline.textContent='';
+      words.forEach((word,index)=>{
+        const span=document.createElement('span');
+        span.className='hero-word';
+        span.textContent=word;
+        heroHeadline.appendChild(span);
+        if(index<words.length-1) heroHeadline.appendChild(document.createTextNode(' '));
+      });
+      const heroWords=[...heroHeadline.querySelectorAll('.hero-word')];
+      const cadence=[0,90,170,265,345,455,535,625,735,825,935,1025,1115];
+      heroWords.forEach((word,index)=>setTimeout(()=>word.classList.add('visible'),cadence[index] ?? index*95));
+    }
+
     const themeToggle=document.getElementById('themeToggle');
     themeToggle.addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('theme',next)});
     const menuButton=document.getElementById('menuButton'); const mobilePanel=document.getElementById('mobilePanel');
