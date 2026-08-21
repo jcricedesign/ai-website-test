@@ -1,0 +1,111 @@
+Small fish in a big pond.
+
+Xbox and Microsoft were in a weird place in 2011. Apple and Microsoft had essentially flipped market positions. Apple’s hardware and software integration was sophisticated and they were innovating in services and even retail stores. Xbox 360 was a huge success, and it had pioneered online services, but it was getting long in the tooth and it needed a successor.
+
+At the same time, unknown to me, Microsoft had decided to shutter it’s innovation studio called Pioneer Studios. It was located in Pioneer Square, one of the oldest part of Seattle, in a cool renovated brick building. They had created the Zune mp3 player, and were creating another device called Courier; a foldable dual-screen touch tablet with a stylus.
+
+Pioneer studios was over-budget, and after reviewing their progress on Courier, they pulled the plug. In addition, they were closing the studio in Seattle and everyone was expected to come back to the mothership in Redmond.
+
+All of this collided in Studio A in Redmond. A team of super-talented, opinionated product designers from Pioneer Studios with an established team of Xbox designers, PM’s and dev’s who had their own codebase not even connected to Windows at the time. Everyone was scrambling for control while leadership jockeyed for power positions. It was an uncertain, anxious time and one of the worst I’ve spent at a company.
+
+My initial hiring manager left after three months. Within 18 months more than half of the people left. My mentor who got me hired left after the first year citing it as toxic and not workable. It was just too many people trying to decide what they should make. It took until well into 2013 for the dust to settle and teams to start to trust and work together again.
+
+Once things settled it was a fantastic job. At it’s best it provided a safe place to explore ideas, collaborate and build a design discipline. My first team built out SmartGlass, the second-screen companion app to Xbox One.
+
+Smartglass (OSX and Android)
+Xbox One My Games & Apps
+Xbox on Windows
+
+Interaction & Product Design at Xbox 
+I was the Lead Interaction Designer on the Xbox App for Windows 10.
+Why put Xbox on Windows? The Xbox App was initially created in response to a variety of factors:
+Increasing market share of PC gamers year over year
+A compete to Valve’s Steam client
+Gamers increasingly play on more than one device
+Console gamers play PC games as well but have to manage the experiences separately
+The majority of gamers already play on Windows OS
+Games for Windows was unsuccessful and shut down
+Given all the factors above and more there seemed to be an opportunity to develop a unique value prop for PC gamers. We started from the value we had already shipped for Xbox SmartGlass, a companion app to Xbox 360 and Xbox One. SmartGlass had been developed across iOS, Android and Windows devices and integrated friends lists, achievements, game collection, remote-control of the console and more. Taking SmartGlass as a baseline, we brainstormed on how we could bring unique value to the PC gaming experience. In addition to these explorations we scheduled research sessions and gathered technical requirements:
+Requirements
+Launch in tandem with Windows 10
+Integration with the new OneStore app
+Building a responsive UWA (Universal Windows App) that will work on all Windows devices
+Feed the virtuous cycle of play, re-engage, discover
+Keyboard and mouse with optional controller input
+Need to support touch as well on surface and other devices
+Requirements for accessibility
+SmartGlass features rollover but develop unique features for the PC audience
+Brainstorming Features
+We performed a competitive market analysis, gathered research on the PC gaming market and worked together to brainstorm additional features and ideas for the Xbox App. In addition to a competitive analysis we performed field research studies that were done with hardcore and casual PC gamers to discover how they buy, play, socialize and engage in PC gaming. These studies included the participants building their own paper prototype "perfect gaming app" and ranking the features, This proved instrumental in helping prioritize features and in helping shape the mental models and overall Information Architecture. Below is a list of unique value we identified Microsoft and Xbox could bring to both console and PC gamers.
+Game Bar: From within any game users could invoke a screenshot and video capture utility.
+Game Streaming: Xbox One owners could stream any Xbox game to their PC
+Persistent friend's list: Gamers could aggregate their PC and Xbox friends together
+Game DVR: Allow simple editing and sharing of captured content, including outside Xbox's ecosystem
+Purchase games in-app and they stay up to date with updates and drivers
+Manage your collection across all your devices: phone, PC and console
+Search and browse for related games
+Keep up to date with gaming news and pro-gaming
+In this incubation phase we presented several times to the PM and Dev teams getting buy-off for the vision and assembling a preliminary (POR) Plan of Record. From this we could distill an MVP, a Minimum Viable Product. My definition of MVP is a set of a features that provide enough value to customers to enable success. Some people view an MVP as a negative, but I've always interpreted it as the minimum we would be pleased to ship and see successful. The pragmatism of my design philosophy has always been that the MVP is mutable and changes as reality is introduced. Things like development and shipping schedules, lack of manpower or changes in the marketplace. Another very valid reason for a change in MVP, and it's true power, is testing the design with customers and getting the feedback that initial ideas aren't performing as expected.
+Pivoting the MVP
+The first cuts came after costing from engineering and services. Several key components of the app would be missing for launch.
+No game collection or aggregated Most Recently Played
+No editorial news and events
+No in-app purchase; app switch would be required
+We would have no global search
+No advanced DVR editing just basic editing
+Some of these cuts were painful. Losing basic functions like search, game collections or in-app purchase definitely changed the value prop of the app to it's potential customers. How could we absorb these changes and still provide unique value? The app needed to go from a full-featured steam compete to a new MVP.
+We did an inventory of what we still had and it still had unique value but was leaning toward existing Xbox owners more than before. The new MVP was an app focused on Xbox One owners who also PC gamed.
+The Xbox App has all the social features of Xbox One
+The Xbox App lets you stream your content to your PC using the same controller you already own
+Capture, edit and share your PC or Xbox One games anywhere you want
+A New Goal
+We worked on delivering these great features for the Xbox App. With a small design team we struggled to complete all the work provided for a hard launch date as an in-box Windows 10 app. The list of work to do was extensive.
+Responsive UWA Information Architecture and mental model and page patterns
+Messages
+Notifications, including integrating with Windows 10 action center
+Persistent friends list with Party module
+Game Bar UX that would drawn on top of Games, a new features that had never been done before
+Sign-in and Sign Up flows that needed to account for new, existing and old users
+Game streaming component and UX
+App scaling and minimized state
+Reception
+The app came together through the hard work of the design team, talented PM's and Engineers and countless other people in time for it's Windows 10 launch. The Xbox App received accolades at Windows 10 launch as an in-box app that was responsive across all windows PC's and tablets. It received specific callouts in press and reviews for being the first truly responsive UWA on Windows new OS.
+"The Xbox app also serves as a single hub for all of the games on your computer; it even managed to find Broken Age, which I installed via Steam, and you can manually add games as well. You can also start a party chat with people on your friends list, as well as share clips from your Game DVR library on Xbox Live. Overall, it's simply a much more functional offering than the Windows 8 Xbox app."
+The Engadget Windows 10 Review
+https://www.engadget.com/2015/07/28/windows-10-review/
+
+Xbox Smartglass
+
+
+My first team built out SmartGlass, the second-screen companion app to Xbox One.
+
+Xbox SmartGlass was a ground-breaking companion experience to the Xbox 360 and Xbox One consoles. It shipped on iOS, Android and Windows phones and tablets. The app provided access to Xbox Live features like achievements, messages, activity feed and game progress, also acting as a remote control of the console and featured second screen functionality with selected games and content.
+
+My role on Smartglass was as an Interaction Designer as part of the SmartGlass team. I worked on simultaneous features for several iterations of SmartGlass on all clients for two years. The release of the second version of SmartGlass was designed to coincide with the launch of the Xbox One. It included numerous features available only on Xbox: remote control of media content, companion experiences to main screen content, and an interactive help system paired to titles.
+
+My primary task was to translate Xbox One features into their mobile counterparts on phones and tablets, but in addition I endeavored to create a stronger value proposition on mobile when possible. I advocated for strong value both paired to the console and off-console.
+Primary tasks
+Creating information architecture for all platforms
+Creating diagrams and wireframes to drive consensus for Dev and PM partners
+Developing unique feature value by iterating new or expanding on existing features
+Critical Reception
+Xbox SmartGlass received high ratings on both the iOS and Android stores. iOS stayed between 4.5 and 5 stars continuously. In reviews it was quoted as "the perfect companion for my Xbox, both away from home and i the living room" and "the best remote for Xbox One".
+
+Xbox My Games & Apps
+I was the lead designer in addressing customer feedback for the My Games & Apps destination on Xbox One. The previous design was horizontally panning and forced users to navigate past large volumes of content to reach what mattered to them. It offered few ways to filter or sort the content types, and the new solution needed to allow users to quickly move, copy or delete content locally and globally.
+
+Xbox on iWatch
+SmartGlass features imagined moving onto wearable devices. The iWatch could potentially light up features like fast-messaging, turning on the console and even capturing videos and screenshots for sharing.
+Xbox wearable scenarios
+Remotely powering-on Xbox One
+Notifications when favorites come online
+Achievement unlocked notification
+Media control
+Party invites
+
+Xbox Help
+Game Help was a last-minute project with severe design constraints. Xbox One was months from shipping and a help system had been promised for snap on the console but had not been built. I quickly scoped the project for technical and design constraints and devised a system that would scale for both the writing staff who would need to provide the content and game developers who would plug in their manuals for games.
+
+Xbox Clubs
+Xbox Clubs is a cross-platform (Mobile, PC and console) feature combining current constructs in Xbox: people and games, and combined them together to create clubs. Clubs allow users to create their own public or private clubs, set their own social standards for behavior, engage in chat and arrange gameplay sessions. One of the biggest problems is online multiplayer gaming is negative experiences from culture clashes, enabling users to create and police their own culture and clubs will result in longer playtime, higher satisfaction and more social engagement. This project is still ongoing this is a sample of work-in-progress.
+
