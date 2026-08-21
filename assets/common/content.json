@@ -1,0 +1,76 @@
+{
+  "site": {
+    "name": "John Rice — Designer",
+    "url": "https://jcricedesign.github.io/ai-website-test/",
+    "author": "John Rice",
+    "location": "Seattle, WA",
+    "defaultLanguage": "en",
+    "supportedLanguages": ["en", "es"]
+  },
+  "pages": [
+    {
+      "path": "/",
+      "title": "John Rice — Product Designer",
+      "description": "Product designer and generalist working across research, strategy, interaction, prototyping, and 0→1 product work.",
+      "type": "home",
+      "status": "published",
+      "tags": ["product design", "0→1", "research", "strategy", "interaction design", "prototyping"]
+    },
+    {
+      "path": "/about/",
+      "title": "About — John Rice",
+      "description": "A personal history of the curiosity, influences, values, and making that shape John Rice's design work.",
+      "type": "about",
+      "status": "published",
+      "tags": ["about", "design values", "influences", "Seattle"]
+    },
+    {
+      "path": "/career/",
+      "title": "Career — John Rice",
+      "description": "A career across editorial design, Nintendo, Publicis, Xbox, Bing, Mozilla, independent product work, and The Barber Game.",
+      "type": "career",
+      "status": "published",
+      "tags": ["career", "product design", "Microsoft", "Xbox", "Mozilla", "Nintendo", "0→1"]
+    },
+    {
+      "path": "/playground/",
+      "title": "Playground — John Rice",
+      "description": "Ideas, experiments, concepts, drafts, and illustration by product designer John Rice.",
+      "type": "index",
+      "status": "published",
+      "tags": ["experiments", "ideas", "concepts", "illustration", "prototypes"]
+    },
+    {
+      "path": "/playground/features-for-one/",
+      "title": "Features for One — John Rice",
+      "description": "A working credo about personal software, adaptive interfaces, pure experiences, and earning every interruption.",
+      "type": "idea",
+      "status": "working-idea",
+      "tags": ["adaptive software", "personalization", "design principles", "AI", "software"]
+    },
+    {
+      "path": "/playground/babymaker/",
+      "title": "Babymaker — John Rice",
+      "description": "Bespoke babies, designed to specification. A conceptual and absurd visual sequence.",
+      "type": "concept",
+      "status": "published",
+      "tags": ["concept", "absurd", "visual design", "speculative design"]
+    },
+    {
+      "path": "/work/",
+      "title": "Selected Work — John Rice",
+      "description": "Selected product, platform, game, and new-venture work by John Rice.",
+      "type": "work-index",
+      "status": "draft",
+      "tags": ["portfolio", "selected work"]
+    },
+    {
+      "path": "/barber-game/",
+      "title": "The Barber Game — John Rice",
+      "description": "Building a product and company from zero through research, strategy, interaction, prototyping, and product definition.",
+      "type": "case-study",
+      "status": "draft",
+      "tags": ["0→1", "startup", "product design", "research", "The Barber Game"]
+    }
+  ]
+}
