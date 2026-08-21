@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jcricedesign.github.io/ai-website-test/sitemap.xml
+Sitemap: https://www.johnrice.com/sitemap.xml
