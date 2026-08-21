@@ -1,0 +1,56 @@
+name: Custom domain migration
+
+on:
+  push:
+    paths:
+      - '.github/workflows/custom-domain-migration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update site paths and canonical domain
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          paths = [
+              Path('index.html'),
+              Path('404.html'),
+              Path('about/index.html'),
+              Path('career/index.html'),
+              Path('work/index.html'),
+              Path('barber-game/index.html'),
+              Path('playground/index.html'),
+              Path('playground/features-for-one/index.html'),
+              Path('playground/babymaker/index.html'),
+              Path('assets/common/site-shell.js'),
+              Path('assets/common/content.json'),
+          ]
+
+          for path in paths:
+              if not path.exists():
+                  continue
+              text = path.read_text(encoding='utf-8')
+              text = text.replace('https://jcricedesign.github.io/ai-website-test', 'https://www.johnrice.com')
+              text = text.replace('/ai-website-test/', '/')
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit migration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html 404.html about/index.html career/index.html work/index.html barber-game/index.html playground/index.html playground/features-for-one/index.html playground/babymaker/index.html assets/common/site-shell.js assets/common/content.json
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "Migrate site to www.johnrice.com [skip ci]"
+          git push
