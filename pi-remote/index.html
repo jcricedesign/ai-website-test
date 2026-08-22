@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Display">
+<title>Portfolio Display</title>
+<style>
+:root{color-scheme:dark;--bg:#111;--text:#f5f5f2;--muted:#989894;--rule:rgba(255,255,255,.14);--soft:rgba(255,255,255,.07)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"SF Pro Display","Segoe UI",sans-serif}body{min-height:100svh;padding:max(22px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));display:flex;flex-direction:column}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding:2px 0 18px}.brand{font-size:.9rem;font-weight:700;letter-spacing:-.02em}.status{font-size:.72rem;color:var(--muted)}main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:34px 0}.eyebrow{margin:0 0 14px;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}h1{margin:0 0 42px;max-width:330px;font-size:clamp(2.7rem,13vw,4.5rem);line-height:.91;letter-spacing:-.06em}.primary,.secondary{appearance:none;-webkit-appearance:none;width:100%;border:0;border-radius:22px;font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation}.primary{min-height:138px;padding:26px;background:var(--text);color:var(--bg);font-size:1.55rem;letter-spacing:-.035em}.primary:active{transform:scale(.985)}.secondary-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.secondary{min-height:62px;padding:14px;background:var(--soft);color:var(--text);font-size:.9rem}.secondary:active{background:rgba(255,255,255,.12)}button:disabled{opacity:.45;cursor:wait}.feedback{min-height:44px;margin:18px 4px 0;font-size:.82rem;line-height:1.5;color:var(--muted)}.feedback.error{color:#ff9e9e}.foot{border-top:1px solid var(--rule);padding:16px 0 0;font-size:.68rem;line-height:1.5;color:var(--muted)}
+@media(min-width:700px){body{max-width:520px;margin:auto}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand">JR · Display</div><div class="status" id="connection">Checking Pi…</div></header>
+<main>
+<p class="eyebrow">Portfolio display</p>
+<h1>Turn it on.</h1>
+<button class="primary" type="button" data-action="wake">Wake Display</button>
+<div class="secondary-row">
+<button class="secondary" type="button" data-action="refresh">Refresh</button>
+<button class="secondary" type="button" data-action="restart">Restart display</button>
+</div>
+<p class="feedback" id="feedback" aria-live="polite">One tap wakes the TV, selects the Pi, and refreshes the display.</p>
+</main>
+<footer class="foot">Local control · portfolio-pi.local</footer>
+<script>
+const feedback=document.getElementById('feedback'),connection=document.getElementById('connection'),buttons=[...document.querySelectorAll('[data-action]')];
+async function health(){try{const r=await fetch('/health',{cache:'no-store'});connection.textContent=r.ok?'Pi online':'Pi unavailable'}catch(e){connection.textContent='Pi unavailable'}}
+async function act(name){buttons.forEach(b=>b.disabled=true);feedback.classList.remove('error');feedback.textContent=name==='wake'?'Waking display…':name==='refresh'?'Refreshing…':'Restarting display…';try{const r=await fetch('/api/'+name,{method:'POST',cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Action failed');feedback.textContent=d.message||'Done';connection.textContent='Pi online';if(navigator.vibrate)navigator.vibrate(15)}catch(e){feedback.textContent=e.message||'Could not reach the Pi';feedback.classList.add('error');connection.textContent='Check Pi'}finally{buttons.forEach(b=>b.disabled=false)}}
+buttons.forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));health();
+</script>
+</body>
+</html>
