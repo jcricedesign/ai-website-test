@@ -4,35 +4,41 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Display Screensaver — Playground — John Rice</title>
-<meta name="description" content="A geometric idle-state experiment for the portfolio display.">
+<meta name="description" content="A generative waveform idle-state experiment for the portfolio display.">
 <meta name="robots" content="noindex">
 <style>
-:root{color-scheme:dark;--bg:#050505;--stroke:#000;--g1:#151515;--g2:#242424;--g3:#343434;--g4:#484848}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}body{cursor:none}.field{position:fixed;inset:0;overflow:hidden;background:var(--bg)}.shape{position:absolute;will-change:transform;border:6px solid var(--stroke);opacity:.92}.circle{border-radius:50%}.solid{border:0;background:var(--g2);opacity:.78}.line{width:8px!important;border:0;background:var(--stroke);opacity:1}.ring{border:7px solid var(--stroke);opacity:1}.shade1{background:var(--g1)}.shade2{background:var(--g2)}.shade3{background:var(--g3)}.shade4{background:var(--g4)}.sigil{position:absolute;left:50%;top:50%;width:min(15vw,220px);aspect-ratio:1;transform:translate(-50%,-50%);opacity:.18}.sigil:before,.sigil:after{content:"";position:absolute;border:7px solid var(--stroke);border-radius:50%}.sigil:before{width:100%;height:100%;inset:0}.sigil:after{width:34%;height:34%;left:33%;top:33%}.sigil i{position:absolute;left:50%;top:-18%;width:8px;height:136%;background:var(--stroke)}.note{position:fixed;left:28px;bottom:24px;color:#555;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:opacity .4s}.show-note .note{opacity:1}@media(prefers-reduced-motion:reduce){.shape{display:none}.sigil{opacity:.25}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080808}body{cursor:none}canvas{position:fixed;inset:0;width:100%;height:100%;display:block;background:#080808}.note{position:fixed;left:28px;bottom:24px;color:rgba(255,255,255,.22);font:10px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;opacity:0;transition:opacity .35s}.show-note .note{opacity:1}@media(prefers-reduced-motion:reduce){.note{opacity:.4}}
 </style>
 </head>
 <body>
-<div class="field" id="field" aria-label="Slow geometric screensaver experiment">
-  <div class="sigil"><i></i></div>
-  <div class="note">Move or press any key to exit preview</div>
-</div>
+<canvas id="c" aria-label="Slow generative waveform screensaver"></canvas>
+<div class="note">Display screensaver · waveform study</div>
 <script>
-const field=document.getElementById('field');
-const specs=[
- {kind:'ring circle',size:26,x:7,y:-18,vy:.54},
- {kind:'solid circle shade3',size:5,x:78,y:8,vy:.72},
- {kind:'solid shade1',size:18,x:67,y:54,vy:.46},
- {kind:'line',size:32,x:17,y:68,vy:.62},
- {kind:'ring circle',size:11,x:43,y:24,vy:.50},
- {kind:'solid shade4',size:3,x:28,y:42,vy:.68},
- {kind:'solid circle shade2',size:22,x:84,y:-8,vy:.38},
- {kind:'line',size:45,x:58,y:-28,vy:.44}
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+const BG='#080808';
+function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize,{passive:true});resize();
+const STATES=[
+ {name:'Calm',count:24,amp:.16,chaos:.22,thickBias:.18,surgeDensity:.04,hold:24},
+ {name:'Drift',count:22,amp:.30,chaos:.16,thickBias:.30,surgeDensity:.08,hold:26},
+ {name:'Pulse',count:30,amp:.48,chaos:.40,thickBias:.44,surgeDensity:.24,hold:18},
+ {name:'Signal',count:34,amp:.62,chaos:.54,thickBias:.52,surgeDensity:.38,hold:16},
+ {name:'Drift',count:22,amp:.28,chaos:.14,thickBias:.28,surgeDensity:.06,hold:24},
+ {name:'Storm',count:36,amp:.78,chaos:.72,thickBias:.60,surgeDensity:.48,hold:10}
 ];
-const items=specs.map((s,i)=>{const e=document.createElement('div');e.className=`shape ${s.kind}`;if(s.kind.includes('line')){e.style.height=s.size+'vh'}else{e.style.width=s.size+'vw';e.style.height=s.size+'vw'}field.appendChild(e);return{...s,e,phase:i*.9}});
-let last=performance.now();
-function frame(now){const dt=Math.min(32,now-last)/1000;last=now;items.forEach(s=>{s.y+=s.vy*dt;const margin=s.size*.55;if(s.y>100+margin)s.y=-margin;s.phase+=dt*.045;const sway=Math.sin(s.phase)*.45;s.e.style.transform=`translate3d(${s.x+sway}vw,${s.y}vh,0)`});requestAnimationFrame(frame)}
-if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(frame);
-let noteTimer;function activity(){document.body.classList.add('show-note');clearTimeout(noteTimer);noteTimer=setTimeout(()=>document.body.classList.remove('show-note'),1200)}['pointermove','keydown','touchstart'].forEach(evt=>addEventListener(evt,activity,{passive:true}));
+const TRANSITION=8,MAX_WAVES=42;
+const seeds=Array.from({length:MAX_WAVES},()=>({seed:Math.random()*200,phase:Math.random()*Math.PI*2,speedDir:Math.random()<.5?1:-1,freqMult:.6+Math.random()*1.4,lwTier:Math.random(),driftSpeed:(.015+Math.random()*.07)*(Math.random()<.5?1:-1),driftDepth:.3+Math.random()*.7,echoOffset:2+Math.random()*5,echoWeight:.18+Math.random()*.28,doubleEcho:Math.random()<.25,echoOffset2:6+Math.random()*8,echoWeight2:.08+Math.random()*.14,surgeX:.1+Math.random()*.8,surgeW:.06+Math.random()*.20,surgeAmp:1.2+Math.random()*2.0}));
+function sig(x,seed,freq,oct,t){let v=0,a=1,s=0;for(let o=0;o<oct;o++){const f=freq*(o+1);v+=Math.sin(x*f+seed*4.3+o*1.7+t*.6)*a+Math.sin(x*f*1.618+seed*2.9+o*2.3+t*.4)*a*.5+Math.sin(x*f*.731+seed*6.1+o*3.1-t*.3)*a*.25;s+=a*1.75;a*=.52}return v/s}
+function ease(t){return t<.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1}
+function blended(clock){let total=0;for(const s of STATES)total+=s.hold+TRANSITION;let p=clock%total;for(let i=0;i<STATES.length;i++){const A=STATES[i],B=STATES[(i+1)%STATES.length],seg=A.hold+TRANSITION;if(p<=seg){const b=p<A.hold?0:ease((p-A.hold)/TRANSITION),lp=(a,z)=>a+(z-a)*b;return{count:Math.round(lp(A.count,B.count)),amp:lp(A.amp,B.amp),chaos:lp(A.chaos,B.chaos),thickBias:lp(A.thickBias,B.thickBias),surgeDensity:lp(A.surgeDensity,B.surgeDensity)}}p-=seg}return STATES[0]}
+function points(ws,index,count,state,rawT){const t=index/(count-1),mid=Math.max(0,1-Math.pow((t-.46)*2.05,2)),margin=Math.max(32,H*.055),yBase=margin+t*(H-margin*2),baseAmp=(5+mid*Math.min(H*.105,92))*state.amp,chaosFreq=.006*ws.freqMult*(.45+state.chaos*1.8),oct=Math.floor(2+t*3),animT=rawT*.32*ws.speedDir*(.45+state.chaos*.7)+ws.phase,lat=rawT*ws.driftSpeed*ws.driftDepth*W*.09,surge=ws.surgeX<state.surgeDensity*1.35,SAMPLES=Math.max(220,Math.min(440,Math.round(W/4))),pts=[];for(let i=0;i<=SAMPLES;i++){const xf=i/SAMPLES,x=xf*W,nf=xf+lat/W;let d=sig(nf,ws.seed,chaosFreq*SAMPLES,oct,animT);if(surge){const di=Math.abs(xf-ws.surgeX)/ws.surgeW;if(di<1)d*=1+(1-di*di)*ws.surgeAmp}pts.push([x,yBase+d*baseAmp])}return{pts,mid}}
+function stroke(pts,lw,alpha){ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle='#f1f1ef';ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.restore()}
+function drawWave(i,count,state,rawT){const ws=seeds[i%seeds.length],built=points(ws,i,count,state,rawT),pts=built.pts,mid=built.mid,tb=state.thickBias;let lw;if(ws.lwTier<.36-tb*.18)lw=.65+mid*.35;else if(ws.lwTier<.68-tb*.08)lw=1.0+mid*.75+tb*.35;else if(ws.lwTier<.88)lw=1.6+mid*.9+tb*.65;else lw=2.3+mid*1.1+tb*.9;ctx.save();ctx.fillStyle=BG;ctx.beginPath();ctx.moveTo(0,H+8);for(const [x,y] of pts)ctx.lineTo(x,y);ctx.lineTo(W,H+8);ctx.closePath();ctx.fill();ctx.restore();stroke(pts.map(([x,y])=>[x,y+ws.echoOffset]),lw*ws.echoWeight,.42);if(ws.doubleEcho)stroke(pts.map(([x,y])=>[x,y+ws.echoOffset2]),lw*ws.echoWeight2,.20);stroke(pts,lw,.88)}
+let rawT=0,morphClock=0,last=null,raf=0,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function frame(ts){if(last===null)last=ts;const dt=Math.min((ts-last)/1000,.05);last=ts;if(!reduced){rawT+=dt;morphClock+=dt*.55}const state=blended(morphClock);ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);for(let i=0;i<state.count;i++)drawWave(i,state.count,state,rawT);const edge=Math.max(44,H*.07),top=ctx.createLinearGradient(0,0,0,edge);top.addColorStop(0,'rgba(8,8,8,1)');top.addColorStop(1,'rgba(8,8,8,0)');ctx.fillStyle=top;ctx.fillRect(0,0,W,edge);const bottom=ctx.createLinearGradient(0,H-edge,0,H);bottom.addColorStop(0,'rgba(8,8,8,0)');bottom.addColorStop(1,'rgba(8,8,8,1)');ctx.fillStyle=bottom;ctx.fillRect(0,H-edge,W,edge);if(!reduced)raf=requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+let timer;function activity(){document.body.classList.add('show-note');clearTimeout(timer);timer=setTimeout(()=>document.body.classList.remove('show-note'),900)}['pointermove','keydown','touchstart'].forEach(e=>addEventListener(e,activity,{passive:true}));
 </script>
 </body>
 </html>
