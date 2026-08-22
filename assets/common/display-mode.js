@@ -5,13 +5,17 @@
   if (params.get('display') !== '1') return;
 
   const IDLE_MS = 60_000;
-  const START_DWELL_MS = 3_000;
-  const EDGE_DWELL_MIN = 4_000;
-  const EDGE_DWELL_MAX = 8_000;
-  const STEP_MIN = 150;
-  const STEP_MAX = 420;
-  const PAUSE_MIN = 1_800;
-  const PAUSE_MAX = 5_500;
+  const START_DWELL_MS = 2_500;
+  const EDGE_DWELL_MIN = 3_500;
+  const EDGE_DWELL_MAX = 6_500;
+  const STEP_MIN = 420;
+  const STEP_MAX = 900;
+  const MOVE_MIN_MS = 320;
+  const MOVE_MAX_MS = 620;
+  const PAUSE_MIN = 900;
+  const PAUSE_MAX = 2_800;
+  const RECOIL_MIN = 18;
+  const RECOIL_MAX = 55;
   const PAGE_DWELL_MIN = 22_000;
   const PAGE_DWELL_MAX = 38_000;
   const FADE_MS = 450;
@@ -21,6 +25,7 @@
   let idleTimer = null;
   let stepTimer = null;
   let pageTimer = null;
+  let motionFrame = null;
   let active = false;
   let direction = 1;
   let lastPointer = { x: null, y: null };
@@ -28,12 +33,15 @@
   document.documentElement.dataset.displayMode = '1';
 
   const randomBetween = (min, max) => Math.round(min + Math.random() * (max - min));
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
   function clearMotion() {
     if (stepTimer) clearTimeout(stepTimer);
     if (pageTimer) clearTimeout(pageTimer);
+    if (motionFrame) cancelAnimationFrame(motionFrame);
     stepTimer = null;
     pageTimer = null;
+    motionFrame = null;
   }
 
   function setDisplayState(on) {
@@ -75,6 +83,25 @@
     pageTimer = setTimeout(fadeToNextPage, randomBetween(PAGE_DWELL_MIN, PAGE_DWELL_MAX));
   }
 
+  function animateScroll(target, duration, done) {
+    const start = window.scrollY;
+    const distance = target - start;
+    const startTime = performance.now();
+
+    function frame(now) {
+      if (!active) return;
+      const t = Math.min(1, (now - startTime) / duration);
+      window.scrollTo(0, start + distance * easeOutCubic(t));
+      if (t < 1) motionFrame = requestAnimationFrame(frame);
+      else {
+        motionFrame = null;
+        if (done) done();
+      }
+    }
+
+    motionFrame = requestAnimationFrame(frame);
+  }
+
   function takeStep() {
     if (!active) return;
 
@@ -100,8 +127,16 @@
 
     const amount = randomBetween(STEP_MIN, STEP_MAX) * direction;
     const target = Math.max(0, Math.min(bottom, y + amount));
-    window.scrollTo({ top: target, behavior: 'smooth' });
-    scheduleStep(randomBetween(PAUSE_MIN, PAUSE_MAX));
+    const duration = randomBetween(MOVE_MIN_MS, MOVE_MAX_MS);
+
+    animateScroll(target, duration, () => {
+      if (!active) return;
+      const recoil = randomBetween(RECOIL_MIN, RECOIL_MAX) * -direction;
+      const settle = Math.max(0, Math.min(bottom, window.scrollY + recoil));
+      animateScroll(settle, randomBetween(120, 220), () => {
+        scheduleStep(randomBetween(PAUSE_MIN, PAUSE_MAX));
+      });
+    });
   }
 
   function startAttractMode() {
@@ -164,8 +199,6 @@
     }
   });
 
-  // A page navigation created by attract mode should continue the tour
-  // immediately rather than imposing another full idle wait.
   if (sessionStorage.getItem(SESSION_KEY) === '1') {
     setTimeout(startAttractMode, 700);
   } else {
