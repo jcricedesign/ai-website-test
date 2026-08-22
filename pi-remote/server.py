@@ -13,9 +13,14 @@ INDEX = BASE / "index.html"
 DISPLAY_REFRESH = Path("/home/john/bin/display-refresh")
 DISPLAY_RESTART = Path("/home/john/bin/display-restart")
 CEC_CLIENT = Path("/usr/bin/cec-client")
+WTYPE = Path("/usr/bin/wtype")
+WAYLAND_ENV = {"XDG_RUNTIME_DIR": "/run/user/1000", "WAYLAND_DISPLAY": "wayland-0"}
 
 
-def run_command(argv, *, input_text=None, timeout=15):
+def run_command(argv, *, input_text=None, timeout=15, extra_env=None):
+    env = os.environ.copy()
+    if extra_env:
+        env.update(extra_env)
     result = subprocess.run(
         [str(x) for x in argv],
         input=input_text,
@@ -24,6 +29,7 @@ def run_command(argv, *, input_text=None, timeout=15):
         stderr=subprocess.STDOUT,
         timeout=timeout,
         check=False,
+        env=env,
     )
     if result.returncode != 0:
         raise RuntimeError(result.stdout.strip() or f"Command failed: {argv[0]}")
@@ -33,7 +39,6 @@ def run_command(argv, *, input_text=None, timeout=15):
 def wake_tv():
     if not CEC_CLIENT.exists():
         return "CEC not installed"
-    # 'on 0' powers on the TV (logical address 0); 'as' makes the Pi active source.
     return run_command([CEC_CLIENT, "-s", "-d", "1"], input_text="on 0\nas\n", timeout=10)
 
 
@@ -49,12 +54,17 @@ def restart_display():
     return run_command([DISPLAY_RESTART])
 
 
+def send_key(key):
+    if not WTYPE.exists():
+        raise RuntimeError("Presentation controls need wtype installed on the Pi")
+    return run_command([WTYPE, "-k", key], timeout=5, extra_env=WAYLAND_ENV)
+
+
 def action_wake():
     cec_note = ""
     try:
         cec_note = wake_tv()
     except Exception as exc:
-        # A TV/CEC problem should not prevent the display from refreshing.
         cec_note = f"CEC warning: {exc}"
     refresh_note = refresh_display()
     return {"ok": True, "message": "Display ready", "cec": cec_note, "display": refresh_note}
@@ -64,11 +74,15 @@ ACTIONS = {
     "/api/wake": action_wake,
     "/api/refresh": lambda: {"ok": True, "message": "Display refreshed", "display": refresh_display()},
     "/api/restart": lambda: {"ok": True, "message": "Display restarted", "display": restart_display()},
+    "/api/next": lambda: {"ok": True, "message": "Next", "input": send_key("Right")},
+    "/api/back": lambda: {"ok": True, "message": "Back", "input": send_key("Left")},
+    "/api/scroll-up": lambda: {"ok": True, "message": "Scrolled up", "input": send_key("Up")},
+    "/api/scroll-down": lambda: {"ok": True, "message": "Scrolled down", "input": send_key("Down")},
 }
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/0.1"
+    server_version = "PortfolioRemote/0.2"
 
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
@@ -84,7 +98,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
-            self.send_json(200, {"ok": True, "service": "portfolio-remote"})
+            self.send_json(200, {"ok": True, "service": "portfolio-remote", "presentation": WTYPE.exists()})
             return
         if self.path not in ("/", "/index.html"):
             self.send_error(404)
