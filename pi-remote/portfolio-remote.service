@@ -1,6 +1,6 @@
 [Unit]
 Description=Portfolio Display Remote
-After=network-online.target graphical.target
+After=network-online.target
 Wants=network-online.target
 
 [Service]
@@ -8,7 +8,7 @@ Type=simple
 User=john
 WorkingDirectory=/home/john/pi-remote
 ExecStart=/usr/bin/python3 /home/john/pi-remote/server.py
-Restart=on-failure
+Restart=always
 RestartSec=2
 Environment=PORTFOLIO_REMOTE_HOST=0.0.0.0
 Environment=PORTFOLIO_REMOTE_PORT=8765
