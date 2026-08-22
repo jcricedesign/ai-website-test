@@ -12,9 +12,15 @@
   const STEP_MAX = 420;
   const PAUSE_MIN = 1_800;
   const PAUSE_MAX = 5_500;
+  const PAGE_DWELL_MIN = 22_000;
+  const PAGE_DWELL_MAX = 38_000;
+  const FADE_MS = 450;
+  const SESSION_KEY = 'jcr-attract-running';
+  const ROUTES = ['/', '/work/', '/barber-game/'];
 
   let idleTimer = null;
   let stepTimer = null;
+  let pageTimer = null;
   let active = false;
   let direction = 1;
   let lastPointer = { x: null, y: null };
@@ -25,7 +31,9 @@
 
   function clearMotion() {
     if (stepTimer) clearTimeout(stepTimer);
+    if (pageTimer) clearTimeout(pageTimer);
     stepTimer = null;
+    pageTimer = null;
   }
 
   function setDisplayState(on) {
@@ -39,8 +47,32 @@
 
   function scheduleStep(delay) {
     if (!active) return;
-    clearMotion();
+    if (stepTimer) clearTimeout(stepTimer);
     stepTimer = setTimeout(takeStep, delay);
+  }
+
+  function currentRouteIndex() {
+    let path = window.location.pathname;
+    if (!path.endsWith('/')) path += '/';
+    const index = ROUTES.indexOf(path);
+    return index >= 0 ? index : 0;
+  }
+
+  function fadeToNextPage() {
+    if (!active) return;
+    const next = ROUTES[(currentRouteIndex() + 1) % ROUTES.length];
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.body.style.transition = `opacity ${FADE_MS}ms ease`;
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+      window.location.href = `${next}?display=1`;
+    }, FADE_MS);
+  }
+
+  function schedulePageChange() {
+    if (!active) return;
+    if (pageTimer) clearTimeout(pageTimer);
+    pageTimer = setTimeout(fadeToNextPage, randomBetween(PAGE_DWELL_MIN, PAGE_DWELL_MAX));
   }
 
   function takeStep() {
@@ -66,29 +98,29 @@
       return;
     }
 
-    // Move in irregular, wheel-like gestures instead of a continuous crawl.
-    // Browser smooth scrolling supplies the ease/elasticity; randomized step
-    // size and dwell keep the motion from settling into a mechanical rhythm.
     const amount = randomBetween(STEP_MIN, STEP_MAX) * direction;
     const target = Math.max(0, Math.min(bottom, y + amount));
     window.scrollTo({ top: target, behavior: 'smooth' });
-
     scheduleStep(randomBetween(PAUSE_MIN, PAUSE_MAX));
   }
 
   function startAttractMode() {
     if (active) return;
     active = true;
+    sessionStorage.setItem(SESSION_KEY, '1');
     direction = window.scrollY >= maxScroll() - 4 ? -1 : 1;
     setDisplayState(true);
     scheduleStep(START_DWELL_MS);
+    schedulePageChange();
   }
 
   function stopAttractMode() {
     if (!active) return;
     clearMotion();
     active = false;
+    sessionStorage.removeItem(SESSION_KEY);
     setDisplayState(false);
+    document.body.style.opacity = '';
   }
 
   function armIdleTimer() {
@@ -102,7 +134,6 @@
   }
 
   function pointerActivity(event) {
-    // Ignore tiny sensor noise from a stationary mouse on kiosk hardware.
     if (lastPointer.x !== null) {
       const dx = Math.abs(event.clientX - lastPointer.x);
       const dy = Math.abs(event.clientY - lastPointer.y);
@@ -118,15 +149,26 @@
   window.addEventListener('touchstart', userActivity, { passive: true });
   window.addEventListener('keydown', userActivity);
 
-  window.addEventListener('pageshow', armIdleTimer);
+  document.body.style.opacity = '1';
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       clearMotion();
       return;
     }
-    if (active) scheduleStep(1000);
-    else armIdleTimer();
+    if (active) {
+      scheduleStep(1000);
+      schedulePageChange();
+    } else {
+      armIdleTimer();
+    }
   });
 
-  armIdleTimer();
+  // A page navigation created by attract mode should continue the tour
+  // immediately rather than imposing another full idle wait.
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    setTimeout(startAttractMode, 700);
+  } else {
+    armIdleTimer();
+  }
 })();
