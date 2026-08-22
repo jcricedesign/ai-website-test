@@ -7,8 +7,8 @@
 <meta name="description" content="A geometric idle-state experiment for the portfolio display.">
 <meta name="robots" content="noindex">
 <style>
-:root{color-scheme:dark;--bg:#0b0b0b;--fg:#f2f0e8;--dim:rgba(242,240,232,.28)}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}body{cursor:none}.field{position:fixed;inset:0;overflow:hidden;background:var(--bg)}.shape{position:absolute;will-change:transform;border:4px solid var(--dim);opacity:.9}.circle{border-radius:50%}.solid{border:0;background:var(--fg);opacity:.88}.line{width:6px!important;border:0;background:var(--fg);opacity:.28}.ring{border:6px solid var(--fg);opacity:.42}.sigil{position:absolute;left:50%;top:50%;width:min(15vw,220px);aspect-ratio:1;transform:translate(-50%,-50%);opacity:.07}.sigil:before,.sigil:after{content:"";position:absolute;border:6px solid var(--fg);border-radius:50%}.sigil:before{width:100%;height:100%;inset:0}.sigil:after{width:34%;height:34%;left:33%;top:33%}.sigil i{position:absolute;left:50%;top:-18%;width:6px;height:136%;background:var(--fg)}.note{position:fixed;left:28px;bottom:24px;color:rgba(242,240,232,.28);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:opacity .4s}.show-note .note{opacity:1}@media(prefers-reduced-motion:reduce){.shape{display:none}.sigil{opacity:.16}}
+:root{color-scheme:dark;--bg:#050505;--stroke:#000;--g1:#151515;--g2:#242424;--g3:#343434;--g4:#484848}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}body{cursor:none}.field{position:fixed;inset:0;overflow:hidden;background:var(--bg)}.shape{position:absolute;will-change:transform;border:6px solid var(--stroke);opacity:.92}.circle{border-radius:50%}.solid{border:0;background:var(--g2);opacity:.78}.line{width:8px!important;border:0;background:var(--stroke);opacity:1}.ring{border:7px solid var(--stroke);opacity:1}.shade1{background:var(--g1)}.shade2{background:var(--g2)}.shade3{background:var(--g3)}.shade4{background:var(--g4)}.sigil{position:absolute;left:50%;top:50%;width:min(15vw,220px);aspect-ratio:1;transform:translate(-50%,-50%);opacity:.18}.sigil:before,.sigil:after{content:"";position:absolute;border:7px solid var(--stroke);border-radius:50%}.sigil:before{width:100%;height:100%;inset:0}.sigil:after{width:34%;height:34%;left:33%;top:33%}.sigil i{position:absolute;left:50%;top:-18%;width:8px;height:136%;background:var(--stroke)}.note{position:fixed;left:28px;bottom:24px;color:#555;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:opacity .4s}.show-note .note{opacity:1}@media(prefers-reduced-motion:reduce){.shape{display:none}.sigil{opacity:.25}}
 </style>
 </head>
 <body>
@@ -18,16 +18,17 @@
 </div>
 <script>
 const field=document.getElementById('field');
-const palette=['#f2f0e8','#ef4b3f','#f0c541','#4c72ff','#4fa36c'];
 const specs=[
  {kind:'ring circle',size:26,x:7,y:-18,vy:.54},
- {kind:'solid circle',size:5,x:78,y:8,vy:.72,color:2},
- {kind:'shape',size:18,x:67,y:54,vy:.46,color:3},
+ {kind:'solid circle shade3',size:5,x:78,y:8,vy:.72},
+ {kind:'solid shade1',size:18,x:67,y:54,vy:.46},
  {kind:'line',size:32,x:17,y:68,vy:.62},
- {kind:'ring circle',size:11,x:43,y:24,vy:.50,color:1},
- {kind:'solid',size:3,x:28,y:42,vy:.68,color:4}
+ {kind:'ring circle',size:11,x:43,y:24,vy:.50},
+ {kind:'solid shade4',size:3,x:28,y:42,vy:.68},
+ {kind:'solid circle shade2',size:22,x:84,y:-8,vy:.38},
+ {kind:'line',size:45,x:58,y:-28,vy:.44}
 ];
-const items=specs.map((s,i)=>{const e=document.createElement('div');e.className=`shape ${s.kind}`;if(s.kind.includes('line')){e.style.height=s.size+'vh'}else{e.style.width=s.size+'vw';e.style.height=s.size+'vw'}if(s.color!=null){if(s.kind.includes('solid')||s.kind.includes('line'))e.style.background=palette[s.color];else e.style.borderColor=palette[s.color]}field.appendChild(e);return{...s,e,phase:i*.9}});
+const items=specs.map((s,i)=>{const e=document.createElement('div');e.className=`shape ${s.kind}`;if(s.kind.includes('line')){e.style.height=s.size+'vh'}else{e.style.width=s.size+'vw';e.style.height=s.size+'vw'}field.appendChild(e);return{...s,e,phase:i*.9}});
 let last=performance.now();
 function frame(now){const dt=Math.min(32,now-last)/1000;last=now;items.forEach(s=>{s.y+=s.vy*dt;const margin=s.size*.55;if(s.y>100+margin)s.y=-margin;s.phase+=dt*.045;const sway=Math.sin(s.phase)*.45;s.e.style.transform=`translate3d(${s.x+sway}vw,${s.y}vh,0)`});requestAnimationFrame(frame)}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(frame);
