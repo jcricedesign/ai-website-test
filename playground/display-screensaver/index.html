@@ -20,23 +20,44 @@ const BG='#080808';
 function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
 addEventListener('resize',resize,{passive:true});resize();
 const STATES=[
- {name:'Calm',count:24,amp:.16,chaos:.22,thickBias:.18,surgeDensity:.04,hold:24},
- {name:'Drift',count:22,amp:.30,chaos:.16,thickBias:.30,surgeDensity:.08,hold:26},
- {name:'Pulse',count:30,amp:.48,chaos:.40,thickBias:.44,surgeDensity:.24,hold:18},
- {name:'Signal',count:34,amp:.62,chaos:.54,thickBias:.52,surgeDensity:.38,hold:16},
- {name:'Drift',count:22,amp:.28,chaos:.14,thickBias:.28,surgeDensity:.06,hold:24},
- {name:'Storm',count:36,amp:.78,chaos:.72,thickBias:.60,surgeDensity:.48,hold:10}
+ {name:'Drift',count:24,amp:.42,chaos:.24,thickBias:.30,surgeDensity:.10,hold:16},
+ {name:'Pulse',count:30,amp:.78,chaos:.48,thickBias:.48,surgeDensity:.30,hold:18},
+ {name:'Signal',count:36,amp:1.05,chaos:.66,thickBias:.58,surgeDensity:.52,hold:16},
+ {name:'Calm',count:23,amp:.30,chaos:.18,thickBias:.22,surgeDensity:.06,hold:18},
+ {name:'Storm',count:39,amp:1.30,chaos:.90,thickBias:.72,surgeDensity:.72,hold:10}
 ];
-const TRANSITION=8,MAX_WAVES=42;
-const seeds=Array.from({length:MAX_WAVES},()=>({seed:Math.random()*200,phase:Math.random()*Math.PI*2,speedDir:Math.random()<.5?1:-1,freqMult:.6+Math.random()*1.4,lwTier:Math.random(),driftSpeed:(.015+Math.random()*.07)*(Math.random()<.5?1:-1),driftDepth:.3+Math.random()*.7,echoOffset:2+Math.random()*5,echoWeight:.18+Math.random()*.28,doubleEcho:Math.random()<.25,echoOffset2:6+Math.random()*8,echoWeight2:.08+Math.random()*.14,surgeX:.1+Math.random()*.8,surgeW:.06+Math.random()*.20,surgeAmp:1.2+Math.random()*2.0}));
+const TRANSITION=7,MAX_WAVES=42;
+const seeds=Array.from({length:MAX_WAVES},()=>({seed:Math.random()*200,phase:Math.random()*Math.PI*2,speedDir:Math.random()<.5?1:-1,freqMult:.65+Math.random()*1.15,lwTier:Math.random(),driftSpeed:(.018+Math.random()*.065)*(Math.random()<.5?1:-1),driftDepth:.35+Math.random()*.65,echoOffset:2+Math.random()*5,echoWeight:.18+Math.random()*.28,doubleEcho:Math.random()<.30,echoOffset2:6+Math.random()*8,echoWeight2:.08+Math.random()*.14,surgeX:.15+Math.random()*.70,surgeW:.07+Math.random()*.17,surgeAmp:1.8+Math.random()*3.2,focusBias:(Math.random()-.5)*.18}));
 function sig(x,seed,freq,oct,t){let v=0,a=1,s=0;for(let o=0;o<oct;o++){const f=freq*(o+1);v+=Math.sin(x*f+seed*4.3+o*1.7+t*.6)*a+Math.sin(x*f*1.618+seed*2.9+o*2.3+t*.4)*a*.5+Math.sin(x*f*.731+seed*6.1+o*3.1-t*.3)*a*.25;s+=a*1.75;a*=.52}return v/s}
 function ease(t){return t<.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1}
 function blended(clock){let total=0;for(const s of STATES)total+=s.hold+TRANSITION;let p=clock%total;for(let i=0;i<STATES.length;i++){const A=STATES[i],B=STATES[(i+1)%STATES.length],seg=A.hold+TRANSITION;if(p<=seg){const b=p<A.hold?0:ease((p-A.hold)/TRANSITION),lp=(a,z)=>a+(z-a)*b;return{count:Math.round(lp(A.count,B.count)),amp:lp(A.amp,B.amp),chaos:lp(A.chaos,B.chaos),thickBias:lp(A.thickBias,B.thickBias),surgeDensity:lp(A.surgeDensity,B.surgeDensity)}}p-=seg}return STATES[0]}
-function points(ws,index,count,state,rawT){const t=index/(count-1),mid=Math.max(0,1-Math.pow((t-.46)*2.05,2)),margin=Math.max(32,H*.055),yBase=margin+t*(H-margin*2),baseAmp=(5+mid*Math.min(H*.105,92))*state.amp,chaosFreq=.006*ws.freqMult*(.45+state.chaos*1.8),oct=Math.floor(2+t*3),animT=rawT*.32*ws.speedDir*(.45+state.chaos*.7)+ws.phase,drift=rawT*ws.driftSpeed*ws.driftDepth*.025,surge=ws.surgeX<state.surgeDensity*1.35,SAMPLES=Math.max(260,Math.min(520,Math.round(W/3.5))),pts=[];for(let i=0;i<=SAMPLES;i++){const xf=i/SAMPLES,x=xf*W,nf=xf+drift;let d=sig(nf,ws.seed,chaosFreq*SAMPLES,oct,animT);if(surge){const di=Math.abs(xf-ws.surgeX)/ws.surgeW;if(di<1)d*=1+(1-di*di)*ws.surgeAmp}pts.push([x,yBase+d*baseAmp])}return{pts,mid}}
+function points(ws,index,count,state,rawT){
+  const t=index/(count-1),mid=Math.max(0,1-Math.pow((t-.46)*2.0,2));
+  const margin=Math.max(28,H*.05),yBase=margin+t*(H-margin*2);
+  const baseAmp=(10+mid*Math.min(H*.20,180))*state.amp;
+  const chaosFreq=.0042*ws.freqMult*(.55+state.chaos*1.5);
+  const oct=Math.floor(2+t*3.5);
+  const animT=rawT*.55*ws.speedDir*(.5+state.chaos*.8)+ws.phase;
+  const drift=rawT*ws.driftSpeed*ws.driftDepth*.018;
+  const SAMPLES=Math.max(260,Math.min(520,Math.round(W/3.5)));
+  const focusCenter=.5+ws.focusBias+Math.sin(rawT*.035+ws.phase)*.08;
+  const focusWidth=.18+state.chaos*.08;
+  const pts=[];
+  for(let i=0;i<=SAMPLES;i++){
+    const xf=i/SAMPLES,x=xf*W,nf=xf+drift;
+    let d=sig(nf,ws.seed,chaosFreq*280,oct,animT);
+    const dist=(xf-focusCenter)/focusWidth;
+    const focus=.16+Math.exp(-dist*dist)*1.35;
+    d*=focus;
+    if(ws.surgeX<state.surgeDensity*1.35){const di=Math.abs(xf-ws.surgeX)/ws.surgeW;if(di<1)d*=1+(1-di*di)*ws.surgeAmp}
+    pts.push([x,yBase+d*baseAmp]);
+  }
+  return{pts,mid};
+}
 function stroke(pts,lw,alpha){ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle='#f1f1ef';ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.restore()}
-function drawWave(i,count,state,rawT){const ws=seeds[i%seeds.length],built=points(ws,i,count,state,rawT),pts=built.pts,mid=built.mid,tb=state.thickBias;let lw;if(ws.lwTier<.36-tb*.18)lw=.65+mid*.35;else if(ws.lwTier<.68-tb*.08)lw=1.0+mid*.75+tb*.35;else if(ws.lwTier<.88)lw=1.6+mid*.9+tb*.65;else lw=2.3+mid*1.1+tb*.9;ctx.save();ctx.fillStyle=BG;ctx.beginPath();ctx.moveTo(0,H+8);for(const [x,y] of pts)ctx.lineTo(x,y);ctx.lineTo(W,H+8);ctx.closePath();ctx.fill();ctx.restore();stroke(pts.map(([x,y])=>[x,y+ws.echoOffset]),lw*ws.echoWeight,.42);if(ws.doubleEcho)stroke(pts.map(([x,y])=>[x,y+ws.echoOffset2]),lw*ws.echoWeight2,.20);stroke(pts,lw,.88)}
-let rawT=0,morphClock=0,last=null,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function frame(ts){if(last===null)last=ts;const dt=Math.min((ts-last)/1000,.05);last=ts;if(!reduced){rawT+=dt;morphClock+=dt*.55}const state=blended(morphClock);ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);for(let i=0;i<state.count;i++)drawWave(i,state.count,state,rawT);const edge=Math.max(44,H*.07),top=ctx.createLinearGradient(0,0,0,edge);top.addColorStop(0,'rgba(8,8,8,1)');top.addColorStop(1,'rgba(8,8,8,0)');ctx.fillStyle=top;ctx.fillRect(0,0,W,edge);const bottom=ctx.createLinearGradient(0,H-edge,0,H);bottom.addColorStop(0,'rgba(8,8,8,0)');bottom.addColorStop(1,'rgba(8,8,8,1)');ctx.fillStyle=bottom;ctx.fillRect(0,H-edge,W,edge);if(!reduced)requestAnimationFrame(frame)}
+function drawWave(i,count,state,rawT){const ws=seeds[i%seeds.length],built=points(ws,i,count,state,rawT),pts=built.pts,mid=built.mid,tb=state.thickBias;let lw;if(ws.lwTier<.34-tb*.16)lw=.7+mid*.4;else if(ws.lwTier<.64-tb*.08)lw=1.1+mid*.85+tb*.4;else if(ws.lwTier<.86)lw=1.8+mid*1.0+tb*.75;else lw=2.7+mid*1.3+tb*1.0;ctx.save();ctx.fillStyle=BG;ctx.beginPath();ctx.moveTo(0,H+8);for(const [x,y] of pts)ctx.lineTo(x,y);ctx.lineTo(W,H+8);ctx.closePath();ctx.fill();ctx.restore();stroke(pts.map(([x,y])=>[x,y+ws.echoOffset]),lw*ws.echoWeight,.42);if(ws.doubleEcho)stroke(pts.map(([x,y])=>[x,y+ws.echoOffset2]),lw*ws.echoWeight2,.20);stroke(pts,lw,.92)}
+let rawT=0,morphClock=12,last=null,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function frame(ts){if(last===null)last=ts;const dt=Math.min((ts-last)/1000,.05);last=ts;if(!reduced){rawT+=dt;morphClock+=dt*.72}const state=blended(morphClock);ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);for(let i=0;i<state.count;i++)drawWave(i,state.count,state,rawT);const edge=Math.max(44,H*.07),top=ctx.createLinearGradient(0,0,0,edge);top.addColorStop(0,'rgba(8,8,8,1)');top.addColorStop(1,'rgba(8,8,8,0)');ctx.fillStyle=top;ctx.fillRect(0,0,W,edge);const bottom=ctx.createLinearGradient(0,H-edge,0,H);bottom.addColorStop(0,'rgba(8,8,8,0)');bottom.addColorStop(1,'rgba(8,8,8,1)');ctx.fillStyle=bottom;ctx.fillRect(0,H-edge,W,edge);if(!reduced)requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
 let timer;function activity(){document.body.classList.add('show-note');clearTimeout(timer);timer=setTimeout(()=>document.body.classList.remove('show-note'),900)}['pointermove','keydown','touchstart'].forEach(e=>addEventListener(e,activity,{passive:true}));
 </script>
