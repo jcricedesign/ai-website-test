@@ -1,7 +1,9 @@
 (()=>{
 const ROOT='/',BASE='https://www.johnrice.com';
 const LANGS=['en','es','fr'];
-let lang=LANGS.includes(localStorage.getItem('language'))?localStorage.getItem('language'):'en';
+const savedLanguage=localStorage.getItem('language');
+const browserLanguage=(navigator.languages?.[0]||navigator.language||'en').toLowerCase().split('-')[0];
+let lang=LANGS.includes(savedLanguage)?savedLanguage:(LANGS.includes(browserLanguage)?browserLanguage:'en');
 
 const metadata={
 '/':{
