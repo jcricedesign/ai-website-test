@@ -1,0 +1,29 @@
+name: One-time browser language patch
+on:
+  push:
+    paths:
+      - '.github/workflows/browser-language.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prefer browser language on first visit
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('assets/common/site-shell.js')
+          s=p.read_text()
+          old="let lang=LANGS.includes(localStorage.getItem('language'))?localStorage.getItem('language'):'en';"
+          new="const savedLanguage=localStorage.getItem('language');\nconst browserLanguage=(navigator.languages?.[0]||navigator.language||'en').toLowerCase().split('-')[0];\nlet lang=LANGS.includes(savedLanguage)?savedLanguage:(LANGS.includes(browserLanguage)?browserLanguage:'en');"
+          if old not in s:
+              raise SystemExit('Expected language initialization not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+          git config user.name 'JCRICE'
+          git config user.email '93212999+jcricedesign@users.noreply.github.com'
+          git add assets/common/site-shell.js
+          git commit -m 'Use browser language on first visit'
+          git push
