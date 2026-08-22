@@ -1,0 +1,45 @@
+name: One-time i18n patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/i18n-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch translation runtime
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('assets/common/site-shell.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("if(key){node.nodeValue=preserveWhitespace(node.nodeValue||'',tr(key));return}","if(key){const desired=preserveWhitespace(node.nodeValue||'',tr(key));if(node.nodeValue!==desired)node.nodeValue=desired;return}")
+          s=s.replace("textKeys.set(node,{type:'playground',count,filterKey});node.nodeValue=preserveWhitespace(node.nodeValue||'',formatStatus({type:'playground',count,filterKey}));return", "textKeys.set(node,{type:'playground',count,filterKey});const desired=preserveWhitespace(node.nodeValue||'',formatStatus({type:'playground',count,filterKey}));if(node.nodeValue!==desired)node.nodeValue=desired;return")
+          s=s.replace("textKeys.set(node,{type:'mode',modeKey});node.nodeValue=preserveWhitespace(node.nodeValue||'',formatStatus({type:'mode',modeKey}));return", "textKeys.set(node,{type:'mode',modeKey});const desired=preserveWhitespace(node.nodeValue||'',formatStatus({type:'mode',modeKey}));if(node.nodeValue!==desired)node.nodeValue=desired;return")
+          s=s.replace("function retranslateKnownStatus(node){const info=textKeys.get(node);if(info&&typeof info==='object')node.nodeValue=preserveWhitespace(node.nodeValue||'',formatStatus(info))}","function retranslateKnownStatus(node){const info=textKeys.get(node);if(info&&typeof info==='object'){const desired=preserveWhitespace(node.nodeValue||'',formatStatus(info));if(node.nodeValue!==desired)node.nodeValue=desired}}")
+          old="function translateAttrs(el){['aria-label','title','alt','placeholder'].forEach(name=>{if(!el.hasAttribute?.(name))return;let map=attrKeys.get(el);if(!map){map={};attrKeys.set(el,map)}let key=map[name];if(!key){key=canonical(el.getAttribute(name)||'');if(key)map[name]=key}if(key)el.setAttribute(name,tr(key))})}"
+          new="function translateAttrs(el){['aria-label','title','alt','placeholder'].forEach(name=>{if(!el.hasAttribute?.(name))return;let map=attrKeys.get(el);if(!map){map={};attrKeys.set(el,map)}let key=map[name],value=el.getAttribute(name)||'';if(!key){key=canonical(value);if(key)map[name]=key}if(key){const desired=tr(key);if(value!==desired)el.setAttribute(name,desired);return}if(name==='alt'&&value.includes(' — ')){const parts=value.split(' — '),desired=parts.map(part=>tr(canonical(part)||part)).join(' — ');if(value!==desired)el.setAttribute(name,desired)}else if(name==='alt'){const m=value.match(/^Bespoke Baby Brain concept (\\d+)$/);if(m){const desired=lang==='es'?`Concepto Bespoke Baby Brain ${m[1]}`:lang==='fr'?`Concept Bespoke Baby Brain ${m[1]}`:value;if(value!==desired)el.setAttribute(name,desired)}}})}"
+          if old not in s: raise SystemExit('translateAttrs pattern not found')
+          s=s.replace(old,new)
+          s=s.replace("function applyMetadata(){const path=normalizedPath(),m=metadata[path]||metadata[path.replace(/\\/$/,'')+'.html'];if(!m)return;", "function applyMetadata(){const path=normalizedPath();let m=metadata[path]||metadata[path.replace(/\\/$/,'')+'.html'];if(!m&&document.querySelector('.code')?.textContent.trim()==='404')m=metadata['/404.html'];if(!m)return;")
+          marker="document.addEventListener('keydown',e=>{if(e.key==='Escape'&&langButton.getAttribute('aria-expanded')==='true'){setLanguageMenu(false);langButton.focus();return}if(e.key==='Escape'&&menu.getAttribute('aria-expanded')==='true'){setMenu(false);menu.focus()}});"
+          s=s.replace(marker,marker+"\ndocument.addEventListener('fullscreenchange',()=>setTimeout(()=>walk(document.body),0));")
+          p.write_text(s,encoding='utf-8')
+          PY
+          node --check assets/common/site-shell.js
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/common/site-shell.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Harden translation runtime [skip ci]"
+          git push
