@@ -3,6 +3,7 @@
   let timer=null;
   let pending=null;
   let selected=null;
+  let controlFrame=null;
   const HOLD_MS=480;
   const MOVE_TOLERANCE=12;
 
@@ -38,9 +39,22 @@
   function setAngle(o,a){a=((a%360)+360)%360;o.dataset.angle=String(a);o.style.setProperty('--angle',a+'deg')}
   function clearPending(){if(timer){clearTimeout(timer);timer=null}pending=null}
 
+  function makeControlFrame(o){
+    const r=o.getBoundingClientRect();
+    // Use a rotation-invariant radius around the object's center. The controls
+    // remain attached to this frame rather than chasing the changing bounds of
+    // an asymmetric shape as it rotates.
+    return{
+      cx:r.left+r.width/2,
+      cy:r.top+r.height/2,
+      radius:Math.hypot(r.width,r.height)*.5*1.34
+    };
+  }
+
   function enter(o){
     clearPending();
     if(selected&&selected!==o)exit();
+    controlFrame=makeControlFrame(o);
     selected=o;
     document.body.classList.add('transform-mode');
     o.classList.remove('edge-near','magnetic');
@@ -55,19 +69,22 @@
     selected.classList.remove('transform-selected','rotation-snap');
     selected.style.zIndex='';
     selected=null;
+    controlFrame=null;
     panel.classList.remove('visible');
     document.body.classList.remove('transform-mode');
   }
 
   function positionPanel(){
-    if(!selected)return;
-    const r=selected.getBoundingClientRect();
+    if(!selected||!controlFrame)return;
     const pw=panel.getBoundingClientRect().width||286;
     const ph=panel.getBoundingClientRect().height||76;
-    let left=r.left+r.width/2-pw/2;
-    let top=r.bottom+32;
+    const gap=34;
+    let left=controlFrame.cx-pw/2;
+    let top=controlFrame.cy+controlFrame.radius+gap;
     left=Math.max(20,Math.min(window.innerWidth-pw-20,left));
-    if(top+ph>window.innerHeight-24)top=r.top-ph-32;
+    if(top+ph>window.innerHeight-24){
+      top=controlFrame.cy-controlFrame.radius-ph-gap;
+    }
     panel.style.left=left+'px';
     panel.style.top=Math.max(20,top)+'px';
   }
@@ -77,7 +94,8 @@
     setAngle(selected,angleOf(selected)+delta);
     selected.classList.add('rotation-snap');
     setTimeout(()=>{if(selected)selected.classList.remove('rotation-snap')},120);
-    requestAnimationFrame(positionPanel);
+    // Deliberately do not reposition the controls here. They are attached to
+    // the stable object frame established when transform mode began.
   }
 
   requestAnimationFrame(()=>{
@@ -100,16 +118,12 @@
     if(Math.hypot(e.clientX-pending.x,e.clientY-pending.y)>MOVE_TOLERANCE)clearPending();
   },true);
 
-  // Important: never swallow the original object's pointerup/cancel. The main
-  // sandbox must receive it so its drag pointer is always released cleanly.
   function finish(e){
     if(pending&&pending.id===e.pointerId)clearPending();
   }
   stage.addEventListener('pointerup',finish,true);
   stage.addEventListener('pointercancel',finish,true);
 
-  // Use pointerup directly instead of click; this is much more dependable on
-  // iPad after custom pointer handling.
   panel.addEventListener('pointerdown',e=>{
     const b=e.target.closest('button');
     if(!b)return;
@@ -131,5 +145,7 @@
     if(b)b.classList.remove('pressed');
   });
 
-  window.addEventListener('resize',positionPanel);
+  window.addEventListener('resize',()=>{
+    if(selected){controlFrame=makeControlFrame(selected);positionPanel()}
+  });
 })();
