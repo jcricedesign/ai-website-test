@@ -6,6 +6,12 @@
   const MIN_DISPLAY_HEIGHT = 500;
   if (params.get('display') !== '1' || innerWidth < MIN_DISPLAY_WIDTH || innerHeight < MIN_DISPLAY_HEIGHT) return;
 
+  // Display Mode is a singleton. Some pages may reach this script through
+  // more than one loader; only the first instance is allowed to initialize
+  // polling, event listeners, screensaver state, and presentation controls.
+  if (window.__JCR_DISPLAY_MODE_ACTIVE__) return;
+  window.__JCR_DISPLAY_MODE_ACTIVE__ = true;
+
   const ROUTES = ['/', '/work/', '/barber-game/', '/career/', '/playground/'];
   const NAMED_ROUTES = {
     w: '/work/',
