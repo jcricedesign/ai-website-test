@@ -23,18 +23,19 @@
     const style = document.createElement('style');
     style.textContent = `
       #jcr-display-feedback{
-        position:fixed;left:50%;bottom:7vh;z-index:2147483647;
-        transform:translate(-50%,28px);opacity:0;pointer-events:none;
-        min-width:360px;max-width:min(82vw,1100px);padding:28px 44px 30px;
-        border:2px solid rgba(255,255,255,.20);border-radius:999px;
+        position:fixed;left:50%;bottom:6vh;z-index:2147483647;
+        transform:translate(-50%,36px);opacity:0;pointer-events:none;
+        box-sizing:border-box;width:min(76vw,1200px);min-height:16vh;
+        padding:3.2vh 5vw;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        border:2px solid rgba(255,255,255,.20);border-radius:3vh;
         background:rgba(0,0,0,.90);color:#fff;text-align:center;
         font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
         transition:opacity .18s ease,transform .22s ease;
         box-shadow:0 16px 50px rgba(0,0,0,.38)
       }
       #jcr-display-feedback.jcr-visible{opacity:1;transform:translate(-50%,0)}
-      #jcr-display-feedback .jcr-feedback-label{font-size:36px;line-height:1.05;font-weight:800;letter-spacing:.10em;text-transform:uppercase}
-      #jcr-display-feedback .jcr-feedback-detail{margin-top:10px;font-size:26px;line-height:1.15;color:rgba(255,255,255,.72)}
+      #jcr-display-feedback .jcr-feedback-label{font-size:clamp(54px,7vh,92px);line-height:1;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+      #jcr-display-feedback .jcr-feedback-detail{margin-top:1.4vh;font-size:clamp(30px,3.6vh,52px);line-height:1.1;color:rgba(255,255,255,.72)}
     `;
     document.head.appendChild(style);
 
