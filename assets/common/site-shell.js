@@ -1,4 +1,16 @@
 (()=>{
+// Display Mode is a site-wide capability. Any normal page opened with
+// ?display=1 automatically loads the shared TV/Atlas controller.
+if (new URLSearchParams(location.search).get('display') === '1') {
+  const existing = document.querySelector('script[data-jcr-display-mode]');
+  if (!existing) {
+    const script = document.createElement('script');
+    script.src = '/assets/common/display-mode.js';
+    script.dataset.jcrDisplayMode = '1';
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+}
 const ROOT='/',BASE='https://www.johnrice.com';
 const LANGS=['en','es','fr'];
 const savedLanguage=localStorage.getItem('language');
