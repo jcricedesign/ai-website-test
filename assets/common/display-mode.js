@@ -24,17 +24,17 @@
     style.textContent = `
       #jcr-display-feedback{
         position:fixed;left:50%;bottom:7vh;z-index:2147483647;
-        transform:translate(-50%,18px);opacity:0;pointer-events:none;
-        min-width:180px;max-width:min(70vw,680px);padding:14px 22px 15px;
-        border:1px solid rgba(255,255,255,.20);border-radius:999px;
+        transform:translate(-50%,28px);opacity:0;pointer-events:none;
+        min-width:360px;max-width:min(82vw,1100px);padding:28px 44px 30px;
+        border:2px solid rgba(255,255,255,.20);border-radius:999px;
         background:rgba(0,0,0,.90);color:#fff;text-align:center;
         font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
         transition:opacity .18s ease,transform .22s ease;
-        box-shadow:0 10px 34px rgba(0,0,0,.35)
+        box-shadow:0 16px 50px rgba(0,0,0,.38)
       }
       #jcr-display-feedback.jcr-visible{opacity:1;transform:translate(-50%,0)}
-      #jcr-display-feedback .jcr-feedback-label{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-      #jcr-display-feedback .jcr-feedback-detail{margin-top:4px;font-size:12px;color:rgba(255,255,255,.68)}
+      #jcr-display-feedback .jcr-feedback-label{font-size:36px;line-height:1.05;font-weight:800;letter-spacing:.10em;text-transform:uppercase}
+      #jcr-display-feedback .jcr-feedback-detail{margin-top:10px;font-size:26px;line-height:1.15;color:rgba(255,255,255,.72)}
     `;
     document.head.appendChild(style);
 
