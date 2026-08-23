@@ -10,8 +10,8 @@ AUDIO_DEVICE = "plughw:2,0"
 SAMPLE_RATE = 16000
 REMOTE_BASE = "http://127.0.0.1:8765"
 WAKE_WORD = "atlas"
-COMMANDS = ["next", "back", "top", "bottom", "home", "cancel"]
-GRAMMAR = [WAKE_WORD, *COMMANDS, "[unk]"]
+COMMANDS = ["next", "back", "top", "bottom", "home", "screensaver", "cancel"]
+PHRASES = [WAKE_WORD, *COMMANDS, "start screensaver", "[unk]"]
 LISTEN_SECONDS = 5.0
 COOLDOWN_SECONDS = 0.7
 
@@ -37,33 +37,46 @@ def send_action(command):
 
 def feedback(label, detail="", duration=2100):
     try:
-        post_json("/api/feedback", {
-            "label": label,
-            "detail": detail,
-            "duration": duration,
-        })
+        post_json("/api/feedback", {"label": label, "detail": detail, "duration": duration})
     except Exception as exc:
         print(f"FEEDBACK ERROR: {exc}", flush=True)
+
+
+def normalized_command(text):
+    text = text.strip().lower()
+    if text == "start screensaver":
+        return "screensaver"
+    return text if text in COMMANDS else None
+
+
+def execute(command, last_action):
+    if command == "cancel":
+        feedback("Atlas", "Cancelled")
+        print("CANCEL", flush=True)
+        return time.monotonic(), True
+    if time.monotonic() - last_action < COOLDOWN_SECONDS:
+        return last_action, False
+    try:
+        send_action(command)
+        print(f"ACTION: {command}", flush=True)
+        return time.monotonic(), True
+    except Exception as exc:
+        feedback("Atlas", "Try again")
+        print(f"ERROR {command}: {exc}", flush=True)
+        return last_action, False
 
 
 def main():
     print("Loading voice model...")
     model = Model(MODEL_PATH)
-    recognizer = KaldiRecognizer(model, SAMPLE_RATE, json.dumps(GRAMMAR))
+    recognizer = KaldiRecognizer(model, SAMPLE_RATE, json.dumps(PHRASES))
 
-    audio = subprocess.Popen(
-        [
-            "arecord", "-q",
-            "-D", AUDIO_DEVICE,
-            "-f", "S16_LE",
-            "-r", str(SAMPLE_RATE),
-            "-c", "1",
-            "-t", "raw",
-        ],
-        stdout=subprocess.PIPE,
-    )
+    audio = subprocess.Popen([
+        "arecord", "-q", "-D", AUDIO_DEVICE, "-f", "S16_LE",
+        "-r", str(SAMPLE_RATE), "-c", "1", "-t", "raw"
+    ], stdout=subprocess.PIPE)
 
-    print("Atlas ready. Say 'Atlas', then one command: next, back, top, bottom, home, cancel")
+    print("Atlas ready: next, back, top, bottom, home, screensaver, cancel")
     armed_until = 0.0
     last_action = 0.0
     last_partial = ""
@@ -75,70 +88,34 @@ def main():
             if not data:
                 break
 
-            now = time.monotonic()
-            armed = now < armed_until
-
-            if armed and now >= armed_until:
-                armed_until = 0.0
-
             if recognizer.AcceptWaveform(data):
-                result = json.loads(recognizer.Result())
-                text = result.get("text", "").strip().lower()
+                text = json.loads(recognizer.Result()).get("text", "").strip().lower()
                 last_partial = ""
-
                 if not text or text == "[unk]":
                     continue
 
                 words = text.split()
 
-                # Allow "Atlas next" as one utterance, or the two-stage
-                # "Atlas" then "next" interaction.
                 if words and words[0] == WAKE_WORD:
-                    if len(words) == 1:
+                    remainder = " ".join(words[1:])
+                    if not remainder:
                         armed_until = time.monotonic() + LISTEN_SECONDS
                         feedback("Atlas", "Listening…", int(LISTEN_SECONDS * 1000))
                         print("WAKE: atlas", flush=True)
                         continue
-
-                    if len(words) == 2 and words[1] in COMMANDS:
-                        command = words[1]
-                        if command == "cancel":
+                    command = normalized_command(remainder)
+                    if command:
+                        last_action, done = execute(command, last_action)
+                        if done:
                             armed_until = 0.0
-                            feedback("Atlas", "Cancelled")
-                            print("CANCEL", flush=True)
-                            continue
-                        if time.monotonic() - last_action >= COOLDOWN_SECONDS:
-                            try:
-                                send_action(command)
-                                last_action = time.monotonic()
-                                armed_until = 0.0
-                                print(f"ACTION: {command}", flush=True)
-                            except Exception as exc:
-                                feedback("Atlas", "Try again")
-                                print(f"ERROR {command}: {exc}", flush=True)
                         continue
 
                 if time.monotonic() < armed_until:
-                    if len(words) == 1 and words[0] in COMMANDS:
-                        command = words[0]
-                        if command == "cancel":
+                    command = normalized_command(text)
+                    if command:
+                        last_action, done = execute(command, last_action)
+                        if done:
                             armed_until = 0.0
-                            feedback("Atlas", "Cancelled")
-                            print("CANCEL", flush=True)
-                            continue
-
-                        if time.monotonic() - last_action < COOLDOWN_SECONDS:
-                            continue
-
-                        try:
-                            send_action(command)
-                            last_action = time.monotonic()
-                            armed_until = 0.0
-                            print(f"ACTION: {command}", flush=True)
-                        except Exception as exc:
-                            feedback("Atlas", "Try again")
-                            armed_until = time.monotonic() + 3.0
-                            print(f"ERROR {command}: {exc}", flush=True)
                     else:
                         feedback("Atlas", "Try again", 1600)
                         armed_until = time.monotonic() + 3.0
