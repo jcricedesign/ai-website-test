@@ -110,6 +110,7 @@ ACTIONS = {
     "/api/bottom": lambda: keyed_action("Bottom", "End"),
     "/api/home": lambda: keyed_action("Home", "F8"),
     "/api/screensaver": lambda: keyed_action("Screensaver", "F9", "Resting"),
+    "/api/theme": lambda: keyed_action("Theme", "t", "Changing"),
     "/api/work": lambda: keyed_action("Work", "w", "Opening"),
     "/api/career": lambda: keyed_action("Career", "c", "Opening"),
     "/api/barber-game": lambda: keyed_action("Barber Game", "b", "Opening"),
@@ -119,7 +120,7 @@ ACTIONS = {
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/0.9"
+    server_version = "PortfolioRemote/1.0"
 
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
