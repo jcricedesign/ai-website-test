@@ -191,7 +191,7 @@
   window.addEventListener('wheel', userActivity, { passive: true });
   window.addEventListener('touchstart', userActivity, { passive: true });
   window.addEventListener('keydown', event => {
-    if (event.key === 'F12') {
+    if (event.key === 'F9') {
       event.preventDefault();
       clearTimeout(idleTimer);
       showScreensaver();
