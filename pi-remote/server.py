@@ -78,11 +78,12 @@ ACTIONS = {
     "/api/back": lambda: {"ok": True, "message": "Back", "input": send_key("Left")},
     "/api/top": lambda: {"ok": True, "message": "Top", "input": send_key("Home")},
     "/api/bottom": lambda: {"ok": True, "message": "Bottom", "input": send_key("End")},
+    "/api/home": lambda: {"ok": True, "message": "Home", "input": send_key("F8")},
 }
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/0.3"
+    server_version = "PortfolioRemote/0.4"
 
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
