@@ -88,6 +88,19 @@
     resetIdle();
   }
 
+  function toggleTheme() {
+    userActivity();
+    const themeButton = document.getElementById('jcrTheme');
+    if (themeButton) {
+      themeButton.click();
+      return;
+    }
+    const current = document.documentElement.dataset.theme || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  }
+
   function ensureFeedback() {
     let el = document.getElementById('jcr-display-feedback');
     if (el) return el;
@@ -286,6 +299,11 @@
       return;
     }
     const key = event.key.toLowerCase();
+    if (!event.ctrlKey && !event.metaKey && !event.altKey && key === 't') {
+      event.preventDefault();
+      toggleTheme();
+      return;
+    }
     if (!event.ctrlKey && !event.metaKey && !event.altKey && NAMED_ROUTES[key]) {
       event.preventDefault();
       goNamedRoute(key);
