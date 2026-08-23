@@ -22,7 +22,7 @@ _feedback_lock = threading.Lock()
 _feedback = {"seq": 0, "label": "", "detail": "", "duration": 0, "ts": 0.0}
 
 
-def set_feedback(label, detail="", duration=1100):
+def set_feedback(label, detail="", duration=2100):
     global _feedback
     with _feedback_lock:
         _feedback = {
@@ -113,7 +113,7 @@ ACTIONS = {
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/0.5"
+    server_version = "PortfolioRemote/0.6"
 
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
@@ -168,7 +168,7 @@ class Handler(BaseHTTPRequestHandler):
                 item = set_feedback(
                     str(payload.get("label", ""))[:80],
                     str(payload.get("detail", ""))[:160],
-                    int(payload.get("duration", 1100)),
+                    int(payload.get("duration", 2100)),
                 )
                 self.send_json(200, {"ok": True, **item}, cors=True)
             except Exception as exc:
