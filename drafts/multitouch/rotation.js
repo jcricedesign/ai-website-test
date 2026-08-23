@@ -6,6 +6,22 @@
   const HOLD_MS=480;
   const MOVE_TOLERANCE=12;
 
+  // Keep this mode visually self-contained so rapid Safari caching cannot
+  // leave the controls unstyled while we iterate.
+  const style=document.createElement('style');
+  style.textContent=`
+    body.transform-mode #stage>.object:not(.transform-selected),
+    body.transform-mode #stage>.joined{opacity:.22!important;filter:saturate(.65)!important}
+    body.transform-mode #add{opacity:.2!important;pointer-events:none!important}
+    .object.transform-selected{--scale:1.34!important;box-shadow:0 26px 60px rgba(0,0,0,.26)!important;filter:brightness(1.08)!important}
+    #transformPanel{position:fixed!important;z-index:5000!important;display:flex!important;align-items:center!important;gap:14px!important;opacity:0;pointer-events:none;transform:translateY(8px) scale(.96);transition:opacity 150ms ease,transform 150ms ease}
+    #transformPanel.visible{opacity:1!important;pointer-events:auto!important;transform:translateY(0) scale(1)!important}
+    #transformPanel button{appearance:none;-webkit-appearance:none;min-width:76px;height:76px;border:0;border-radius:24px;background:#161616;color:#fff;font:500 36px/1 -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.2);touch-action:none;padding:0}
+    #transformPanel button.pressed{transform:scale(.94)}
+    #transformPanel .done{min-width:104px;padding:0 22px;font-size:18px;font-weight:700}
+  `;
+  document.head.appendChild(style);
+
   const panel=document.createElement('div');
   panel.id='transformPanel';
   panel.innerHTML=`
@@ -18,29 +34,20 @@
     const o=target.closest?.('.object');
     return o&&o.parentElement===stage?o:null;
   }
-
   function angleOf(o){return Number(o.dataset.angle||0)}
-  function setAngle(o,a){
-    a=((a%360)+360)%360;
-    o.dataset.angle=String(a);
-    o.style.setProperty('--angle',a+'deg');
-  }
-
-  function clearPending(){
-    if(timer){clearTimeout(timer);timer=null}
-    pending=null;
-  }
+  function setAngle(o,a){a=((a%360)+360)%360;o.dataset.angle=String(a);o.style.setProperty('--angle',a+'deg')}
+  function clearPending(){if(timer){clearTimeout(timer);timer=null}pending=null}
 
   function enter(o){
     clearPending();
     if(selected&&selected!==o)exit();
     selected=o;
     document.body.classList.add('transform-mode');
-    o.classList.remove('active','edge-near','magnetic');
+    o.classList.remove('edge-near','magnetic');
     o.classList.add('transform-selected');
-    o.style.zIndex='1002';
-    positionPanel();
+    o.style.zIndex='4000';
     panel.classList.add('visible');
+    requestAnimationFrame(positionPanel);
   }
 
   function exit(){
@@ -55,38 +62,31 @@
   function positionPanel(){
     if(!selected)return;
     const r=selected.getBoundingClientRect();
-    const pw=panel.offsetWidth||260;
-    const ph=panel.offsetHeight||72;
+    const pw=panel.getBoundingClientRect().width||286;
+    const ph=panel.getBoundingClientRect().height||76;
     let left=r.left+r.width/2-pw/2;
-    let top=r.bottom+26;
-    left=Math.max(18,Math.min(window.innerWidth-pw-18,left));
-    if(top+ph>window.innerHeight-18)top=r.top-ph-26;
+    let top=r.bottom+32;
+    left=Math.max(20,Math.min(window.innerWidth-pw-20,left));
+    if(top+ph>window.innerHeight-24)top=r.top-ph-32;
     panel.style.left=left+'px';
-    panel.style.top=Math.max(18,top)+'px';
+    panel.style.top=Math.max(20,top)+'px';
   }
 
   function rotate(delta){
     if(!selected)return;
     setAngle(selected,angleOf(selected)+delta);
     selected.classList.add('rotation-snap');
-    setTimeout(()=>selected&&selected.classList.remove('rotation-snap'),120);
-    positionPanel();
+    setTimeout(()=>{if(selected)selected.classList.remove('rotation-snap')},120);
+    requestAnimationFrame(positionPanel);
   }
 
-  // Keep object 1 asymmetric so rotation is visibly obvious.
   requestAnimationFrame(()=>{
     const first=stage.querySelector(':scope > .object[data-id="1"]');
     if(first)first.dataset.shape='arrow';
   });
 
   stage.addEventListener('pointerdown',e=>{
-    if(selected){
-      if(e.target===selected||selected.contains(e.target)){
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      return;
-    }
+    if(selected)return;
     const o=standaloneObject(e.target);
     if(!o)return;
     pending={id:e.pointerId,o,x:e.clientX,y:e.clientY};
@@ -96,33 +96,39 @@
   },true);
 
   stage.addEventListener('pointermove',e=>{
-    if(selected&&e.target===selected){
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
     if(!pending||pending.id!==e.pointerId)return;
     if(Math.hypot(e.clientX-pending.x,e.clientY-pending.y)>MOVE_TOLERANCE)clearPending();
   },true);
 
+  // Important: never swallow the original object's pointerup/cancel. The main
+  // sandbox must receive it so its drag pointer is always released cleanly.
   function finish(e){
     if(pending&&pending.id===e.pointerId)clearPending();
-    if(selected&&e.target===selected){
-      e.preventDefault();
-      e.stopPropagation();
-    }
   }
   stage.addEventListener('pointerup',finish,true);
   stage.addEventListener('pointercancel',finish,true);
 
-  panel.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation()});
-  panel.addEventListener('click',e=>{
+  // Use pointerup directly instead of click; this is much more dependable on
+  // iPad after custom pointer handling.
+  panel.addEventListener('pointerdown',e=>{
     const b=e.target.closest('button');
     if(!b)return;
+    e.preventDefault();e.stopPropagation();
+    b.classList.add('pressed');
+  });
+  panel.addEventListener('pointerup',e=>{
+    const b=e.target.closest('button');
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();
+    b.classList.remove('pressed');
     const action=b.dataset.action;
     if(action==='left')rotate(-45);
-    if(action==='right')rotate(45);
-    if(action==='done')exit();
+    else if(action==='right')rotate(45);
+    else if(action==='done')exit();
+  });
+  panel.addEventListener('pointercancel',e=>{
+    const b=e.target.closest('button');
+    if(b)b.classList.remove('pressed');
   });
 
   window.addEventListener('resize',positionPanel);
