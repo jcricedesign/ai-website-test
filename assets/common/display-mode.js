@@ -6,14 +6,46 @@
 
   const ROUTES = ['/', '/work/', '/barber-game/', '/career/', '/playground/'];
   const FEEDBACK_URL = 'http://127.0.0.1:8765/api/feedback';
+  const SCREENSAVER_URL = '/playground/display-screensaver/?ambient=1';
+  const IDLE_MS = 60000;
   let lastPointer = { x: null, y: null };
   let feedbackTimer = null;
   let feedbackSeq = 0;
+  let idleTimer = null;
 
   document.documentElement.dataset.displayMode = '1';
 
+  function screensaverEl() {
+    return document.getElementById('jcr-display-screensaver');
+  }
+
+  function showScreensaver() {
+    if (screensaverEl()) return;
+    const frame = document.createElement('iframe');
+    frame.id = 'jcr-display-screensaver';
+    frame.src = SCREENSAVER_URL;
+    frame.tabIndex = -1;
+    frame.setAttribute('aria-label', 'Ambient display resting state');
+    frame.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2147483000;background:#070809;opacity:0;transition:opacity .8s ease;pointer-events:none';
+    document.body.appendChild(frame);
+    requestAnimationFrame(() => requestAnimationFrame(() => { frame.style.opacity = '1'; }));
+  }
+
+  function hideScreensaver() {
+    const frame = screensaverEl();
+    if (!frame) return;
+    frame.style.opacity = '0';
+    setTimeout(() => frame.remove(), 850);
+  }
+
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(showScreensaver, IDLE_MS);
+  }
+
   function userActivity() {
-    // Screensaver intentionally disabled while voice control is being developed.
+    hideScreensaver();
+    resetIdle();
   }
 
   function ensureFeedback() {
@@ -67,7 +99,13 @@
       const data = await response.json();
       if (data.ok && data.seq > feedbackSeq) {
         feedbackSeq = data.seq;
-        showFeedback(data.label, data.detail || '', data.duration || 2100);
+        if ((data.label || '').toLowerCase() === 'screensaver') {
+          showScreensaver();
+        } else {
+          hideScreensaver();
+          resetIdle();
+          showFeedback(data.label, data.detail || '', data.duration || 2100);
+        }
       }
     } catch (_) {
       // Feedback is optional; presentation controls continue to work if unavailable.
@@ -153,6 +191,12 @@
   window.addEventListener('wheel', userActivity, { passive: true });
   window.addEventListener('touchstart', userActivity, { passive: true });
   window.addEventListener('keydown', event => {
+    if (event.key === 'F12') {
+      event.preventDefault();
+      clearTimeout(idleTimer);
+      showScreensaver();
+      return;
+    }
     if (event.key === 'ArrowRight' || event.key === 'PageDown') {
       event.preventDefault();
       stepPresentation(1);
@@ -165,11 +209,13 @@
     }
     if (event.key === 'Home') {
       event.preventDefault();
+      userActivity();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (event.key === 'End') {
       event.preventDefault();
+      userActivity();
       window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
       return;
     }
@@ -182,5 +228,6 @@
   });
 
   ensureFeedback();
+  resetIdle();
   pollFeedback();
 })();
