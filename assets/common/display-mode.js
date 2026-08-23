@@ -2,7 +2,9 @@
   'use strict';
 
   const params = new URLSearchParams(window.location.search);
-  if (params.get('display') !== '1') return;
+  const MIN_DISPLAY_WIDTH = 900;
+  const MIN_DISPLAY_HEIGHT = 500;
+  if (params.get('display') !== '1' || innerWidth < MIN_DISPLAY_WIDTH || innerHeight < MIN_DISPLAY_HEIGHT) return;
 
   const ROUTES = ['/', '/work/', '/barber-game/', '/career/', '/playground/'];
   const FEEDBACK_URL = 'http://127.0.0.1:8765/api/feedback';
@@ -12,6 +14,7 @@
   let feedbackTimer = null;
   let feedbackSeq = 0;
   let idleTimer = null;
+  let screensaverVisible = false;
 
   document.documentElement.dataset.displayMode = '1';
 
@@ -19,32 +22,62 @@
     return document.getElementById('jcr-display-screensaver');
   }
 
-  function showScreensaver() {
-    if (screensaverEl()) return;
-    const frame = document.createElement('iframe');
+  function ensureScreensaverFrame() {
+    let frame = screensaverEl();
+    if (frame) return frame;
+
+    frame = document.createElement('iframe');
     frame.id = 'jcr-display-screensaver';
     frame.src = SCREENSAVER_URL;
     frame.tabIndex = -1;
     frame.setAttribute('aria-label', 'Ambient display resting state');
-    frame.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;z-index:2147483000;background:#070809;opacity:0;transition:opacity .8s ease;pointer-events:none';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = [
+      'position:fixed',
+      'inset:0',
+      'width:100%',
+      'height:100%',
+      'border:0',
+      'z-index:2147483000',
+      'background:#070809',
+      'opacity:0',
+      'visibility:hidden',
+      'transition:opacity .8s ease',
+      'pointer-events:none'
+    ].join(';');
     document.body.appendChild(frame);
+    return frame;
+  }
+
+  function showScreensaver() {
+    if (document.hidden || screensaverVisible) return;
+    const frame = ensureScreensaverFrame();
+    clearTimeout(idleTimer);
+    screensaverVisible = true;
+    frame.setAttribute('aria-hidden', 'false');
+    frame.style.visibility = 'visible';
     requestAnimationFrame(() => requestAnimationFrame(() => { frame.style.opacity = '1'; }));
   }
 
   function hideScreensaver() {
     const frame = screensaverEl();
+    screensaverVisible = false;
     if (!frame) return;
+    frame.setAttribute('aria-hidden', 'true');
     frame.style.opacity = '0';
-    setTimeout(() => frame.remove(), 850);
+    setTimeout(() => {
+      if (!screensaverVisible) frame.style.visibility = 'hidden';
+    }, 850);
   }
 
   function resetIdle() {
     clearTimeout(idleTimer);
+    if (document.hidden || screensaverVisible) return;
     idleTimer = setTimeout(showScreensaver, IDLE_MS);
   }
 
   function userActivity() {
-    hideScreensaver();
+    if (screensaverVisible) hideScreensaver();
     resetIdle();
   }
 
@@ -193,7 +226,6 @@
   window.addEventListener('keydown', event => {
     if (event.key === 'F9') {
       event.preventDefault();
-      clearTimeout(idleTimer);
       showScreensaver();
       return;
     }
@@ -227,7 +259,22 @@
     userActivity();
   });
 
+  document.addEventListener('visibilitychange', () => {
+    clearTimeout(idleTimer);
+    if (!document.hidden) resetIdle();
+  });
+  window.addEventListener('pageshow', resetIdle, { passive: true });
+  window.addEventListener('resize', () => {
+    if (innerWidth < MIN_DISPLAY_WIDTH || innerHeight < MIN_DISPLAY_HEIGHT) {
+      clearTimeout(idleTimer);
+      hideScreensaver();
+    } else {
+      resetIdle();
+    }
+  }, { passive: true });
+
   ensureFeedback();
+  setTimeout(ensureScreensaverFrame, 1200);
   resetIdle();
   pollFeedback();
 })();
