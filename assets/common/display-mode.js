@@ -7,6 +7,13 @@
   if (params.get('display') !== '1' || innerWidth < MIN_DISPLAY_WIDTH || innerHeight < MIN_DISPLAY_HEIGHT) return;
 
   const ROUTES = ['/', '/work/', '/barber-game/', '/career/', '/playground/'];
+  const NAMED_ROUTES = {
+    w: '/work/',
+    c: '/career/',
+    b: '/barber-game/',
+    p: '/playground/',
+    a: '/about/'
+  };
   const FEEDBACK_URL = 'http://127.0.0.1:8765/api/feedback';
   const SCREENSAVER_URL = '/playground/display-screensaver/?ambient=1';
   const IDLE_MS = 60000;
@@ -179,6 +186,18 @@
     return p.endsWith('/') ? p : p + '/';
   }
 
+  function goNamedRoute(key) {
+    const route = NAMED_ROUTES[key];
+    if (!route) return false;
+    userActivity();
+    if (normalizedPath() === route) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return true;
+    }
+    location.href = `${route}?display=1`;
+    return true;
+  }
+
   function goRoute(direction) {
     const p = normalizedPath();
     const i = ROUTES.indexOf(p);
@@ -264,6 +283,12 @@
     if (event.key === 'F8') {
       event.preventDefault();
       goHome();
+      return;
+    }
+    const key = event.key.toLowerCase();
+    if (!event.ctrlKey && !event.metaKey && !event.altKey && NAMED_ROUTES[key]) {
+      event.preventDefault();
+      goNamedRoute(key);
       return;
     }
     userActivity();
