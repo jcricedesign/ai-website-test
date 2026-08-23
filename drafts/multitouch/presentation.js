@@ -23,26 +23,26 @@
       if(!n){layingOut=false;return}
       const usable=Math.max(240,r.width-80),gap=Math.min(170,usable/Math.max(1,n));
       const total=gap*(n-1),start=r.width/2-total/2;
-      items.forEach((o,i)=>{o.classList.add('presented');setPos(o,start+i*gap,72)});
+      items.forEach((o,i)=>{if(!o.classList.contains('presented'))o.classList.add('presented');setPos(o,start+i*gap,72)});
       layingOut=false;
     });
   }
   function sync(){
     [...stage.querySelectorAll(':scope > .object[data-kind="image"]')].forEach(o=>{
-      if(o.dataset.docked!=='top')o.classList.remove('presented');
+      if(o.dataset.docked!=='top'&&o.classList.contains('presented'))o.classList.remove('presented');
     });
     layout();
   }
 
-  // Remove the presentation scale immediately when the user grabs a photo
-  // back out of the top collection, before normal drag handling begins.
   stage.addEventListener('pointerdown',e=>{
-    const o=e.target.closest?.(':scope > .object[data-kind="image"]');
-    if(o&&o.dataset.docked==='top')o.classList.remove('presented');
+    const o=e.target.closest?.('.object[data-kind="image"]');
+    if(o&&o.parentElement===stage&&o.dataset.docked==='top')o.classList.remove('presented');
   },true);
 
+  // Only watch semantic state changes. Watching class mutations here creates
+  // a loop because this script itself adds/removes the .presented class.
   const observer=new MutationObserver(sync);
-  observer.observe(stage,{subtree:true,attributes:true,attributeFilter:['class','data-docked'],childList:true});
+  observer.observe(stage,{subtree:true,attributes:true,attributeFilter:['data-docked'],childList:true});
   window.addEventListener('resize',layout);
   sync();
 })();
