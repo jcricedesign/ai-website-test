@@ -28,6 +28,13 @@
     rotating=null;
   }
 
+  function pinnedStandalone(){
+    for(const [id,p] of active){
+      if(p.object&&p.object.isConnected&&p.object.parentElement===stage)return [id,p];
+    }
+    return null;
+  }
+
   requestAnimationFrame(()=>{
     const first=stage.querySelector(':scope > .object[data-id="1"]');
     if(first)first.dataset.shape='arrow';
@@ -35,16 +42,23 @@
 
   stage.addEventListener('pointerdown',e=>{
     const o=standaloneObject(e.target);
-    if(!o)return;
 
-    const existing=[...active.entries()].find(([,v])=>v.object===o);
-    active.set(e.pointerId,{object:o,x:e.clientX,y:e.clientY});
+    // First touch: remember the standalone object being pinned.
+    if(o){
+      active.set(e.pointerId,{object:o,x:e.clientX,y:e.clientY});
+      return;
+    }
 
-    if(existing&&!rotating){
-      e.preventDefault();
-      e.stopPropagation();
-      try{o.setPointerCapture(e.pointerId)}catch{}
-      beginRotation(o,existing[0],e.pointerId,e.clientY);
+    // Second touch: it may land anywhere on the open canvas. If one standalone
+    // object is already being held, this touch becomes the rotation control.
+    if(!rotating){
+      const anchor=pinnedStandalone();
+      if(anchor){
+        e.preventDefault();
+        e.stopPropagation();
+        active.set(e.pointerId,{object:null,x:e.clientX,y:e.clientY});
+        beginRotation(anchor[1].object,anchor[0],e.pointerId,e.clientY);
+      }
     }
   },true);
 
@@ -53,6 +67,7 @@
     if(p){p.x=e.clientX;p.y=e.clientY}
     if(!rotating)return;
 
+    // The first finger is a pin. Once manipulation begins it no longer drags.
     if(e.pointerId===rotating.anchorId){
       e.preventDefault();
       e.stopPropagation();
@@ -69,9 +84,8 @@
     setAngle(rotating.o,angle);
 
     const isSnap=Math.abs(angle-raw)>.01;
-    const snapKey=isSnap?angle:null;
     rotating.o.classList.toggle('rotation-snap',isSnap);
-    if(snapKey!==rotating.lastSnap)rotating.lastSnap=snapKey;
+    rotating.lastSnap=isSnap?angle:null;
   },true);
 
   function finishPointer(e){
@@ -86,6 +100,8 @@
     }
 
     if(rotating&&e.pointerId===rotating.anchorId){
+      e.preventDefault();
+      e.stopPropagation();
       endRotation();
     }
     active.delete(e.pointerId);
