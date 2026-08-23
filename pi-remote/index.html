@@ -10,40 +10,38 @@
 <title>Portfolio Display</title>
 <style>
 :root{color-scheme:dark;--bg:#111;--text:#f5f5f2;--muted:#989894;--rule:rgba(255,255,255,.14);--soft:rgba(255,255,255,.07)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"SF Pro Display","Segoe UI",sans-serif}body{min-height:100svh;padding:max(22px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));display:flex;flex-direction:column}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding:2px 0 18px}.brand{font-size:.9rem;font-weight:700;letter-spacing:-.02em}.status{font-size:.72rem;color:var(--muted)}main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:26px 0}.eyebrow{margin:0 0 10px;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}h1{margin:0 0 24px;max-width:330px;font-size:clamp(2.3rem,11vw,4rem);line-height:.91;letter-spacing:-.06em}.primary,.secondary,.utility{appearance:none;-webkit-appearance:none;width:100%;border:0;border-radius:22px;font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation}.primary{min-height:150px;padding:28px;background:var(--text);color:var(--bg);font-size:1.8rem;letter-spacing:-.04em}.primary:active{transform:scale(.985)}.nav-row{display:grid;grid-template-columns:.72fr 1.28fr;gap:10px;margin-top:10px}.secondary{min-height:72px;padding:15px;background:var(--soft);color:var(--text);font-size:1rem}.secondary:active,.utility:active{background:rgba(255,255,255,.12)}.scroll-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.utility{min-height:52px;padding:12px;background:transparent;color:var(--muted);border:1px solid var(--rule);font-size:.82rem}.screen-row{margin-top:10px}.screen-row .utility{color:var(--text);background:var(--soft)}.system-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:18px}.system-row .utility{min-height:46px;font-size:.72rem;padding:10px 6px}button:disabled{opacity:.45;cursor:wait}.feedback{min-height:38px;margin:14px 4px 0;font-size:.78rem;line-height:1.45;color:var(--muted)}.feedback.error{color:#ff9e9e}.foot{border-top:1px solid var(--rule);padding:14px 0 0;font-size:.68rem;line-height:1.5;color:var(--muted)}
-@media(min-width:700px){body{max-width:520px;margin:auto}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"SF Pro Display","Segoe UI",sans-serif}body{min-height:100svh;padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);padding:2px 0 15px}.brand{font-size:.88rem;font-weight:700;letter-spacing:-.02em}.status{font-size:.7rem;color:var(--muted)}main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 0}.primary,.secondary,.utility{appearance:none;-webkit-appearance:none;width:100%;border:0;border-radius:20px;font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation}.primary{min-height:150px;padding:28px;background:var(--text);color:var(--bg);font-size:1.9rem;letter-spacing:-.04em}.primary:active{transform:scale(.985)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.secondary{min-height:72px;padding:15px;background:var(--soft);color:var(--text);font-size:1rem}.utility{min-height:52px;padding:12px;background:transparent;color:var(--muted);border:1px solid var(--rule);font-size:.82rem}.secondary:active,.utility:active{background:rgba(255,255,255,.12)}.system{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}.system .utility{min-height:44px;font-size:.7rem;padding:9px 5px}.feedback{min-height:34px;margin:12px 4px 0;font-size:.76rem;line-height:1.4;color:var(--muted)}.feedback.error{color:#ff9e9e}.foot{border-top:1px solid var(--rule);padding:12px 0 0;font-size:.66rem;line-height:1.5;color:var(--muted)}button:disabled{opacity:.45;cursor:wait}@media(min-width:700px){body{max-width:520px;margin:auto}}
 </style>
 </head>
 <body>
 <header class="top"><div class="brand">JR · Display</div><div class="status" id="connection">Checking Pi…</div></header>
 <main>
-<p class="eyebrow">Presentation mode</p>
-<h1>Move through the story.</h1>
 <button class="primary" type="button" data-action="next">Next</button>
-<div class="nav-row">
+<div class="row">
 <button class="secondary" type="button" data-action="back">Back</button>
-<button class="secondary" type="button" data-action="wake">Wake Display</button>
+<button class="secondary" type="button" data-action="home">Home</button>
 </div>
-<div class="scroll-row">
+<div class="row">
 <button class="utility" type="button" data-action="top">Top</button>
 <button class="utility" type="button" data-action="bottom">Bottom</button>
 </div>
-<div class="screen-row">
-<button class="utility" type="button" data-action="screensaver">Start Screensaver</button>
+<div class="row">
+<button class="utility" type="button" data-action="theme">Theme</button>
+<button class="utility" type="button" data-action="screensaver">Screensaver</button>
 </div>
-<div class="system-row">
+<div class="system">
+<button class="utility" type="button" data-action="wake">Wake</button>
 <button class="utility" type="button" data-action="refresh">Refresh</button>
 <button class="utility" type="button" data-action="restart">Restart</button>
-<button class="utility" type="button" id="healthButton">Status</button>
 </div>
-<p class="feedback" id="feedback" aria-live="polite">Next advances to the next meaningful section of the live site.</p>
+<p class="feedback" id="feedback" aria-live="polite">Ready.</p>
 </main>
 <footer class="foot">Local control · portfolio-pi.local</footer>
 <script>
-const feedback=document.getElementById('feedback'),connection=document.getElementById('connection'),buttons=[...document.querySelectorAll('[data-action]')],healthButton=document.getElementById('healthButton');
-async function health(){try{const r=await fetch('/health',{cache:'no-store'}),d=await r.json();connection.textContent=r.ok?'Pi online':'Pi unavailable';if(r.ok&&!d.presentation)feedback.textContent='Pi online. Install wtype to enable presentation controls.';return d}catch(e){connection.textContent='Pi unavailable';return null}}
-async function act(name){buttons.forEach(b=>b.disabled=true);feedback.classList.remove('error');const labels={next:'Advancing…',back:'Going back…',wake:'Waking display…',top:'Going to top…',bottom:'Going to bottom…',screensaver:'Starting screensaver…',refresh:'Refreshing…',restart:'Restarting display…'};feedback.textContent=labels[name]||'Working…';try{const r=await fetch('/api/'+name,{method:'POST',cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Action failed');feedback.textContent=d.message||'Done';connection.textContent='Pi online';if(navigator.vibrate)navigator.vibrate(name==='next'?22:12)}catch(e){feedback.textContent=e.message||'Could not reach the Pi';feedback.classList.add('error');connection.textContent='Check Pi'}finally{buttons.forEach(b=>b.disabled=false)}}
-buttons.forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));healthButton.addEventListener('click',health);health();
+const feedback=document.getElementById('feedback'),connection=document.getElementById('connection'),buttons=[...document.querySelectorAll('[data-action]')];
+async function health(){try{const r=await fetch('/health',{cache:'no-store'}),d=await r.json();connection.textContent=r.ok?'Pi online':'Pi unavailable';if(r.ok&&!d.presentation)feedback.textContent='Pi online. Presentation controls unavailable.';return d}catch(e){connection.textContent='Pi unavailable';return null}}
+async function act(name){buttons.forEach(b=>b.disabled=true);feedback.classList.remove('error');const labels={next:'Advancing…',back:'Going back…',home:'Going home…',wake:'Waking display…',top:'Going to top…',bottom:'Going to bottom…',theme:'Changing theme…',screensaver:'Starting screensaver…',refresh:'Refreshing…',restart:'Restarting…'};feedback.textContent=labels[name]||'Working…';try{const r=await fetch('/api/'+name,{method:'POST',cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Action failed');feedback.textContent=d.message||'Done';connection.textContent='Pi online';if(navigator.vibrate)navigator.vibrate(name==='next'?22:12)}catch(e){feedback.textContent=e.message||'Could not reach the Pi';feedback.classList.add('error');connection.textContent='Check Pi'}finally{buttons.forEach(b=>b.disabled=false)}}
+buttons.forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));health();
 </script>
 </body>
 </html>
