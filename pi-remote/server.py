@@ -21,17 +21,23 @@ WAYLAND_ENV = {"XDG_RUNTIME_DIR": "/run/user/1000", "WAYLAND_DISPLAY": "wayland-
 _feedback_lock = threading.Lock()
 _feedback = {"seq": 0, "label": "", "detail": "", "duration": 0, "ts": 0.0}
 
+# Live Edit v0.1 is intentionally ephemeral. State exists only in this process
+# and is reset whenever portfolio-remote restarts. It does not edit the site.
+_live_lock = threading.Lock()
+_live = {
+    "seq": 0,
+    "object": "home.hero.headline",
+    "value": None,
+    "active": False,
+    "ts": 0.0,
+}
+
 
 def set_feedback(label, detail="", duration=2100):
     global _feedback
     with _feedback_lock:
-        _feedback = {
-            "seq": _feedback["seq"] + 1,
-            "label": label,
-            "detail": detail,
-            "duration": int(duration),
-            "ts": time.time(),
-        }
+        _feedback = {"seq": _feedback["seq"] + 1, "label": label, "detail": detail,
+                     "duration": int(duration), "ts": time.time()}
         return dict(_feedback)
 
 
@@ -40,46 +46,55 @@ def get_feedback():
         return dict(_feedback)
 
 
+def get_live():
+    with _live_lock:
+        return dict(_live)
+
+
+def set_live(value):
+    global _live
+    with _live_lock:
+        _live = {"seq": _live["seq"] + 1, "object": "home.hero.headline",
+                 "value": str(value)[:240], "active": True, "ts": time.time()}
+        return dict(_live)
+
+
+def revert_live():
+    global _live
+    with _live_lock:
+        _live = {"seq": _live["seq"] + 1, "object": "home.hero.headline",
+                 "value": None, "active": False, "ts": time.time()}
+        return dict(_live)
+
+
 def run_command(argv, *, input_text=None, timeout=15, extra_env=None):
     env = os.environ.copy()
-    if extra_env:
-        env.update(extra_env)
-    result = subprocess.run(
-        [str(x) for x in argv],
-        input=input_text,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        timeout=timeout,
-        check=False,
-        env=env,
-    )
+    if extra_env: env.update(extra_env)
+    result = subprocess.run([str(x) for x in argv], input=input_text, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout,
+        check=False, env=env)
     if result.returncode != 0:
         raise RuntimeError(result.stdout.strip() or f"Command failed: {argv[0]}")
     return result.stdout.strip()
 
 
 def wake_tv():
-    if not CEC_CLIENT.exists():
-        return "CEC not installed"
+    if not CEC_CLIENT.exists(): return "CEC not installed"
     return run_command([CEC_CLIENT, "-s", "-d", "1"], input_text="on 0\nas\n", timeout=10)
 
 
 def refresh_display():
-    if not DISPLAY_REFRESH.exists():
-        raise RuntimeError(f"Missing {DISPLAY_REFRESH}")
+    if not DISPLAY_REFRESH.exists(): raise RuntimeError(f"Missing {DISPLAY_REFRESH}")
     return run_command([DISPLAY_REFRESH])
 
 
 def restart_display():
-    if not DISPLAY_RESTART.exists():
-        raise RuntimeError(f"Missing {DISPLAY_RESTART}")
+    if not DISPLAY_RESTART.exists(): raise RuntimeError(f"Missing {DISPLAY_RESTART}")
     return run_command([DISPLAY_RESTART])
 
 
 def send_key(key):
-    if not WTYPE.exists():
-        raise RuntimeError("Presentation controls need wtype installed on the Pi")
+    if not WTYPE.exists(): raise RuntimeError("Presentation controls need wtype installed on the Pi")
     return run_command([WTYPE, "-k", key], timeout=5, extra_env=WAYLAND_ENV)
 
 
@@ -91,10 +106,8 @@ def keyed_action(label, key, detail=""):
 
 def action_wake():
     cec_note = ""
-    try:
-        cec_note = wake_tv()
-    except Exception as exc:
-        cec_note = f"CEC warning: {exc}"
+    try: cec_note = wake_tv()
+    except Exception as exc: cec_note = f"CEC warning: {exc}"
     refresh_note = refresh_display()
     set_feedback("Display", "Ready")
     return {"ok": True, "message": "Display ready", "cec": cec_note, "display": refresh_note}
@@ -120,8 +133,7 @@ ACTIONS = {
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/1.0"
-
+    server_version = "PortfolioRemote/1.1-experiment"
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
 
@@ -131,10 +143,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
-        if cors:
-            self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(body)
+        if cors: self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers(); self.wfile.write(body)
+
+    def read_json(self):
+        length = int(self.headers.get("Content-Length", "0"))
+        return json.loads(self.rfile.read(length) or b"{}")
 
     def do_OPTIONS(self):
         self.send_response(204)
@@ -146,51 +160,46 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlparse(self.path).path
         if path == "/health":
-            self.send_json(200, {"ok": True, "service": "portfolio-remote", "presentation": WTYPE.exists()})
-            return
+            self.send_json(200, {"ok": True, "service": "portfolio-remote", "presentation": WTYPE.exists()}); return
         if path == "/api/feedback":
-            self.send_json(200, {"ok": True, **get_feedback()}, cors=True)
-            return
+            self.send_json(200, {"ok": True, **get_feedback()}, cors=True); return
+        if path == "/api/live-edit":
+            self.send_json(200, {"ok": True, **get_live()}, cors=True); return
         if path not in ("/", "/index.html"):
-            self.send_error(404)
-            return
-        try:
-            body = INDEX.read_bytes()
+            self.send_error(404); return
+        try: body = INDEX.read_bytes()
         except FileNotFoundError:
-            self.send_error(500, "index.html missing")
-            return
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers()
-        self.wfile.write(body)
+            self.send_error(500, "index.html missing"); return
+        self.send_response(200); self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body))); self.send_header("Cache-Control", "no-store")
+        self.end_headers(); self.wfile.write(body)
 
     def do_POST(self):
         path = urlparse(self.path).path
         if path == "/api/feedback":
             try:
-                length = int(self.headers.get("Content-Length", "0"))
-                payload = json.loads(self.rfile.read(length) or b"{}")
-                item = set_feedback(
-                    str(payload.get("label", ""))[:80],
-                    str(payload.get("detail", ""))[:160],
-                    int(payload.get("duration", 2100)),
-                )
+                payload = self.read_json()
+                item = set_feedback(str(payload.get("label", ""))[:80], str(payload.get("detail", ""))[:160], int(payload.get("duration", 2100)))
                 self.send_json(200, {"ok": True, **item}, cors=True)
-            except Exception as exc:
-                self.send_json(400, {"ok": False, "message": str(exc)}, cors=True)
+            except Exception as exc: self.send_json(400, {"ok": False, "message": str(exc)}, cors=True)
             return
-
+        if path == "/api/live-edit":
+            try:
+                payload = self.read_json()
+                if payload.get("object") != "home.hero.headline": raise ValueError("Unsupported object")
+                value = str(payload.get("value", "")).strip()
+                if not value: raise ValueError("Headline cannot be empty")
+                item = set_live(value); set_feedback("Live Edit", "Headline sent live", 1600)
+                self.send_json(200, {"ok": True, "message": "Sent live", **item}, cors=True)
+            except Exception as exc: self.send_json(400, {"ok": False, "message": str(exc)}, cors=True)
+            return
+        if path == "/api/live-edit/revert":
+            item = revert_live(); set_feedback("Live Edit", "Headline reverted", 1600)
+            self.send_json(200, {"ok": True, "message": "Reverted", **item}, cors=True); return
         action = ACTIONS.get(path)
-        if not action:
-            self.send_error(404)
-            return
-        try:
-            payload = action()
-            self.send_json(200, payload)
-        except Exception as exc:
-            self.send_json(500, {"ok": False, "message": str(exc)})
+        if not action: self.send_error(404); return
+        try: self.send_json(200, action())
+        except Exception as exc: self.send_json(500, {"ok": False, "message": str(exc)})
 
 
 if __name__ == "__main__":
