@@ -32,3 +32,28 @@
   .jcr-footer-copy p{max-width:760px;font-size:1.2rem}
   .jcr-footer-links a{font-size:1.05rem}
 }
+
+/* Display interaction language: rich linked headlines get a restrained Atari chromatic burst. */
+html[data-display-mode="1"] a:has(h1) h1,
+html[data-display-mode="1"] a:has(h2) h2,
+html[data-display-mode="1"] a:has(h3) h3{
+  transition:transform .18s ease,text-shadow .18s ease,filter .18s ease;
+  will-change:transform,text-shadow;
+}
+html[data-display-mode="1"] a:has(h1):hover h1,
+html[data-display-mode="1"] a:has(h2):hover h2,
+html[data-display-mode="1"] a:has(h3):hover h3,
+html[data-display-mode="1"] a:has(h1):focus-visible h1,
+html[data-display-mode="1"] a:has(h2):focus-visible h2,
+html[data-display-mode="1"] a:has(h3):focus-visible h3{
+  transform:translateX(5px);
+  text-shadow:-3px 0 rgba(224,58,62,.82),-1px 0 rgba(240,184,47,.8),2px 0 rgba(36,167,162,.82),4px 0 rgba(118,87,168,.78);
+  filter:saturate(1.12);
+}
+html[data-display-mode="1"] a:has(h1):active h1,
+html[data-display-mode="1"] a:has(h2):active h2,
+html[data-display-mode="1"] a:has(h3):active h3{
+  transform:translateX(8px) scale(.995);
+  text-shadow:-6px 0 rgba(224,58,62,.92),-3px 0 rgba(239,111,49,.9),3px 0 rgba(36,167,162,.92),6px 0 rgba(47,109,179,.88);
+  filter:saturate(1.24);
+}
