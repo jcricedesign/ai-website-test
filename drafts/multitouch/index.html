@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#f4f1ea">
+  <title>Multitouch Sandbox</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      background: #f4f1ea;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      background: #f4f1ea;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+    }
+
+    #stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .object {
+      --x: 50vw;
+      --y: 50vh;
+      --size: 112px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--size);
+      height: var(--size);
+      display: grid;
+      place-items: center;
+      transform: translate3d(calc(var(--x) - var(--size) / 2), calc(var(--y) - var(--size) / 2), 0);
+      color: rgba(255,255,255,.94);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -.03em;
+      cursor: grab;
+      touch-action: none;
+      will-change: transform;
+      box-shadow: 0 8px 30px rgba(0,0,0,.12);
+      transition: box-shadow 120ms ease, filter 120ms ease;
+    }
+
+    .object[data-shape="circle"] { border-radius: 50%; }
+    .object[data-shape="square"] { border-radius: 18px; }
+    .object[data-shape="round"] { border-radius: 35%; }
+    .object[data-shape="diamond"] {
+      border-radius: 18px;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+    .object[data-shape="hex"] {
+      clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%);
+    }
+
+    .object.active {
+      cursor: grabbing;
+      box-shadow: 0 14px 38px rgba(0,0,0,.2);
+      filter: brightness(1.06);
+      z-index: 20;
+    }
+
+    #add {
+      position: absolute;
+      right: max(20px, env(safe-area-inset-right));
+      bottom: max(20px, env(safe-area-inset-bottom));
+      z-index: 100;
+      width: 64px;
+      height: 64px;
+      border: 0;
+      border-radius: 50%;
+      background: #151515;
+      color: white;
+      font: 300 42px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 0 0 5px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #add:active { transform: scale(.96); }
+
+    #status {
+      position: absolute;
+      left: max(16px, env(safe-area-inset-left));
+      bottom: max(18px, env(safe-area-inset-bottom));
+      z-index: 90;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,.35);
+      pointer-events: none;
+    }
+
+    @media (max-width: 500px) {
+      .object { --size: 96px; font-size: 29px; }
+      #add { width: 58px; height: 58px; font-size: 38px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .object { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main id="stage" aria-label="Multitouch interaction sandbox"></main>
+  <div id="status" aria-live="polite">0 objects · 0 touches</div>
+  <button id="add" type="button" aria-label="Add object">+</button>
+
+  <script>
+    (() => {
+      const stage = document.getElementById('stage');
+      const addButton = document.getElementById('add');
+      const status = document.getElementById('status');
+
+      const specs = [
+        { color: '#e5483f', shape: 'circle' },
+        { color: '#356fd4', shape: 'square' },
+        { color: '#e3ae24', shape: 'diamond' },
+        { color: '#2e9967', shape: 'hex' },
+        { color: '#8a57c7', shape: 'round' },
+        { color: '#e4772d', shape: 'circle' }
+      ];
+
+      const pointers = new Map();
+      let objectCount = 0;
+      let zCounter = 1;
+
+      function updateStatus() {
+        const objectWord = objectCount === 1 ? 'object' : 'objects';
+        const touchWord = pointers.size === 1 ? 'touch' : 'touches';
+        status.textContent = `${objectCount} ${objectWord} · ${pointers.size} ${touchWord}`;
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function addObject(x, y) {
+        objectCount += 1;
+        const spec = specs[(objectCount - 1) % specs.length];
+        const object = document.createElement('div');
+        object.className = 'object';
+        object.dataset.id = String(objectCount);
+        object.dataset.shape = spec.shape;
+        object.textContent = String(objectCount);
+        object.style.background = spec.color;
+        object.setAttribute('aria-label', `Object ${objectCount}`);
+
+        const rect = stage.getBoundingClientRect();
+        const defaultX = rect.width / 2 + ((objectCount - 1) % 3 - 1) * 28;
+        const defaultY = rect.height / 2 + ((objectCount - 1) % 3 - 1) * 28;
+        const size = window.innerWidth <= 500 ? 96 : 112;
+        const px = clamp(x ?? defaultX, size / 2, rect.width - size / 2);
+        const py = clamp(y ?? defaultY, size / 2, rect.height - size / 2);
+
+        object.dataset.x = String(px);
+        object.dataset.y = String(py);
+        object.style.setProperty('--x', `${px}px`);
+        object.style.setProperty('--y', `${py}px`);
+        object.style.zIndex = String(++zCounter);
+
+        object.addEventListener('pointerdown', onPointerDown);
+        object.addEventListener('pointermove', onPointerMove);
+        object.addEventListener('pointerup', onPointerEnd);
+        object.addEventListener('pointercancel', onPointerEnd);
+        object.addEventListener('lostpointercapture', onPointerEnd);
+
+        stage.appendChild(object);
+        updateStatus();
+      }
+
+      function onPointerDown(event) {
+        event.preventDefault();
+        const object = event.currentTarget;
+        const x = Number(object.dataset.x);
+        const y = Number(object.dataset.y);
+
+        object.setPointerCapture(event.pointerId);
+        object.classList.add('active');
+        object.style.zIndex = String(++zCounter);
+
+        pointers.set(event.pointerId, {
+          object,
+          offsetX: event.clientX - x,
+          offsetY: event.clientY - y
+        });
+        updateStatus();
+      }
+
+      function onPointerMove(event) {
+        const pointer = pointers.get(event.pointerId);
+        if (!pointer || pointer.object !== event.currentTarget) return;
+        event.preventDefault();
+
+        const object = pointer.object;
+        const rect = stage.getBoundingClientRect();
+        const box = object.getBoundingClientRect();
+        const halfW = box.width / 2;
+        const halfH = box.height / 2;
+        const x = clamp(event.clientX - pointer.offsetX, halfW, rect.width - halfW);
+        const y = clamp(event.clientY - pointer.offsetY, halfH, rect.height - halfH);
+
+        object.dataset.x = String(x);
+        object.dataset.y = String(y);
+        object.style.setProperty('--x', `${x}px`);
+        object.style.setProperty('--y', `${y}px`);
+      }
+
+      function onPointerEnd(event) {
+        const pointer = pointers.get(event.pointerId);
+        if (!pointer) return;
+        pointers.delete(event.pointerId);
+
+        const object = pointer.object;
+        const stillHeld = [...pointers.values()].some(p => p.object === object);
+        if (!stillHeld) object.classList.remove('active');
+        updateStatus();
+      }
+
+      addButton.addEventListener('click', () => addObject());
+
+      window.addEventListener('resize', () => {
+        const rect = stage.getBoundingClientRect();
+        document.querySelectorAll('.object').forEach(object => {
+          const box = object.getBoundingClientRect();
+          const x = clamp(Number(object.dataset.x), box.width / 2, rect.width - box.width / 2);
+          const y = clamp(Number(object.dataset.y), box.height / 2, rect.height - box.height / 2);
+          object.dataset.x = String(x);
+          object.dataset.y = String(y);
+          object.style.setProperty('--x', `${x}px`);
+          object.style.setProperty('--y', `${y}px`);
+        });
+      });
+
+      addObject();
+      addObject();
+    })();
+  </script>
+</body>
+</html>
