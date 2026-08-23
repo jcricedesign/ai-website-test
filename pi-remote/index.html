@@ -25,8 +25,8 @@
 <button class="secondary" type="button" data-action="wake">Wake Display</button>
 </div>
 <div class="scroll-row">
-<button class="utility" type="button" data-action="scroll-up">Scroll up</button>
-<button class="utility" type="button" data-action="scroll-down">Scroll down</button>
+<button class="utility" type="button" data-action="top">Top</button>
+<button class="utility" type="button" data-action="bottom">Bottom</button>
 </div>
 <div class="system-row">
 <button class="utility" type="button" data-action="refresh">Refresh</button>
@@ -38,8 +38,8 @@
 <footer class="foot">Local control · portfolio-pi.local</footer>
 <script>
 const feedback=document.getElementById('feedback'),connection=document.getElementById('connection'),buttons=[...document.querySelectorAll('[data-action]')],healthButton=document.getElementById('healthButton');
-async function health(){try{const r=await fetch('/health',{cache:'no-store'}),d=await r.json();connection.textContent=r.ok?'Pi online':'Pi unavailable';if(r.ok&&!d.presentation)feedback.textContent='Pi online. Install wtype to enable Next / Back.';return d}catch(e){connection.textContent='Pi unavailable';return null}}
-async function act(name){buttons.forEach(b=>b.disabled=true);feedback.classList.remove('error');const labels={next:'Advancing…',back:'Going back…',wake:'Waking display…','scroll-up':'Scrolling…','scroll-down':'Scrolling…',refresh:'Refreshing…',restart:'Restarting display…'};feedback.textContent=labels[name]||'Working…';try{const r=await fetch('/api/'+name,{method:'POST',cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Action failed');feedback.textContent=d.message||'Done';connection.textContent='Pi online';if(navigator.vibrate)navigator.vibrate(name==='next'?22:12)}catch(e){feedback.textContent=e.message||'Could not reach the Pi';feedback.classList.add('error');connection.textContent='Check Pi'}finally{buttons.forEach(b=>b.disabled=false)}}
+async function health(){try{const r=await fetch('/health',{cache:'no-store'}),d=await r.json();connection.textContent=r.ok?'Pi online':'Pi unavailable';if(r.ok&&!d.presentation)feedback.textContent='Pi online. Install wtype to enable presentation controls.';return d}catch(e){connection.textContent='Pi unavailable';return null}}
+async function act(name){buttons.forEach(b=>b.disabled=true);feedback.classList.remove('error');const labels={next:'Advancing…',back:'Going back…',wake:'Waking display…',top:'Going to top…',bottom:'Going to bottom…',refresh:'Refreshing…',restart:'Restarting display…'};feedback.textContent=labels[name]||'Working…';try{const r=await fetch('/api/'+name,{method:'POST',cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Action failed');feedback.textContent=d.message||'Done';connection.textContent='Pi online';if(navigator.vibrate)navigator.vibrate(name==='next'?22:12)}catch(e){feedback.textContent=e.message||'Could not reach the Pi';feedback.classList.add('error');connection.textContent='Check Pi'}finally{buttons.forEach(b=>b.disabled=false)}}
 buttons.forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));healthButton.addEventListener('click',health);health();
 </script>
 </body>
