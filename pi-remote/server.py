@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+from urllib.parse import urlparse
 import json
 import os
 import subprocess
+import threading
 import time
 
 HOST = os.environ.get("PORTFOLIO_REMOTE_HOST", "0.0.0.0")
@@ -15,6 +17,27 @@ DISPLAY_RESTART = Path("/home/john/bin/display-restart")
 CEC_CLIENT = Path("/usr/bin/cec-client")
 WTYPE = Path("/usr/bin/wtype")
 WAYLAND_ENV = {"XDG_RUNTIME_DIR": "/run/user/1000", "WAYLAND_DISPLAY": "wayland-0"}
+
+_feedback_lock = threading.Lock()
+_feedback = {"seq": 0, "label": "", "detail": "", "duration": 0, "ts": 0.0}
+
+
+def set_feedback(label, detail="", duration=1100):
+    global _feedback
+    with _feedback_lock:
+        _feedback = {
+            "seq": _feedback["seq"] + 1,
+            "label": label,
+            "detail": detail,
+            "duration": int(duration),
+            "ts": time.time(),
+        }
+        return dict(_feedback)
+
+
+def get_feedback():
+    with _feedback_lock:
+        return dict(_feedback)
 
 
 def run_command(argv, *, input_text=None, timeout=15, extra_env=None):
@@ -60,6 +83,12 @@ def send_key(key):
     return run_command([WTYPE, "-k", key], timeout=5, extra_env=WAYLAND_ENV)
 
 
+def keyed_action(label, key, detail=""):
+    set_feedback(label, detail)
+    result = send_key(key)
+    return {"ok": True, "message": label, "input": result}
+
+
 def action_wake():
     cec_note = ""
     try:
@@ -67,6 +96,7 @@ def action_wake():
     except Exception as exc:
         cec_note = f"CEC warning: {exc}"
     refresh_note = refresh_display()
+    set_feedback("Display", "Ready")
     return {"ok": True, "message": "Display ready", "cec": cec_note, "display": refresh_note}
 
 
@@ -74,34 +104,47 @@ ACTIONS = {
     "/api/wake": action_wake,
     "/api/refresh": lambda: {"ok": True, "message": "Display refreshed", "display": refresh_display()},
     "/api/restart": lambda: {"ok": True, "message": "Display restarted", "display": restart_display()},
-    "/api/next": lambda: {"ok": True, "message": "Next", "input": send_key("Right")},
-    "/api/back": lambda: {"ok": True, "message": "Back", "input": send_key("Left")},
-    "/api/top": lambda: {"ok": True, "message": "Top", "input": send_key("Home")},
-    "/api/bottom": lambda: {"ok": True, "message": "Bottom", "input": send_key("End")},
-    "/api/home": lambda: {"ok": True, "message": "Home", "input": send_key("F8")},
+    "/api/next": lambda: keyed_action("Next", "Right", "Advancing"),
+    "/api/back": lambda: keyed_action("Back", "Left"),
+    "/api/top": lambda: keyed_action("Top", "Home"),
+    "/api/bottom": lambda: keyed_action("Bottom", "End"),
+    "/api/home": lambda: keyed_action("Home", "F8"),
 }
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/0.4"
+    server_version = "PortfolioRemote/0.5"
 
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
 
-    def send_json(self, status, payload):
+    def send_json(self, status, payload, *, cors=False):
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        if cors:
+            self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
 
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
-        if self.path == "/health":
+        path = urlparse(self.path).path
+        if path == "/health":
             self.send_json(200, {"ok": True, "service": "portfolio-remote", "presentation": WTYPE.exists()})
             return
-        if self.path not in ("/", "/index.html"):
+        if path == "/api/feedback":
+            self.send_json(200, {"ok": True, **get_feedback()}, cors=True)
+            return
+        if path not in ("/", "/index.html"):
             self.send_error(404)
             return
         try:
@@ -117,7 +160,22 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_POST(self):
-        action = ACTIONS.get(self.path)
+        path = urlparse(self.path).path
+        if path == "/api/feedback":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                payload = json.loads(self.rfile.read(length) or b"{}")
+                item = set_feedback(
+                    str(payload.get("label", ""))[:80],
+                    str(payload.get("detail", ""))[:160],
+                    int(payload.get("duration", 1100)),
+                )
+                self.send_json(200, {"ok": True, **item}, cors=True)
+            except Exception as exc:
+                self.send_json(400, {"ok": False, "message": str(exc)}, cors=True)
+            return
+
+        action = ACTIONS.get(path)
         if not action:
             self.send_error(404)
             return
