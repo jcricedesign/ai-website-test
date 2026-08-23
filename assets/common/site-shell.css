@@ -3,6 +3,9 @@
 /* Large-display mode: scale the composition rather than browser-zooming it. */
 @media (min-width:2000px) and (min-aspect-ratio:16/10){
   .jcr-shell-header,.jcr-shell-footer,body main.page{width:88vw!important;max-width:none!important}
+  html[data-display-mode="1"] body > .wrap,
+  html[data-display-mode="1"] body > main,
+  html[data-display-mode="1"] body > .page{width:88vw!important;max-width:none!important;margin-left:auto!important;margin-right:auto!important}
   .jcr-shell-header{gap:60px;padding:42px 0 24px}
   .jcr-brand-sigil{height:1.55rem}
   .jcr-brand{font-size:1.6rem}
