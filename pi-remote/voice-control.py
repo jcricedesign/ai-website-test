@@ -10,15 +10,19 @@ AUDIO_DEVICE = "plughw:2,0"
 SAMPLE_RATE = 16000
 REMOTE_BASE = "http://127.0.0.1:8765"
 WAKE_WORD = "atlas"
-COMMANDS = ["next", "back", "top", "bottom", "home", "screensaver", "cancel"]
+COMMANDS = [
+    "next", "back", "top", "bottom", "home", "screensaver", "cancel",
+    "work", "career", "barber-game", "playground", "about"
+]
 PHRASES = [
     WAKE_WORD,
-    *COMMANDS,
-    "screen saver",
-    "start screensaver",
-    "start screen saver",
-    "sleep",
-    "rest",
+    "next", "back", "top", "bottom", "home", "cancel",
+    "screensaver", "screen saver", "start screensaver", "start screen saver", "sleep", "rest",
+    "work", "selected work",
+    "career",
+    "barber game", "the barber game",
+    "playground",
+    "about", "about me",
     "[unk]",
 ]
 LISTEN_SECONDS = 5.0
@@ -60,6 +64,10 @@ def normalized_command(text):
         "start screen saver": "screensaver",
         "sleep": "screensaver",
         "rest": "screensaver",
+        "selected work": "work",
+        "barber game": "barber-game",
+        "the barber game": "barber-game",
+        "about me": "about",
     }
     if text in aliases:
         return aliases[text]
@@ -93,7 +101,7 @@ def main():
         "-r", str(SAMPLE_RATE), "-c", "1", "-t", "raw"
     ], stdout=subprocess.PIPE)
 
-    print("Atlas ready: next, back, top, bottom, home, screensaver, cancel")
+    print("Atlas ready: navigation + presentation commands")
     armed_until = 0.0
     last_action = 0.0
     last_wake = 0.0
@@ -154,9 +162,6 @@ def main():
                 partial = json.loads(recognizer.PartialResult()).get("partial", "").strip().lower()
                 now = time.monotonic()
 
-                # Wake immediately when the recognizer becomes confident enough to
-                # produce Atlas as a standalone partial. This avoids waiting for the
-                # end-of-utterance silence and makes the resting display feel responsive.
                 if now >= armed_until and partial == WAKE_WORD:
                     arm_atlas("atlas partial")
                     continue
