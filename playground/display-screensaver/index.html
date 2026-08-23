@@ -54,29 +54,34 @@ function frame(t){
   requestAnimationFrame(frame);if(t-last<33)return;
   const dt=Math.min(2,(t-last)/16.67||1);last=t;ctx.clearRect(0,0,w,h);
 
-  const top=h*.24,bottom=h*.82,span=bottom-top;
+  const top=h*.26,bottom=h*.82,span=bottom-top;
   for(let band=0;band<WAVE_COUNT;band++){
     const n=band/(WAVE_COUNT-1),baseY=top+n*span;
     const color=PALETTE[band%PALETTE.length];
-    const phase=t*.00036 + band*.31;
-    const amp=h*(.0075 + Math.sin(n*Math.PI)*.010);
+    const phase=t*.00042 + band*.31;
+    const flex=.65+.55*Math.sin(t*.00022+band*.44);
+    const amp=h*(.012 + Math.sin(n*Math.PI)*.020)*flex;
     ctx.beginPath();
     for(let x=-24;x<=w+24;x+=14){
+      const localFlex=1+.55*Math.sin(x*.0032-t*.00031+band*.35);
       const y=baseY
-        +Math.sin(x*.0062+phase)*amp
-        +Math.sin(x*.0025-phase*.72+band*.48)*amp*.62
-        +Math.sin(x*.0105+t*.00016+band*.21)*amp*.22;
+        +Math.sin(x*.0062+phase)*amp*localFlex
+        +Math.sin(x*.0025-phase*.72+band*.48)*amp*.78
+        +Math.sin(x*.0105+t*.00020+band*.21)*amp*.34;
       x===-24?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
-    const alpha=.58+(band%5)*.05;
+    const alpha=.62+(band%5)*.045;
     ctx.strokeStyle=`rgba(${color[0]},${color[1]},${color[2]},${alpha})`;
-    ctx.lineWidth=1.7;
+    ctx.lineWidth=1.8;
     ctx.stroke();
   }
 
+  // Keep the clock area visually clean so the resting information stays legible.
+  const clearX=w*.34,clearY=h*.22;
   for(const p of particles){
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.p+=.0035*dt;
     if(p.y<-8){p.y=h+8;p.x=Math.random()*w}if(p.x<-8)p.x=w+8;if(p.x>w+8)p.x=-8;
+    if(p.x<clearX&&p.y<clearY)continue;
     const pulse=.72+Math.sin(p.p)*.28;
     ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
     ctx.fillStyle=`rgba(${p.c[0]},${p.c[1]},${p.c[2]},${p.a*pulse})`;ctx.fill();
