@@ -11,9 +11,19 @@ SAMPLE_RATE = 16000
 REMOTE_BASE = "http://127.0.0.1:8765"
 WAKE_WORD = "atlas"
 COMMANDS = ["next", "back", "top", "bottom", "home", "screensaver", "cancel"]
-PHRASES = [WAKE_WORD, *COMMANDS, "start screensaver", "[unk]"]
+PHRASES = [
+    WAKE_WORD,
+    *COMMANDS,
+    "screen saver",
+    "start screensaver",
+    "start screen saver",
+    "sleep",
+    "rest",
+    "[unk]",
+]
 LISTEN_SECONDS = 5.0
 COOLDOWN_SECONDS = 0.7
+WAKE_DEBOUNCE_SECONDS = 1.0
 
 
 def post_json(path, payload=None):
@@ -43,9 +53,16 @@ def feedback(label, detail="", duration=2100):
 
 
 def normalized_command(text):
-    text = text.strip().lower()
-    if text == "start screensaver":
-        return "screensaver"
+    text = " ".join(text.strip().lower().split())
+    aliases = {
+        "screen saver": "screensaver",
+        "start screensaver": "screensaver",
+        "start screen saver": "screensaver",
+        "sleep": "screensaver",
+        "rest": "screensaver",
+    }
+    if text in aliases:
+        return aliases[text]
     return text if text in COMMANDS else None
 
 
@@ -79,8 +96,20 @@ def main():
     print("Atlas ready: next, back, top, bottom, home, screensaver, cancel")
     armed_until = 0.0
     last_action = 0.0
+    last_wake = 0.0
     last_partial = ""
     last_partial_sent = 0.0
+
+    def arm_atlas(reason="atlas"):
+        nonlocal armed_until, last_wake, last_partial
+        now = time.monotonic()
+        if now - last_wake < WAKE_DEBOUNCE_SECONDS:
+            return
+        last_wake = now
+        armed_until = now + LISTEN_SECONDS
+        last_partial = ""
+        feedback("Atlas", "Listening…", int(LISTEN_SECONDS * 1000))
+        print(f"WAKE: {reason}", flush=True)
 
     try:
         while True:
@@ -99,9 +128,7 @@ def main():
                 if words and words[0] == WAKE_WORD:
                     remainder = " ".join(words[1:])
                     if not remainder:
-                        armed_until = time.monotonic() + LISTEN_SECONDS
-                        feedback("Atlas", "Listening…", int(LISTEN_SECONDS * 1000))
-                        print("WAKE: atlas", flush=True)
+                        arm_atlas("atlas final")
                         continue
                     command = normalized_command(remainder)
                     if command:
@@ -123,14 +150,23 @@ def main():
                 else:
                     print(f"DORMANT: {text}", flush=True)
 
-            elif time.monotonic() < armed_until:
+            else:
                 partial = json.loads(recognizer.PartialResult()).get("partial", "").strip().lower()
                 now = time.monotonic()
-                if partial and partial != last_partial and now - last_partial_sent > 0.35:
+
+                # Wake immediately when the recognizer becomes confident enough to
+                # produce Atlas as a standalone partial. This avoids waiting for the
+                # end-of-utterance silence and makes the resting display feel responsive.
+                if now >= armed_until and partial == WAKE_WORD:
+                    arm_atlas("atlas partial")
+                    continue
+
+                if now < armed_until and partial and partial != last_partial and now - last_partial_sent > 0.35:
                     last_partial = partial
                     last_partial_sent = now
-                    feedback("Atlas", partial, 1200)
-                    print(f"PARTIAL: {partial}", flush=True)
+                    if partial != WAKE_WORD:
+                        feedback("Atlas", partial, 1200)
+                        print(f"PARTIAL: {partial}", flush=True)
 
     except KeyboardInterrupt:
         print("\nStopped.")
