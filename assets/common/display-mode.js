@@ -5,8 +5,10 @@
   if (params.get('display') !== '1') return;
 
   const ROUTES = ['/', '/work/', '/barber-game/', '/career/', '/playground/'];
+  const FEEDBACK_URL = 'http://127.0.0.1:8765/api/feedback';
   let lastPointer = { x: null, y: null };
   let feedbackTimer = null;
+  let feedbackSeq = 0;
 
   document.documentElement.dataset.displayMode = '1';
 
@@ -24,16 +26,15 @@
         position:fixed;left:50%;bottom:7vh;z-index:2147483647;
         transform:translate(-50%,18px);opacity:0;pointer-events:none;
         min-width:180px;max-width:min(70vw,680px);padding:14px 22px 15px;
-        border:1px solid rgba(255,255,255,.16);border-radius:999px;
-        background:rgba(10,10,10,.82);backdrop-filter:blur(14px);
-        -webkit-backdrop-filter:blur(14px);color:#f5f5f2;text-align:center;
+        border:1px solid rgba(255,255,255,.20);border-radius:999px;
+        background:rgba(0,0,0,.90);color:#fff;text-align:center;
         font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
         transition:opacity .18s ease,transform .22s ease;
-        box-shadow:0 10px 34px rgba(0,0,0,.22)
+        box-shadow:0 10px 34px rgba(0,0,0,.35)
       }
       #jcr-display-feedback.jcr-visible{opacity:1;transform:translate(-50%,0)}
-      #jcr-display-feedback .jcr-feedback-label{font-size:13px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
-      #jcr-display-feedback .jcr-feedback-detail{margin-top:4px;font-size:12px;color:rgba(245,245,242,.62)}
+      #jcr-display-feedback .jcr-feedback-label{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+      #jcr-display-feedback .jcr-feedback-detail{margin-top:4px;font-size:12px;color:rgba(255,255,255,.68)}
     `;
     document.head.appendChild(style);
 
@@ -47,6 +48,7 @@
   }
 
   function showFeedback(label, detail = '', duration = 1100) {
+    if (!label) return;
     const el = ensureFeedback();
     el.querySelector('.jcr-feedback-label').textContent = label;
     const detailEl = el.querySelector('.jcr-feedback-detail');
@@ -54,8 +56,22 @@
     detailEl.style.display = detail ? '' : 'none';
     clearTimeout(feedbackTimer);
     requestAnimationFrame(() => el.classList.add('jcr-visible'));
-    if (duration > 0) {
-      feedbackTimer = setTimeout(() => el.classList.remove('jcr-visible'), duration);
+    if (duration > 0) feedbackTimer = setTimeout(() => el.classList.remove('jcr-visible'), duration);
+  }
+
+  async function pollFeedback() {
+    try {
+      const response = await fetch(`${FEEDBACK_URL}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('feedback unavailable');
+      const data = await response.json();
+      if (data.ok && data.seq > feedbackSeq) {
+        feedbackSeq = data.seq;
+        showFeedback(data.label, data.detail || '', data.duration || 1100);
+      }
+    } catch (_) {
+      // Feedback is optional; presentation controls continue to work if unavailable.
+    } finally {
+      setTimeout(pollFeedback, 250);
     }
   }
 
@@ -66,14 +82,7 @@
   }
 
   function presentationStops() {
-    const selectors = [
-      '[data-presentation-stop]',
-      'main > section',
-      '.project-story',
-      '.project-media',
-      'main > article',
-      'footer'
-    ];
+    const selectors = ['[data-presentation-stop]','main > section','.project-story','.project-media','main > article','footer'];
     const seen = new Set();
     const stops = [];
     document.querySelectorAll(selectors.join(',')).forEach(el => {
@@ -145,52 +154,32 @@
   window.addEventListener('keydown', event => {
     if (event.key === 'ArrowRight' || event.key === 'PageDown') {
       event.preventDefault();
-      showFeedback('Next', 'Advancing');
       stepPresentation(1);
       return;
     }
     if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
       event.preventDefault();
-      showFeedback('Back');
       stepPresentation(-1);
       return;
     }
     if (event.key === 'Home') {
       event.preventDefault();
-      showFeedback('Top');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (event.key === 'End') {
       event.preventDefault();
-      showFeedback('Bottom');
       window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
       return;
     }
     if (event.key === 'F8') {
       event.preventDefault();
-      showFeedback('Home');
       goHome();
-      return;
-    }
-    // Reserved feedback states for the upcoming Atlas wake-word listener.
-    if (event.key === 'F9') {
-      event.preventDefault();
-      showFeedback('Atlas', 'Listening…', 5000);
-      return;
-    }
-    if (event.key === 'F10') {
-      event.preventDefault();
-      showFeedback('Atlas', 'I didn’t catch that', 1500);
-      return;
-    }
-    if (event.key === 'F11') {
-      event.preventDefault();
-      showFeedback('Cancelled', '', 1000);
       return;
     }
     userActivity();
   });
 
   ensureFeedback();
+  pollFeedback();
 })();
