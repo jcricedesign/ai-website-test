@@ -95,12 +95,17 @@
         border:2px solid rgba(255,255,255,.20);border-radius:3vh;
         background:rgba(0,0,0,.90);color:#fff;text-align:center;
         font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
-        transition:opacity .65s ease,transform .28s ease;
+        transition:opacity .65s ease,transform .28s ease,background .18s ease,color .18s ease,border-color .18s ease;
         box-shadow:0 16px 50px rgba(0,0,0,.38)
       }
-      #jcr-display-feedback.jcr-visible{opacity:1;transform:translate(-50%,0);transition:opacity .18s ease,transform .22s ease}
+      #jcr-display-feedback.jcr-visible{opacity:1;transform:translate(-50%,0);transition:opacity .18s ease,transform .22s ease,background .18s ease,color .18s ease,border-color .18s ease}
+      #jcr-display-feedback.jcr-resting-feedback{
+        background:rgba(245,245,242,.92);color:#08090a;border-color:rgba(255,255,255,.92);
+        box-shadow:0 18px 60px rgba(0,0,0,.42)
+      }
       #jcr-display-feedback .jcr-feedback-label{font-size:clamp(54px,7vh,92px);line-height:1;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
       #jcr-display-feedback .jcr-feedback-detail{margin-top:1.4vh;font-size:clamp(30px,3.6vh,52px);line-height:1.1;color:rgba(255,255,255,.72)}
+      #jcr-display-feedback.jcr-resting-feedback .jcr-feedback-detail{color:rgba(8,9,10,.68)}
     `;
     document.head.appendChild(style);
 
@@ -113,16 +118,20 @@
     return el;
   }
 
-  function showFeedback(label, detail = '', duration = 2100) {
+  function showFeedback(label, detail = '', duration = 2100, fromResting = false) {
     if (!label) return;
     const el = ensureFeedback();
+    el.classList.toggle('jcr-resting-feedback', fromResting);
     el.querySelector('.jcr-feedback-label').textContent = label;
     const detailEl = el.querySelector('.jcr-feedback-detail');
     detailEl.textContent = detail;
     detailEl.style.display = detail ? '' : 'none';
     clearTimeout(feedbackTimer);
     requestAnimationFrame(() => el.classList.add('jcr-visible'));
-    if (duration > 0) feedbackTimer = setTimeout(() => el.classList.remove('jcr-visible'), duration);
+    if (duration > 0) feedbackTimer = setTimeout(() => {
+      el.classList.remove('jcr-visible');
+      setTimeout(() => el.classList.remove('jcr-resting-feedback'), 700);
+    }, duration);
   }
 
   async function pollFeedback() {
@@ -135,9 +144,10 @@
         if ((data.label || '').toLowerCase() === 'screensaver') {
           showScreensaver();
         } else {
+          const wasResting = screensaverVisible;
           hideScreensaver();
           resetIdle();
-          showFeedback(data.label, data.detail || '', data.duration || 2100);
+          showFeedback(data.label, data.detail || '', data.duration || 2100, wasResting);
         }
       }
     } catch (_) {
