@@ -76,13 +76,13 @@ ACTIONS = {
     "/api/restart": lambda: {"ok": True, "message": "Display restarted", "display": restart_display()},
     "/api/next": lambda: {"ok": True, "message": "Next", "input": send_key("Right")},
     "/api/back": lambda: {"ok": True, "message": "Back", "input": send_key("Left")},
-    "/api/scroll-up": lambda: {"ok": True, "message": "Scrolled up", "input": send_key("Up")},
-    "/api/scroll-down": lambda: {"ok": True, "message": "Scrolled down", "input": send_key("Down")},
+    "/api/top": lambda: {"ok": True, "message": "Top", "input": send_key("Home")},
+    "/api/bottom": lambda: {"ok": True, "message": "Bottom", "input": send_key("End")},
 }
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "PortfolioRemote/0.2"
+    server_version = "PortfolioRemote/0.3"
 
     def log_message(self, fmt, *args):
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
