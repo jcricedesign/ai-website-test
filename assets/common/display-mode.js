@@ -101,6 +101,15 @@
     return true;
   }
 
+  function goHome() {
+    userActivity();
+    if (normalizedPath() === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    location.href = '/?display=1';
+  }
+
   function stepPresentation(direction) {
     userActivity();
     const stops = presentationStops();
@@ -145,6 +154,11 @@
     if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
       event.preventDefault();
       stepPresentation(-1);
+      return;
+    }
+    if (event.key === 'F8') {
+      event.preventDefault();
+      goHome();
       return;
     }
     userActivity();
