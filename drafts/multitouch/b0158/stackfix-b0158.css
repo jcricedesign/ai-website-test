@@ -1,0 +1,5 @@
+.joined.photo-collection .object[data-kind="image"]{left:50%!important;top:50%!important;transform-origin:center!important}
+.joined.photo-collection .object[data-kind="image"]:nth-child(1){z-index:1;transform:translate(-53%,-50%) rotate(-6deg) scale(.90)!important}
+.joined.photo-collection .object[data-kind="image"]:nth-child(2){z-index:2;transform:translate(-51%,-50%) rotate(-2deg) scale(.92)!important}
+.joined.photo-collection .object[data-kind="image"]:nth-child(3){z-index:3;transform:translate(-49%,-50%) rotate(2deg) scale(.92)!important}
+.joined.photo-collection .object[data-kind="image"]:nth-child(4){z-index:4;transform:translate(-47%,-50%) rotate(6deg) scale(.90)!important}
