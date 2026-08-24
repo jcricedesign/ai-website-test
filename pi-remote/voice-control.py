@@ -4,11 +4,18 @@ from vosk import Model, KaldiRecognizer
 MODEL_PATH="/home/john/vosk-model"; AUDIO_DEVICE="plughw:2,0"; SAMPLE_RATE=16000; REMOTE_BASE="http://127.0.0.1:8765"; WAKE_WORD="atlas"
 DEMO_URL=os.environ.get("PORTFOLIO_DEMO_URL","https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov")
 ANTHEM_URL=os.environ.get("PORTFOLIO_ANTHEM_URL","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/Heavy-Intro.mp3")
+R2_BASE=os.environ.get("PORTFOLIO_R2_BASE","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev").rstrip("/")
+TRAILER_URLS=[
+ f"{R2_BASE}/trailers/atlas-boston-dynamics.mp4",
+ f"{R2_BASE}/trailers/IBM-selectric-doc.mp4",
+ f"{R2_BASE}/trailers/Spot-Launch-YouTube.mp4",
+]
 DISPLAY_ENV={"DISPLAY":":0","XDG_RUNTIME_DIR":"/run/user/1000","WAYLAND_DISPLAY":"wayland-0"}
-COMMANDS=["next","back","top","bottom","home","screensaver","cancel","work","career","barber-game","playground","about","demo","exit","anthem","stop"]
-PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","exit","stop demo","close demo","anthem","play anthem","start anthem","stop","stop anthem","stop music","[unk]"]
+COMMANDS=["next","back","top","bottom","home","screensaver","cancel","work","career","barber-game","playground","about","demo","trailers","exit","anthem","stop"]
+PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","anthem","play anthem","start anthem","stop","stop anthem","stop music","[unk]"]
 LISTEN_SECONDS=5.;COOLDOWN_SECONDS=.7;WAKE_DEBOUNCE_SECONDS=1.;DEMO_START_VOLUME=65;DEMO_DUCK_STEPS=5
 _demo_process=None;_demo_lock=threading.Lock();_duck_restore_timer=None;_anthem_process=None;_anthem_lock=threading.Lock();_last_audio_stop_seq=0
+_foreground_mode=None;_foreground_stop=threading.Event();_foreground_lock=threading.Lock()
 
 def request_json(path,method="GET",payload=None):
  data=None;headers={}
@@ -26,50 +33,80 @@ def feedback(label,detail="",duration=2100):
 def audio_state(playing,title=""):
  try:post_json("/api/audio",{"playing":playing,"title":title})
  except Exception as exc:print(f"AUDIO STATE ERROR: {exc}",flush=True)
-def finish_feedback():feedback("Demo","Closed",450)
 def demo_running():
  with _demo_lock:proc=_demo_process
  return bool(proc and proc.poll() is None)
 def anthem_running():
  with _anthem_lock:proc=_anthem_process
  return bool(proc and proc.poll() is None)
+def foreground_mode():
+ with _foreground_lock:return _foreground_mode
+def set_foreground_mode(mode):
+ global _foreground_mode
+ with _foreground_lock:_foreground_mode=mode
 def send_player_key(key,presses=1):
  if not demo_running():return
  env=os.environ.copy();env.update(DISPLAY_ENV)
  for _ in range(presses):subprocess.run(["/usr/bin/wtype","-k",key],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.035)
 def restore_demo_audio():
  global _duck_restore_timer;_duck_restore_timer=None
- if demo_running():send_player_key("0",DEMO_DUCK_STEPS);print("DEMO AUDIO: restored",flush=True)
+ if demo_running():send_player_key("0",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: restored",flush=True)
 def duck_demo_audio():
  global _duck_restore_timer
  if not demo_running():return
  if _duck_restore_timer:_duck_restore_timer.cancel()
- send_player_key("9",DEMO_DUCK_STEPS);print("DEMO AUDIO: ducked",flush=True);_duck_restore_timer=threading.Timer(LISTEN_SECONDS+.5,restore_demo_audio);_duck_restore_timer.daemon=True;_duck_restore_timer.start()
+ send_player_key("9",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: ducked",flush=True);_duck_restore_timer=threading.Timer(LISTEN_SECONDS+.5,restore_demo_audio);_duck_restore_timer.daemon=True;_duck_restore_timer.start()
 def normalized_command(text):
- text=" ".join(text.strip().lower().split());aliases={"screen saver":"screensaver","start screensaver":"screensaver","start screen saver":"screensaver","sleep":"screensaver","rest":"screensaver","selected work":"work","barber game":"barber-game","the barber game":"barber-game","about me":"about","play demo":"demo","start demo":"demo","stop demo":"exit","close demo":"exit","play anthem":"anthem","start anthem":"anthem","stop anthem":"stop","stop music":"stop"}
+ text=" ".join(text.strip().lower().split());aliases={"screen saver":"screensaver","start screensaver":"screensaver","start screen saver":"screensaver","sleep":"screensaver","rest":"screensaver","selected work":"work","barber game":"barber-game","the barber game":"barber-game","about me":"about","play demo":"demo","start demo":"demo","play trailers":"trailers","start trailers":"trailers","stop demo":"exit","close demo":"exit","stop trailers":"exit","close trailers":"exit","play anthem":"anthem","start anthem":"anthem","stop anthem":"stop","stop music":"stop"}
  return aliases.get(text,text if text in COMMANDS else None)
-def watch_demo(proc):
- global _demo_process,_duck_restore_timer;proc.wait()
- with _demo_lock:
-  if _demo_process is proc:_demo_process=None
- if _duck_restore_timer:_duck_restore_timer.cancel();_duck_restore_timer=None
- finish_feedback();print(f"DEMO END: {proc.returncode}",flush=True)
-def stop_demo():
+def run_foreground(url):
  global _demo_process
- with _demo_lock:proc=_demo_process
- if not proc or proc.poll() is not None:
-  with _demo_lock:
-   if _demo_process is proc:_demo_process=None
-  return False
- proc.terminate()
- try:proc.wait(timeout=2)
- except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=2)
- return True
-def start_demo():
- global _demo_process;stop_demo();stop_anthem();env=os.environ.copy();env.update(DISPLAY_ENV);feedback("Demo","Starting…",1200)
- proc=subprocess.Popen(["/usr/bin/ffplay","-hide_banner","-loglevel","warning","-fs","-autoexit","-volume",str(DEMO_START_VOLUME),DEMO_URL],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env=env)
+ env=os.environ.copy();env.update(DISPLAY_ENV)
+ proc=subprocess.Popen(["/usr/bin/ffplay","-hide_banner","-loglevel","warning","-fs","-autoexit","-volume",str(DEMO_START_VOLUME),url],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env=env)
  with _demo_lock:_demo_process=proc
- threading.Thread(target=watch_demo,args=(proc,),daemon=True).start();print(f"DEMO START: {proc.pid} {DEMO_URL} volume={DEMO_START_VOLUME}",flush=True)
+ print(f"FOREGROUND START: {proc.pid} {url} volume={DEMO_START_VOLUME}",flush=True)
+ return proc
+def clear_foreground_process(proc=None):
+ global _demo_process,_duck_restore_timer
+ with _demo_lock:
+  if proc is None or _demo_process is proc:_demo_process=None
+ if _duck_restore_timer:_duck_restore_timer.cancel();_duck_restore_timer=None
+def stop_foreground():
+ global _demo_process
+ _foreground_stop.set()
+ with _demo_lock:proc=_demo_process
+ if proc and proc.poll() is None:
+  proc.terminate()
+  try:proc.wait(timeout=2)
+  except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=2)
+  clear_foreground_process(proc);return True
+ clear_foreground_process(proc);return bool(foreground_mode())
+def watch_demo(proc):
+ proc.wait();current=foreground_mode()
+ clear_foreground_process(proc)
+ if current=="demo" and not _foreground_stop.is_set():feedback("Demo","Closed",450)
+ if current=="demo":set_foreground_mode(None)
+ print(f"DEMO END: {proc.returncode}",flush=True)
+def start_demo():
+ _foreground_stop.clear();stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("demo");feedback("Demo","Starting…",1200)
+ proc=run_foreground(DEMO_URL);threading.Thread(target=watch_demo,args=(proc,),daemon=True).start()
+def play_trailers_worker():
+ try:
+  total=len(TRAILER_URLS)
+  for index,url in enumerate(TRAILER_URLS,1):
+   if _foreground_stop.is_set():break
+   feedback("Trailers",f"{index} of {total}",650)
+   proc=run_foreground(url);proc.wait();clear_foreground_process(proc)
+   if _foreground_stop.is_set():break
+   if proc.returncode not in (0,None):
+    print(f"TRAILER ERROR: {proc.returncode} {url}",flush=True)
+  if not _foreground_stop.is_set():feedback("Trailers","Ended",700)
+ finally:
+  clear_foreground_process();set_foreground_mode(None);print("TRAILERS END",flush=True)
+def start_trailers():
+ stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("trailers");feedback("Trailers","Starting…",1000)
+ threading.Thread(target=play_trailers_worker,daemon=True).start();print(f"TRAILERS START: {len(TRAILER_URLS)} items",flush=True)
+def stop_demo():return stop_foreground()
 def watch_anthem(proc):
  global _anthem_process;proc.wait();was_current=False
  with _anthem_lock:
@@ -107,10 +144,12 @@ def execute(command,last_action):
  if time.monotonic()-last_action<COOLDOWN_SECONDS:return last_action,False
  try:
   if command=="demo":start_demo()
+  elif command=="trailers":start_trailers()
   elif command=="exit":
-   stopped=stop_demo()
-   if not stopped:feedback("Demo","Nothing playing",1000)
-   print("DEMO EXIT" if stopped else "DEMO EXIT: none",flush=True)
+   mode=foreground_mode();stopped=stop_foreground()
+   if stopped:feedback("Trailers" if mode=="trailers" else "Demo","Stopped" if mode=="trailers" else "Closed",650)
+   else:feedback("Atlas","Nothing playing",900)
+   print(f"FOREGROUND EXIT: {mode or 'none'}",flush=True)
   elif command=="anthem":start_anthem()
   elif command=="stop":
    stopped=stop_anthem();feedback("Anthem","Stopped" if stopped else "Nothing playing",800);print("ANTHEM STOP" if stopped else "ANTHEM STOP: none",flush=True)
@@ -122,7 +161,7 @@ def main():
  print("Loading voice model...");model=Model(MODEL_PATH);recognizer=KaldiRecognizer(model,SAMPLE_RATE,json.dumps(PHRASES));audio=subprocess.Popen(["arecord","-q","-D",AUDIO_DEVICE,"-f","S16_LE","-r",str(SAMPLE_RATE),"-c","1","-t","raw"],stdout=subprocess.PIPE)
  try:_last_audio_stop_seq=int(request_json("/api/audio").get("stop_seq",0))
  except Exception:_last_audio_stop_seq=0
- audio_state(False);threading.Thread(target=audio_stop_watcher,daemon=True).start();print("Atlas ready: navigation + presentation + demo + anthem commands")
+ audio_state(False);threading.Thread(target=audio_stop_watcher,daemon=True).start();print("Atlas ready: navigation + presentation + demo + trailers + anthem commands")
  armed_until=last_action=last_wake=0.;last_partial="";last_partial_sent=0.
  def arm_atlas(reason="atlas"):
   nonlocal armed_until,last_wake,last_partial
@@ -161,5 +200,5 @@ def main():
      last_partial=partial;last_partial_sent=now
      if partial!=WAKE_WORD:feedback("Atlas",partial,1200);print(f"PARTIAL: {partial}",flush=True)
  except KeyboardInterrupt:print("\nStopped.")
- finally:stop_anthem();stop_demo();audio.terminate()
+ finally:stop_anthem();stop_foreground();audio.terminate()
 if __name__=="__main__":main()
