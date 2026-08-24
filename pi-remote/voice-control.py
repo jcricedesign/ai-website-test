@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, os, subprocess, threading, time, urllib.request
+import json, os, subprocess, tempfile, threading, time, urllib.request
 from vosk import Model, KaldiRecognizer
 MODEL_PATH="/home/john/vosk-model"; AUDIO_DEVICE="plughw:2,0"; SAMPLE_RATE=16000; REMOTE_BASE="http://127.0.0.1:8765"; WAKE_WORD="atlas"
 DEMO_URL=os.environ.get("PORTFOLIO_DEMO_URL","https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov")
@@ -11,7 +11,8 @@ COMMANDS=["next","back","top","bottom","home","screensaver","cancel","work","car
 PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","stop playing","stop playback","cancel playback","anthem","play anthem","start anthem","stop","stop anthem","stop music","[unk]"]
 LISTEN_SECONDS=5.;COOLDOWN_SECONDS=.7;WAKE_DEBOUNCE_SECONDS=1.;DEMO_START_VOLUME=65;DEMO_DUCK_STEPS=5
 _demo_process=None;_demo_lock=threading.Lock();_duck_restore_timer=None;_anthem_process=None;_anthem_lock=threading.Lock();_last_audio_stop_seq=0
-_foreground_mode=None;_foreground_stop=threading.Event();_foreground_lock=threading.Lock()
+_foreground_mode=None;_foreground_stop=threading.Event();_foreground_lock=threading.Lock();_trailer_manifest=None
+
 def request_json(path,method="GET",payload=None):
  data=None;headers={}
  if payload is not None:data=json.dumps(payload).encode();headers={"Content-Type":"application/json","Content-Length":str(len(data))}
@@ -63,6 +64,23 @@ def run_foreground(url):
  proc=subprocess.Popen(["/usr/bin/ffplay","-hide_banner","-loglevel","warning","-fs","-autoexit","-volume",str(DEMO_START_VOLUME),url],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env=env)
  with _demo_lock:_demo_process=proc
  print(f"FOREGROUND START: {proc.pid} {url} volume={DEMO_START_VOLUME}",flush=True);return proc
+def run_trailer_playlist():
+ global _demo_process,_trailer_manifest
+ env=os.environ.copy();env.update(DISPLAY_ENV)
+ manifest=tempfile.NamedTemporaryFile(mode="w",prefix="atlas-trailers-",suffix=".ffconcat",delete=False)
+ manifest.write("ffconcat version 1.0\n")
+ for url in TRAILER_URLS:manifest.write(f"file '{url}'\n")
+ manifest.close();_trailer_manifest=manifest.name
+ args=["/usr/bin/ffplay","-hide_banner","-loglevel","warning","-fs","-autoexit","-volume",str(DEMO_START_VOLUME),"-f","concat","-safe","0","-protocol_whitelist","file,http,https,tcp,tls,crypto",manifest.name]
+ proc=subprocess.Popen(args,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env=env)
+ with _demo_lock:_demo_process=proc
+ print(f"TRAILER SESSION START: {proc.pid} items={len(TRAILER_URLS)}",flush=True);return proc
+def cleanup_trailer_manifest():
+ global _trailer_manifest
+ path=_trailer_manifest;_trailer_manifest=None
+ if path:
+  try:os.unlink(path)
+  except OSError:pass
 def clear_foreground_process(proc=None):
  global _demo_process,_duck_restore_timer
  with _demo_lock:
@@ -76,8 +94,8 @@ def stop_foreground():
   proc.terminate()
   try:proc.wait(timeout=2)
   except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=2)
-  clear_foreground_process(proc);return True
- clear_foreground_process(proc);return bool(foreground_mode())
+  clear_foreground_process(proc);cleanup_trailer_manifest();return True
+ clear_foreground_process(proc);cleanup_trailer_manifest();return bool(foreground_mode())
 def watch_demo(proc):
  proc.wait();current=foreground_mode();clear_foreground_process(proc);activity_state(False)
  if current=="demo" and not _foreground_stop.is_set():feedback("Demo","Closed",450)
@@ -88,21 +106,15 @@ def start_demo():
  proc=run_foreground(DEMO_URL);activity_state(False);threading.Thread(target=watch_demo,args=(proc,),daemon=True).start()
 def play_trailers_worker():
  try:
-  total=len(TRAILER_URLS)
-  for index,url in enumerate(TRAILER_URLS,1):
-   if _foreground_stop.is_set():break
-   activity_state(True,f"Loading trailer {index} of {total}…")
-   proc=run_foreground(url)
-   time.sleep(.35);activity_state(False)
-   proc.wait();clear_foreground_process(proc)
-   if _foreground_stop.is_set():break
-   if proc.returncode not in (0,None):print(f"TRAILER ERROR: {proc.returncode} {url}",flush=True)
-  if not _foreground_stop.is_set():feedback("Trailers","Ended",700)
+  proc=run_trailer_playlist();time.sleep(.35);activity_state(False);proc.wait();clear_foreground_process(proc)
+  if not _foreground_stop.is_set():
+   if proc.returncode in (0,None):feedback("Trailers","Ended",700)
+   else:feedback("Trailers","Playback ended",800);print(f"TRAILER SESSION ERROR: {proc.returncode}",flush=True)
  finally:
-  activity_state(False);clear_foreground_process();set_foreground_mode(None);print("TRAILERS END",flush=True)
+  activity_state(False);cleanup_trailer_manifest();clear_foreground_process();set_foreground_mode(None);print("TRAILERS END",flush=True)
 def start_trailers():
- stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("trailers");activity_state(True,f"Loading trailer 1 of {len(TRAILER_URLS)}…")
- threading.Thread(target=play_trailers_worker,daemon=True).start();print(f"TRAILERS START: {len(TRAILER_URLS)} items",flush=True)
+ stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("trailers");activity_state(True,"Loading trailers…")
+ threading.Thread(target=play_trailers_worker,daemon=True).start();print(f"TRAILERS START: {len(TRAILER_URLS)} items in one session",flush=True)
 def stop_demo():return stop_foreground()
 def watch_anthem(proc):
  global _anthem_process;proc.wait();was_current=False
