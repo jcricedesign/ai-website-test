@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atlas Temporary Canvas</title><meta name="robots" content="noindex">
+<style>
+:root{--bg:#070809;--fg:#f2f2ef;--muted:rgba(242,242,239,.42)}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg)}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--fg);cursor:none}.canvas{position:fixed;inset:0;background:radial-gradient(circle at 72% 22%,rgba(123,97,255,.07),transparent 34%),var(--bg);padding:7vh 6vw;display:flex;flex-direction:column;justify-content:space-between}.eyebrow,.state{font-size:clamp(14px,1.1vw,20px);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.weather{display:flex;align-items:flex-end;gap:3vw}.temp{font-size:clamp(120px,22vw,330px);font-weight:250;letter-spacing:-.075em;line-height:.72}.details{padding-bottom:1vh}.city{font-size:clamp(42px,5vw,78px);font-weight:650;letter-spacing:-.035em}.condition{margin-top:1vh;font-size:clamp(24px,2.4vw,40px);color:var(--muted)}.bottom{display:flex;justify-content:space-between;align-items:flex-end}.hint{font-size:clamp(16px,1.35vw,24px);color:rgba(242,242,239,.28)}
+</style></head>
+<body><main class="canvas"><div class="eyebrow">Atlas · Temporary Canvas</div><section class="weather" aria-label="Weather"><div class="temp">62°</div><div class="details"><div class="city">Seattle</div><div class="condition">Cloudy · Placeholder</div></div></section><div class="bottom"><div class="hint">Say “Atlas, cancel” to dismiss</div><div class="state" id="state">Returning in 30 seconds</div></div></main>
+<script>
+const RETURN_MS=30000,state=document.getElementById('state');let remaining=RETURN_MS/1000;
+function dismiss(){if(history.length>1)history.back();else location.replace('/?display=1')}
+const timer=setInterval(()=>{remaining--;state.textContent=`Returning in ${remaining} second${remaining===1?'':'s'}`;if(remaining<=0){clearInterval(timer);dismiss()}},1000);
+addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();dismiss()}});
+</script></body></html>
