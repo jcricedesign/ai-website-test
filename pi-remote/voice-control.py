@@ -71,11 +71,11 @@ def feedback(label, detail="", duration=2100):
         print(f"FEEDBACK ERROR: {exc}", flush=True)
 
 
-def clear_feedback():
-    # Existing display feedback has no explicit clear command yet. A zero-width
-    # label with a 1ms lifetime advances the feedback sequence and immediately
-    # removes any stale Atlas pill without refreshing or navigating Chromium.
-    feedback("\u200b", "", 1)
+def finish_feedback():
+    # The current display feedback protocol has no explicit hide event.
+    # Use a real, very short message rather than an invisible label, which
+    # would leave the pill's container visible after native playback exits.
+    feedback("Demo", "Closed", 450)
 
 
 def normalized_command(text):
@@ -106,7 +106,7 @@ def watch_demo(proc):
     with _demo_lock:
         if _demo_process is proc:
             _demo_process = None
-    clear_feedback()
+    finish_feedback()
     print(f"DEMO END: {proc.returncode}", flush=True)
 
 
@@ -118,7 +118,6 @@ def stop_demo():
         with _demo_lock:
             if _demo_process is proc:
                 _demo_process = None
-        clear_feedback()
         return False
     proc.terminate()
     try:
@@ -168,6 +167,8 @@ def execute(command, last_action):
             start_demo()
         elif command == "exit":
             stopped = stop_demo()
+            if not stopped:
+                feedback("Demo", "Nothing playing", 1000)
             print("DEMO EXIT" if stopped else "DEMO EXIT: none", flush=True)
         else:
             send_action(command)
