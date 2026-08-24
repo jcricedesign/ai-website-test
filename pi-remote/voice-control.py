@@ -16,6 +16,10 @@ DEMO_URL = os.environ.get(
     "PORTFOLIO_DEMO_URL",
     "https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov",
 )
+ANTHEM_URL = os.environ.get(
+    "PORTFOLIO_ANTHEM_URL",
+    "https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/Heavy-Intro.mp3",
+)
 DISPLAY_ENV = {
     "DISPLAY": ":0",
     "XDG_RUNTIME_DIR": "/run/user/1000",
@@ -23,7 +27,8 @@ DISPLAY_ENV = {
 }
 COMMANDS = [
     "next", "back", "top", "bottom", "home", "screensaver", "cancel",
-    "work", "career", "barber-game", "playground", "about", "demo", "exit"
+    "work", "career", "barber-game", "playground", "about", "demo", "exit",
+    "anthem", "stop"
 ]
 PHRASES = [
     WAKE_WORD,
@@ -36,6 +41,8 @@ PHRASES = [
     "about", "about me",
     "demo", "play demo", "start demo",
     "exit", "stop demo", "close demo",
+    "anthem", "play anthem", "start anthem",
+    "stop", "stop anthem", "stop music",
     "[unk]",
 ]
 LISTEN_SECONDS = 5.0
@@ -46,6 +53,8 @@ DEMO_DUCK_STEPS = 5
 _demo_process = None
 _demo_lock = threading.Lock()
 _duck_restore_timer = None
+_anthem_process = None
+_anthem_lock = threading.Lock()
 
 
 def post_json(path, payload=None):
@@ -81,6 +90,12 @@ def finish_feedback():
 def demo_running():
     with _demo_lock:
         proc = _demo_process
+    return bool(proc and proc.poll() is None)
+
+
+def anthem_running():
+    with _anthem_lock:
+        proc = _anthem_process
     return bool(proc and proc.poll() is None)
 
 
@@ -138,6 +153,10 @@ def normalized_command(text):
         "start demo": "demo",
         "stop demo": "exit",
         "close demo": "exit",
+        "play anthem": "anthem",
+        "start anthem": "anthem",
+        "stop anthem": "stop",
+        "stop music": "stop",
     }
     if text in aliases:
         return aliases[text]
@@ -178,6 +197,7 @@ def stop_demo():
 def start_demo():
     global _demo_process
     stop_demo()
+    stop_anthem()
     env = os.environ.copy()
     env.update(DISPLAY_ENV)
     feedback("Demo", "Starting…", 1200)
@@ -202,6 +222,60 @@ def start_demo():
     print(f"DEMO START: {proc.pid} {DEMO_URL} volume={DEMO_START_VOLUME}", flush=True)
 
 
+def watch_anthem(proc):
+    global _anthem_process
+    proc.wait()
+    with _anthem_lock:
+        if _anthem_process is proc:
+            _anthem_process = None
+    feedback("Anthem", "Finished", 700)
+    print(f"ANTHEM END: {proc.returncode}", flush=True)
+
+
+def stop_anthem():
+    global _anthem_process
+    with _anthem_lock:
+        proc = _anthem_process
+    if not proc or proc.poll() is not None:
+        with _anthem_lock:
+            if _anthem_process is proc:
+                _anthem_process = None
+        return False
+    proc.terminate()
+    try:
+        proc.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=2)
+    return True
+
+
+def start_anthem():
+    global _anthem_process
+    stop_anthem()
+    env = os.environ.copy()
+    env.update(DISPLAY_ENV)
+    feedback("Anthem", "Playing", 1400)
+    proc = subprocess.Popen(
+        [
+            "/usr/bin/ffplay",
+            "-hide_banner",
+            "-loglevel", "warning",
+            "-nodisp",
+            "-autoexit",
+            ANTHEM_URL,
+        ],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        env=env,
+    )
+    with _anthem_lock:
+        _anthem_process = proc
+    threading.Thread(target=watch_anthem, args=(proc,), daemon=True).start()
+    print(f"ANTHEM START: {proc.pid} {ANTHEM_URL}", flush=True)
+
+
 def execute(command, last_action):
     if command == "cancel":
         feedback("Atlas", "Cancelled")
@@ -217,6 +291,12 @@ def execute(command, last_action):
             if not stopped:
                 feedback("Demo", "Nothing playing", 1000)
             print("DEMO EXIT" if stopped else "DEMO EXIT: none", flush=True)
+        elif command == "anthem":
+            start_anthem()
+        elif command == "stop":
+            stopped = stop_anthem()
+            feedback("Anthem", "Stopped" if stopped else "Nothing playing", 800)
+            print("ANTHEM STOP" if stopped else "ANTHEM STOP: none", flush=True)
         else:
             send_action(command)
             print(f"ACTION: {command}", flush=True)
@@ -237,7 +317,7 @@ def main():
         "-r", str(SAMPLE_RATE), "-c", "1", "-t", "raw"
     ], stdout=subprocess.PIPE)
 
-    print("Atlas ready: navigation + presentation + demo commands")
+    print("Atlas ready: navigation + presentation + demo + anthem commands")
     armed_until = 0.0
     last_action = 0.0
     last_wake = 0.0
@@ -314,6 +394,7 @@ def main():
     except KeyboardInterrupt:
         print("\nStopped.")
     finally:
+        stop_anthem()
         stop_demo()
         audio.terminate()
         try:
