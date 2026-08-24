@@ -2,6 +2,7 @@
 import json
 import os
 import subprocess
+import threading
 import time
 import urllib.request
 from vosk import Model, KaldiRecognizer
@@ -41,6 +42,7 @@ LISTEN_SECONDS = 5.0
 COOLDOWN_SECONDS = 0.7
 WAKE_DEBOUNCE_SECONDS = 1.0
 _demo_process = None
+_demo_lock = threading.Lock()
 
 
 def post_json(path, payload=None):
@@ -69,6 +71,13 @@ def feedback(label, detail="", duration=2100):
         print(f"FEEDBACK ERROR: {exc}", flush=True)
 
 
+def clear_feedback():
+    # Existing display feedback has no explicit clear command yet. A zero-width
+    # label with a 1ms lifetime advances the feedback sequence and immediately
+    # removes any stale Atlas pill without refreshing or navigating Chromium.
+    feedback("\u200b", "", 1)
+
+
 def normalized_command(text):
     text = " ".join(text.strip().lower().split())
     aliases = {
@@ -91,11 +100,25 @@ def normalized_command(text):
     return text if text in COMMANDS else None
 
 
+def watch_demo(proc):
+    global _demo_process
+    proc.wait()
+    with _demo_lock:
+        if _demo_process is proc:
+            _demo_process = None
+    clear_feedback()
+    print(f"DEMO END: {proc.returncode}", flush=True)
+
+
 def stop_demo():
     global _demo_process
-    proc = _demo_process
+    with _demo_lock:
+        proc = _demo_process
     if not proc or proc.poll() is not None:
-        _demo_process = None
+        with _demo_lock:
+            if _demo_process is proc:
+                _demo_process = None
+        clear_feedback()
         return False
     proc.terminate()
     try:
@@ -103,7 +126,7 @@ def stop_demo():
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait(timeout=2)
-    _demo_process = None
+    # watch_demo owns the common cleanup path for voice exit, Esc, and natural end.
     return True
 
 
@@ -113,7 +136,7 @@ def start_demo():
     env = os.environ.copy()
     env.update(DISPLAY_ENV)
     feedback("Demo", "Starting…", 1200)
-    _demo_process = subprocess.Popen(
+    proc = subprocess.Popen(
         [
             "/usr/bin/ffplay",
             "-hide_banner",
@@ -127,7 +150,10 @@ def start_demo():
         stderr=subprocess.DEVNULL,
         env=env,
     )
-    print(f"DEMO START: {_demo_process.pid} {DEMO_URL}", flush=True)
+    with _demo_lock:
+        _demo_process = proc
+    threading.Thread(target=watch_demo, args=(proc,), daemon=True).start()
+    print(f"DEMO START: {proc.pid} {DEMO_URL}", flush=True)
 
 
 def execute(command, last_action):
@@ -142,7 +168,6 @@ def execute(command, last_action):
             start_demo()
         elif command == "exit":
             stopped = stop_demo()
-            feedback("Demo", "Closed" if stopped else "Nothing playing", 1200)
             print("DEMO EXIT" if stopped else "DEMO EXIT: none", flush=True)
         else:
             send_action(command)
