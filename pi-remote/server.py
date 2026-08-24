@@ -7,6 +7,7 @@ HOST=os.environ.get("PORTFOLIO_REMOTE_HOST","0.0.0.0"); PORT=int(os.environ.get(
 DISPLAY_REFRESH=Path("/home/john/bin/display-refresh"); DISPLAY_RESTART=Path("/home/john/bin/display-restart"); CEC_CLIENT=Path("/usr/bin/cec-client"); WTYPE=Path("/usr/bin/wtype"); WAYLAND_ENV={"XDG_RUNTIME_DIR":"/run/user/1000","WAYLAND_DISPLAY":"wayland-0"}
 _feedback_lock=threading.Lock(); _feedback={"seq":0,"label":"","detail":"","duration":0,"ts":0.0}
 _audio_lock=threading.Lock(); _audio={"seq":0,"playing":False,"title":"","stop_seq":0,"ts":0.0}
+_activity_lock=threading.Lock(); _activity={"seq":0,"active":False,"label":"","ts":0.0}
 def set_feedback(label,detail="",duration=2100):
  global _feedback
  with _feedback_lock: _feedback={"seq":_feedback["seq"]+1,"label":label,"detail":detail,"duration":int(duration),"ts":time.time()}; return dict(_feedback)
@@ -20,6 +21,11 @@ def request_audio_stop():
  with _audio_lock: _audio={**_audio,"stop_seq":_audio["stop_seq"]+1,"ts":time.time()}; return dict(_audio)
 def get_audio():
  with _audio_lock:return dict(_audio)
+def set_activity(active,label=""):
+ global _activity
+ with _activity_lock:_activity={"seq":_activity["seq"]+1,"active":bool(active),"label":str(label)[:120] if active else "","ts":time.time()};return dict(_activity)
+def get_activity():
+ with _activity_lock:return dict(_activity)
 def run_command(argv,*,input_text=None,timeout=15,extra_env=None):
  env=os.environ.copy(); env.update(extra_env or {}); r=subprocess.run([str(x) for x in argv],input=input_text,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout,check=False,env=env)
  if r.returncode!=0:raise RuntimeError(r.stdout.strip() or f"Command failed: {argv[0]}")
@@ -53,16 +59,19 @@ class Handler(BaseHTTPRequestHandler):
   if path=="/health":self.send_json(200,{"ok":True,"service":"portfolio-remote","presentation":WTYPE.exists()});return
   if path=="/api/feedback":self.send_json(200,{"ok":True,**get_feedback()},cors=True);return
   if path=="/api/audio":self.send_json(200,{"ok":True,**get_audio()},cors=True);return
+  if path=="/api/activity":self.send_json(200,{"ok":True,**get_activity()},cors=True);return
   if path not in ("/","/index.html"):self.send_error(404);return
   try:body=INDEX.read_bytes()
   except FileNotFoundError:self.send_error(500,"index.html missing");return
   self.send_response(200);self.send_header("Content-Type","text/html; charset=utf-8");self.send_header("Content-Length",str(len(body)));self.send_header("Cache-Control","no-store");self.end_headers();self.wfile.write(body)
  def do_POST(self):
   path=urlparse(self.path).path
-  if path in ("/api/feedback","/api/audio"):
+  if path in ("/api/feedback","/api/audio","/api/activity"):
    try:
     length=int(self.headers.get("Content-Length","0"));payload=json.loads(self.rfile.read(length) or b"{}")
-    item=set_feedback(str(payload.get("label",""))[:80],str(payload.get("detail",""))[:160],int(payload.get("duration",2100))) if path=="/api/feedback" else set_audio(bool(payload.get("playing",False)),str(payload.get("title","")))
+    if path=="/api/feedback":item=set_feedback(str(payload.get("label",""))[:80],str(payload.get("detail",""))[:160],int(payload.get("duration",2100)))
+    elif path=="/api/audio":item=set_audio(bool(payload.get("playing",False)),str(payload.get("title","")))
+    else:item=set_activity(bool(payload.get("active",False)),str(payload.get("label","")))
     self.send_json(200,{"ok":True,**item},cors=True)
    except Exception as exc:self.send_json(400,{"ok":False,"message":str(exc)},cors=True)
    return
