@@ -41,8 +41,11 @@ PHRASES = [
 LISTEN_SECONDS = 5.0
 COOLDOWN_SECONDS = 0.7
 WAKE_DEBOUNCE_SECONDS = 1.0
+DEMO_START_VOLUME = 65
+DEMO_DUCK_STEPS = 5
 _demo_process = None
 _demo_lock = threading.Lock()
+_duck_restore_timer = None
 
 
 def post_json(path, payload=None):
@@ -72,10 +75,51 @@ def feedback(label, detail="", duration=2100):
 
 
 def finish_feedback():
-    # The current display feedback protocol has no explicit hide event.
-    # Use a real, very short message rather than an invisible label, which
-    # would leave the pill's container visible after native playback exits.
     feedback("Demo", "Closed", 450)
+
+
+def demo_running():
+    with _demo_lock:
+        proc = _demo_process
+    return bool(proc and proc.poll() is None)
+
+
+def send_player_key(key, presses=1):
+    if not demo_running():
+        return
+    env = os.environ.copy()
+    env.update(DISPLAY_ENV)
+    for _ in range(presses):
+        subprocess.run(
+            ["/usr/bin/wtype", "-k", key],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            env=env,
+        )
+        time.sleep(0.035)
+
+
+def restore_demo_audio():
+    global _duck_restore_timer
+    _duck_restore_timer = None
+    if not demo_running():
+        return
+    send_player_key("0", DEMO_DUCK_STEPS)
+    print("DEMO AUDIO: restored", flush=True)
+
+
+def duck_demo_audio():
+    global _duck_restore_timer
+    if not demo_running():
+        return
+    if _duck_restore_timer:
+        _duck_restore_timer.cancel()
+    send_player_key("9", DEMO_DUCK_STEPS)
+    print("DEMO AUDIO: ducked", flush=True)
+    _duck_restore_timer = threading.Timer(LISTEN_SECONDS + 0.5, restore_demo_audio)
+    _duck_restore_timer.daemon = True
+    _duck_restore_timer.start()
 
 
 def normalized_command(text):
@@ -101,11 +145,14 @@ def normalized_command(text):
 
 
 def watch_demo(proc):
-    global _demo_process
+    global _demo_process, _duck_restore_timer
     proc.wait()
     with _demo_lock:
         if _demo_process is proc:
             _demo_process = None
+    if _duck_restore_timer:
+        _duck_restore_timer.cancel()
+        _duck_restore_timer = None
     finish_feedback()
     print(f"DEMO END: {proc.returncode}", flush=True)
 
@@ -125,7 +172,6 @@ def stop_demo():
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait(timeout=2)
-    # watch_demo owns the common cleanup path for voice exit, Esc, and natural end.
     return True
 
 
@@ -142,6 +188,7 @@ def start_demo():
             "-loglevel", "warning",
             "-fs",
             "-autoexit",
+            "-volume", str(DEMO_START_VOLUME),
             DEMO_URL,
         ],
         stdin=subprocess.DEVNULL,
@@ -152,7 +199,7 @@ def start_demo():
     with _demo_lock:
         _demo_process = proc
     threading.Thread(target=watch_demo, args=(proc,), daemon=True).start()
-    print(f"DEMO START: {proc.pid} {DEMO_URL}", flush=True)
+    print(f"DEMO START: {proc.pid} {DEMO_URL} volume={DEMO_START_VOLUME}", flush=True)
 
 
 def execute(command, last_action):
@@ -205,6 +252,8 @@ def main():
         last_wake = now
         armed_until = now + LISTEN_SECONDS
         last_partial = ""
+        if demo_running():
+            duck_demo_audio()
         feedback("Atlas", "Listening…", int(LISTEN_SECONDS * 1000))
         print(f"WAKE: {reason}", flush=True)
 
