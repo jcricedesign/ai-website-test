@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 import time
 import urllib.request
@@ -10,9 +11,18 @@ AUDIO_DEVICE = "plughw:2,0"
 SAMPLE_RATE = 16000
 REMOTE_BASE = "http://127.0.0.1:8765"
 WAKE_WORD = "atlas"
+DEMO_URL = os.environ.get(
+    "PORTFOLIO_DEMO_URL",
+    "https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov",
+)
+DISPLAY_ENV = {
+    "DISPLAY": ":0",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "WAYLAND_DISPLAY": "wayland-0",
+}
 COMMANDS = [
     "next", "back", "top", "bottom", "home", "screensaver", "cancel",
-    "work", "career", "barber-game", "playground", "about"
+    "work", "career", "barber-game", "playground", "about", "demo", "exit"
 ]
 PHRASES = [
     WAKE_WORD,
@@ -23,11 +33,14 @@ PHRASES = [
     "barber game", "the barber game",
     "playground",
     "about", "about me",
+    "demo", "play demo", "start demo",
+    "exit", "stop demo", "close demo",
     "[unk]",
 ]
 LISTEN_SECONDS = 5.0
 COOLDOWN_SECONDS = 0.7
 WAKE_DEBOUNCE_SECONDS = 1.0
+_demo_process = None
 
 
 def post_json(path, payload=None):
@@ -68,10 +81,53 @@ def normalized_command(text):
         "barber game": "barber-game",
         "the barber game": "barber-game",
         "about me": "about",
+        "play demo": "demo",
+        "start demo": "demo",
+        "stop demo": "exit",
+        "close demo": "exit",
     }
     if text in aliases:
         return aliases[text]
     return text if text in COMMANDS else None
+
+
+def stop_demo():
+    global _demo_process
+    proc = _demo_process
+    if not proc or proc.poll() is not None:
+        _demo_process = None
+        return False
+    proc.terminate()
+    try:
+        proc.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=2)
+    _demo_process = None
+    return True
+
+
+def start_demo():
+    global _demo_process
+    stop_demo()
+    env = os.environ.copy()
+    env.update(DISPLAY_ENV)
+    feedback("Demo", "Starting…", 1200)
+    _demo_process = subprocess.Popen(
+        [
+            "/usr/bin/ffplay",
+            "-hide_banner",
+            "-loglevel", "warning",
+            "-fs",
+            "-autoexit",
+            DEMO_URL,
+        ],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        env=env,
+    )
+    print(f"DEMO START: {_demo_process.pid} {DEMO_URL}", flush=True)
 
 
 def execute(command, last_action):
@@ -82,8 +138,15 @@ def execute(command, last_action):
     if time.monotonic() - last_action < COOLDOWN_SECONDS:
         return last_action, False
     try:
-        send_action(command)
-        print(f"ACTION: {command}", flush=True)
+        if command == "demo":
+            start_demo()
+        elif command == "exit":
+            stopped = stop_demo()
+            feedback("Demo", "Closed" if stopped else "Nothing playing", 1200)
+            print("DEMO EXIT" if stopped else "DEMO EXIT: none", flush=True)
+        else:
+            send_action(command)
+            print(f"ACTION: {command}", flush=True)
         return time.monotonic(), True
     except Exception as exc:
         feedback("Atlas", "Try again")
@@ -101,7 +164,7 @@ def main():
         "-r", str(SAMPLE_RATE), "-c", "1", "-t", "raw"
     ], stdout=subprocess.PIPE)
 
-    print("Atlas ready: navigation + presentation commands")
+    print("Atlas ready: navigation + presentation + demo commands")
     armed_until = 0.0
     last_action = 0.0
     last_wake = 0.0
@@ -176,6 +239,7 @@ def main():
     except KeyboardInterrupt:
         print("\nStopped.")
     finally:
+        stop_demo()
         audio.terminate()
         try:
             audio.wait(timeout=2)
