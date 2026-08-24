@@ -6,7 +6,6 @@ DEMO_URL=os.environ.get("PORTFOLIO_DEMO_URL","https://download.blender.org/demo/
 ANTHEM_URL=os.environ.get("PORTFOLIO_ANTHEM_URL","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/Heavy-Intro.mp3")
 R2_BASE=os.environ.get("PORTFOLIO_R2_BASE","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev").rstrip("/")
 TRAILER_URLS=[f"{R2_BASE}/trailers/atlas-boston-dynamics.mp4",f"{R2_BASE}/trailers/IBM-selectric-doc.mp4",f"{R2_BASE}/trailers/Spot-Launch-YouTube.mp4"]
-WEATHER_URL="https://johnrice.com/playground/temporary-canvas/?display=1"
 DISPLAY_ENV={"DISPLAY":":0","XDG_RUNTIME_DIR":"/run/user/1000","WAYLAND_DISPLAY":"wayland-0"}
 COMMANDS=["next","back","top","bottom","home","screensaver","cancel","work","career","barber-game","playground","about","demo","trailers","exit","anthem","stop","stop-playing","weather"]
 PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","stop playing","stop playback","cancel playback","anthem","play anthem","start anthem","stop","stop anthem","stop music","weather","show weather","show the weather","[unk]"]
@@ -47,14 +46,9 @@ def set_foreground_mode(mode):
 def display_keys(*keys):
  env=os.environ.copy();env.update(DISPLAY_ENV)
  for key in keys:subprocess.run(["/usr/bin/wtype","-k",key],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.08)
-def open_url(url):
- env=os.environ.copy();env.update(DISPLAY_ENV)
- subprocess.run(["/usr/bin/wtype","-M","ctrl","-k","l","-m","ctrl"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.1)
- subprocess.run(["/usr/bin/wtype",url],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.05)
- subprocess.run(["/usr/bin/wtype","-k","Return"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env)
 def show_weather():
  global _canvas_active
- stop_foreground();_foreground_stop.clear();stop_anthem();_canvas_active=True;feedback("Weather","Opening",650);open_url(WEATHER_URL);print("CANVAS START: weather",flush=True)
+ stop_foreground();_foreground_stop.clear();stop_anthem();_canvas_active=True;send_action("weather");print("CANVAS START: weather",flush=True)
 def dismiss_canvas(label="Closed"):
  global _canvas_active
  if not _canvas_active:return False
