@@ -7,8 +7,8 @@ ANTHEM_URL=os.environ.get("PORTFOLIO_ANTHEM_URL","https://pub-8150ade24f1a45dfa4
 R2_BASE=os.environ.get("PORTFOLIO_R2_BASE","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev").rstrip("/")
 TRAILER_URLS=[f"{R2_BASE}/trailers/atlas-boston-dynamics.mp4",f"{R2_BASE}/trailers/IBM-selectric-doc.mp4",f"{R2_BASE}/trailers/Spot-Launch-YouTube.mp4"]
 DISPLAY_ENV={"DISPLAY":":0","XDG_RUNTIME_DIR":"/run/user/1000","WAYLAND_DISPLAY":"wayland-0"}
-COMMANDS=["next","back","top","bottom","home","screensaver","cancel","work","career","barber-game","playground","about","demo","trailers","exit","anthem","stop","stop-playing","weather"]
-PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","stop playing","stop playback","cancel playback","anthem","play anthem","start anthem","stop","stop anthem","stop music","weather","show weather","show the weather","[unk]"]
+COMMANDS=["next","back","top","bottom","home","screensaver","cancel","done","work","career","barber-game","playground","about","demo","trailers","exit","anthem","stop","stop-playing","weather"]
+PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","done","i'm done","im done","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","stop playing","stop playback","cancel playback","anthem","play anthem","start anthem","stop","stop anthem","stop music","weather","show weather","show the weather","[unk]"]
 LISTEN_SECONDS=5.;COOLDOWN_SECONDS=.7;WAKE_DEBOUNCE_SECONDS=1.;DEMO_START_VOLUME=65;DEMO_DUCK_STEPS=5
 _demo_process=None;_demo_lock=threading.Lock();_duck_restore_timer=None;_anthem_process=None;_anthem_lock=threading.Lock();_last_audio_stop_seq=0
 _foreground_mode=None;_foreground_stop=threading.Event();_foreground_lock=threading.Lock();_canvas_active=False
@@ -66,7 +66,7 @@ def duck_demo_audio():
  if _duck_restore_timer:_duck_restore_timer.cancel()
  send_player_key("9",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: ducked",flush=True);_duck_restore_timer=threading.Timer(LISTEN_SECONDS+.5,restore_demo_audio);_duck_restore_timer.daemon=True;_duck_restore_timer.start()
 def normalized_command(text):
- text=" ".join(text.strip().lower().split());aliases={"screen saver":"screensaver","start screensaver":"screensaver","start screen saver":"screensaver","sleep":"screensaver","rest":"screensaver","selected work":"work","barber game":"barber-game","the barber game":"barber-game","about me":"about","play demo":"demo","start demo":"demo","play trailers":"trailers","start trailers":"trailers","stop demo":"exit","close demo":"exit","stop trailers":"stop-playing","close trailers":"exit","stop playing":"stop-playing","stop playback":"stop-playing","cancel playback":"stop-playing","play anthem":"anthem","start anthem":"anthem","stop anthem":"stop","stop music":"stop","show weather":"weather","show the weather":"weather"}
+ text=" ".join(text.strip().lower().split());aliases={"screen saver":"screensaver","start screensaver":"screensaver","start screen saver":"screensaver","sleep":"screensaver","rest":"screensaver","selected work":"work","barber game":"barber-game","the barber game":"barber-game","about me":"about","play demo":"demo","start demo":"demo","play trailers":"trailers","start trailers":"trailers","stop demo":"exit","close demo":"exit","stop trailers":"stop-playing","close trailers":"exit","stop playing":"stop-playing","stop playback":"stop-playing","cancel playback":"stop-playing","play anthem":"anthem","start anthem":"anthem","stop anthem":"stop","stop music":"stop","show weather":"weather","show the weather":"weather","i'm done":"done","im done":"done"}
  return aliases.get(text,text if text in COMMANDS else None)
 def run_foreground(url):
  global _demo_process
@@ -153,6 +153,7 @@ def execute(command,last_action):
   if command=="demo":start_demo()
   elif command=="trailers":start_trailers()
   elif command=="weather":show_weather()
+  elif command=="done":stop_current_activity("Done")
   elif command in ("exit","stop-playing"):stop_current_activity("Stopped" if command=="stop-playing" else "Closed")
   elif command=="cancel":stop_current_activity("Cancelled")
   elif command=="anthem":start_anthem()
