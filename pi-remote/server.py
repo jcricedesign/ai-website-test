@@ -10,6 +10,7 @@ _feedback_lock=threading.Lock(); _feedback={"seq":0,"label":"","detail":"","dura
 _audio_lock=threading.Lock(); _audio={"seq":0,"playing":False,"title":"","stop_seq":0,"ts":0.0}
 _activity_lock=threading.Lock(); _activity={"seq":0,"active":False,"label":"","ts":0.0}
 _display_lock=threading.Lock(); _display={"seq":0,"command":"","payload":{},"ts":0.0}
+_media_lock=threading.Lock(); _media={"seq":0,"action":"","ts":0.0}
 _weather_lock=threading.Lock(); _weather_cache={"ts":0.0,"data":None}; WEATHER_CACHE_SECONDS=300
 WEATHER_CODES={0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Rime fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",56:"Freezing drizzle",57:"Heavy freezing drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",66:"Freezing rain",67:"Heavy freezing rain",71:"Light snow",73:"Snow",75:"Heavy snow",77:"Snow grains",80:"Light showers",81:"Showers",82:"Heavy showers",85:"Light snow showers",86:"Heavy snow showers",95:"Thunderstorms",96:"Thunderstorms with hail",99:"Severe thunderstorms with hail"}
 def set_feedback(label,detail="",duration=2100):
@@ -35,6 +36,11 @@ def set_display_command(command,payload=None):
  with _display_lock:_display={"seq":_display["seq"]+1,"command":str(command)[:80],"payload":payload or {},"ts":time.time()};return dict(_display)
 def get_display_command():
  with _display_lock:return dict(_display)
+def set_media(action):
+ global _media
+ with _media_lock:_media={"seq":_media["seq"]+1,"action":str(action)[:40],"ts":time.time()};return dict(_media)
+def get_media():
+ with _media_lock:return dict(_media)
 def fetch_weather():
  now=time.time()
  with _weather_lock:
@@ -63,11 +69,13 @@ def send_key(key):
  return run_command([WTYPE,"-k",key],timeout=5,extra_env=WAYLAND_ENV)
 def keyed_action(label,key,detail=""): set_feedback(label,detail); result=send_key(key); return {"ok":True,"message":label,"input":result}
 def display_action(label,command,detail="",payload=None): set_feedback(label,detail); item=set_display_command(command,payload); return {"ok":True,"message":label,"display":item}
+def media_action(action): item=set_media(action); return {"ok":True,"message":action,"media":item}
 def action_wake():
  try:cec_note=wake_tv()
  except Exception as exc:cec_note=f"CEC warning: {exc}"
  refresh_note=refresh_display(); set_feedback("Display","Ready"); return {"ok":True,"message":"Display ready","cec":cec_note,"display":refresh_note}
-ACTIONS={"/api/wake":action_wake,"/api/refresh":lambda:{"ok":True,"message":"Display refreshed","display":refresh_display()},"/api/restart":lambda:{"ok":True,"message":"Display restarted","display":restart_display()},"/api/next":lambda:keyed_action("Next","Right","Advancing"),"/api/back":lambda:keyed_action("Back","Left"),"/api/top":lambda:keyed_action("Top","Home"),"/api/bottom":lambda:keyed_action("Bottom","End"),"/api/home":lambda:keyed_action("Home","F8"),"/api/screensaver":lambda:keyed_action("Screensaver","F9","Resting"),"/api/weather":lambda:display_action("Weather","show-temporary-canvas","Opening",{"kind":"weather"}),"/api/theme":lambda:keyed_action("Theme","t","Changing"),"/api/work":lambda:keyed_action("Work","w","Opening"),"/api/career":lambda:keyed_action("Career","c","Opening"),"/api/barber-game":lambda:keyed_action("Barber Game","b","Opening"),"/api/playground":lambda:keyed_action("Playground","p","Opening"),"/api/about":lambda:keyed_action("About","a","Opening")}
+def action_demo_browser(): return display_action("Demo","show-temporary-canvas","Opening",{"kind":"demo"})
+ACTIONS={"/api/wake":action_wake,"/api/refresh":lambda:{"ok":True,"message":"Display refreshed","display":refresh_display()},"/api/restart":lambda:{"ok":True,"message":"Display restarted","display":restart_display()},"/api/next":lambda:keyed_action("Next","Right","Advancing"),"/api/back":lambda:keyed_action("Back","Left"),"/api/top":lambda:keyed_action("Top","Home"),"/api/bottom":lambda:keyed_action("Bottom","End"),"/api/home":lambda:keyed_action("Home","F8"),"/api/screensaver":lambda:keyed_action("Screensaver","F9","Resting"),"/api/weather":lambda:display_action("Weather","show-temporary-canvas","Opening",{"kind":"weather"}),"/api/demo-browser":action_demo_browser,"/api/media-duck":lambda:media_action("duck"),"/api/media-restore":lambda:media_action("restore"),"/api/media-stop":lambda:media_action("stop"),"/api/theme":lambda:keyed_action("Theme","t","Changing"),"/api/work":lambda:keyed_action("Work","w","Opening"),"/api/career":lambda:keyed_action("Career","c","Opening"),"/api/barber-game":lambda:keyed_action("Barber Game","b","Opening"),"/api/playground":lambda:keyed_action("Playground","p","Opening"),"/api/about":lambda:keyed_action("About","a","Opening")}
 class Handler(BaseHTTPRequestHandler):
  server_version="PortfolioRemote/1.0"
  def log_message(self,fmt,*args):print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
@@ -83,6 +91,7 @@ class Handler(BaseHTTPRequestHandler):
   if path=="/api/audio":self.send_json(200,{"ok":True,**get_audio()},cors=True);return
   if path=="/api/activity":self.send_json(200,{"ok":True,**get_activity()},cors=True);return
   if path=="/api/display":self.send_json(200,{"ok":True,**get_display_command()},cors=True);return
+  if path=="/api/media":self.send_json(200,{"ok":True,**get_media()},cors=True);return
   if path=="/api/weather-data":
    try:self.send_json(200,{"ok":True,**fetch_weather()},cors=True)
    except Exception as exc:self.send_json(502,{"ok":False,"message":str(exc)},cors=True)
