@@ -8,6 +8,7 @@ DISPLAY_REFRESH=Path("/home/john/bin/display-refresh"); DISPLAY_RESTART=Path("/h
 _feedback_lock=threading.Lock(); _feedback={"seq":0,"label":"","detail":"","duration":0,"ts":0.0}
 _audio_lock=threading.Lock(); _audio={"seq":0,"playing":False,"title":"","stop_seq":0,"ts":0.0}
 _activity_lock=threading.Lock(); _activity={"seq":0,"active":False,"label":"","ts":0.0}
+_display_lock=threading.Lock(); _display={"seq":0,"command":"","payload":{},"ts":0.0}
 def set_feedback(label,detail="",duration=2100):
  global _feedback
  with _feedback_lock: _feedback={"seq":_feedback["seq"]+1,"label":label,"detail":detail,"duration":int(duration),"ts":time.time()}; return dict(_feedback)
@@ -26,6 +27,11 @@ def set_activity(active,label=""):
  with _activity_lock:_activity={"seq":_activity["seq"]+1,"active":bool(active),"label":str(label)[:120] if active else "","ts":time.time()};return dict(_activity)
 def get_activity():
  with _activity_lock:return dict(_activity)
+def set_display_command(command,payload=None):
+ global _display
+ with _display_lock:_display={"seq":_display["seq"]+1,"command":str(command)[:80],"payload":payload or {},"ts":time.time()};return dict(_display)
+def get_display_command():
+ with _display_lock:return dict(_display)
 def run_command(argv,*,input_text=None,timeout=15,extra_env=None):
  env=os.environ.copy(); env.update(extra_env or {}); r=subprocess.run([str(x) for x in argv],input=input_text,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout,check=False,env=env)
  if r.returncode!=0:raise RuntimeError(r.stdout.strip() or f"Command failed: {argv[0]}")
@@ -41,11 +47,12 @@ def send_key(key):
  if not WTYPE.exists():raise RuntimeError("Presentation controls need wtype installed on the Pi")
  return run_command([WTYPE,"-k",key],timeout=5,extra_env=WAYLAND_ENV)
 def keyed_action(label,key,detail=""): set_feedback(label,detail); result=send_key(key); return {"ok":True,"message":label,"input":result}
+def display_action(label,command,detail="",payload=None): set_feedback(label,detail); item=set_display_command(command,payload); return {"ok":True,"message":label,"display":item}
 def action_wake():
  try:cec_note=wake_tv()
  except Exception as exc:cec_note=f"CEC warning: {exc}"
  refresh_note=refresh_display(); set_feedback("Display","Ready"); return {"ok":True,"message":"Display ready","cec":cec_note,"display":refresh_note}
-ACTIONS={"/api/wake":action_wake,"/api/refresh":lambda:{"ok":True,"message":"Display refreshed","display":refresh_display()},"/api/restart":lambda:{"ok":True,"message":"Display restarted","display":restart_display()},"/api/next":lambda:keyed_action("Next","Right","Advancing"),"/api/back":lambda:keyed_action("Back","Left"),"/api/top":lambda:keyed_action("Top","Home"),"/api/bottom":lambda:keyed_action("Bottom","End"),"/api/home":lambda:keyed_action("Home","F8"),"/api/screensaver":lambda:keyed_action("Screensaver","F9","Resting"),"/api/weather":lambda:keyed_action("Weather","Insert","Opening"),"/api/theme":lambda:keyed_action("Theme","t","Changing"),"/api/work":lambda:keyed_action("Work","w","Opening"),"/api/career":lambda:keyed_action("Career","c","Opening"),"/api/barber-game":lambda:keyed_action("Barber Game","b","Opening"),"/api/playground":lambda:keyed_action("Playground","p","Opening"),"/api/about":lambda:keyed_action("About","a","Opening")}
+ACTIONS={"/api/wake":action_wake,"/api/refresh":lambda:{"ok":True,"message":"Display refreshed","display":refresh_display()},"/api/restart":lambda:{"ok":True,"message":"Display restarted","display":restart_display()},"/api/next":lambda:keyed_action("Next","Right","Advancing"),"/api/back":lambda:keyed_action("Back","Left"),"/api/top":lambda:keyed_action("Top","Home"),"/api/bottom":lambda:keyed_action("Bottom","End"),"/api/home":lambda:keyed_action("Home","F8"),"/api/screensaver":lambda:keyed_action("Screensaver","F9","Resting"),"/api/weather":lambda:display_action("Weather","show-temporary-canvas","Opening",{"kind":"weather"}),"/api/theme":lambda:keyed_action("Theme","t","Changing"),"/api/work":lambda:keyed_action("Work","w","Opening"),"/api/career":lambda:keyed_action("Career","c","Opening"),"/api/barber-game":lambda:keyed_action("Barber Game","b","Opening"),"/api/playground":lambda:keyed_action("Playground","p","Opening"),"/api/about":lambda:keyed_action("About","a","Opening")}
 class Handler(BaseHTTPRequestHandler):
  server_version="PortfolioRemote/1.0"
  def log_message(self,fmt,*args):print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} {fmt % args}")
@@ -60,6 +67,7 @@ class Handler(BaseHTTPRequestHandler):
   if path=="/api/feedback":self.send_json(200,{"ok":True,**get_feedback()},cors=True);return
   if path=="/api/audio":self.send_json(200,{"ok":True,**get_audio()},cors=True);return
   if path=="/api/activity":self.send_json(200,{"ok":True,**get_activity()},cors=True);return
+  if path=="/api/display":self.send_json(200,{"ok":True,**get_display_command()},cors=True);return
   if path not in ("/","/index.html"):self.send_error(404);return
   try:body=INDEX.read_bytes()
   except FileNotFoundError:self.send_error(500,"index.html missing");return
