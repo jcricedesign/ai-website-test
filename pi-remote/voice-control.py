@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json, os, subprocess, threading, time, urllib.request
 from vosk import Model, KaldiRecognizer
+
 MODEL_PATH="/home/john/vosk-model"; AUDIO_DEVICE="plughw:2,0"; SAMPLE_RATE=16000; REMOTE_BASE="http://127.0.0.1:8765"; WAKE_WORD="atlas"
-DEMO_URL=os.environ.get("PORTFOLIO_DEMO_URL","https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov")
 ANTHEM_URL=os.environ.get("PORTFOLIO_ANTHEM_URL","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/Heavy-Intro.mp3")
 R2_BASE=os.environ.get("PORTFOLIO_R2_BASE","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev").rstrip("/")
 TRAILER_URLS=[f"{R2_BASE}/trailers/atlas-boston-dynamics.mp4",f"{R2_BASE}/trailers/IBM-selectric-doc.mp4",f"{R2_BASE}/trailers/Spot-Launch-YouTube.mp4"]
@@ -11,8 +11,11 @@ PIPER_BIN=os.environ.get("ATLAS_PIPER_BIN","/home/john/piper-venv/bin/piper");PI
 COMMANDS=["next","back","top","bottom","home","screensaver","cancel","done","work","career","barber-game","playground","about","demo","trailers","exit","anthem","stop","stop-playing","weather","tell-weather"]
 PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","done","i'm done","im done","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","stop playing","stop playback","cancel playback","anthem","play anthem","start anthem","stop","stop anthem","stop music","weather","show weather","show the weather","tell me the weather","tell weather","what's the weather","whats the weather","[unk]"]
 LISTEN_SECONDS=5.;COOLDOWN_SECONDS=.7;WAKE_DEBOUNCE_SECONDS=1.;DEMO_START_VOLUME=65;DEMO_DUCK_STEPS=5
-_demo_process=None;_demo_lock=threading.Lock();_duck_restore_timer=None;_anthem_process=None;_anthem_lock=threading.Lock();_last_audio_stop_seq=0
-_foreground_mode=None;_foreground_stop=threading.Event();_foreground_lock=threading.Lock();_canvas_active=False
+
+_demo_process=None;_demo_lock=threading.Lock();_duck_restore_timer=None
+_anthem_process=None;_anthem_lock=threading.Lock();_last_audio_stop_seq=0
+_foreground_mode=None;_foreground_stop=threading.Event();_foreground_lock=threading.Lock()
+_canvas_active=False;_browser_demo_active=False
 
 def request_json(path,method="GET",payload=None):
  data=None;headers={}
@@ -33,7 +36,8 @@ def audio_state(playing,title=""):
 def activity_state(active,label=""):
  try:post_json("/api/activity",{"active":active,"label":label})
  except Exception as exc:print(f"ACTIVITY STATE ERROR: {exc}",flush=True)
-def demo_running():
+
+def native_media_running():
  with _demo_lock:proc=_demo_process
  return bool(proc and proc.poll() is None)
 def anthem_running():
@@ -44,62 +48,83 @@ def foreground_mode():
 def set_foreground_mode(mode):
  global _foreground_mode
  with _foreground_lock:_foreground_mode=mode
+
 def display_keys(*keys):
  env=os.environ.copy();env.update(DISPLAY_ENV)
  for key in keys:subprocess.run(["/usr/bin/wtype","-k",key],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.08)
+
+def stop_browser_demo(feedback_label=None):
+ global _browser_demo_active
+ if not _browser_demo_active:return False
+ send_action("media-stop");_browser_demo_active=False;set_foreground_mode(None)
+ if feedback_label:feedback("Demo",feedback_label,650)
+ print("BROWSER DEMO STOP",flush=True);return True
+
 def show_weather():
  global _canvas_active
- stop_foreground();_foreground_stop.clear();stop_anthem();_canvas_active=True;send_action("weather");print("CANVAS START: weather",flush=True)
+ stop_browser_demo();stop_foreground();_foreground_stop.clear();stop_anthem();_canvas_active=True;send_action("weather");print("CANVAS START: weather",flush=True)
+def dismiss_canvas(label="Closed"):
+ global _canvas_active
+ if not _canvas_active:return False
+ _canvas_active=False;display_keys("Escape");feedback("Weather",label,650);print(f"CANVAS END: {label}",flush=True);return True
+
 def weather_sentence(data):
  city=data.get("city","Seattle");temp=data.get("temperature");condition=str(data.get("condition","current conditions")).lower();high=data.get("high");low=data.get("low")
  sentence=f"It's {temp} degrees and {condition} in {city}." if temp is not None else f"The weather in {city} is {condition}."
  if high is not None:sentence+=f" Today's high is {high} degrees."
  if low is not None:sentence+=f" The low is {low}."
  return sentence
+
 def send_player_key(key,presses=1):
- if not demo_running():return
+ if not native_media_running():return
  env=os.environ.copy();env.update(DISPLAY_ENV)
  for _ in range(presses):subprocess.run(["/usr/bin/wtype","-k",key],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.035)
-def duck_foreground_for_speech():
- if not demo_running():return False
- send_player_key("9",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: ducked for Atlas speech",flush=True);return True
-def restore_foreground_after_speech(was_ducked):
- if was_ducked and demo_running():send_player_key("0",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: restored after Atlas speech",flush=True)
+def duck_native_for_speech():
+ if not native_media_running():return False
+ send_player_key("9",DEMO_DUCK_STEPS);print("NATIVE MEDIA: ducked for Atlas speech",flush=True);return True
+def restore_native_after_speech(was_ducked):
+ if was_ducked and native_media_running():send_player_key("0",DEMO_DUCK_STEPS);print("NATIVE MEDIA: restored after Atlas speech",flush=True)
+
 def speak(text):
  if not os.path.exists(PIPER_BIN):raise RuntimeError(f"Piper not found: {PIPER_BIN}")
  if not os.path.exists(PIPER_MODEL):raise RuntimeError(f"Atlas voice model not found: {PIPER_MODEL}")
- wav=f"/tmp/atlas-speech-{os.getpid()}.wav";ducked=False
+ wav=f"/tmp/atlas-speech-{os.getpid()}.wav";native_ducked=False;browser_ducked=False
  try:
   synth=subprocess.run([PIPER_BIN,"--model",PIPER_MODEL,"--output_file",wav],input=text,text=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,check=False)
   if synth.returncode!=0:raise RuntimeError(synth.stderr.strip() or "Piper synthesis failed")
-  ducked=duck_foreground_for_speech();pitch=max(.5,min(1.5,ATLAS_PITCH));audio_filter=f"asetrate=22050*{pitch},aresample=22050,atempo=1/{pitch}"
+  if _browser_demo_active:send_action("media-duck");browser_ducked=True;time.sleep(.12)
+  else:native_ducked=duck_native_for_speech()
+  pitch=max(.5,min(1.5,ATLAS_PITCH));audio_filter=f"asetrate=22050*{pitch},aresample=22050,atempo=1/{pitch}"
   play=subprocess.run(["/usr/bin/ffplay","-nodisp","-autoexit","-loglevel","quiet","-volume",str(ATLAS_SPEECH_VOLUME),"-af",audio_filter,wav],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
   if play.returncode!=0:raise RuntimeError("Atlas speech playback failed")
   return "piper"
  finally:
-  restore_foreground_after_speech(ducked)
+  if browser_ducked:
+   try:send_action("media-restore")
+   except Exception:pass
+  restore_native_after_speech(native_ducked)
   try:os.remove(wav)
   except FileNotFoundError:pass
+
 def tell_weather():
- dismiss_canvas();data=request_json("/api/weather-data")
+ data=request_json("/api/weather-data")
  if not data.get("ok"):raise RuntimeError(data.get("message","Weather unavailable"))
  temp=data.get("temperature");condition=data.get("condition","Current conditions");city=data.get("city","Seattle");sentence=weather_sentence(data)
  feedback("Atlas",f"{temp}° · {condition} in {city}",7000);engine=speak(sentence);print(f"ATLAS SPOKE ({engine}, pitch={ATLAS_PITCH}, volume={ATLAS_SPEECH_VOLUME}): {sentence}",flush=True)
-def dismiss_canvas(label="Closed"):
- global _canvas_active
- if not _canvas_active:return False
- _canvas_active=False;display_keys("Escape");feedback("Weather",label,650);print(f"CANVAS END: {label}",flush=True);return True
+
 def restore_demo_audio():
  global _duck_restore_timer;_duck_restore_timer=None
- if demo_running():send_player_key("0",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: restored",flush=True)
+ if native_media_running():send_player_key("0",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: restored",flush=True)
 def duck_demo_audio():
  global _duck_restore_timer
- if not demo_running():return
+ if not native_media_running():return
  if _duck_restore_timer:_duck_restore_timer.cancel()
  send_player_key("9",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: ducked",flush=True);_duck_restore_timer=threading.Timer(LISTEN_SECONDS+.5,restore_demo_audio);_duck_restore_timer.daemon=True;_duck_restore_timer.start()
+
 def normalized_command(text):
  text=" ".join(text.strip().lower().split());aliases={"screen saver":"screensaver","start screensaver":"screensaver","start screen saver":"screensaver","sleep":"screensaver","rest":"screensaver","selected work":"work","barber game":"barber-game","the barber game":"barber-game","about me":"about","play demo":"demo","start demo":"demo","play trailers":"trailers","start trailers":"trailers","stop demo":"exit","close demo":"exit","stop trailers":"stop-playing","close trailers":"exit","stop playing":"stop-playing","stop playback":"stop-playing","cancel playback":"stop-playing","play anthem":"anthem","start anthem":"anthem","stop anthem":"stop","stop music":"stop","show weather":"weather","show the weather":"weather","tell me the weather":"tell-weather","tell weather":"tell-weather","what's the weather":"tell-weather","whats the weather":"tell-weather","i'm done":"done","im done":"done"}
  return aliases.get(text,text if text in COMMANDS else None)
+
 def run_foreground(url):
  global _demo_process
  env=os.environ.copy();env.update(DISPLAY_ENV)
@@ -119,15 +144,12 @@ def stop_foreground():
   try:proc.wait(timeout=2)
   except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=2)
   clear_foreground_process(proc);return True
- clear_foreground_process(proc);return bool(foreground_mode())
-def watch_demo(proc):
- proc.wait();current=foreground_mode();clear_foreground_process(proc);activity_state(False)
- if current=="demo" and not _foreground_stop.is_set():feedback("Demo","Closed",450)
- if current=="demo":set_foreground_mode(None)
- print(f"DEMO END: {proc.returncode}",flush=True)
+ clear_foreground_process(proc);return bool(foreground_mode()=="trailers")
+
 def start_demo():
- dismiss_canvas();_foreground_stop.clear();stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("demo");activity_state(True,"Loading demo…")
- proc=run_foreground(DEMO_URL);threading.Thread(target=watch_demo,args=(proc,),daemon=True).start()
+ global _browser_demo_active
+ dismiss_canvas();stop_foreground();_foreground_stop.clear();stop_anthem();_browser_demo_active=True;set_foreground_mode("demo");send_action("demo-browser");print("BROWSER DEMO START",flush=True)
+
 def play_trailers_worker():
  try:
   total=len(TRAILER_URLS)
@@ -139,7 +161,8 @@ def play_trailers_worker():
   if not _foreground_stop.is_set():activity_state(False);feedback("Trailers","Ended",700)
  finally:activity_state(False);clear_foreground_process();set_foreground_mode(None);print("TRAILERS END",flush=True)
 def start_trailers():
- dismiss_canvas();stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("trailers");activity_state(True,f"Loading trailer 1 of {len(TRAILER_URLS)}…");threading.Thread(target=play_trailers_worker,daemon=True).start();print(f"TRAILERS START: {len(TRAILER_URLS)} independent items",flush=True)
+ stop_browser_demo();dismiss_canvas();stop_foreground();_foreground_stop.clear();stop_anthem();set_foreground_mode("trailers");activity_state(True,f"Loading trailer 1 of {len(TRAILER_URLS)}…");threading.Thread(target=play_trailers_worker,daemon=True).start();print(f"TRAILERS START: {len(TRAILER_URLS)} independent items",flush=True)
+
 def watch_anthem(proc):
  global _anthem_process;proc.wait();was_current=False
  with _anthem_lock:
@@ -158,7 +181,8 @@ def stop_anthem():
  except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=2)
  audio_state(False);return True
 def start_anthem():
- global _anthem_process;dismiss_canvas();stop_anthem();env=os.environ.copy();env.update(DISPLAY_ENV);feedback("Anthem","Playing",1400)
+ global _anthem_process
+ stop_browser_demo();dismiss_canvas();stop_anthem();env=os.environ.copy();env.update(DISPLAY_ENV);feedback("Anthem","Playing",1400)
  proc=subprocess.Popen(["/usr/bin/ffplay","-hide_banner","-loglevel","warning","-nodisp","-autoexit",ANTHEM_URL],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,env=env)
  with _anthem_lock:_anthem_process=proc
  audio_state(True,"Anthem");threading.Thread(target=watch_anthem,args=(proc,),daemon=True).start();print(f"ANTHEM START: {proc.pid} {ANTHEM_URL}",flush=True)
@@ -172,13 +196,16 @@ def audio_stop_watcher():
     if anthem_running():stop_anthem();feedback("Anthem","Stopped",800);print("ANTHEM STOP: UI",flush=True)
   except Exception:pass
   time.sleep(.25)
+
 def stop_current_activity(label="Stopped"):
  if dismiss_canvas(label):return True
+ if stop_browser_demo(label):return True
  mode=foreground_mode();fg=stop_foreground();audio=stop_anthem() if not fg else False
  if fg:feedback("Trailers" if mode=="trailers" else "Demo",label,650)
  elif audio:feedback("Anthem",label,650)
  else:feedback("Atlas","Nothing playing",800)
  return fg or audio
+
 def execute(command,last_action):
  if time.monotonic()-last_action<COOLDOWN_SECONDS:return last_action,False
  try:
@@ -195,19 +222,20 @@ def execute(command,last_action):
   else:send_action(command);print(f"ACTION: {command}",flush=True)
   return time.monotonic(),True
  except Exception as exc:activity_state(False);feedback("Atlas","Try again");print(f"ERROR {command}: {exc}",flush=True);return last_action,False
+
 def main():
  global _last_audio_stop_seq
  print("Loading voice model...");model=Model(MODEL_PATH);recognizer=KaldiRecognizer(model,SAMPLE_RATE,json.dumps(PHRASES));audio=subprocess.Popen(["arecord","-q","-D",AUDIO_DEVICE,"-f","S16_LE","-r",str(SAMPLE_RATE),"-c","1","-t","raw"],stdout=subprocess.PIPE)
  try:_last_audio_stop_seq=int(request_json("/api/audio").get("stop_seq",0))
  except Exception:_last_audio_stop_seq=0
- audio_state(False);activity_state(False);threading.Thread(target=audio_stop_watcher,daemon=True).start();print("Atlas ready: navigation + presentation + media + temporary canvas + Piper voice")
+ audio_state(False);activity_state(False);threading.Thread(target=audio_stop_watcher,daemon=True).start();print("Atlas ready: browser demo + trailers + audio + temporary canvas + Piper voice")
  armed_until=last_action=last_wake=0.;last_partial="";last_partial_sent=0.
  def arm_atlas(reason="atlas"):
   nonlocal armed_until,last_wake,last_partial
   now=time.monotonic()
   if now-last_wake<WAKE_DEBOUNCE_SECONDS:return
   last_wake=now;armed_until=now+LISTEN_SECONDS;last_partial=""
-  if demo_running():duck_demo_audio()
+  if native_media_running():duck_demo_audio()
   feedback("Atlas","Listening…",int(LISTEN_SECONDS*1000));print(f"WAKE: {reason}",flush=True)
  try:
   while True:
@@ -239,5 +267,5 @@ def main():
      last_partial=partial;last_partial_sent=now
      if partial!=WAKE_WORD:feedback("Atlas",partial,1200);print(f"PARTIAL: {partial}",flush=True)
  except KeyboardInterrupt:print("\nStopped.")
- finally:activity_state(False);stop_anthem();stop_foreground();audio.terminate()
+ finally:activity_state(False);stop_anthem();stop_browser_demo();stop_foreground();audio.terminate()
 if __name__=="__main__":main()
