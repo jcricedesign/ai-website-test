@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
+from urllib.request import urlopen
 import json, os, subprocess, threading, time
 HOST=os.environ.get("PORTFOLIO_REMOTE_HOST","0.0.0.0"); PORT=int(os.environ.get("PORTFOLIO_REMOTE_PORT","8765")); BASE=Path(__file__).resolve().parent; INDEX=BASE/"index.html"
 DISPLAY_REFRESH=Path("/home/john/bin/display-refresh"); DISPLAY_RESTART=Path("/home/john/bin/display-restart"); CEC_CLIENT=Path("/usr/bin/cec-client"); WTYPE=Path("/usr/bin/wtype"); WAYLAND_ENV={"XDG_RUNTIME_DIR":"/run/user/1000","WAYLAND_DISPLAY":"wayland-0"}
@@ -9,6 +10,8 @@ _feedback_lock=threading.Lock(); _feedback={"seq":0,"label":"","detail":"","dura
 _audio_lock=threading.Lock(); _audio={"seq":0,"playing":False,"title":"","stop_seq":0,"ts":0.0}
 _activity_lock=threading.Lock(); _activity={"seq":0,"active":False,"label":"","ts":0.0}
 _display_lock=threading.Lock(); _display={"seq":0,"command":"","payload":{},"ts":0.0}
+_weather_lock=threading.Lock(); _weather_cache={"ts":0.0,"data":None}; WEATHER_CACHE_SECONDS=300
+WEATHER_CODES={0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Rime fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",56:"Freezing drizzle",57:"Heavy freezing drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",66:"Freezing rain",67:"Heavy freezing rain",71:"Light snow",73:"Snow",75:"Heavy snow",77:"Snow grains",80:"Light showers",81:"Showers",82:"Heavy showers",85:"Light snow showers",86:"Heavy snow showers",95:"Thunderstorms",96:"Thunderstorms with hail",99:"Severe thunderstorms with hail"}
 def set_feedback(label,detail="",duration=2100):
  global _feedback
  with _feedback_lock: _feedback={"seq":_feedback["seq"]+1,"label":label,"detail":detail,"duration":int(duration),"ts":time.time()}; return dict(_feedback)
@@ -32,6 +35,18 @@ def set_display_command(command,payload=None):
  with _display_lock:_display={"seq":_display["seq"]+1,"command":str(command)[:80],"payload":payload or {},"ts":time.time()};return dict(_display)
 def get_display_command():
  with _display_lock:return dict(_display)
+def fetch_weather():
+ now=time.time()
+ with _weather_lock:
+  if _weather_cache["data"] is not None and now-_weather_cache["ts"]<WEATHER_CACHE_SECONDS:return dict(_weather_cache["data"])
+ params={"latitude":47.6062,"longitude":-122.3321,"current":"temperature_2m,apparent_temperature,weather_code","daily":"temperature_2m_max,temperature_2m_min","temperature_unit":"fahrenheit","timezone":"America/Los_Angeles","forecast_days":1}
+ url="https://api.open-meteo.com/v1/forecast?"+urlencode(params)
+ with urlopen(url,timeout=6) as r:raw=json.loads(r.read().decode())
+ current=raw.get("current",{});daily=raw.get("daily",{})
+ code=int(current.get("weather_code",-1));high=(daily.get("temperature_2m_max") or [None])[0];low=(daily.get("temperature_2m_min") or [None])[0]
+ data={"city":"Seattle","temperature":round(float(current["temperature_2m"])),"apparent_temperature":round(float(current["apparent_temperature"])),"condition":WEATHER_CODES.get(code,"Current conditions"),"weather_code":code,"high":round(float(high)) if high is not None else None,"low":round(float(low)) if low is not None else None,"observed_at":current.get("time",""),"source":"Open-Meteo"}
+ with _weather_lock:_weather_cache.update(ts=now,data=data)
+ return dict(data)
 def run_command(argv,*,input_text=None,timeout=15,extra_env=None):
  env=os.environ.copy(); env.update(extra_env or {}); r=subprocess.run([str(x) for x in argv],input=input_text,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout,check=False,env=env)
  if r.returncode!=0:raise RuntimeError(r.stdout.strip() or f"Command failed: {argv[0]}")
@@ -68,6 +83,10 @@ class Handler(BaseHTTPRequestHandler):
   if path=="/api/audio":self.send_json(200,{"ok":True,**get_audio()},cors=True);return
   if path=="/api/activity":self.send_json(200,{"ok":True,**get_activity()},cors=True);return
   if path=="/api/display":self.send_json(200,{"ok":True,**get_display_command()},cors=True);return
+  if path=="/api/weather-data":
+   try:self.send_json(200,{"ok":True,**fetch_weather()},cors=True)
+   except Exception as exc:self.send_json(502,{"ok":False,"message":str(exc)},cors=True)
+   return
   if path not in ("/","/index.html"):self.send_error(404);return
   try:body=INDEX.read_bytes()
   except FileNotFoundError:self.send_error(500,"index.html missing");return
