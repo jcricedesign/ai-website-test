@@ -7,6 +7,7 @@ ANTHEM_URL=os.environ.get("PORTFOLIO_ANTHEM_URL","https://pub-8150ade24f1a45dfa4
 R2_BASE=os.environ.get("PORTFOLIO_R2_BASE","https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev").rstrip("/")
 TRAILER_URLS=[f"{R2_BASE}/trailers/atlas-boston-dynamics.mp4",f"{R2_BASE}/trailers/IBM-selectric-doc.mp4",f"{R2_BASE}/trailers/Spot-Launch-YouTube.mp4"]
 DISPLAY_ENV={"DISPLAY":":0","XDG_RUNTIME_DIR":"/run/user/1000","WAYLAND_DISPLAY":"wayland-0"}
+PIPER_BIN=os.environ.get("ATLAS_PIPER_BIN","/home/john/piper-venv/bin/piper");PIPER_MODEL=os.environ.get("ATLAS_PIPER_MODEL","/home/john/atlas-voices/en_US-lessac-medium.onnx");ATLAS_SPEECH_VOLUME=int(os.environ.get("ATLAS_SPEECH_VOLUME","55"));ATLAS_PITCH=float(os.environ.get("ATLAS_PITCH","0.90"))
 COMMANDS=["next","back","top","bottom","home","screensaver","cancel","done","work","career","barber-game","playground","about","demo","trailers","exit","anthem","stop","stop-playing","weather","tell-weather"]
 PHRASES=[WAKE_WORD,"next","back","top","bottom","home","cancel","done","i'm done","im done","screensaver","screen saver","start screensaver","start screen saver","sleep","rest","work","selected work","career","barber game","the barber game","playground","about","about me","demo","play demo","start demo","trailers","play trailers","start trailers","exit","stop demo","close demo","stop trailers","close trailers","stop playing","stop playback","cancel playback","anthem","play anthem","start anthem","stop","stop anthem","stop music","weather","show weather","show the weather","tell me the weather","tell weather","what's the weather","whats the weather","[unk]"]
 LISTEN_SECONDS=5.;COOLDOWN_SECONDS=.7;WAKE_DEBOUNCE_SECONDS=1.;DEMO_START_VOLUME=65;DEMO_DUCK_STEPS=5
@@ -55,25 +56,39 @@ def weather_sentence(data):
  if high is not None:sentence+=f" Today's high is {high} degrees."
  if low is not None:sentence+=f" The low is {low}."
  return sentence
-def speak(text):
- candidates=[(["/usr/bin/spd-say","-w",text],"spd-say"),(["/usr/bin/espeak-ng",text],"espeak-ng"),(["/usr/bin/espeak",text],"espeak")]
- for argv,name in candidates:
-  if os.path.exists(argv[0]):
-   subprocess.run(argv,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False);return name
- raise RuntimeError("No speech synthesizer installed (spd-say, espeak-ng, or espeak)")
-def tell_weather():
- dismiss_canvas();data=request_json("/api/weather-data");
- if not data.get("ok"):raise RuntimeError(data.get("message","Weather unavailable"))
- temp=data.get("temperature");condition=data.get("condition","Current conditions");city=data.get("city","Seattle")
- feedback("Atlas",f"{temp}° · {condition} in {city}",5200);sentence=weather_sentence(data);engine=speak(sentence);print(f"ATLAS SPOKE ({engine}): {sentence}",flush=True)
-def dismiss_canvas(label="Closed"):
- global _canvas_active
- if not _canvas_active:return False
- _canvas_active=False;display_keys("Escape");feedback("Weather",label,650);print(f"CANVAS END: {label}",flush=True);return True
 def send_player_key(key,presses=1):
  if not demo_running():return
  env=os.environ.copy();env.update(DISPLAY_ENV)
  for _ in range(presses):subprocess.run(["/usr/bin/wtype","-k",key],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False,env=env);time.sleep(.035)
+def duck_foreground_for_speech():
+ if not demo_running():return False
+ send_player_key("9",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: ducked for Atlas speech",flush=True);return True
+def restore_foreground_after_speech(was_ducked):
+ if was_ducked and demo_running():send_player_key("0",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: restored after Atlas speech",flush=True)
+def speak(text):
+ if not os.path.exists(PIPER_BIN):raise RuntimeError(f"Piper not found: {PIPER_BIN}")
+ if not os.path.exists(PIPER_MODEL):raise RuntimeError(f"Atlas voice model not found: {PIPER_MODEL}")
+ wav=f"/tmp/atlas-speech-{os.getpid()}.wav";ducked=False
+ try:
+  synth=subprocess.run([PIPER_BIN,"--model",PIPER_MODEL,"--output_file",wav],input=text,text=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,check=False)
+  if synth.returncode!=0:raise RuntimeError(synth.stderr.strip() or "Piper synthesis failed")
+  ducked=duck_foreground_for_speech();pitch=max(.5,min(1.5,ATLAS_PITCH));audio_filter=f"asetrate=22050*{pitch},aresample=22050,atempo=1/{pitch}"
+  play=subprocess.run(["/usr/bin/ffplay","-nodisp","-autoexit","-loglevel","quiet","-volume",str(ATLAS_SPEECH_VOLUME),"-af",audio_filter,wav],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+  if play.returncode!=0:raise RuntimeError("Atlas speech playback failed")
+  return "piper"
+ finally:
+  restore_foreground_after_speech(ducked)
+  try:os.remove(wav)
+  except FileNotFoundError:pass
+def tell_weather():
+ dismiss_canvas();data=request_json("/api/weather-data")
+ if not data.get("ok"):raise RuntimeError(data.get("message","Weather unavailable"))
+ temp=data.get("temperature");condition=data.get("condition","Current conditions");city=data.get("city","Seattle");sentence=weather_sentence(data)
+ feedback("Atlas",f"{temp}° · {condition} in {city}",7000);engine=speak(sentence);print(f"ATLAS SPOKE ({engine}, pitch={ATLAS_PITCH}, volume={ATLAS_SPEECH_VOLUME}): {sentence}",flush=True)
+def dismiss_canvas(label="Closed"):
+ global _canvas_active
+ if not _canvas_active:return False
+ _canvas_active=False;display_keys("Escape");feedback("Weather",label,650);print(f"CANVAS END: {label}",flush=True);return True
 def restore_demo_audio():
  global _duck_restore_timer;_duck_restore_timer=None
  if demo_running():send_player_key("0",DEMO_DUCK_STEPS);print("FOREGROUND AUDIO: restored",flush=True)
@@ -185,7 +200,7 @@ def main():
  print("Loading voice model...");model=Model(MODEL_PATH);recognizer=KaldiRecognizer(model,SAMPLE_RATE,json.dumps(PHRASES));audio=subprocess.Popen(["arecord","-q","-D",AUDIO_DEVICE,"-f","S16_LE","-r",str(SAMPLE_RATE),"-c","1","-t","raw"],stdout=subprocess.PIPE)
  try:_last_audio_stop_seq=int(request_json("/api/audio").get("stop_seq",0))
  except Exception:_last_audio_stop_seq=0
- audio_state(False);activity_state(False);threading.Thread(target=audio_stop_watcher,daemon=True).start();print("Atlas ready: navigation + presentation + media + temporary canvas + one-shot voice")
+ audio_state(False);activity_state(False);threading.Thread(target=audio_stop_watcher,daemon=True).start();print("Atlas ready: navigation + presentation + media + temporary canvas + Piper voice")
  armed_until=last_action=last_wake=0.;last_partial="";last_partial_sent=0.
  def arm_atlas(reason="atlas"):
   nonlocal armed_until,last_wake,last_partial
