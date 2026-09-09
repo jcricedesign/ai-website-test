@@ -1,1 +1,50 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Barbergame Mobile</title><script>location.replace('./app-v2.html')</script></head><body></body></html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Barbergame Mobile</title><style>html,body{margin:0;width:100%;height:100%;background:#050505;overflow:hidden}iframe{display:block;border:0;width:100%;height:100svh}</style></head><body><iframe id="prototype" src="./app-v2.html?v=20260908-profile"></iframe><script>
+const frame=document.getElementById('prototype');
+frame.addEventListener('load',()=>{
+  const w=frame.contentWindow,d=frame.contentDocument;
+  if(!w||!d)return;
+
+  const style=d.createElement('style');
+  style.textContent=`
+    .avatar{background:url('../portfolio/barber-profile.png') center/cover no-repeat!important;border:1px solid #3a3a3a}
+    .statsProfile{display:flex;align-items:center;gap:14px;margin:2px 0 18px}
+    .statsProfilePic{width:78px;height:78px;border-radius:50%;background:url('../portfolio/barber-profile.png') center/cover no-repeat;border:1px solid #3b3b3b;box-shadow:0 8px 24px rgba(0,0,0,.24);flex:0 0 auto}
+    .statsProfileCopy h1{margin:0 0 4px;font-size:28px;line-height:1.05;letter-spacing:-1px}
+    .statsProfileCopy p{margin:0}
+  `;
+  d.head.appendChild(style);
+
+  const stats=d.getElementById('stats');
+  if(stats&&!stats.querySelector('.statsProfile')){
+    const oldMuted=stats.querySelector(':scope > .muted');
+    const oldH1=stats.querySelector(':scope > h1');
+    const oldP=stats.querySelector(':scope > p');
+    const wrap=d.createElement('div');
+    wrap.className='statsProfile';
+    wrap.innerHTML='<div class="statsProfilePic"></div><div class="statsProfileCopy"><div class="muted">Stats</div><h1>Marcus D. <span style="color:#39a4ff">✓</span></h1><p>All-Star Master Barber</p></div>';
+    stats.insertBefore(wrap,stats.firstChild);
+    if(oldMuted)oldMuted.remove();
+    if(oldH1)oldH1.remove();
+    if(oldP)oldP.remove();
+  }
+
+  const minimizeLive=()=>{
+    try{w.closeMS&&w.closeMS()}catch(e){}
+    const app=d.getElementById('app'),mode=d.getElementById('mode'),ride=d.getElementById('ridealong');
+    if(!app||!mode||!ride)return;
+    const ar=app.getBoundingClientRect();
+    mode.classList.remove('content','full');
+    Object.assign(mode.style,{top:(ar.height-72-64)+'px',left:'10px',width:(ar.width-20)+'px',height:'58px',borderRadius:'13px'});
+    setTimeout(()=>{
+      mode.classList.remove('opening');
+      mode.removeAttribute('style');
+      ride.classList.add('on');
+    },470);
+  };
+  w.closeMode=minimizeLive;
+  const close=d.querySelector('.modeclose');
+  if(close){
+    close.onclick=(e)=>{e.preventDefault();e.stopPropagation();minimizeLive()};
+  }
+});
+</script></body></html>
