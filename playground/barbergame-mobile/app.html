@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Barbergame Mobile</title><style>html,body{margin:0;width:100%;height:100%;background:#050505;overflow:hidden}iframe{display:block;border:0;width:100%;height:100svh}</style></head><body><iframe id="prototype" src="./app-v2.html?v=20260908-profile"></iframe><script>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Barbergame Mobile</title><style>html,body{margin:0;width:100%;height:100%;background:#050505;overflow:hidden}iframe{display:block;border:0;width:100%;height:100svh}</style></head><body><iframe id="prototype" src="./app-v2.html?v=20260908-profile-done"></iframe><script>
 const frame=document.getElementById('prototype');
 frame.addEventListener('load',()=>{
   const w=frame.contentWindow,d=frame.contentDocument;
@@ -11,6 +11,7 @@ frame.addEventListener('load',()=>{
     .statsProfilePic{width:78px;height:78px;border-radius:50%;background:url('../portfolio/barber-profile.png') center/cover no-repeat;border:1px solid #3b3b3b;box-shadow:0 8px 24px rgba(0,0,0,.24);flex:0 0 auto}
     .statsProfileCopy h1{margin:0 0 4px;font-size:28px;line-height:1.05;letter-spacing:-1px}
     .statsProfileCopy p{margin:0}
+    .modeaction.doneAction{font-size:17px;font-weight:850;background:#fff;color:#6f13d8;margin-bottom:3px}
   `;
   d.head.appendChild(style);
 
@@ -26,6 +27,15 @@ frame.addEventListener('load',()=>{
     if(oldMuted)oldMuted.remove();
     if(oldH1)oldH1.remove();
     if(oldP)oldP.remove();
+  }
+
+  const actions=d.querySelector('.modeactions');
+  if(actions&&!actions.querySelector('.doneAction')){
+    const done=d.createElement('button');
+    done.className='modeaction doneAction';
+    done.textContent='Done';
+    done.type='button';
+    actions.insertBefore(done,actions.firstChild);
   }
 
   const minimizeLive=()=>{
