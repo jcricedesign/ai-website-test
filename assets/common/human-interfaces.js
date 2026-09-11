@@ -7,7 +7,8 @@ const essays=[
 {path:'/playground/oracle/',title:'Oracle',thesis:'What if history could answer back?'},
 {path:'/playground/salon/',title:'Salon',thesis:"Don't give me an answer. Give me the right room."},
 {path:'/playground/substance/',title:'Substance',thesis:'What if information had material properties?'},
-{path:'/playground/quicksilver/',title:'Quicksilver',thesis:'Touch is input. Behavior is output.'}
+{path:'/playground/quicksilver/',title:'Quicksilver',thesis:'Touch is input. Behavior is output.'},
+{path:'/playground/socratic/',title:'Socratic',thesis:"Don't answer me. Question me."}
 ];
 const normalize=p=>p.endsWith('/')?p:p+'/';
 const path=normalize(location.pathname);
@@ -26,23 +27,8 @@ meta.innerHTML=`<span>${String(i+1).padStart(2,'0')} of ${String(essays.length).
 nav.appendChild(meta);
 const grid=document.createElement('div');
 grid.className='hi-reading-grid'+(!next?' is-final':'');
-if(prev){
- const a=document.createElement('a');a.className='hi-reading-card';a.href=prev.path;
- a.innerHTML=`<span class="hi-reading-label">Previous</span><span class="hi-reading-title">${prev.title}</span><span class="hi-reading-thesis">${prev.thesis}</span>`;
- grid.appendChild(a);
-}else{
- const spacer=document.createElement('div');spacer.setAttribute('aria-hidden','true');grid.appendChild(spacer);
-}
-if(next){
- const a=document.createElement('a');a.className='hi-reading-card is-next';a.href=next.path;
- a.innerHTML=`<span class="hi-reading-label">Next</span><span class="hi-reading-title">${next.title}</span><span class="hi-reading-thesis">${next.thesis}</span>`;
- grid.appendChild(a);
-}else{
- const a=document.createElement('a');a.className='hi-reading-card is-next';a.href='/playground/human-interfaces/';
- a.innerHTML='<span class="hi-reading-label">End of sequence</span><span class="hi-reading-title">Human Interfaces</span><span class="hi-reading-thesis">Eight experiments in making computation more human.</span>';
- grid.appendChild(a);
-}
+if(prev){const a=document.createElement('a');a.className='hi-reading-card';a.href=prev.path;a.innerHTML=`<span class="hi-reading-label">Previous</span><span class="hi-reading-title">${prev.title}</span><span class="hi-reading-thesis">${prev.thesis}</span>`;grid.appendChild(a);}else{const spacer=document.createElement('div');spacer.setAttribute('aria-hidden','true');grid.appendChild(spacer);}
+if(next){const a=document.createElement('a');a.className='hi-reading-card is-next';a.href=next.path;a.innerHTML=`<span class="hi-reading-label">Next</span><span class="hi-reading-title">${next.title}</span><span class="hi-reading-thesis">${next.thesis}</span>`;grid.appendChild(a);}else{const a=document.createElement('a');a.className='hi-reading-card is-next';a.href='/playground/human-interfaces/';a.innerHTML=`<span class="hi-reading-label">End of sequence</span><span class="hi-reading-title">Human Interfaces</span><span class="hi-reading-thesis">${essays.length} experiments in making computation more human.</span>`;grid.appendChild(a);}
 nav.appendChild(grid);
-const footer=main.querySelector(':scope > footer');
-if(footer)main.insertBefore(nav,footer);else main.appendChild(nav);
+const footer=main.querySelector(':scope > footer');if(footer)main.insertBefore(nav,footer);else main.appendChild(nav);
 })();
