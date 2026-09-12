@@ -1,2 +1,2 @@
-# ai-website-test
+# bothell-suites
 testing agentic workflow wit chaptgpt
