@@ -8,8 +8,12 @@ on:
       - '.github/workflows/build-information-wall-atlas.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +22,7 @@ jobs:
           python-version: '3.12'
       - run: pip install pillow
       - run: python playground/portfolio-next/information-wall/build_atlas.py
-      - uses: actions/upload-artifact@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          name: information-wall-atlas
-          path: playground/portfolio-next/information-wall/generated/
+          commit_message: Build information wall atlas
+          file_pattern: playground/portfolio-next/information-wall/generated/*
