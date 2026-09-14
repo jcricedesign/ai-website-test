@@ -12,12 +12,11 @@ CAPACITY = COLS * ROWS
 EXTS = {'.jpg','.jpeg','.png','.webp','.gif'}
 
 files = []
-for p in sorted(ROOT.iterdir()):
-    if p.is_file() and p.suffix.lower() in EXTS:
-        files.append(p)
-assets = ROOT / 'assets'
-if assets.exists():
-    for p in sorted(assets.iterdir()):
+
+# Working corpus: recursively ingest every supported image in every batch folder.
+corpus = ROOT / 'corpus'
+if corpus.exists():
+    for p in sorted(corpus.rglob('*')):
         if p.is_file() and p.suffix.lower() in EXTS:
             files.append(p)
 
