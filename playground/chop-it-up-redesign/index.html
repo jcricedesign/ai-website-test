@@ -117,7 +117,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .picker-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.picker-sheet-head h4{font-size:24px;letter-spacing:-.035em;margin:0}.picker-close{border:0;background:none;font-size:26px;line-height:1;padding:4px}
 .picker-options{display:grid;gap:0}.picker-option{min-height:58px;border:0;border-top:1px solid #e3e3e3;background:#fff;text-align:left;font-size:17px;padding:0 6px;display:flex;align-items:center;justify-content:space-between}.picker-option.selected{font-weight:700;color:#558168}.picker-option.selected:after{content:"✓";font-size:18px}
 .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice{border:1px solid #bbb;border-radius:13px;background:#fff;padding:11px 10px;text-align:left;font-size:12px;line-height:1.25}.choice.full{grid-column:1/-1}.choice.selected{border-color:#111;background:#111;color:#fff}
-.booking-next{width:100%;height:48px;border:0;border-radius:24px;background:#558168;color:#fff;font-weight:700;font-size:14px;margin-top:4px}.booking-next:disabled{opacity:.3}
+.booking-next{width:100%;height:48px;border:0;border-radius:24px;background:#558168;color:#fff;font-weight:700;font-size:14px;margin-top:4px}.booking-next:disabled{opacity:.3}.booking-secondary{display:none;width:100%;height:44px;border:0;background:transparent;color:#555;font-weight:700;font-size:13px;margin-top:6px;text-decoration:underline;text-underline-offset:3px}.booking-secondary.show{display:block}
 .slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.book-slot{border:1px solid #aaa;border-radius:16px;background:#fff;padding:10px 5px;font-size:12px}.book-slot.selected{background:#558168;color:#fff;border-color:#558168}
 .summary-card{border:1px solid #ccc;border-radius:14px;padding:12px 13px;margin:0 0 18px}.summary-card strong{display:block;font-size:14px;margin-bottom:4px}.summary-card span{font-size:11px;color:#666;line-height:1.4}
 .phone-input{width:100%;height:46px;border:1px solid #bbb;border-radius:12px;padding:0 12px;font-size:14px}.book-confirm{background:#558168;color:#fff;border-radius:18px;padding:16px;margin-top:12px}.book-confirm h4{font-size:21px;margin:0 0 6px}.book-confirm p{font-size:12px;line-height:1.45;color:#ddd;margin:0}
@@ -152,9 +152,9 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <div class="shop-context"><h3>Kirkland Shop <span class="shop-distance">2.4 mi</span></h3><a href="#">Change shop</a></div>
 <div class="section-title"><h3>Working today</h3><a href="#">See full team</a></div>
 <div class="tier-label">Openings today</div>
-<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-rank">Grandmaster Barber</div><div class="barber-meta">Fades · Tapers · Beard</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">2:30</button></div>
-<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-rank">Master Barber</div><div class="barber-meta">Classic · Business · Kids</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland">3:10</button></div>
-<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-rank">All Star Barber</div><div class="barber-meta">Texture · Design · Fades</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland">4:00</button></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-rank">Grandmaster Barber</div><div class="barber-meta">Fades · Tapers · Beard</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland" data-time="2:30 PM">2:30</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-rank">Master Barber</div><div class="barber-meta">Classic · Business · Kids</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland" data-time="2:00 PM">2:00</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-rank">All Star Barber</div><div class="barber-meta">Texture · Design · Fades</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland" data-time="4:00 PM">4:00</button></div>
 <div class="tier-label">Full today · future openings</div>
 <div class="barber-row full-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Bree" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
 <div class="barber-row full-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Meek" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
@@ -194,7 +194,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
       <label>Barber</label>
       <button class="picker-trigger" id="bookBarberTrigger" type="button">Choose a barber</button>
     </div>
-    <button class="booking-next" id="toTimes" disabled>See available times</button>
+    <button class="booking-next" id="toTimes" disabled>See available times</button><button class="booking-secondary" id="seeMoreTimes" type="button">See additional times</button>
   </div>
 
   <div id="bookStep2" hidden>
@@ -283,9 +283,9 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 
 <div class="section-title"><h3>Working today</h3><a href="#">See full team</a></div>
 <div class="tier-label">Openings today</div>
-<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-rank">Grandmaster Barber</div><div class="barber-meta">Fades · Tapers · Beard</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">2:30</button></div>
-<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-rank">Master Barber</div><div class="barber-meta">Classic · Business · Kids</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland">3:10</button></div>
-<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-rank">All Star Barber</div><div class="barber-meta">Texture · Design · Fades</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland">4:00</button></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-rank">Grandmaster Barber</div><div class="barber-meta">Fades · Tapers · Beard</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland" data-time="2:30 PM">2:30</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-rank">Master Barber</div><div class="barber-meta">Classic · Business · Kids</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland" data-time="2:00 PM">2:00</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-rank">All Star Barber</div><div class="barber-meta">Texture · Design · Fades</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland" data-time="4:00 PM">4:00</button></div>
 <div class="tier-label">Full today · future openings</div>
 <div class="barber-row full-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Bree" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
 <div class="barber-row full-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Meek" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
@@ -319,7 +319,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
   const confirm = document.getElementById('confirmBooking');
   const done = document.getElementById('bookingDone');
   const doneText = document.getElementById('bookingDoneText');
-  const state = {shop:'Kirkland', service:'', barber:'', day:'Today', time:''};
+  const state = {shop:'Kirkland', service:'', barber:'', day:'Today', time:'', suggestedTime:''};
 
   function showStep(n){
     s1.hidden = n !== 1; s2.hidden = n !== 2; s3.hidden = n !== 3;
@@ -332,6 +332,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     state.barber = prefill.barber || '';
     state.day = 'Today';
     state.time = '';
+    state.suggestedTime = prefill.time || '';
 
     document.getElementById('bookShopTrigger').textContent = state.shop || 'Choose a shop';
     document.getElementById('bookServiceTrigger').textContent = state.service || 'Choose a service';
@@ -350,6 +351,14 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     });
     document.querySelectorAll('[data-time]').forEach(x => x.classList.remove('selected'));
     toTimes.disabled = !(state.shop && state.service && state.barber);
+    const seeMoreTimes = document.getElementById('seeMoreTimes');
+    if (state.suggestedTime) {
+      toTimes.textContent = 'Claim ' + state.suggestedTime.replace(' PM','pm').replace(' AM','am');
+      seeMoreTimes?.classList.add('show');
+    } else {
+      toTimes.textContent = 'See available times';
+      seeMoreTimes?.classList.remove('show');
+    }
     toConfirm.disabled = true;
     done.hidden = true;
     confirm.hidden = false;
@@ -368,7 +377,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
   document.querySelectorAll('.featured-book').forEach(btn => btn.addEventListener('click', () => {
     btn.style.transform='scale(.96)';
     setTimeout(()=>btn.style.transform='',120);
-    openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber});
+    openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber, time: btn.dataset.time || ''});
   }));
 
   document.querySelectorAll('.future-book').forEach(btn => btn.addEventListener('click', () => {
@@ -435,6 +444,14 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
         document.getElementById('bookServiceTrigger').textContent = state.service || 'Choose a service';
         document.getElementById('bookBarberTrigger').textContent = state.barber || 'Choose a barber';
         toTimes.disabled = !(state.shop && state.service && state.barber);
+        const seeMoreTimes = document.getElementById('seeMoreTimes');
+        if (state.suggestedTime) {
+          toTimes.textContent = 'Claim ' + state.suggestedTime.replace(' PM','pm').replace(' AM','am');
+          seeMoreTimes?.classList.add('show');
+        } else {
+          toTimes.textContent = 'See available times';
+          seeMoreTimes?.classList.remove('show');
+        }
         const shopTrigger = document.getElementById('bookShopTrigger');
         const serviceTrigger = document.getElementById('bookServiceTrigger');
         const barberTrigger = document.getElementById('bookBarberTrigger');
@@ -470,6 +487,18 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
   }));
 
   toTimes?.addEventListener('click', () => {
+    if (state.suggestedTime) {
+      state.time = state.suggestedTime;
+      state.day = 'Today';
+      summary.innerHTML = '<strong>'+state.service+' · '+state.time+'</strong><span>Today at '+state.shop+' Shop<br>'+state.barber+'</span>';
+      showStep(3);
+      return;
+    }
+    context.textContent = state.shop + ' · ' + state.service + ' · ' + state.barber;
+    showStep(2);
+  });
+
+  document.getElementById('seeMoreTimes')?.addEventListener('click', () => {
     context.textContent = state.shop + ' · ' + state.service + ' · ' + state.barber;
     showStep(2);
   });
