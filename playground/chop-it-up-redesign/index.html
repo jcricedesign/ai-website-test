@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chop It Up — 5 / 8 / 10 Exploration</title>
+<meta name="description" content="Mobile-first Chop It Up redesign exploration testing three levels of Barbergame influence.">
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+:root{--page:#f3f1ed;--ink:#111;--muted:#696863;--rule:rgba(17,17,17,.16);--red:#c8212c;--green:#4e7c5b;--phone:#fff;--shadow:0 22px 60px rgba(0,0,0,.14)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.wrap{width:min(1500px,calc(100% - 48px));margin:auto}
+.top{padding:72px 0 54px;border-bottom:1px solid var(--rule)}
+.back{display:inline-block;color:var(--muted);text-decoration:none;font-size:14px;margin-bottom:42px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin:0;max-width:1100px}
+.dek{max-width:780px;font-size:20px;line-height:1.55;color:var(--muted);margin:34px 0 0}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+.legend div{border-top:1px solid var(--ink);padding-top:12px}
+.legend strong{font-size:14px}.legend p{font-size:13px;line-height:1.45;color:var(--muted);margin:6px 0 0}
+.board{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:34px;padding:58px 0 96px;align-items:start}
+.direction{min-width:0}
+.dir-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 14px}
+.dir-head h2{font-size:32px;letter-spacing:-.045em;margin:0}
+.dir-head span{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+.note{min-height:64px;color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 18px;max-width:380px}
+.phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #c9c7c0;border-radius:34px;overflow:hidden;box-shadow:var(--shadow);min-height:780px}
+.status{height:22px;background:#101010}
+.nav{height:66px;background:#101010;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{height:42px;width:124px;object-fit:contain;object-position:left center}
+.menu{color:#fff;font-size:25px;line-height:1}
+.screen{padding:20px 18px 30px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 7px}
+.hero-title{font-size:38px;line-height:.96;letter-spacing:-.05em;margin:0 0 12px}
+.body{font-size:15px;line-height:1.45;color:#555;margin:0}
+.primary{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border:0;border-radius:26px;background:#111;color:#fff;font-weight:700;font-size:15px;margin-top:20px}
+.secondary{display:flex;align-items:center;justify-content:center;width:100%;height:48px;border:1.5px solid #111;border-radius:24px;background:#fff;color:#111;font-weight:700;font-size:14px;margin-top:10px}
+.section-title{display:flex;align-items:end;justify-content:space-between;margin:28px 0 12px}
+.section-title h3{font-size:21px;letter-spacing:-.03em;margin:0}.section-title a{font-size:12px;color:#555;text-decoration:none}
+.barber-row{display:grid;grid-template-columns:58px 1fr auto;gap:11px;align-items:center;padding:12px 0;border-top:1px solid #ddd}
+.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#ddd}
+.barber-name{font-size:16px;font-weight:700;margin:0 0 3px}.barber-meta{font-size:12px;color:#666;line-height:1.35}
+.time{font-size:12px;border:1px solid #111;border-radius:18px;padding:8px 10px;white-space:nowrap;background:#fff}
+.location{border:1px solid #cfcfcf;border-radius:14px;padding:13px 14px;margin-top:10px}.location strong{font-size:14px}.location p{font-size:12px;line-height:1.4;color:#666;margin:4px 0 0}
+.chips{display:flex;gap:7px;overflow:auto;padding:2px 0 5px;scrollbar-width:none}.chip{white-space:nowrap;border:1px solid #bbb;border-radius:18px;padding:8px 11px;font-size:12px;background:#fff}.chip.on{background:#111;color:#fff;border-color:#111}
+.search{display:flex;align-items:center;border:1.5px solid #111;border-radius:26px;height:50px;padding:0 16px;margin:16px 0 4px;font-size:14px;color:#555}
+.next-card{background:#111;color:#fff;border-radius:20px;padding:18px;margin-top:18px}.next-card .eyebrow{color:#aaa}.next-card h3{font-size:27px;letter-spacing:-.04em;margin:3px 0 7px}.next-card p{font-size:13px;line-height:1.45;color:#ddd;margin:0}.next-card .time-btn{margin-top:15px;background:#fff;color:#111;border-radius:22px;padding:12px 14px;text-align:center;font-weight:700;font-size:14px}
+.work-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:12px}.work-placeholder{aspect-ratio:1;background:linear-gradient(135deg,#e9e6df,#c9c5bd);border-radius:8px;position:relative;overflow:hidden}.work-placeholder:after{content:"work";position:absolute;left:7px;bottom:6px;font-size:9px;color:#6e6a63;text-transform:uppercase;letter-spacing:.08em}
+.profile-card{display:grid;grid-template-columns:92px 1fr;gap:14px;align-items:center;margin-top:12px}.profile-card .avatar{width:92px;height:92px}.profile-card h3{font-size:26px;letter-spacing:-.04em;margin:0 0 6px}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:10px;border:1px solid #aaa;border-radius:14px;padding:5px 7px}
+.rebook{border:1.5px solid #111;border-radius:18px;padding:16px;margin-top:18px}.rebook-top{display:flex;gap:12px;align-items:center}.rebook .avatar{width:68px;height:68px}.rebook h3{font-size:23px;letter-spacing:-.035em;margin:0 0 4px}.rebook p{font-size:12px;color:#666;margin:0}.price-line{display:flex;justify-content:space-between;margin-top:15px;padding-top:13px;border-top:1px solid #ddd;font-size:13px}.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.slot{border:1px solid #111;border-radius:16px;text-align:center;padding:9px 4px;font-size:12px}.slot.hot{background:#111;color:#fff}
+.relationship{font-size:31px;line-height:1;letter-spacing:-.05em;margin:0 0 8px}
+.small-link{margin-top:18px;padding-top:16px;border-top:1px solid #ddd;font-size:13px;font-weight:700}
+.footer-note{border-top:1px solid var(--rule);padding:38px 0 70px;display:grid;grid-template-columns:1fr 1.5fr;gap:40px}
+.footer-note h2{font-size:34px;letter-spacing:-.04em;margin:0}.footer-note p{font-size:15px;line-height:1.6;color:var(--muted);margin:0;max-width:700px}
+@media(max-width:1000px){.legend{grid-template-columns:1fr}.board{grid-template-columns:1fr;gap:70px}.direction{max-width:520px;margin:auto}.note{min-height:0}.phone{width:390px;max-width:100%}.footer-note{grid-template-columns:1fr}}
+@media(max-width:600px){.wrap{width:calc(100% - 28px)}.top{padding:52px 0 40px}.back{margin-bottom:28px}.dek{font-size:17px}.board{padding-top:42px}.phone{border-radius:28px;min-height:0}.legend{margin-top:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<a class="back" href="/playground/">← Playground</a>
+<p class="kicker">Chop It Up redesign · Mobile-first exploration · v0.1</p>
+<h1>How much Barbergame?</h1>
+<p class="dek">Three deliberately different starting points using the same Chop It Up brand and barber roster. Five improves the existing website. Eight reorganizes the experience around barbers and availability. Ten treats the client–barber relationship as the product.</p>
+<div class="legend">
+<div><strong>5 — Focused website</strong><p>Recognizable barbershop site. Less duplication, clearer hierarchy, stronger booking.</p></div>
+<div><strong>8 — Barber-centered</strong><p>People, specialties and live availability become the primary way into the shop.</p></div>
+<div><strong>10 — Relationship-first</strong><p>Returning clients rebook almost immediately; discovery becomes the secondary path.</p></div>
+</div>
+</header>
+
+<main class="board">
+<section class="direction">
+<div class="dir-head"><h2>5</h2><span>Refine</span></div>
+<p class="note">Keep the familiar site model, but make the mobile hierarchy useful and stop repeating content just to fill pages.</p>
+<div class="phone">
+<div class="status"></div>
+<div class="nav"><img class="logo" src="ciub_logo_slogan_burst_1920x800_white.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div>
+<div class="screen">
+<p class="eyebrow">Chop It Up Barbershop</p>
+<h3 class="hero-title">A better cut starts here.</h3>
+<p class="body">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
+<button class="primary">Book an appointment</button>
+<div class="section-title"><h3>Featured barbers</h3><a href="#">See all</a></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time">Book</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Bellevue</div></div><button class="time">Book</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-meta">Texture · Design · Fades<br>Everett</div></div><button class="time">Book</button></div>
+<div class="section-title"><h3>Our shops</h3><a href="#">All 9</a></div>
+<div class="location"><strong>Kirkland, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
+<div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
+</div>
+</div>
+</section>
+
+<section class="direction">
+<div class="dir-head"><h2>8</h2><span>Reorganize</span></div>
+<p class="note">The shop is still visible, but the customer enters through a human question: who can cut me, and when?</p>
+<div class="phone">
+<div class="status"></div>
+<div class="nav"><img class="logo" src="ciub_logo_slogan_burst_1920x800_white.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div>
+<div class="screen">
+<p class="eyebrow">Need a cut?</p>
+<h3 class="hero-title">Find your barber.</h3>
+<div class="chips"><div class="chip on">Today</div><div class="chip">Tomorrow</div><div class="chip">This week</div><div class="chip">Near me</div></div>
+<div class="search">⌕ &nbsp; Search by barber, style or shop</div>
+<div class="section-title"><h3>Available today</h3><a href="#">Filter</a></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Razor shaves<br>Kirkland</div></div><button class="time">2:30</button></div>
+<div class="barber-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-meta">Texture · Kids · Design<br>Bothell</div></div><button class="time">3:10</button></div>
+<div class="barber-row"><img class="avatar" src="jay-miller.jpg" alt=""><div><p class="barber-name">Jay Miller</p><div class="barber-meta">Classic cuts · Beard · Business<br>Bellevue</div></div><button class="time">3:45</button></div>
+<div class="section-title"><h3>Meet Curtis</h3><a href="#">Full profile</a></div>
+<div class="profile-card"><img class="avatar" src="curtis.jpg" alt=""><div><h3>Sharp, patient, precise.</h3><div class="tags"><span class="tag">Fades</span><span class="tag">Beards</span><span class="tag">Kids</span></div></div></div>
+<div class="work-strip"><div class="work-placeholder"></div><div class="work-placeholder"></div><div class="work-placeholder"></div></div>
+<button class="primary">Book Curtis · 2:30 PM</button>
+</div>
+</div>
+</section>
+
+<section class="direction">
+<div class="dir-head"><h2>10</h2><span>Recognize</span></div>
+<p class="note">A returning client should not have to rediscover the business. Phone identity lets the site resume the relationship.</p>
+<div class="phone">
+<div class="status"></div>
+<div class="nav"><img class="logo" src="ciub_logo_slogan_burst_1920x800_white.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div>
+<div class="screen">
+<p class="eyebrow">Welcome back, John</p>
+<h3 class="relationship">Curtis has time for you today.</h3>
+<div class="rebook">
+<div class="rebook-top"><img class="avatar" src="curtis.jpg" alt=""><div><h3>Book Curtis again</h3><p>Your last visit: Haircut · Kirkland</p></div></div>
+<div class="price-line"><span>Haircut</span><strong>$18</strong></div>
+<div class="slots"><div class="slot hot">2:30</div><div class="slot">4:10</div><div class="slot">5:00</div></div>
+</div>
+<button class="primary">Book 2:30 PM</button>
+<button class="secondary">See Curtis's schedule</button>
+<div class="next-card">
+<p class="eyebrow">Your barber</p>
+<h3>Curtis</h3>
+<p>Fades, tapers and razor shaves. You have booked Curtis 4 times.</p>
+<div class="time-btn">View profile</div>
+</div>
+<div class="section-title"><h3>Need someone else?</h3><a href="#">See all</a></div>
+<div class="barber-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-meta">Available nearby · 3:15 PM</div></div><button class="time">3:15</button></div>
+<div class="barber-row"><img class="avatar" src="mel.jpg" alt=""><div><p class="barber-name">Mel</p><div class="barber-meta">Available nearby · 4:00 PM</div></div><button class="time">4:00</button></div>
+<div class="small-link">Find a different barber →</div>
+</div>
+</div>
+</section>
+</main>
+
+<section class="footer-note">
+<h2>What this pass is testing</h2>
+<p>All three directions use the same underlying content. The variable is focus: at 5, Chop It Up is still primarily a website; at 8, the barber becomes the center of discovery; at 10, the system recognizes an existing client relationship and gets out of the way. Haircut portfolio imagery is intentionally represented as placeholders for now so we can judge the architecture before styling the proof layer.</p>
+</section>
+</div>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>
