@@ -86,9 +86,9 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <p class="body">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
 <button class="primary" id="startShopBooking">Book an appointment</button>
 <div class="section-title"><h3>Featured barbers</h3><a href="#">See all</a></div>
-<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time">Book</button></div>
-<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Bellevue</div></div><button class="time">Book</button></div>
-<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-meta">Texture · Design · Fades<br>Everett</div></div><button class="time">Book</button></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">Book</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Bellevue</div></div><button class="time featured-book" data-barber="Jay" data-shop="Bellevue">Book</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-meta">Texture · Design · Fades<br>Everett</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Everett">Book</button></div>
 <div class="section-title"><h3>Our shops</h3><a href="#">All 9</a></div>
 <div class="location"><strong>Kirkland, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
 <div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
@@ -256,13 +256,47 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     stepLabel.textContent = 'Book · ' + n + ' of 3';
   }
 
-  start?.addEventListener('click', () => {
-    start.style.transform='scale(.98)';
-    setTimeout(()=>start.style.transform='',120);
+  function openBooking(prefill = {}) {
+    state.shop = prefill.shop || 'Kirkland';
+    state.service = prefill.service || '';
+    state.barber = prefill.barber || '';
+    state.day = 'Today';
+    state.time = '';
+
+    document.querySelectorAll('[data-book-group="shop"]').forEach(x => {
+      x.classList.toggle('selected', x.dataset.value === state.shop);
+    });
+    document.querySelectorAll('[data-book-group="service"]').forEach(x => {
+      x.classList.toggle('selected', x.dataset.value === state.service);
+    });
+    document.querySelectorAll('[data-book-group="barber"]').forEach(x => {
+      x.classList.toggle('selected', x.dataset.value === state.barber);
+    });
+    document.querySelectorAll('[data-day]').forEach(x => {
+      x.classList.toggle('selected', x.dataset.day === 'Today');
+    });
+    document.querySelectorAll('[data-time]').forEach(x => x.classList.remove('selected'));
+    toTimes.disabled = !(state.shop && state.service && state.barber);
+    toConfirm.disabled = true;
+    done.hidden = true;
+    confirm.hidden = false;
+
     home.classList.add('hidden');
     panel.classList.add('active');
     showStep(1);
+  }
+
+  start?.addEventListener('click', () => {
+    start.style.transform='scale(.98)';
+    setTimeout(()=>start.style.transform='',120);
+    openBooking();
   });
+
+  document.querySelectorAll('.featured-book').forEach(btn => btn.addEventListener('click', () => {
+    btn.style.transform='scale(.96)';
+    setTimeout(()=>btn.style.transform='',120);
+    openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber});
+  }));
 
   back?.addEventListener('click', () => {
     if (!s3.hidden) return showStep(2);
