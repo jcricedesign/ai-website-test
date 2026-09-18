@@ -17,9 +17,6 @@ body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetic
 .kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
 h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin:0;max-width:1100px}
 .dek{max-width:780px;font-size:20px;line-height:1.55;color:var(--muted);margin:34px 0 0}
-.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
-.legend div{border-top:1px solid var(--ink);padding-top:12px}
-.legend strong{font-size:14px}.legend p{font-size:13px;line-height:1.45;color:var(--muted);margin:6px 0 0}
 .board{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:34px;padding:58px 0 96px;align-items:start}
 .direction{min-width:0}
 .dir-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 14px}
@@ -54,8 +51,8 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .small-link{margin-top:18px;padding-top:16px;border-top:1px solid #ddd;font-size:13px;font-weight:700}
 .footer-note{border-top:1px solid var(--rule);padding:38px 0 70px;display:block}
 .footer-note h2{font-size:34px;letter-spacing:-.04em;margin:0;max-width:760px}
-@media(max-width:1000px){.legend{grid-template-columns:1fr}.board{grid-template-columns:1fr;gap:70px}.direction{max-width:520px;margin:auto}.note{min-height:0}.phone{width:390px;max-width:100%}.footer-note{grid-template-columns:1fr}}
-@media(max-width:600px){.wrap{width:calc(100% - 28px)}.top{padding:52px 0 40px}.back{margin-bottom:28px}.dek{font-size:17px}.board{padding-top:42px}.phone{border-radius:28px;min-height:0}.legend{margin-top:34px}}
+@media(max-width:1000px){.board{grid-template-columns:1fr;gap:70px}.direction{max-width:520px;margin:auto}.note{min-height:0}.phone{width:390px;max-width:100%}}
+@media(max-width:600px){.wrap{width:calc(100% - 28px)}.top{padding:52px 0 40px}.back{margin-bottom:28px}.dek{font-size:17px}.board{padding-top:42px}.phone{border-radius:28px;min-height:0}}
 </style>
 </head>
 <body>
@@ -65,11 +62,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <p class="kicker">Chop It Up redesign · Mobile-first exploration · v0.1</p>
 <h1>How much Barbergame?</h1>
 <p class="dek">Three deliberately different starting points using the same Chop It Up brand and barber roster. Shop First improves the existing website. Find Your Barber reorganizes the experience around people and availability. My Barber treats the client–barber relationship as the product.</p>
-<div class="legend">
-<div><p>Recognizable barbershop site. Less duplication, clearer hierarchy, stronger booking.</p></div>
-<div><p>People, specialties and live availability become the primary way into the shop.</p></div>
-<div><p>Returning clients rebook almost immediately; discovery becomes the secondary path.</p></div>
-</div>
+
 </header>
 
 <main class="board">
