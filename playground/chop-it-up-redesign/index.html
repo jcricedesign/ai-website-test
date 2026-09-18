@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chop It Up — Platform Redesign</title>
-<meta name="description" content="Chop It Up platform redesign exploring customer booking, barber operations and owner management.">
+<title>Chop It Up — Version 1 / Version 2</title>
+<meta name="description" content="Mobile-first Chop It Up redesign exploration comparing two practical homepage directions.">
 <link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
 <link rel="stylesheet" href="/assets/common/site-shell.css">
 <style>
@@ -125,107 +125,17 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .footer-note h2{font-size:34px;letter-spacing:-.04em;margin:0;max-width:760px}
 @media(max-width:1000px){.board{grid-template-columns:1fr;gap:70px}.direction{max-width:520px;margin:auto}.note{min-height:0}.phone{width:390px;max-width:100%}}
 @media(max-width:600px){.wrap{width:calc(100% - 28px)}.top{padding:52px 0 40px}.back{margin-bottom:28px}.dek{font-size:17px}.board{padding-top:42px}.phone{border-radius:28px;min-height:0}}
-
-/* Barber / owner workspace prototype */
-.platform-proto{padding:58px 0 70px;border-bottom:1px solid var(--rule)}
-.platform-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:22px}
-.platform-head h2{font-size:clamp(32px,4vw,58px);letter-spacing:-.05em;margin:0}
-.platform-head p{max-width:640px;color:var(--muted);line-height:1.5;margin:10px 0 0}
-.role-switch{display:flex;gap:8px;flex-wrap:wrap}
-.role-switch button,.proto-nav button,.proto-btn{font:inherit;cursor:pointer}
-.role-switch button{border:1px solid #bbb;background:#fff;color:#111;border-radius:999px;padding:10px 14px;font-size:13px}
-.role-switch button.active{background:#111;color:#fff;border-color:#111}
-.proto-shell{background:#fff;border:1px solid #cfcfcf;border-radius:22px;overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.08)}
-.proto-topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:16px 20px;border-bottom:1px solid #e2e2e2;background:#fbfbfa}
-.proto-brand strong{display:block;font-size:15px}
-.proto-brand span{font-size:12px;color:#777}
-.proto-status{font-size:12px;border:1px solid #bbb;border-radius:999px;padding:7px 10px;white-space:nowrap}
-.proto-body{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:560px}
-.proto-nav{padding:16px;border-right:1px solid #e4e4e4;background:#fafafa;display:flex;flex-direction:column;gap:6px}
-.proto-nav button{border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:10px;font-size:13px;color:#444}
-.proto-nav button.active{background:#111;color:#fff}
-.proto-main{padding:24px;min-width:0}
-.proto-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#888;margin-bottom:6px}
-.proto-title{font-size:30px;letter-spacing:-.04em;margin:0}
-.proto-sub{color:#666;font-size:14px;line-height:1.45;margin:8px 0 20px}
-.proto-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
-.proto-metric{border:1px solid #ddd;border-radius:14px;padding:14px;background:#fafafa}
-.proto-metric span{display:block;color:#777;font-size:11px;margin-bottom:5px}
-.proto-metric strong{font-size:24px}
-.proto-row{display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid #e4e4e4}
-.proto-row:first-child{border-top:0}
-.proto-row-time{font-size:13px;font-weight:700}
-.proto-row h4{font-size:14px;margin:0 0 2px}
-.proto-row p{font-size:12px;color:#777;margin:0}
-.proto-pill{font-size:11px;border:1px solid #bbb;border-radius:999px;padding:6px 9px;white-space:nowrap}
-.proto-pill.good{border-color:#8aa491;color:#456a50}
-.proto-pill.warn{border-color:#c9a85c;color:#8b6419}
-.proto-pill.bad{border-color:#c98989;color:#9f3030}
-.proto-btn{border:1px solid #111;background:#fff;color:#111;border-radius:10px;padding:9px 11px;font-size:12px}
-.proto-btn.primary{background:#558168;color:#fff;border-color:#558168}
-.proto-actions{display:flex;gap:7px;flex-wrap:wrap}
-.proto-card{border:1px solid #ddd;border-radius:14px;padding:16px;background:#fafafa;margin-top:14px}
-.proto-card h3{font-size:16px;margin:0 0 5px}
-.proto-card p{font-size:12px;color:#777;margin:0 0 12px;line-height:1.4}
-.week-row{display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;border-top:1px solid #e5e5e5;padding:12px 0}
-.week-row:first-child{border-top:0}
-.week-row strong{font-size:13px}
-.week-row span{font-size:12px;color:#666}
-.service-row,.barber-admin-row{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #e5e5e5;padding:13px 0}
-.service-row:first-child,.barber-admin-row:first-child{border-top:0}
-.service-row strong,.barber-admin-row strong{display:block;font-size:14px}
-.service-row span,.barber-admin-row span{font-size:12px;color:#777}
-.proto-form{display:grid;gap:14px;max-width:620px}
-.proto-form label{font-size:12px;font-weight:700}
-.proto-form input,.proto-form textarea{width:100%;border:1px solid #bbb;border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;margin-top:6px}
-.proto-save{font-size:12px;color:#558168;min-height:18px}
-.proto-empty{padding:36px 0;color:#777;font-size:14px}
-.proto-dialog{margin-top:16px;border:1px solid #bbb;border-radius:16px;padding:16px;background:#fff}
-.proto-dialog h3{margin:0 0 12px;font-size:18px}
-.proto-dialog-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.proto-dialog label{font-size:11px;font-weight:700}
-.proto-dialog input,.proto-dialog select{width:100%;border:1px solid #bbb;border-radius:9px;padding:10px;margin-top:5px;font:inherit;font-size:13px;background:#fff}
-.proto-note{font-size:12px;color:#666;margin-top:10px}
-@media(max-width:760px){.platform-head{align-items:flex-start;flex-direction:column}.proto-body{grid-template-columns:1fr}.proto-nav{border-right:0;border-bottom:1px solid #e4e4e4;flex-direction:row;overflow:auto}.proto-nav button{white-space:nowrap}.proto-grid{grid-template-columns:1fr}.proto-row{grid-template-columns:78px minmax(0,1fr);}.proto-row>:last-child{grid-column:2}.week-row{grid-template-columns:1fr auto}.week-row span{grid-column:1}.service-row,.barber-admin-row{align-items:flex-start;flex-direction:column}.proto-dialog-grid{grid-template-columns:1fr}}
-
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="top">
 <a class="back" href="/playground/">← Playground</a>
-<p class="kicker">Chop It Up redesign · Customer + barber + owner</p>
-<h1>One shop. Three views.</h1>
-<p class="dek">A working exploration of the whole Chop It Up platform: customer booking, an independent barber’s working day, and the owner tools Mervis needs to manage rank, access, evaluations and booth rent.</p>
+<p class="kicker">Chop It Up redesign · Mobile-first exploration</p>
+<h1>Two ways into Chop It Up.</h1>
+<p class="dek">Version 1 uses featured barbers. Version 2 uses the same experience but leads with the closest shop instead—something Chop It Up can support immediately.</p>
 
 </header>
-
-
-<section class="platform-proto" id="barber-platform-prototype">
-  <div class="platform-head">
-    <div>
-      <p class="kicker">Platform prototype · Barber + owner workspace</p>
-      <h2>One account. Different jobs.</h2>
-      <p>Switch roles to see how the same Chop It Up account changes for a customer, an independent barber, and Mervis as owner. Booth status, rank, permissions, schedule and services are explicit rather than buried in one profile page.</p>
-    </div>
-    <div class="role-switch" aria-label="Prototype role">
-      <button type="button" data-proto-role="customer">Customer</button>
-      <button type="button" data-proto-role="barber" class="active">Barber</button>
-      <button type="button" data-proto-role="owner">Owner</button>
-    </div>
-  </div>
-
-  <div class="proto-shell">
-    <div class="proto-topbar">
-      <div class="proto-brand"><strong id="protoIdentity">John Rice · New Guy</strong><span id="protoContext">Independent barber · Chop It Up Bothell</span></div>
-      <div class="proto-status" id="protoStatus">Grace period · 2 days remaining</div>
-    </div>
-    <div class="proto-body">
-      <nav class="proto-nav" id="protoNav" aria-label="Prototype navigation"></nav>
-      <div class="proto-main" id="protoMain"></div>
-    </div>
-  </div>
-</section>
 
 <main class="board">
 <section class="direction">
@@ -607,202 +517,6 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
   });
 })();
 </script>
-
-<script>
-(() => {
-  const root = document.getElementById('barber-platform-prototype');
-  if (!root || root.dataset.ready) return;
-  root.dataset.ready = '1';
-
-  const identity = document.getElementById('protoIdentity');
-  const context = document.getElementById('protoContext');
-  const status = document.getElementById('protoStatus');
-  const nav = document.getElementById('protoNav');
-  const main = document.getElementById('protoMain');
-
-  const state = {
-    role: 'barber',
-    tab: {customer:'book', barber:'today', owner:'today'},
-    booth: 'grace',
-    services: [
-      {id:1,name:'Haircut',mins:30,price:35,online:true},
-      {id:2,name:'Haircut + Beard',mins:45,price:50,online:true},
-      {id:3,name:'Kids Cut',mins:30,price:30,online:true}
-    ],
-    schedule: {
-      Monday:'10:00 AM – 6:00 PM',
-      Tuesday:'10:00 AM – 8:00 PM',
-      Wednesday:'Off',
-      Thursday:'10:00 AM – 6:00 PM',
-      Friday:'10:00 AM – 8:00 PM',
-      Saturday:'10:00 AM – 5:00 PM',
-      Sunday:'Off'
-    }
-  };
-
-  const menus = {
-    customer:[['book','Find a barber'],['appointments','Appointments']],
-    barber:[['today','My Day'],['schedule','Schedule'],['services','Services'],['profile','Profile'],['business','Business']],
-    owner:[['today','Today'],['barbers','Barbers'],['evaluations','Evaluations'],['payments','Booth Payments']]
-  };
-
-  function badge(text,cls=''){ return '<span class="proto-pill '+cls+'">'+text+'</span>'; }
-  function btn(text,action,extra=''){ return '<button type="button" class="proto-btn '+(action==='primary'?'primary':'')+'" '+extra+'>'+text+'</button>'; }
-
-  function setRole(role){
-    state.role = role;
-    root.querySelectorAll('[data-proto-role]').forEach(b=>b.classList.toggle('active',b.dataset.protoRole===role));
-    render();
-  }
-
-  function renderHeader(){
-    if(state.role==='customer'){
-      identity.textContent='John Rice · Customer';
-      context.textContent='Book and manage appointments';
-      status.textContent='Customer account';
-    } else if(state.role==='owner'){
-      identity.textContent='Mervis · Owner';
-      context.textContent='Chop It Up Bothell · Full shop management';
-      status.textContent='Owner · Full permissions';
-    } else {
-      identity.textContent='John Rice · New Guy';
-      context.textContent='Independent barber · Chop It Up Bothell';
-      status.textContent = state.booth==='current' ? 'Current' : state.booth==='suspended' ? 'Suspended' : 'Grace period · 2 days remaining';
-    }
-  }
-
-  function renderNav(){
-    nav.innerHTML = menus[state.role].map(([id,label])=>'<button type="button" data-proto-tab="'+id+'" class="'+(state.tab[state.role]===id?'active':'')+'">'+label+'</button>').join('');
-    nav.querySelectorAll('[data-proto-tab]').forEach(b=>b.addEventListener('click',()=>{state.tab[state.role]=b.dataset.protoTab;render();}));
-  }
-
-  function customer(){
-    if(state.tab.customer==='appointments') return '<div class="proto-eyebrow">Customer account</div><h2 class="proto-title">My Appointments</h2><div class="proto-card"><h3>Sep 22 · 2:00 PM</h3><p>Jay Blenz · Haircut · Kirkland Shop</p>'+btn('View appointment','')+'</div>';
-    return '<div class="proto-eyebrow">Public booking</div><h2 class="proto-title">Find a barber</h2><p class="proto-sub">Availability is generated from each active barber’s services, schedule and booth status.</p><div class="barber-admin-row"><div><strong>Jay Blenz</strong><span>Master Barber · Next opening 2:00 PM</span></div>'+btn('View times','', 'data-demo-action="book"')+'</div><div class="barber-admin-row"><div><strong>Christian</strong><span>All Star Barber · Next opening 3:30 PM</span></div>'+btn('View times','', 'data-demo-action="book"')+'</div>';
-  }
-
-  function barber(){
-    const tab = state.tab.barber;
-    if(tab==='today') return '<div class="proto-eyebrow">Friday, Sep 18</div><h2 class="proto-title">My Day</h2><p class="proto-sub">The barber lives here—not in Profile.</p>'+[
-      ['9:00 AM','Marcus','Haircut','Booked'],
-      ['10:00 AM','Jay','Haircut + Beard','Booked'],
-      ['11:00 AM','Open','30 min','Available'],
-      ['11:30 AM','Open','30 min','Available'],
-      ['12:00 PM','Alex','Fade','Booked'],
-      ['2:00 PM','Open','45 min','Available']
-    ].map(r=>'<div class="proto-row"><div class="proto-row-time">'+r[0]+'</div><div><h4>'+r[1]+'</h4><p>'+r[2]+'</p></div>'+badge(r[3],r[3]==='Available'?'good':'')+'</div>').join('')+'<div class="proto-card"><h3>Need time away?</h3><p>Block a range instead of turning off individual 15-minute slots.</p>'+btn('Block time','', 'data-demo-action="block"')+'</div>';
-
-    if(tab==='schedule') return '<div class="proto-eyebrow">Normal week</div><h2 class="proto-title">Schedule</h2><p class="proto-sub">Shop hours are the constraint; these are John’s working hours. Exceptions and time off are separate.</p>'+Object.entries(state.schedule).map(([d,h])=>'<div class="week-row"><strong>'+d+'</strong><span>'+h+'</span>'+btn(h==='Off'?'Add':'Edit','', 'data-day="'+d+'" data-demo-action="toggle-day"')+'</div>').join('')+'<div class="proto-card"><h3>Time off & exceptions</h3><p>Vacation, lunch, appointments and one-off changes live here.</p>'+btn('Add time off','', 'data-demo-action="block"')+'</div>';
-
-    if(tab==='services') return '<div class="proto-eyebrow">Bookable work</div><h2 class="proto-title">Services</h2><p class="proto-sub">Simple service management with explicit price, duration and online-booking state.</p>'+state.services.map(s=>'<div class="service-row"><div><strong>'+s.name+'</strong><span>'+s.mins+' min · 
-    if(tab==='profile') return '<div class="proto-eyebrow">Public identity</div><h2 class="proto-title">Profile</h2><p class="proto-sub">Profile is now just profile.</p><form class="proto-form" id="demoProfile"><label>Display name<input value="JR"></label><label>Bio<textarea rows="4">Independent barber at Chop It Up Bothell.</textarea></label><label>Instagram<input placeholder="@handle"></label><div class="proto-save" id="demoSave">Changes save automatically.</div></form>';
-
-    return '<div class="proto-eyebrow">Booth + reporting</div><h2 class="proto-title">Business</h2><div class="proto-grid"><div class="proto-metric"><span>Booth rent</span><strong>$275</strong></div><div class="proto-metric"><span>Status</span><strong>'+(state.booth==='current'?'Current':state.booth==='suspended'?'Paused':'Grace')+'</strong></div><div class="proto-metric"><span>2026 YTD</span><strong>$18,420</strong></div></div><div class="proto-card"><h3>'+(state.booth==='current'?'Paid and active':'Payment due')+'</h3><p>'+(state.booth==='current'?'Barber access is current.':'Three-day grace period ends Sep 20. The account remains visible so John can resolve payment.')+'</p>'+(state.booth==='current'?'':btn('Mark paid — demo','primary','data-demo-action="pay"'))+'</div>';
-  }
-
-  function owner(){
-    const tab = state.tab.owner;
-    if(tab==='today') return '<div class="proto-eyebrow">Shop overview</div><h2 class="proto-title">Today</h2><p class="proto-sub">Mervis sees the shop, not another barber profile.</p><div class="proto-grid"><div class="proto-metric"><span>Barbers active</span><strong>3</strong></div><div class="proto-metric"><span>In grace</span><strong>'+(state.booth==='grace'?'1':'0')+'</strong></div><div class="proto-metric"><span>Evaluations due</span><strong>2</strong></div></div><div class="proto-card"><h3>Needs attention</h3><div class="barber-admin-row"><div><strong>John Rice · booth rent</strong><span>'+(state.booth==='current'?'Current':state.booth==='suspended'?'Suspended':'Grace period · 2 days remaining')+'</span></div>'+badge(state.booth==='current'?'Current':state.booth==='suspended'?'Suspended':'Grace',state.booth==='current'?'good':state.booth==='suspended'?'bad':'warn')+'</div><div class="barber-admin-row"><div><strong>2 barber evaluations due</strong><span>Review eligible barbers</span></div>'+btn('Review','', 'data-owner-jump="evaluations"')+'</div></div>';
-
-    if(tab==='barbers') return '<div class="proto-eyebrow">Shop roster</div><h2 class="proto-title">Barbers</h2><p class="proto-sub">Rank is separate from access and responsibility.</p>'+[
-      ['Mervis','Grandmaster Barber','Current'],
-      ['Jay Blenz','Master Barber · Evaluator','Current'],
-      ['Christian','All Star Barber','Current'],
-      ['John Rice','New Guy',state.booth==='current'?'Current':state.booth==='suspended'?'Suspended':'Grace']
-    ].map(r=>'<div class="barber-admin-row"><div><strong>'+r[0]+'</strong><span>'+r[1]+'</span></div><div class="proto-actions">'+badge(r[2],r[2]==='Current'?'good':r[2]==='Suspended'?'bad':'warn')+btn('Manage','', 'data-demo-action="manage"')+'</div></div>').join('')+'<div style="margin-top:16px">'+btn('+ Invite barber','primary','data-demo-action="invite"')+'</div>';
-
-    if(tab==='evaluations') return '<div class="proto-eyebrow">Rank + certification</div><h2 class="proto-title">Evaluations</h2><p class="proto-sub">Senior barber authority is a permission, not the same thing as the rank label customers see.</p><div class="barber-admin-row"><div><strong>Christian</strong><span>All Star Barber · Eligible for review</span></div>'+btn('Evaluate','', 'data-demo-action="evaluate"')+'</div><div class="barber-admin-row"><div><strong>John Rice</strong><span>New Guy · 42 completed appointments</span></div>'+btn('Evaluate','', 'data-demo-action="evaluate"')+'</div><div class="proto-card"><h3>Evaluator capability</h3><p>Master / Grandmaster barbers can be granted permission to evaluate, issue certificates and recommend promotion without making every senior title an administrator.</p></div>';
-
-    return '<div class="proto-eyebrow">Access follows payment</div><h2 class="proto-title">Booth Payments</h2><p class="proto-sub">Barbers can still sign in when overdue; booking access is what changes.</p><div class="proto-card"><div class="barber-admin-row"><div><strong>John Rice · $275</strong><span>Due Sep 15 · grace ends Sep 20</span></div><div class="proto-actions">'+btn('Mark paid','primary','data-demo-action="pay"')+btn('Suspend','', 'data-demo-action="suspend"')+'</div></div></div>';
-  }
-
-  function bind(){
-    main.querySelectorAll('[data-demo-action]').forEach(el=>el.addEventListener('click',()=>{
-      const action=el.dataset.demoAction;
-      if(action==='pay'){state.booth='current';render();}
-      else if(action==='suspend'){state.booth='suspended';render();}
-      else if(action==='duplicate'){const s=state.services.find(x=>String(x.id)===el.dataset.id);if(s){state.services.push({...s,id:Date.now(),name:s.name+' copy'});render();}}
-      else if(action==='add-service'){state.services.push({id:Date.now(),name:'New Service',mins:30,price:40,online:false});render();}
-      else if(action==='toggle-day'){const d=el.dataset.day;state.schedule[d]=state.schedule[d]==='Off'?'10:00 AM – 6:00 PM':'Off';render();}
-      else if(action==='block'){el.closest('.proto-card')?.insertAdjacentHTML('beforeend','<div class="proto-dialog"><h3>Block time</h3><div class="proto-dialog-grid"><label>Date<input type="date" value="2026-09-22"></label><label>Reason<select><option>Personal</option><option>Lunch</option><option>Appointment</option></select></label><label>Start<input type="time" value="11:15"></label><label>End<input type="time" value="12:15"></label></div><div class="proto-note">This creates one exception without changing the weekly schedule.</div></div>');el.disabled=true;}
-      else if(action==='invite'){main.insertAdjacentHTML('beforeend','<div class="proto-dialog"><h3>Invite barber</h3><div class="proto-dialog-grid"><label>Name<input value="New barber"></label><label>Starting rank<select><option>New Guy</option><option>Five Star Barber</option></select></label><label>Email / phone<input placeholder="Contact"></label><label>Weekly booth rent<input value="$275"></label></div><div class="proto-note">The invite can attach to an existing customer account or create a new account.</div></div>');el.disabled=true;}
-      else if(action==='evaluate'){el.closest('.barber-admin-row')?.insertAdjacentHTML('afterend','<div class="proto-dialog"><h3>Evaluation</h3><div class="proto-dialog-grid"><label>Recommendation<select><option>Keep current rank</option><option>Promote one rank</option></select></label><label>Certificate<select><option>Issue after approval</option><option>No certificate</option></select></label></div><div class="proto-actions" style="margin-top:12px">'+btn('Submit evaluation','primary')+'</div></div>');el.disabled=true;}
-      else if(action==='manage'){el.textContent='Opened';}
-      else if(action==='service-edit'){el.textContent='Saved ✓';}
-      else if(action==='book'){el.textContent='2:00 PM available';}
-    }));
-    main.querySelectorAll('[data-owner-jump]').forEach(el=>el.addEventListener('click',()=>{state.tab.owner=el.dataset.ownerJump;render();}));
-    const form=main.querySelector('#demoProfile');
-    if(form){form.querySelectorAll('input,textarea').forEach(i=>i.addEventListener('input',()=>{const s=document.getElementById('demoSave');s.textContent='Saved ✓';clearTimeout(window.__protoSaveTimer);window.__protoSaveTimer=setTimeout(()=>s.textContent='Changes save automatically.',900);}));}
-  }
-
-  function render(){
-    renderHeader(); renderNav();
-    main.innerHTML = state.role==='customer'?customer():state.role==='owner'?owner():barber();
-    bind();
-  }
-
-  root.querySelectorAll('[data-proto-role]').forEach(b=>b.addEventListener('click',()=>setRole(b.dataset.protoRole)));
-  render();
-})();
-</script>
-
-<script src="/assets/common/site-shell.js"></script>
-</body>
-</html>+s.price+' · '+(s.online?'Online booking on':'Offline only')+'</span></div><div class="proto-actions">'+btn('Duplicate','', 'data-id="'+s.id+'" data-demo-action="duplicate"')+btn('Edit','', 'data-demo-action="service-edit"')+'</div></div>').join('')+'<div style="margin-top:16px">'+btn('+ Add service','primary','data-demo-action="add-service"')+'</div>';
-
-    if(tab==='profile') return '<div class="proto-eyebrow">Public identity</div><h2 class="proto-title">Profile</h2><p class="proto-sub">Profile is now just profile.</p><form class="proto-form" id="demoProfile"><label>Display name<input value="JR"></label><label>Bio<textarea rows="4">Independent barber at Chop It Up Bothell.</textarea></label><label>Instagram<input placeholder="@handle"></label><div class="proto-save" id="demoSave">Changes save automatically.</div></form>';
-
-    return '<div class="proto-eyebrow">Booth + reporting</div><h2 class="proto-title">Business</h2><div class="proto-grid"><div class="proto-metric"><span>Booth rent</span><strong>$275</strong></div><div class="proto-metric"><span>Status</span><strong>'+(state.booth==='current'?'Current':state.booth==='suspended'?'Paused':'Grace')+'</strong></div><div class="proto-metric"><span>2026 YTD</span><strong>$18,420</strong></div></div><div class="proto-card"><h3>'+(state.booth==='current'?'Paid and active':'Payment due')+'</h3><p>'+(state.booth==='current'?'Barber access is current.':'Three-day grace period ends Sep 20. The account remains visible so John can resolve payment.')+'</p>'+(state.booth==='current'?'':btn('Mark paid — demo','primary','data-demo-action="pay"'))+'</div>';
-  }
-
-  function owner(){
-    const tab = state.tab.owner;
-    if(tab==='today') return '<div class="proto-eyebrow">Shop overview</div><h2 class="proto-title">Today</h2><p class="proto-sub">Mervis sees the shop, not another barber profile.</p><div class="proto-grid"><div class="proto-metric"><span>Barbers active</span><strong>3</strong></div><div class="proto-metric"><span>In grace</span><strong>'+(state.booth==='grace'?'1':'0')+'</strong></div><div class="proto-metric"><span>Evaluations due</span><strong>2</strong></div></div><div class="proto-card"><h3>Needs attention</h3><div class="barber-admin-row"><div><strong>John Rice · booth rent</strong><span>'+(state.booth==='current'?'Current':state.booth==='suspended'?'Suspended':'Grace period · 2 days remaining')+'</span></div>'+badge(state.booth==='current'?'Current':state.booth==='suspended'?'Suspended':'Grace',state.booth==='current'?'good':state.booth==='suspended'?'bad':'warn')+'</div><div class="barber-admin-row"><div><strong>2 barber evaluations due</strong><span>Review eligible barbers</span></div>'+btn('Review','', 'data-owner-jump="evaluations"')+'</div></div>';
-
-    if(tab==='barbers') return '<div class="proto-eyebrow">Shop roster</div><h2 class="proto-title">Barbers</h2><p class="proto-sub">Rank is separate from access and responsibility.</p>'+[
-      ['Mervis','Grandmaster Barber','Current'],
-      ['Jay Blenz','Master Barber · Evaluator','Current'],
-      ['Christian','All Star Barber','Current'],
-      ['John Rice','New Guy',state.booth==='current'?'Current':state.booth==='suspended'?'Suspended':'Grace']
-    ].map(r=>'<div class="barber-admin-row"><div><strong>'+r[0]+'</strong><span>'+r[1]+'</span></div><div class="proto-actions">'+badge(r[2],r[2]==='Current'?'good':r[2]==='Suspended'?'bad':'warn')+btn('Manage','', 'data-demo-action="manage"')+'</div></div>').join('')+'<div style="margin-top:16px">'+btn('+ Invite barber','primary','data-demo-action="invite"')+'</div>';
-
-    if(tab==='evaluations') return '<div class="proto-eyebrow">Rank + certification</div><h2 class="proto-title">Evaluations</h2><p class="proto-sub">Senior barber authority is a permission, not the same thing as the rank label customers see.</p><div class="barber-admin-row"><div><strong>Christian</strong><span>All Star Barber · Eligible for review</span></div>'+btn('Evaluate','', 'data-demo-action="evaluate"')+'</div><div class="barber-admin-row"><div><strong>John Rice</strong><span>New Guy · 42 completed appointments</span></div>'+btn('Evaluate','', 'data-demo-action="evaluate"')+'</div><div class="proto-card"><h3>Evaluator capability</h3><p>Master / Grandmaster barbers can be granted permission to evaluate, issue certificates and recommend promotion without making every senior title an administrator.</p></div>';
-
-    return '<div class="proto-eyebrow">Access follows payment</div><h2 class="proto-title">Booth Payments</h2><p class="proto-sub">Barbers can still sign in when overdue; booking access is what changes.</p><div class="proto-card"><div class="barber-admin-row"><div><strong>John Rice · $275</strong><span>Due Sep 15 · grace ends Sep 20</span></div><div class="proto-actions">'+btn('Mark paid','primary','data-demo-action="pay"')+btn('Suspend','', 'data-demo-action="suspend"')+'</div></div></div>';
-  }
-
-  function bind(){
-    main.querySelectorAll('[data-demo-action]').forEach(el=>el.addEventListener('click',()=>{
-      const action=el.dataset.demoAction;
-      if(action==='pay'){state.booth='current';render();}
-      else if(action==='suspend'){state.booth='suspended';render();}
-      else if(action==='duplicate'){const s=state.services.find(x=>String(x.id)===el.dataset.id);if(s){state.services.push({...s,id:Date.now(),name:s.name+' copy'});render();}}
-      else if(action==='add-service'){state.services.push({id:Date.now(),name:'New Service',mins:30,price:40,online:false});render();}
-      else if(action==='toggle-day'){const d=el.dataset.day;state.schedule[d]=state.schedule[d]==='Off'?'10:00 AM – 6:00 PM':'Off';render();}
-      else if(action==='block'){el.closest('.proto-card')?.insertAdjacentHTML('beforeend','<div class="proto-dialog"><h3>Block time</h3><div class="proto-dialog-grid"><label>Date<input type="date" value="2026-09-22"></label><label>Reason<select><option>Personal</option><option>Lunch</option><option>Appointment</option></select></label><label>Start<input type="time" value="11:15"></label><label>End<input type="time" value="12:15"></label></div><div class="proto-note">This creates one exception without changing the weekly schedule.</div></div>');el.disabled=true;}
-      else if(action==='invite'){main.insertAdjacentHTML('beforeend','<div class="proto-dialog"><h3>Invite barber</h3><div class="proto-dialog-grid"><label>Name<input value="New barber"></label><label>Starting rank<select><option>New Guy</option><option>Five Star Barber</option></select></label><label>Email / phone<input placeholder="Contact"></label><label>Weekly booth rent<input value="$275"></label></div><div class="proto-note">The invite can attach to an existing customer account or create a new account.</div></div>');el.disabled=true;}
-      else if(action==='evaluate'){el.closest('.barber-admin-row')?.insertAdjacentHTML('afterend','<div class="proto-dialog"><h3>Evaluation</h3><div class="proto-dialog-grid"><label>Recommendation<select><option>Keep current rank</option><option>Promote one rank</option></select></label><label>Certificate<select><option>Issue after approval</option><option>No certificate</option></select></label></div><div class="proto-actions" style="margin-top:12px">'+btn('Submit evaluation','primary')+'</div></div>');el.disabled=true;}
-      else if(action==='manage'){el.textContent='Opened';}
-      else if(action==='service-edit'){el.textContent='Saved ✓';}
-      else if(action==='book'){el.textContent='2:00 PM available';}
-    }));
-    main.querySelectorAll('[data-owner-jump]').forEach(el=>el.addEventListener('click',()=>{state.tab.owner=el.dataset.ownerJump;render();}));
-    const form=main.querySelector('#demoProfile');
-    if(form){form.querySelectorAll('input,textarea').forEach(i=>i.addEventListener('input',()=>{const s=document.getElementById('demoSave');s.textContent='Saved ✓';clearTimeout(window.__protoSaveTimer);window.__protoSaveTimer=setTimeout(()=>s.textContent='Changes save automatically.',900);}));}
-  }
-
-  function render(){
-    renderHeader(); renderNav();
-    main.innerHTML = state.role==='customer'?customer():state.role==='owner'?owner():barber();
-    bind();
-  }
-
-  root.querySelectorAll('[data-proto-role]').forEach(b=>b.addEventListener('click',()=>setRole(b.dataset.protoRole)));
-  render();
-})();
-</script>
-
 <script src="/assets/common/site-shell.js"></script>
 </body>
 </html>
