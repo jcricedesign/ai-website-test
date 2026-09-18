@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chop It Up — 5 / 8 / 10 Exploration</title>
-<meta name="description" content="Mobile-first Chop It Up redesign exploration testing three levels of Barbergame influence.">
+<title>Chop It Up — Version 1 / Version 2</title>
+<meta name="description" content="Mobile-first Chop It Up redesign exploration comparing two practical homepage directions.">
 <link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
 <link rel="stylesheet" href="/assets/common/site-shell.css">
 <style>
@@ -56,8 +56,8 @@ opacity:.52}
 .kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
 h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin:0;max-width:1100px}
 .dek{max-width:780px;font-size:20px;line-height:1.55;color:var(--muted);margin:34px 0 0}
-.board{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:34px;padding:58px 0 96px;align-items:start}
-.direction{min-width:0}
+.board{display:grid;grid-template-columns:repeat(2,minmax(320px,1fr));gap:34px;padding:58px 0 96px;align-items:start}
+.direction{min-width:0;max-width:560px;margin:0 auto}
 .dir-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 14px}
 .dir-head h2{font-size:32px;letter-spacing:-.045em;margin:0}
 .dir-head span{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
@@ -78,8 +78,8 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .barber-row{display:grid;grid-template-columns:58px 1fr auto;gap:11px;align-items:center;padding:12px 0;border-top:1px solid #ddd}
 .avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#ddd}
 .barber-name{font-size:16px;font-weight:700;margin:0 0 3px}.barber-meta{font-size:12px;color:#666;line-height:1.35}
-.time{font-size:12px;border:1px solid #111;border-radius:18px;padding:8px 10px;white-space:nowrap;background:#fff}
-.location{border:1px solid #cfcfcf;border-radius:14px;padding:13px 14px;margin-top:10px}.location strong{font-size:14px}.location p{font-size:12px;line-height:1.4;color:#666;margin:4px 0 0}
+.time{font-size:12px;border:1px solid #111;border-radius:18px;padding:8px 10px;white-space:nowrap;background:#fff}.featured-book{color:#558168;border-color:#558168}.featured-book:hover,.featured-book:active{background:#558168;color:#fff}
+.location{border:1px solid #cfcfcf;border-radius:14px;padding:13px 14px;margin-top:10px}.location strong{font-size:14px}.location p{font-size:12px;line-height:1.4;color:#666;margin:4px 0 0}.location-card-v2{border:1px solid #cfcfcf;border-radius:18px;padding:18px;margin-top:10px}.location-card-v2 h3{font-size:28px;letter-spacing:-.04em;margin:0 0 3px}.distance{font-size:13px;color:#666;margin:0 0 16px}.location-facts{display:flex;justify-content:space-between;border-top:1px solid #ddd;padding-top:12px;font-size:12px}.location-book-v2{margin-top:16px;height:46px}.location-link{display:block;text-align:center;margin-top:12px;color:#555;font-size:12px;text-decoration:none}
 .chips{display:flex;gap:7px;overflow:auto;padding:2px 0 5px;scrollbar-width:none}.chip{white-space:nowrap;border:1px solid #bbb;border-radius:18px;padding:8px 11px;font-size:12px;background:#fff}.chip.on{background:#111;color:#fff;border-color:#111}
 .search{display:flex;align-items:center;border:1.5px solid #111;border-radius:26px;height:50px;padding:0 16px;margin:16px 0 4px;font-size:14px;color:#555}
 .next-card{background:#111;color:#fff;border-radius:20px;padding:18px;margin-top:18px}.next-card .eyebrow{color:#aaa}.next-card h3{font-size:27px;letter-spacing:-.04em;margin:3px 0 7px}.next-card p{font-size:13px;line-height:1.45;color:#ddd;margin:0}.next-card .time-btn{margin-top:15px;background:#fff;color:#111;border-radius:22px;padding:12px 14px;text-align:center;font-weight:700;font-size:14px}
@@ -106,16 +106,16 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <div class="wrap">
 <header class="top">
 <a class="back" href="/playground/">← Playground</a>
-<p class="kicker">Chop It Up redesign · Mobile-first exploration · v0.1</p>
-<h1>How much Barbergame?</h1>
-<p class="dek">Three deliberately different starting points using the same Chop It Up brand and barber roster. Shop First improves the existing website. Find Your Barber reorganizes the experience around people and availability. My Barber treats the client–barber relationship as the product.</p>
+<p class="kicker">Chop It Up redesign · Mobile-first exploration</p>
+<h1>Two ways into Chop It Up.</h1>
+<p class="dek">Version 1 uses featured barbers. Version 2 uses the same experience but leads with the closest shop instead—something Chop It Up can support immediately.</p>
 
 </header>
 
 <main class="board">
 <section class="direction">
-<div class="dir-head"><h2>Shop First</h2><span>Refine</span></div>
-<p class="note">Keep the familiar site model, but make the mobile hierarchy useful and stop repeating content just to fill pages.</p>
+<div class="dir-head"><h2>Version 1</h2><span>Featured barbers</span></div>
+<p class="note">The refined Chop It Up homepage with featured barbers available directly from the shop experience.</p>
 <div class="phone">
 <div class="status"></div>
 <div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
@@ -215,62 +215,40 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 </div>
 </section>
 
-<section class="direction">
-<div class="dir-head"><h2>Find Your Barber</h2><span>Reorganize</span></div>
-<p class="note">The shop is still visible, but the customer enters through a human question: who can cut me, and when?</p>
-<div class="phone">
-<div class="status"></div>
-<div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
-<div class="screen">
-<p class="eyebrow">Need a cut?</p>
-<h3 class="hero-title">Find your barber.</h3>
-<div class="chips"><div class="chip on">Today</div><div class="chip">Tomorrow</div><div class="chip">This week</div><div class="chip">Near me</div></div>
-<div class="search">⌕ &nbsp; Search by barber, style or shop</div>
-<div class="section-title"><h3>Available today</h3><a href="#">Filter</a></div>
-<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Razor shaves<br>Kirkland</div></div><button class="time">2:30</button></div>
-<div class="barber-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-meta">Texture · Kids · Design<br>Bothell</div></div><button class="time">3:10</button></div>
-<div class="barber-row"><img class="avatar" src="jay-miller.jpg" alt=""><div><p class="barber-name">Jay Miller</p><div class="barber-meta">Classic cuts · Beard · Business<br>Bellevue</div></div><button class="time">3:45</button></div>
-<div class="section-title"><h3>Meet Curtis</h3><a href="#">Full profile</a></div>
-<div class="profile-card"><img class="avatar" src="curtis.jpg" alt=""><div><h3>Sharp, patient, precise.</h3><div class="tags"><span class="tag">Fades</span><span class="tag">Beards</span><span class="tag">Kids</span></div></div></div>
-<div class="work-strip"><div class="work-shot"><img src="haircut-1.png" alt="Haircut by Chop It Up barber"></div><div class="work-shot"><img src="haircut-2.png" alt="Haircut by Chop It Up barber"></div><div class="work-shot"><img src="haircut-3.png" alt="Haircut by Chop It Up barber"></div></div>
-<button class="primary">Book Curtis · 2:30 PM</button>
-</div>
-</div>
-</section>
 
 <section class="direction">
-<div class="dir-head"><h2>My Barber</h2><span>Recognize</span></div>
-<p class="note">A returning client should not have to rediscover the business. Phone identity lets the site resume the relationship.</p>
+<div class="dir-head"><h2>Version 2</h2><span>Closest shop</span></div>
+<p class="note">Same foundation, but use location as the useful feature until barber profiles are ready across the network.</p>
 <div class="phone">
 <div class="status"></div>
-<div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
+<div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div>
+<div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
 <div class="screen">
-<p class="eyebrow">Welcome back, John</p>
-<h3 class="relationship">Curtis has time for you today.</h3>
-<div class="rebook">
-<div class="rebook-top"><img class="avatar" src="curtis.jpg" alt=""><div><h3>Book Curtis again</h3><p>Your last visit: Haircut · Kirkland</p></div></div>
-<div class="price-line"><span>Haircut</span><strong>$18</strong></div>
-<div class="slots"><div class="slot hot">2:30</div><div class="slot">4:10</div><div class="slot">5:00</div></div>
+<p class="eyebrow">Chop It Up Barbershop</p>
+<h3 class="hero-title">A better cut starts here.</h3>
+<p class="body">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
+<button class="primary" id="startShopBookingV2">Book an appointment</button>
+
+<div class="section-title"><h3>Closest shop</h3><a href="#">See all shops</a></div>
+<div class="location-card-v2">
+  <p class="eyebrow">Nearest to you</p>
+  <h3>Kirkland</h3>
+  <p class="distance">2.4 miles away</p>
+  <div class="location-facts"><span>Open today</span><strong>10 AM–6 PM</strong></div>
+  <button class="primary location-book-v2" id="bookKirklandV2">Book at Kirkland</button>
+  <a class="location-link" href="#">Directions</a>
 </div>
-<button class="primary">Book 2:30 PM</button>
-<button class="secondary">See Curtis's schedule</button>
-<div class="next-card">
-<p class="eyebrow">Your barber</p>
-<h3>Curtis</h3>
-<p>Fades, tapers and razor shaves. You have booked Curtis 4 times.</p>
-<div class="time-btn">View profile</div>
-</div>
-<div class="section-title"><h3>Need someone else?</h3><a href="#">See all</a></div>
-<div class="barber-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-meta">Available nearby · 3:15 PM</div></div><button class="time">3:15</button></div>
-<div class="barber-row"><img class="avatar" src="mel.jpg" alt=""><div><p class="barber-name">Mel</p><div class="barber-meta">Available nearby · 4:00 PM</div></div><button class="time">4:00</button></div>
-<div class="small-link">Find a different barber →</div>
+
+<div class="section-title"><h3>Other nearby shops</h3><a href="#">All 9</a></div>
+<div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · 5.8 miles away</p></div>
+<div class="location"><strong>Bothell, WA</strong><p>Open today 10–6 · 7.1 miles away</p></div>
 </div>
 </div>
 </section>
 </main>
 
 <section class="footer-note">
-<h2>Which direction feels most like Chop It Up?</h2>
+<h2>Which version feels right for Chop It Up now?</h2>
 </section>
 </div>
 <script>
@@ -332,6 +310,13 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     setTimeout(()=>btn.style.transform='',120);
     openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber});
   }));
+
+  const openFromV2 = () => {
+    openBooking({shop:'Kirkland'});
+    document.getElementById('shopBookingPanel')?.closest('.phone')?.scrollIntoView({behavior:'smooth',block:'center'});
+  };
+  document.getElementById('startShopBookingV2')?.addEventListener('click', openFromV2);
+  document.getElementById('bookKirklandV2')?.addEventListener('click', openFromV2);
 
   back?.addEventListener('click', () => {
     if (!s3.hidden) return showStep(2);
