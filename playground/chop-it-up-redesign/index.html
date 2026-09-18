@@ -10,7 +10,46 @@
 <style>
 :root{--page:#f3f1ed;--ink:#111;--muted:#696863;--rule:rgba(17,17,17,.16);--red:#c8212c;--green:#4e7c5b;--phone:#fff;--shadow:0 22px 60px rgba(0,0,0,.14)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif;position:relative}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:
+conic-gradient(from -12deg at 18% 8%,
+rgba(255,255,255,0) 0deg 10deg,
+rgba(255,255,255,.34) 10deg 20deg,
+rgba(255,255,255,0) 20deg 30deg,
+rgba(255,255,255,.34) 30deg 40deg,
+rgba(255,255,255,0) 40deg 50deg,
+rgba(255,255,255,.34) 50deg 60deg,
+rgba(255,255,255,0) 60deg 70deg,
+rgba(255,255,255,.34) 70deg 80deg,
+rgba(255,255,255,0) 80deg 90deg,
+rgba(255,255,255,.34) 90deg 100deg,
+rgba(255,255,255,0) 100deg 110deg,
+rgba(255,255,255,.34) 110deg 120deg,
+rgba(255,255,255,0) 120deg 130deg,
+rgba(255,255,255,.34) 130deg 140deg,
+rgba(255,255,255,0) 140deg 150deg,
+rgba(255,255,255,.34) 150deg 160deg,
+rgba(255,255,255,0) 160deg 170deg,
+rgba(255,255,255,.34) 170deg 180deg,
+rgba(255,255,255,0) 180deg 190deg,
+rgba(255,255,255,.34) 190deg 200deg,
+rgba(255,255,255,0) 200deg 210deg,
+rgba(255,255,255,.34) 210deg 220deg,
+rgba(255,255,255,0) 220deg 230deg,
+rgba(255,255,255,.34) 230deg 240deg,
+rgba(255,255,255,0) 240deg 250deg,
+rgba(255,255,255,.34) 250deg 260deg,
+rgba(255,255,255,0) 260deg 270deg,
+rgba(255,255,255,.34) 270deg 280deg,
+rgba(255,255,255,0) 280deg 290deg,
+rgba(255,255,255,.34) 290deg 300deg,
+rgba(255,255,255,0) 300deg 310deg,
+rgba(255,255,255,.34) 310deg 320deg,
+rgba(255,255,255,0) 320deg 330deg,
+rgba(255,255,255,.34) 330deg 340deg,
+rgba(255,255,255,0) 340deg 350deg,
+rgba(255,255,255,.34) 350deg 360deg);
+opacity:.28}
 .wrap{width:min(1500px,calc(100% - 48px));margin:auto}
 .top{padding:72px 0 54px;border-bottom:1px solid var(--rule)}
 .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:14px;margin-bottom:42px}
