@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chop It Up — 5 / 8 / 10 Exploration</title>
+<meta name="description" content="Mobile-first Chop It Up redesign exploration testing three levels of Barbergame influence.">
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+:root{--page:#f3f1ed;--ink:#111;--muted:#696863;--rule:rgba(17,17,17,.16);--red:#c8212c;--green:#4e7c5b;--phone:#fff;--shadow:0 22px 60px rgba(0,0,0,.14)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif;position:relative}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:
+conic-gradient(from -12deg at 18% 8%,
+rgba(255,255,255,0) 0deg 10deg,
+rgba(255,255,255,.34) 10deg 20deg,
+rgba(255,255,255,0) 20deg 30deg,
+rgba(255,255,255,.34) 30deg 40deg,
+rgba(255,255,255,0) 40deg 50deg,
+rgba(255,255,255,.34) 50deg 60deg,
+rgba(255,255,255,0) 60deg 70deg,
+rgba(255,255,255,.34) 70deg 80deg,
+rgba(255,255,255,0) 80deg 90deg,
+rgba(255,255,255,.34) 90deg 100deg,
+rgba(255,255,255,0) 100deg 110deg,
+rgba(255,255,255,.34) 110deg 120deg,
+rgba(255,255,255,0) 120deg 130deg,
+rgba(255,255,255,.34) 130deg 140deg,
+rgba(255,255,255,0) 140deg 150deg,
+rgba(255,255,255,.34) 150deg 160deg,
+rgba(255,255,255,0) 160deg 170deg,
+rgba(255,255,255,.34) 170deg 180deg,
+rgba(255,255,255,0) 180deg 190deg,
+rgba(255,255,255,.34) 190deg 200deg,
+rgba(255,255,255,0) 200deg 210deg,
+rgba(255,255,255,.34) 210deg 220deg,
+rgba(255,255,255,0) 220deg 230deg,
+rgba(255,255,255,.34) 230deg 240deg,
+rgba(255,255,255,0) 240deg 250deg,
+rgba(255,255,255,.34) 250deg 260deg,
+rgba(255,255,255,0) 260deg 270deg,
+rgba(255,255,255,.34) 270deg 280deg,
+rgba(255,255,255,0) 280deg 290deg,
+rgba(255,255,255,.34) 290deg 300deg,
+rgba(255,255,255,0) 300deg 310deg,
+rgba(255,255,255,.34) 310deg 320deg,
+rgba(255,255,255,0) 320deg 330deg,
+rgba(255,255,255,.34) 330deg 340deg,
+rgba(255,255,255,0) 340deg 350deg,
+rgba(255,255,255,.34) 350deg 360deg);
+opacity:.52}
+.wrap{width:min(1500px,calc(100% - 48px));margin:auto}
+.top{padding:72px 0 54px;border-bottom:1px solid var(--rule)}
+.back{display:inline-block;color:var(--muted);text-decoration:none;font-size:14px;margin-bottom:42px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin:0;max-width:1100px}
+.dek{max-width:780px;font-size:20px;line-height:1.55;color:var(--muted);margin:34px 0 0}
+.board{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:34px;padding:58px 0 96px;align-items:start}
+.direction{min-width:0}
+.dir-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 14px}
+.dir-head h2{font-size:32px;letter-spacing:-.045em;margin:0}
+.dir-head span{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+.note{min-height:64px;color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 18px;max-width:380px}
+.phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #c9c7c0;border-radius:34px;overflow:hidden;box-shadow:var(--shadow);min-height:780px}
+.status{height:22px;background:#101010}
+.nav{height:66px;background:#101010;padding:0 16px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:relative}.signin{justify-self:start;align-self:center;color:#fff;font-size:11px;line-height:1;text-decoration:none;letter-spacing:.01em}
+.logo{height:44px;width:132px;object-fit:contain;object-position:center center;justify-self:center;align-self:center;transform:translateY(-4px)}
+.menu{color:#fff;font-size:25px;line-height:1;justify-self:end;align-self:center}
+.shopbar{height:34px;padding:0 14px;border-bottom:1px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.02em}.shopbar strong{font-size:11px}.shopbar a{color:#666;text-decoration:none;font-size:10px}.screen{padding:20px 18px 30px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 7px}
+.hero-title{font-size:38px;line-height:.96;letter-spacing:-.05em;margin:0 0 12px}
+.body{font-size:15px;line-height:1.45;color:#555;margin:0}
+.primary{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border:0;border-radius:26px;background:#558168;color:#fff;font-weight:700;font-size:15px;margin-top:20px}
+.secondary{display:flex;align-items:center;justify-content:center;width:100%;height:48px;border:1.5px solid #111;border-radius:24px;background:#fff;color:#111;font-weight:700;font-size:14px;margin-top:10px}
+.section-title{display:flex;align-items:end;justify-content:space-between;margin:28px 0 12px}
+.section-title h3{font-size:21px;letter-spacing:-.03em;margin:0}.section-title a{font-size:12px;color:#555;text-decoration:none}
+.barber-row{display:grid;grid-template-columns:58px 1fr auto;gap:11px;align-items:center;padding:12px 0;border-top:1px solid #ddd}
+.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#ddd}
+.barber-name{font-size:16px;font-weight:700;margin:0 0 3px}.barber-meta{font-size:12px;color:#666;line-height:1.35}
+.time{font-size:12px;border:1px solid #111;border-radius:18px;padding:8px 10px;white-space:nowrap;background:#fff}
+.location{border:1px solid #cfcfcf;border-radius:14px;padding:13px 14px;margin-top:10px}.location strong{font-size:14px}.location p{font-size:12px;line-height:1.4;color:#666;margin:4px 0 0}
+.chips{display:flex;gap:7px;overflow:auto;padding:2px 0 5px;scrollbar-width:none}.chip{white-space:nowrap;border:1px solid #bbb;border-radius:18px;padding:8px 11px;font-size:12px;background:#fff}.chip.on{background:#111;color:#fff;border-color:#111}
+.search{display:flex;align-items:center;border:1.5px solid #111;border-radius:26px;height:50px;padding:0 16px;margin:16px 0 4px;font-size:14px;color:#555}
+.next-card{background:#111;color:#fff;border-radius:20px;padding:18px;margin-top:18px}.next-card .eyebrow{color:#aaa}.next-card h3{font-size:27px;letter-spacing:-.04em;margin:3px 0 7px}.next-card p{font-size:13px;line-height:1.45;color:#ddd;margin:0}.next-card .time-btn{margin-top:15px;background:#fff;color:#111;border-radius:22px;padding:12px 14px;text-align:center;font-weight:700;font-size:14px}
+.work-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:12px}.work-shot{aspect-ratio:1;border-radius:8px;overflow:hidden;background:#ddd}.work-shot img{width:100%;height:100%;display:block;object-fit:cover}
+.profile-card{display:grid;grid-template-columns:92px 1fr;gap:14px;align-items:center;margin-top:12px}.profile-card .avatar{width:92px;height:92px}.profile-card h3{font-size:26px;letter-spacing:-.04em;margin:0 0 6px}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:10px;border:1px solid #aaa;border-radius:14px;padding:5px 7px}
+.rebook{border:1.5px solid #111;border-radius:18px;padding:16px;margin-top:18px}.rebook-top{display:flex;gap:12px;align-items:center}.rebook .avatar{width:68px;height:68px}.rebook h3{font-size:23px;letter-spacing:-.035em;margin:0 0 4px}.rebook p{font-size:12px;color:#666;margin:0}.price-line{display:flex;justify-content:space-between;margin-top:15px;padding-top:13px;border-top:1px solid #ddd;font-size:13px}.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.slot{border:1px solid #111;border-radius:16px;text-align:center;padding:9px 4px;font-size:12px}.slot.hot{background:#558168;color:#fff;border-color:#558168}
+.relationship{font-size:31px;line-height:1;letter-spacing:-.05em;margin:0 0 8px}
+.small-link{margin-top:18px;padding-top:16px;border-top:1px solid #ddd;font-size:13px;font-weight:700}
+.booking-panel{display:none;padding:18px 18px 30px}.booking-panel.active{display:block}.shop-home.hidden{display:none}
+.booking-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.booking-back{border:0;background:none;padding:0;font-size:13px;font-weight:700}.booking-step{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#777}
+.booking-title{font-size:30px;line-height:1;letter-spacing:-.045em;margin:0 0 8px}.booking-copy{font-size:13px;line-height:1.45;color:#666;margin:0 0 18px}
+.field{margin:0 0 18px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}.book-select{width:100%;height:48px;border:1px solid #bbb;border-radius:13px;background:#fff;color:#111;padding:0 13px;font-size:14px;font-family:inherit}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice{border:1px solid #bbb;border-radius:13px;background:#fff;padding:11px 10px;text-align:left;font-size:12px;line-height:1.25}.choice.full{grid-column:1/-1}.choice.selected{border-color:#111;background:#111;color:#fff}
+.booking-next{width:100%;height:48px;border:0;border-radius:24px;background:#558168;color:#fff;font-weight:700;font-size:14px;margin-top:4px}.booking-next:disabled{opacity:.3}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.book-slot{border:1px solid #aaa;border-radius:16px;background:#fff;padding:10px 5px;font-size:12px}.book-slot.selected{background:#558168;color:#fff;border-color:#558168}
+.summary-card{border:1px solid #ccc;border-radius:14px;padding:12px 13px;margin:0 0 18px}.summary-card strong{display:block;font-size:14px;margin-bottom:4px}.summary-card span{font-size:11px;color:#666;line-height:1.4}
+.phone-input{width:100%;height:46px;border:1px solid #bbb;border-radius:12px;padding:0 12px;font-size:14px}.book-confirm{background:#558168;color:#fff;border-radius:18px;padding:16px;margin-top:12px}.book-confirm h4{font-size:21px;margin:0 0 6px}.book-confirm p{font-size:12px;line-height:1.45;color:#ddd;margin:0}
+.footer-note{border-top:1px solid var(--rule);padding:38px 0 70px;display:block}
+.footer-note h2{font-size:34px;letter-spacing:-.04em;margin:0;max-width:760px}
+@media(max-width:1000px){.board{grid-template-columns:1fr;gap:70px}.direction{max-width:520px;margin:auto}.note{min-height:0}.phone{width:390px;max-width:100%}}
+@media(max-width:600px){.wrap{width:calc(100% - 28px)}.top{padding:52px 0 40px}.back{margin-bottom:28px}.dek{font-size:17px}.board{padding-top:42px}.phone{border-radius:28px;min-height:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<a class="back" href="/playground/">← Playground</a>
+<p class="kicker">Chop It Up redesign · Mobile-first exploration · v0.1</p>
+<h1>How much Barbergame?</h1>
+<p class="dek">Three deliberately different starting points using the same Chop It Up brand and barber roster. Shop First improves the existing website. Find Your Barber reorganizes the experience around people and availability. My Barber treats the client–barber relationship as the product.</p>
+
+</header>
+
+<main class="board">
+<section class="direction">
+<div class="dir-head"><h2>Shop First</h2><span>Refine</span></div>
+<p class="note">Keep the familiar site model, but make the mobile hierarchy useful and stop repeating content just to fill pages.</p>
+<div class="phone">
+<div class="status"></div>
+<div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
+<div class="screen shop-home" id="shopFirstHome">
+<p class="eyebrow">Chop It Up Barbershop</p>
+<h3 class="hero-title">A better cut starts here.</h3>
+<p class="body">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
+<button class="primary" id="startShopBooking">Book an appointment</button>
+<div class="section-title"><h3>Featured barbers</h3><a href="#">See all</a></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">Book</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Bellevue</div></div><button class="time featured-book" data-barber="Jay" data-shop="Bellevue">Book</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-meta">Texture · Design · Fades<br>Everett</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Everett">Book</button></div>
+<div class="section-title"><h3>Our shops</h3><a href="#">All 9</a></div>
+<div class="location"><strong>Kirkland, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
+<div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
+</div>
+
+<div class="booking-panel" id="shopBookingPanel">
+  <div class="booking-top"><button class="booking-back" id="bookingBack">← Back</button><span class="booking-step" id="bookingStepLabel">Book · 1 of 3</span></div>
+
+  <div id="bookStep1">
+    <h3 class="booking-title">Book your visit</h3>
+    <p class="booking-copy">Choose the shop, service and barber. We’ll show only times that actually work.</p>
+
+    <div class="field">
+      <label for="bookShop">Shop</label>
+      <select class="book-select" id="bookShop">
+        <option value="Kirkland">Kirkland</option>
+        <option value="Bellevue">Bellevue</option>
+        <option value="Bothell">Bothell</option>
+        <option value="Everett">Everett</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="bookService">Service</label>
+      <select class="book-select" id="bookService">
+        <option value="">Choose a service</option>
+        <option value="Haircut">Haircut</option>
+        <option value="Haircut + beard">Haircut + beard</option>
+        <option value="Kids haircut">Kids haircut</option>
+        <option value="Line up">Line up</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="bookBarber">Barber</label>
+      <select class="book-select" id="bookBarber">
+        <option value="">Choose a barber</option>
+        <option value="Any available barber">Any available barber</option>
+        <option value="Curtis">Curtis</option>
+        <option value="Jay">Jay</option>
+        <option value="Monnae">Monnae</option>
+      </select>
+    </div>
+    <button class="booking-next" id="toTimes" disabled>See available times</button>
+  </div>
+
+  <div id="bookStep2" hidden>
+    <h3 class="booking-title">Choose a time</h3>
+    <p class="booking-copy" id="bookingContext">Kirkland · Haircut</p>
+    <div class="field">
+      <label>Day</label>
+      <div class="choice-grid">
+        <button class="choice selected" data-day="Today">Today</button>
+        <button class="choice" data-day="Tomorrow">Tomorrow</button>
+        <button class="choice" data-day="Saturday">Saturday</button>
+        <button class="choice" data-day="Next week">Next week</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Available times</label>
+      <div class="slot-grid">
+        <button class="book-slot" data-time="10:30 AM">10:30</button>
+        <button class="book-slot" data-time="11:45 AM">11:45</button>
+        <button class="book-slot" data-time="1:15 PM">1:15</button>
+        <button class="book-slot" data-time="2:30 PM">2:30</button>
+        <button class="book-slot" data-time="4:10 PM">4:10</button>
+        <button class="book-slot" data-time="5:00 PM">5:00</button>
+      </div>
+    </div>
+    <button class="booking-next" id="toConfirm" disabled>Continue</button>
+  </div>
+
+  <div id="bookStep3" hidden>
+    <h3 class="booking-title">Confirm booking</h3>
+    <div class="summary-card" id="bookingSummary"></div>
+    <div class="field">
+      <label>Mobile number</label>
+      <input class="phone-input" id="bookingPhone" inputmode="tel" placeholder="(425) 555-0123">
+    </div>
+    <p class="booking-copy">Your phone number is your client identity. Returning clients can rebook faster next time.</p>
+    <button class="booking-next" id="confirmBooking">Confirm appointment</button>
+    <div class="book-confirm" id="bookingDone" hidden><h4>You’re booked.</h4><p id="bookingDoneText"></p></div>
+  </div>
+</div>
+</div>
+</section>
+
+<section class="direction">
+<div class="dir-head"><h2>Find Your Barber</h2><span>Reorganize</span></div>
+<p class="note">The shop is still visible, but the customer enters through a human question: who can cut me, and when?</p>
+<div class="phone">
+<div class="status"></div>
+<div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
+<div class="screen">
+<p class="eyebrow">Need a cut?</p>
+<h3 class="hero-title">Find your barber.</h3>
+<div class="chips"><div class="chip on">Today</div><div class="chip">Tomorrow</div><div class="chip">This week</div><div class="chip">Near me</div></div>
+<div class="search">⌕ &nbsp; Search by barber, style or shop</div>
+<div class="section-title"><h3>Available today</h3><a href="#">Filter</a></div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Razor shaves<br>Kirkland</div></div><button class="time">2:30</button></div>
+<div class="barber-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-meta">Texture · Kids · Design<br>Bothell</div></div><button class="time">3:10</button></div>
+<div class="barber-row"><img class="avatar" src="jay-miller.jpg" alt=""><div><p class="barber-name">Jay Miller</p><div class="barber-meta">Classic cuts · Beard · Business<br>Bellevue</div></div><button class="time">3:45</button></div>
+<div class="section-title"><h3>Meet Curtis</h3><a href="#">Full profile</a></div>
+<div class="profile-card"><img class="avatar" src="curtis.jpg" alt=""><div><h3>Sharp, patient, precise.</h3><div class="tags"><span class="tag">Fades</span><span class="tag">Beards</span><span class="tag">Kids</span></div></div></div>
+<div class="work-strip"><div class="work-shot"><img src="haircut-1.png" alt="Haircut by Chop It Up barber"></div><div class="work-shot"><img src="haircut-2.png" alt="Haircut by Chop It Up barber"></div><div class="work-shot"><img src="haircut-3.png" alt="Haircut by Chop It Up barber"></div></div>
+<button class="primary">Book Curtis · 2:30 PM</button>
+</div>
+</div>
+</section>
+
+<section class="direction">
+<div class="dir-head"><h2>My Barber</h2><span>Recognize</span></div>
+<p class="note">A returning client should not have to rediscover the business. Phone identity lets the site resume the relationship.</p>
+<div class="phone">
+<div class="status"></div>
+<div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
+<div class="screen">
+<p class="eyebrow">Welcome back, John</p>
+<h3 class="relationship">Curtis has time for you today.</h3>
+<div class="rebook">
+<div class="rebook-top"><img class="avatar" src="curtis.jpg" alt=""><div><h3>Book Curtis again</h3><p>Your last visit: Haircut · Kirkland</p></div></div>
+<div class="price-line"><span>Haircut</span><strong>$18</strong></div>
+<div class="slots"><div class="slot hot">2:30</div><div class="slot">4:10</div><div class="slot">5:00</div></div>
+</div>
+<button class="primary">Book 2:30 PM</button>
+<button class="secondary">See Curtis's schedule</button>
+<div class="next-card">
+<p class="eyebrow">Your barber</p>
+<h3>Curtis</h3>
+<p>Fades, tapers and razor shaves. You have booked Curtis 4 times.</p>
+<div class="time-btn">View profile</div>
+</div>
+<div class="section-title"><h3>Need someone else?</h3><a href="#">See all</a></div>
+<div class="barber-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-meta">Available nearby · 3:15 PM</div></div><button class="time">3:15</button></div>
+<div class="barber-row"><img class="avatar" src="mel.jpg" alt=""><div><p class="barber-name">Mel</p><div class="barber-meta">Available nearby · 4:00 PM</div></div><button class="time">4:00</button></div>
+<div class="small-link">Find a different barber →</div>
+</div>
+</div>
+</section>
+</main>
+
+<section class="footer-note">
+<h2>Which direction feels most like Chop It Up?</h2>
+</section>
+</div>
+<script>
+(() => {
+  const start = document.getElementById('startShopBooking');
+  const home = document.getElementById('shopFirstHome');
+  const panel = document.getElementById('shopBookingPanel');
+  const back = document.getElementById('bookingBack');
+  const stepLabel = document.getElementById('bookingStepLabel');
+  const s1 = document.getElementById('bookStep1');
+  const s2 = document.getElementById('bookStep2');
+  const s3 = document.getElementById('bookStep3');
+  const toTimes = document.getElementById('toTimes');
+  const toConfirm = document.getElementById('toConfirm');
+  const summary = document.getElementById('bookingSummary');
+  const context = document.getElementById('bookingContext');
+  const confirm = document.getElementById('confirmBooking');
+  const done = document.getElementById('bookingDone');
+  const doneText = document.getElementById('bookingDoneText');
+  const state = {shop:'Kirkland', service:'', barber:'', day:'Today', time:''};
+
+  function showStep(n){
+    s1.hidden = n !== 1; s2.hidden = n !== 2; s3.hidden = n !== 3;
+    stepLabel.textContent = 'Book · ' + n + ' of 3';
+  }
+
+  function openBooking(prefill = {}) {
+    state.shop = prefill.shop || 'Kirkland';
+    state.service = prefill.service || '';
+    state.barber = prefill.barber || '';
+    state.day = 'Today';
+    state.time = '';
+
+    document.getElementById('bookShop').value = state.shop;
+    document.getElementById('bookService').value = state.service;
+    document.getElementById('bookBarber').value = state.barber;
+    document.querySelectorAll('[data-day]').forEach(x => {
+      x.classList.toggle('selected', x.dataset.day === 'Today');
+    });
+    document.querySelectorAll('[data-time]').forEach(x => x.classList.remove('selected'));
+    toTimes.disabled = !(state.shop && state.service && state.barber);
+    toConfirm.disabled = true;
+    done.hidden = true;
+    confirm.hidden = false;
+
+    home.classList.add('hidden');
+    panel.classList.add('active');
+    showStep(1);
+  }
+
+  start?.addEventListener('click', () => {
+    start.style.transform='scale(.98)';
+    setTimeout(()=>start.style.transform='',120);
+    openBooking();
+  });
+
+  document.querySelectorAll('.featured-book').forEach(btn => btn.addEventListener('click', () => {
+    btn.style.transform='scale(.96)';
+    setTimeout(()=>btn.style.transform='',120);
+    openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber});
+  }));
+
+  back?.addEventListener('click', () => {
+    if (!s3.hidden) return showStep(2);
+    if (!s2.hidden) return showStep(1);
+    panel.classList.remove('active');
+    home.classList.remove('hidden');
+  });
+
+  ['bookShop','bookService','bookBarber'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => {
+      state.shop = document.getElementById('bookShop').value;
+      state.service = document.getElementById('bookService').value;
+      state.barber = document.getElementById('bookBarber').value;
+      toTimes.disabled = !(state.shop && state.service && state.barber);
+    });
+  });
+
+  document.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-day]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.day = btn.dataset.day;
+  }));
+
+  document.querySelectorAll('[data-time]').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-time]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.time = btn.dataset.time;
+    toConfirm.disabled = false;
+  }));
+
+  toTimes?.addEventListener('click', () => {
+    context.textContent = state.shop + ' · ' + state.service + ' · ' + state.barber;
+    showStep(2);
+  });
+
+  toConfirm?.addEventListener('click', () => {
+    summary.innerHTML = '<strong>'+state.service+' · '+state.time+'</strong><span>'+state.day+' at '+state.shop+' Shop<br>'+state.barber+'</span>';
+    showStep(3);
+  });
+
+  confirm?.addEventListener('click', () => {
+    const phone = document.getElementById('bookingPhone').value.trim();
+    if (!phone) { document.getElementById('bookingPhone').focus(); return; }
+    done.hidden = false;
+    doneText.textContent = state.day + ' at ' + state.time + ' · ' + state.shop + ' · ' + state.barber;
+    confirm.hidden = true;
+  });
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>
