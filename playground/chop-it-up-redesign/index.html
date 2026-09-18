@@ -109,7 +109,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .booking-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.booking-back{border:0;background:none;padding:0;font-size:13px;font-weight:700}.booking-step{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#777}
 .booking-title{font-size:30px;line-height:1;letter-spacing:-.045em;margin:0 0 8px}.booking-copy{font-size:13px;line-height:1.45;color:#666;margin:0 0 18px}
 .field{margin:0 0 18px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}
-.picker-trigger{width:100%;height:52px;border:1px solid #bbb;border-radius:13px;background:#fff;color:#111;padding:0 14px;font-size:14px;font-family:inherit;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.picker-trigger{width:100%;height:52px;border:1px solid #bbb;border-radius:13px;background:#fff;color:#111;padding:0 14px;font-size:14px;font-family:inherit;display:flex;align-items:center;justify-content:space-between;text-align:left}.picker-trigger.needs-choice{border:2px solid #558168;box-shadow:0 0 0 3px rgba(85,129,104,.10)}.field-hint{display:none;font-size:11px;color:#558168;margin-top:6px}.field-hint.show{display:block}
 .picker-trigger:after{content:"›";font-size:22px;color:#777;transform:rotate(90deg)}
 .picker-backdrop{display:none;position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:30;align-items:flex-end}
 .picker-backdrop.open{display:flex}
@@ -187,7 +187,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 
     <div class="field">
       <label>Service</label>
-      <button class="picker-trigger" id="bookServiceTrigger" type="button">Choose a service</button>
+      <button class="picker-trigger" id="bookServiceTrigger" type="button">Choose a service</button><div class="field-hint" id="serviceHint">Choose a service to continue</div>
     </div>
 
     <div class="field">
@@ -336,6 +336,15 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     document.getElementById('bookShopTrigger').textContent = state.shop || 'Choose a shop';
     document.getElementById('bookServiceTrigger').textContent = state.service || 'Choose a service';
     document.getElementById('bookBarberTrigger').textContent = state.barber || 'Choose a barber';
+    const shopTrigger = document.getElementById('bookShopTrigger');
+    const serviceTrigger = document.getElementById('bookServiceTrigger');
+    const barberTrigger = document.getElementById('bookBarberTrigger');
+    const serviceHint = document.getElementById('serviceHint');
+    [shopTrigger, serviceTrigger, barberTrigger].forEach(x => x?.classList.remove('needs-choice'));
+    if (!state.shop) shopTrigger?.classList.add('needs-choice');
+    if (!state.service) serviceTrigger?.classList.add('needs-choice');
+    if (!state.barber) barberTrigger?.classList.add('needs-choice');
+    serviceHint?.classList.toggle('show', !!state.shop && !!state.barber && !state.service);
     document.querySelectorAll('[data-day]').forEach(x => {
       x.classList.toggle('selected', x.dataset.day === 'Today');
     });
@@ -426,6 +435,14 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
         document.getElementById('bookServiceTrigger').textContent = state.service || 'Choose a service';
         document.getElementById('bookBarberTrigger').textContent = state.barber || 'Choose a barber';
         toTimes.disabled = !(state.shop && state.service && state.barber);
+        const shopTrigger = document.getElementById('bookShopTrigger');
+        const serviceTrigger = document.getElementById('bookServiceTrigger');
+        const barberTrigger = document.getElementById('bookBarberTrigger');
+        [shopTrigger, serviceTrigger, barberTrigger].forEach(x => x?.classList.remove('needs-choice'));
+        if (!state.shop) shopTrigger?.classList.add('needs-choice');
+        if (!state.service) serviceTrigger?.classList.add('needs-choice');
+        if (!state.barber) barberTrigger?.classList.add('needs-choice');
+        document.getElementById('serviceHint')?.classList.toggle('show', !!state.shop && !!state.barber && !state.service);
         pickerBackdrop.classList.remove('open');
       });
       pickerOptions.appendChild(btn);
