@@ -77,7 +77,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .section-title h3{font-size:21px;letter-spacing:-.03em;margin:0}.section-title a{font-size:12px;color:#555;text-decoration:none}
 .barber-row{display:grid;grid-template-columns:58px 1fr auto;gap:11px;align-items:center;padding:12px 0;border-top:1px solid #ddd}
 .avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#ddd}
-.barber-name{font-size:16px;font-weight:700;margin:0 0 3px}.barber-meta{font-size:12px;color:#666;line-height:1.35}
+.barber-name{font-size:16px;font-weight:700;margin:0 0 2px}.barber-rank{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#777;margin-bottom:3px}.barber-meta{font-size:12px;color:#666;line-height:1.35}.tier-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#777;margin:18px 0 6px}.full-row{opacity:.78}.future-book{color:#666;border-color:#aaa}
 .time{font-size:12px;border:1px solid #111;border-radius:18px;padding:8px 10px;white-space:nowrap;background:#fff}.featured-book{color:#558168;border-color:#558168}.featured-book:hover,.featured-book:active{background:#558168;color:#fff}
 .location{border:1px solid #cfcfcf;border-radius:14px;padding:13px 14px;margin-top:10px}.location strong{font-size:14px}.location p{font-size:12px;line-height:1.4;color:#666;margin:4px 0 0}
 .location-card-v2{border:1px solid #cfcfcf;border-radius:18px;padding:18px;margin-top:10px;position:relative}
@@ -151,9 +151,13 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <button class="primary" id="startShopBooking">Book an appointment</button>
 <div class="shop-context"><h3>Kirkland Shop <span class="shop-distance">2.4 mi</span></h3><a href="#">Change shop</a></div>
 <div class="section-title"><h3>Working today</h3><a href="#">See full team</a></div>
-<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">Book</button></div>
-<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Kirkland</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland">Book</button></div>
-<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-meta">Texture · Design · Fades<br>Kirkland</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland">Book</button></div>
+<div class="tier-label">Openings today</div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-rank">Grandmaster Barber</div><div class="barber-meta">Fades · Tapers · Beard</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">2:30</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-rank">Master Barber</div><div class="barber-meta">Classic · Business · Kids</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland">3:10</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-rank">All Star Barber</div><div class="barber-meta">Texture · Design · Fades</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland">4:00</button></div>
+<div class="tier-label">Full today · future openings</div>
+<div class="barber-row full-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Bree" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
+<div class="barber-row full-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Meek" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
 <div class="section-title"><h3>Our shops</h3><a href="#">All 9</a></div>
 <div class="location"><strong>Kirkland, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
 <div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
@@ -278,9 +282,13 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 </div>
 
 <div class="section-title"><h3>Working today</h3><a href="#">See full team</a></div>
-<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">Book</button></div>
-<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Kirkland</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland">Book</button></div>
-<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-meta">Texture · Design · Fades<br>Kirkland</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland">Book</button></div>
+<div class="tier-label">Openings today</div>
+<div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-rank">Grandmaster Barber</div><div class="barber-meta">Fades · Tapers · Beard</div></div><button class="time featured-book" data-barber="Curtis" data-shop="Kirkland">2:30</button></div>
+<div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-rank">Master Barber</div><div class="barber-meta">Classic · Business · Kids</div></div><button class="time featured-book" data-barber="Jay" data-shop="Kirkland">3:10</button></div>
+<div class="barber-row"><img class="avatar" src="monnae.jpg" alt=""><div><p class="barber-name">Monnae</p><div class="barber-rank">All Star Barber</div><div class="barber-meta">Texture · Design · Fades</div></div><button class="time featured-book" data-barber="Monnae" data-shop="Kirkland">4:00</button></div>
+<div class="tier-label">Full today · future openings</div>
+<div class="barber-row full-row"><img class="avatar" src="bree.jpg" alt=""><div><p class="barber-name">Bree</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Bree" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
+<div class="barber-row full-row"><img class="avatar" src="meek.jpg" alt=""><div><p class="barber-name">Meek</p><div class="barber-rank">5-Star Barber</div><div class="barber-meta">No openings today</div></div><button class="time future-book" data-barber="Meek" data-shop="Kirkland" data-future="Tomorrow">Tomorrow</button></div>
 
 <div class="section-title"><h3>Other nearby shops</h3><a href="#">All 9</a></div>
 <div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · 5.8 miles away</p></div>
@@ -354,6 +362,12 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber});
   }));
 
+  document.querySelectorAll('.future-book').forEach(btn => btn.addEventListener('click', () => {
+    openBooking({shop: btn.dataset.shop, barber: btn.dataset.barber});
+    state.day = btn.dataset.future || 'Tomorrow';
+    document.querySelectorAll('[data-day]').forEach(x => x.classList.toggle('selected', x.dataset.day === state.day));
+  }));
+
   const openFromV2 = () => {
     openBooking({shop:'Kirkland'});
     document.getElementById('shopBookingPanel')?.closest('.phone')?.scrollIntoView({behavior:'smooth',block:'center'});
@@ -394,7 +408,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
   const pickerData = {
     shop: ['Kirkland','Bellevue','Bothell','Everett'],
     service: ['Haircut','Haircut + beard','Kids haircut','Line up'],
-    barber: ['Any available barber','Curtis','Jay','Monnae']
+    barber: ['Any available barber','Curtis','Jay','Monnae','Bree','Meek']
   };
 
   function openPicker(kind){
