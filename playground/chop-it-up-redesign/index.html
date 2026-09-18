@@ -62,7 +62,7 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .dir-head h2{font-size:32px;letter-spacing:-.045em;margin:0}
 .dir-head span{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
 .note{min-height:64px;color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 18px;max-width:380px}
-.phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #c9c7c0;border-radius:34px;overflow:hidden;box-shadow:var(--shadow);min-height:780px}
+.phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #c9c7c0;border-radius:34px;overflow:hidden;box-shadow:var(--shadow);min-height:780px;position:relative}
 .status{height:22px;background:#101010}
 .nav{height:66px;background:#101010;padding:0 16px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:relative}.signin{justify-self:start;align-self:center;color:#fff;font-size:11px;line-height:1;text-decoration:none;letter-spacing:.01em}
 .logo{height:44px;width:132px;object-fit:contain;object-position:center center;justify-self:center;align-self:center;transform:translateY(-4px)}
@@ -108,7 +108,15 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .booking-panel{display:none;padding:18px 18px 30px}.booking-panel.active{display:block}.shop-home.hidden{display:none}
 .booking-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.booking-back{border:0;background:none;padding:0;font-size:13px;font-weight:700}.booking-step{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#777}
 .booking-title{font-size:30px;line-height:1;letter-spacing:-.045em;margin:0 0 8px}.booking-copy{font-size:13px;line-height:1.45;color:#666;margin:0 0 18px}
-.field{margin:0 0 18px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}.book-select{width:100%;height:48px;border:1px solid #bbb;border-radius:13px;background:#fff;color:#111;padding:0 13px;font-size:14px;font-family:inherit}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice{border:1px solid #bbb;border-radius:13px;background:#fff;padding:11px 10px;text-align:left;font-size:12px;line-height:1.25}.choice.full{grid-column:1/-1}.choice.selected{border-color:#111;background:#111;color:#fff}
+.field{margin:0 0 18px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}
+.picker-trigger{width:100%;height:52px;border:1px solid #bbb;border-radius:13px;background:#fff;color:#111;padding:0 14px;font-size:14px;font-family:inherit;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.picker-trigger:after{content:"›";font-size:22px;color:#777;transform:rotate(90deg)}
+.picker-backdrop{display:none;position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:30;align-items:flex-end}
+.picker-backdrop.open{display:flex}
+.picker-sheet{width:100%;min-height:74%;max-height:88%;background:#fff;border-radius:24px 24px 0 0;padding:18px 18px 24px;box-shadow:0 -16px 40px rgba(0,0,0,.22);overflow:auto}
+.picker-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.picker-sheet-head h4{font-size:24px;letter-spacing:-.035em;margin:0}.picker-close{border:0;background:none;font-size:26px;line-height:1;padding:4px}
+.picker-options{display:grid;gap:0}.picker-option{min-height:58px;border:0;border-top:1px solid #e3e3e3;background:#fff;text-align:left;font-size:17px;padding:0 6px;display:flex;align-items:center;justify-content:space-between}.picker-option.selected{font-weight:700;color:#558168}.picker-option.selected:after{content:"✓";font-size:18px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice{border:1px solid #bbb;border-radius:13px;background:#fff;padding:11px 10px;text-align:left;font-size:12px;line-height:1.25}.choice.full{grid-column:1/-1}.choice.selected{border-color:#111;background:#111;color:#fff}
 .booking-next{width:100%;height:48px;border:0;border-radius:24px;background:#558168;color:#fff;font-weight:700;font-size:14px;margin-top:4px}.booking-next:disabled{opacity:.3}
 .slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.book-slot{border:1px solid #aaa;border-radius:16px;background:#fff;padding:10px 5px;font-size:12px}.book-slot.selected{background:#558168;color:#fff;border-color:#558168}
 .summary-card{border:1px solid #ccc;border-radius:14px;padding:12px 13px;margin:0 0 18px}.summary-card strong{display:block;font-size:14px;margin-bottom:4px}.summary-card span{font-size:11px;color:#666;line-height:1.4}
@@ -151,6 +159,16 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
 </div>
 
+<div class="picker-backdrop" id="pickerBackdrop">
+  <div class="picker-sheet" role="dialog" aria-modal="true">
+    <div class="picker-sheet-head">
+      <h4 id="pickerTitle">Choose</h4>
+      <button class="picker-close" id="pickerClose" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="picker-options" id="pickerOptions"></div>
+  </div>
+</div>
+
 <div class="booking-panel" id="shopBookingPanel">
   <div class="booking-top"><button class="booking-back" id="bookingBack">← Back</button><span class="booking-step" id="bookingStepLabel">Book · 1 of 3</span></div>
 
@@ -159,35 +177,18 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     <p class="booking-copy">Choose the shop, service and barber. We’ll show only times that actually work.</p>
 
     <div class="field">
-      <label for="bookShop">Shop</label>
-      <select class="book-select" id="bookShop">
-        <option value="Kirkland">Kirkland</option>
-        <option value="Bellevue">Bellevue</option>
-        <option value="Bothell">Bothell</option>
-        <option value="Everett">Everett</option>
-      </select>
+      <label>Shop</label>
+      <button class="picker-trigger" id="bookShopTrigger" type="button">Kirkland</button>
     </div>
 
     <div class="field">
-      <label for="bookService">Service</label>
-      <select class="book-select" id="bookService">
-        <option value="">Choose a service</option>
-        <option value="Haircut">Haircut</option>
-        <option value="Haircut + beard">Haircut + beard</option>
-        <option value="Kids haircut">Kids haircut</option>
-        <option value="Line up">Line up</option>
-      </select>
+      <label>Service</label>
+      <button class="picker-trigger" id="bookServiceTrigger" type="button">Choose a service</button>
     </div>
 
     <div class="field">
-      <label for="bookBarber">Barber</label>
-      <select class="book-select" id="bookBarber">
-        <option value="">Choose a barber</option>
-        <option value="Any available barber">Any available barber</option>
-        <option value="Curtis">Curtis</option>
-        <option value="Jay">Jay</option>
-        <option value="Monnae">Monnae</option>
-      </select>
+      <label>Barber</label>
+      <button class="picker-trigger" id="bookBarberTrigger" type="button">Choose a barber</button>
     </div>
     <button class="booking-next" id="toTimes" disabled>See available times</button>
   </div>
@@ -324,9 +325,9 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     state.day = 'Today';
     state.time = '';
 
-    document.getElementById('bookShop').value = state.shop;
-    document.getElementById('bookService').value = state.service;
-    document.getElementById('bookBarber').value = state.barber;
+    document.getElementById('bookShopTrigger').textContent = state.shop || 'Choose a shop';
+    document.getElementById('bookServiceTrigger').textContent = state.service || 'Choose a service';
+    document.getElementById('bookBarberTrigger').textContent = state.barber || 'Choose a barber';
     document.querySelectorAll('[data-day]').forEach(x => {
       x.classList.toggle('selected', x.dataset.day === 'Today');
     });
@@ -385,14 +386,44 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
     home.classList.remove('hidden');
   });
 
-  ['bookShop','bookService','bookBarber'].forEach(id => {
-    document.getElementById(id)?.addEventListener('change', () => {
-      state.shop = document.getElementById('bookShop').value;
-      state.service = document.getElementById('bookService').value;
-      state.barber = document.getElementById('bookBarber').value;
-      toTimes.disabled = !(state.shop && state.service && state.barber);
+  const pickerBackdrop = document.getElementById('pickerBackdrop');
+  const pickerTitle = document.getElementById('pickerTitle');
+  const pickerOptions = document.getElementById('pickerOptions');
+  const pickerClose = document.getElementById('pickerClose');
+
+  const pickerData = {
+    shop: ['Kirkland','Bellevue','Bothell','Everett'],
+    service: ['Haircut','Haircut + beard','Kids haircut','Line up'],
+    barber: ['Any available barber','Curtis','Jay','Monnae']
+  };
+
+  function openPicker(kind){
+    const labels = {shop:'Choose a shop',service:'Choose a service',barber:'Choose a barber'};
+    pickerTitle.textContent = labels[kind];
+    pickerOptions.innerHTML = '';
+    pickerData[kind].forEach(value => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'picker-option' + (state[kind] === value ? ' selected' : '');
+      btn.textContent = value;
+      btn.addEventListener('click', () => {
+        state[kind] = value;
+        document.getElementById('bookShopTrigger').textContent = state.shop || 'Choose a shop';
+        document.getElementById('bookServiceTrigger').textContent = state.service || 'Choose a service';
+        document.getElementById('bookBarberTrigger').textContent = state.barber || 'Choose a barber';
+        toTimes.disabled = !(state.shop && state.service && state.barber);
+        pickerBackdrop.classList.remove('open');
+      });
+      pickerOptions.appendChild(btn);
     });
-  });
+    pickerBackdrop.classList.add('open');
+  }
+
+  document.getElementById('bookShopTrigger')?.addEventListener('click', () => openPicker('shop'));
+  document.getElementById('bookServiceTrigger')?.addEventListener('click', () => openPicker('service'));
+  document.getElementById('bookBarberTrigger')?.addEventListener('click', () => openPicker('barber'));
+  pickerClose?.addEventListener('click', () => pickerBackdrop.classList.remove('open'));
+  pickerBackdrop?.addEventListener('click', e => { if (e.target === pickerBackdrop) pickerBackdrop.classList.remove('open'); });
 
   document.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('[data-day]').forEach(x=>x.classList.remove('selected'));
