@@ -49,6 +49,14 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 .rebook{border:1.5px solid #111;border-radius:18px;padding:16px;margin-top:18px}.rebook-top{display:flex;gap:12px;align-items:center}.rebook .avatar{width:68px;height:68px}.rebook h3{font-size:23px;letter-spacing:-.035em;margin:0 0 4px}.rebook p{font-size:12px;color:#666;margin:0}.price-line{display:flex;justify-content:space-between;margin-top:15px;padding-top:13px;border-top:1px solid #ddd;font-size:13px}.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.slot{border:1px solid #111;border-radius:16px;text-align:center;padding:9px 4px;font-size:12px}.slot.hot{background:#111;color:#fff}
 .relationship{font-size:31px;line-height:1;letter-spacing:-.05em;margin:0 0 8px}
 .small-link{margin-top:18px;padding-top:16px;border-top:1px solid #ddd;font-size:13px;font-weight:700}
+.booking-panel{display:none;padding:18px 18px 30px}.booking-panel.active{display:block}.shop-home.hidden{display:none}
+.booking-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.booking-back{border:0;background:none;padding:0;font-size:13px;font-weight:700}.booking-step{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#777}
+.booking-title{font-size:30px;line-height:1;letter-spacing:-.045em;margin:0 0 8px}.booking-copy{font-size:13px;line-height:1.45;color:#666;margin:0 0 18px}
+.field{margin:0 0 18px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice{border:1px solid #bbb;border-radius:13px;background:#fff;padding:11px 10px;text-align:left;font-size:12px;line-height:1.25}.choice.full{grid-column:1/-1}.choice.selected{border-color:#111;background:#111;color:#fff}
+.booking-next{width:100%;height:48px;border:0;border-radius:24px;background:#111;color:#fff;font-weight:700;font-size:14px;margin-top:4px}.booking-next:disabled{opacity:.3}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.book-slot{border:1px solid #aaa;border-radius:16px;background:#fff;padding:10px 5px;font-size:12px}.book-slot.selected{background:#111;color:#fff;border-color:#111}
+.summary-card{border:1px solid #ccc;border-radius:14px;padding:12px 13px;margin:0 0 18px}.summary-card strong{display:block;font-size:14px;margin-bottom:4px}.summary-card span{font-size:11px;color:#666;line-height:1.4}
+.phone-input{width:100%;height:46px;border:1px solid #bbb;border-radius:12px;padding:0 12px;font-size:14px}.book-confirm{background:#111;color:#fff;border-radius:18px;padding:16px;margin-top:12px}.book-confirm h4{font-size:21px;margin:0 0 6px}.book-confirm p{font-size:12px;line-height:1.45;color:#ddd;margin:0}
 .footer-note{border-top:1px solid var(--rule);padding:38px 0 70px;display:block}
 .footer-note h2{font-size:34px;letter-spacing:-.04em;margin:0;max-width:760px}
 @media(max-width:1000px){.board{grid-template-columns:1fr;gap:70px}.direction{max-width:520px;margin:auto}.note{min-height:0}.phone{width:390px;max-width:100%}}
@@ -72,11 +80,11 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <div class="phone">
 <div class="status"></div>
 <div class="nav"><a class="signin" href="#">Sign in</a><img class="logo" src="ChopItUp-Logo.png" alt="Chop It Up Barbershop"><div class="menu">☰</div></div><div class="shopbar"><strong>Kirkland Shop</strong><a href="#">Change shop</a></div>
-<div class="screen">
+<div class="screen shop-home" id="shopFirstHome">
 <p class="eyebrow">Chop It Up Barbershop</p>
 <h3 class="hero-title">A better cut starts here.</h3>
 <p class="body">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
-<button class="primary">Book an appointment</button>
+<button class="primary" id="startShopBooking">Book an appointment</button>
 <div class="section-title"><h3>Featured barbers</h3><a href="#">See all</a></div>
 <div class="barber-row"><img class="avatar" src="curtis.jpg" alt=""><div><p class="barber-name">Curtis</p><div class="barber-meta">Fades · Tapers · Beard<br>Kirkland</div></div><button class="time">Book</button></div>
 <div class="barber-row"><img class="avatar" src="jay.jpg" alt=""><div><p class="barber-name">Jay</p><div class="barber-meta">Classic · Business · Kids<br>Bellevue</div></div><button class="time">Book</button></div>
@@ -84,6 +92,84 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <div class="section-title"><h3>Our shops</h3><a href="#">All 9</a></div>
 <div class="location"><strong>Kirkland, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
 <div class="location"><strong>Bellevue, WA</strong><p>Open today 10–6 · See barbers, hours and directions</p></div>
+</div>
+
+<div class="booking-panel" id="shopBookingPanel">
+  <div class="booking-top"><button class="booking-back" id="bookingBack">← Back</button><span class="booking-step" id="bookingStepLabel">Book · 1 of 3</span></div>
+
+  <div id="bookStep1">
+    <h3 class="booking-title">Book your visit</h3>
+    <p class="booking-copy">Choose the shop, service and barber. We’ll show only times that actually work.</p>
+
+    <div class="field">
+      <label>Shop</label>
+      <div class="choice-grid">
+        <button class="choice selected" data-book-group="shop" data-value="Kirkland">Kirkland</button>
+        <button class="choice" data-book-group="shop" data-value="Bellevue">Bellevue</button>
+        <button class="choice" data-book-group="shop" data-value="Bothell">Bothell</button>
+        <button class="choice" data-book-group="shop" data-value="Everett">Everett</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Service</label>
+      <div class="choice-grid">
+        <button class="choice" data-book-group="service" data-value="Haircut">Haircut</button>
+        <button class="choice" data-book-group="service" data-value="Haircut + beard">Haircut + beard</button>
+        <button class="choice" data-book-group="service" data-value="Kids haircut">Kids haircut</button>
+        <button class="choice" data-book-group="service" data-value="Line up">Line up</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Barber</label>
+      <div class="choice-grid">
+        <button class="choice full" data-book-group="barber" data-value="Any available barber">Any available barber</button>
+        <button class="choice" data-book-group="barber" data-value="Curtis">Curtis</button>
+        <button class="choice" data-book-group="barber" data-value="Jay">Jay</button>
+        <button class="choice" data-book-group="barber" data-value="Monnae">Monnae</button>
+      </div>
+    </div>
+    <button class="booking-next" id="toTimes" disabled>See available times</button>
+  </div>
+
+  <div id="bookStep2" hidden>
+    <h3 class="booking-title">Choose a time</h3>
+    <p class="booking-copy" id="bookingContext">Kirkland · Haircut</p>
+    <div class="field">
+      <label>Day</label>
+      <div class="choice-grid">
+        <button class="choice selected" data-day="Today">Today</button>
+        <button class="choice" data-day="Tomorrow">Tomorrow</button>
+        <button class="choice" data-day="Saturday">Saturday</button>
+        <button class="choice" data-day="Next week">Next week</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Available times</label>
+      <div class="slot-grid">
+        <button class="book-slot" data-time="10:30 AM">10:30</button>
+        <button class="book-slot" data-time="11:45 AM">11:45</button>
+        <button class="book-slot" data-time="1:15 PM">1:15</button>
+        <button class="book-slot" data-time="2:30 PM">2:30</button>
+        <button class="book-slot" data-time="4:10 PM">4:10</button>
+        <button class="book-slot" data-time="5:00 PM">5:00</button>
+      </div>
+    </div>
+    <button class="booking-next" id="toConfirm" disabled>Continue</button>
+  </div>
+
+  <div id="bookStep3" hidden>
+    <h3 class="booking-title">Confirm booking</h3>
+    <div class="summary-card" id="bookingSummary"></div>
+    <div class="field">
+      <label>Mobile number</label>
+      <input class="phone-input" id="bookingPhone" inputmode="tel" placeholder="(425) 555-0123">
+    </div>
+    <p class="booking-copy">Your phone number is your client identity. Returning clients can rebook faster next time.</p>
+    <button class="booking-next" id="confirmBooking">Confirm appointment</button>
+    <div class="book-confirm" id="bookingDone" hidden><h4>You’re booked.</h4><p id="bookingDoneText"></p></div>
+  </div>
 </div>
 </div>
 </section>
@@ -146,6 +232,85 @@ h1{font-size:clamp(46px,7vw,104px);line-height:.88;letter-spacing:-.065em;margin
 <h2>Which direction feels most like Chop It Up?</h2>
 </section>
 </div>
+<script>
+(() => {
+  const start = document.getElementById('startShopBooking');
+  const home = document.getElementById('shopFirstHome');
+  const panel = document.getElementById('shopBookingPanel');
+  const back = document.getElementById('bookingBack');
+  const stepLabel = document.getElementById('bookingStepLabel');
+  const s1 = document.getElementById('bookStep1');
+  const s2 = document.getElementById('bookStep2');
+  const s3 = document.getElementById('bookStep3');
+  const toTimes = document.getElementById('toTimes');
+  const toConfirm = document.getElementById('toConfirm');
+  const summary = document.getElementById('bookingSummary');
+  const context = document.getElementById('bookingContext');
+  const confirm = document.getElementById('confirmBooking');
+  const done = document.getElementById('bookingDone');
+  const doneText = document.getElementById('bookingDoneText');
+  const state = {shop:'Kirkland', service:'', barber:'', day:'Today', time:''};
+
+  function showStep(n){
+    s1.hidden = n !== 1; s2.hidden = n !== 2; s3.hidden = n !== 3;
+    stepLabel.textContent = 'Book · ' + n + ' of 3';
+  }
+
+  start?.addEventListener('click', () => {
+    start.style.transform='scale(.98)';
+    setTimeout(()=>start.style.transform='',120);
+    home.classList.add('hidden');
+    panel.classList.add('active');
+    showStep(1);
+  });
+
+  back?.addEventListener('click', () => {
+    if (!s3.hidden) return showStep(2);
+    if (!s2.hidden) return showStep(1);
+    panel.classList.remove('active');
+    home.classList.remove('hidden');
+  });
+
+  document.querySelectorAll('[data-book-group]').forEach(btn => btn.addEventListener('click', () => {
+    const group = btn.dataset.bookGroup;
+    document.querySelectorAll('[data-book-group="'+group+'"]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected');
+    state[group] = btn.dataset.value;
+    toTimes.disabled = !(state.shop && state.service && state.barber);
+  }));
+
+  document.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-day]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.day = btn.dataset.day;
+  }));
+
+  document.querySelectorAll('[data-time]').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-time]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.time = btn.dataset.time;
+    toConfirm.disabled = false;
+  }));
+
+  toTimes?.addEventListener('click', () => {
+    context.textContent = state.shop + ' · ' + state.service + ' · ' + state.barber;
+    showStep(2);
+  });
+
+  toConfirm?.addEventListener('click', () => {
+    summary.innerHTML = '<strong>'+state.service+' · '+state.time+'</strong><span>'+state.day+' at '+state.shop+' Shop<br>'+state.barber+'</span>';
+    showStep(3);
+  });
+
+  confirm?.addEventListener('click', () => {
+    const phone = document.getElementById('bookingPhone').value.trim();
+    if (!phone) { document.getElementById('bookingPhone').focus(); return; }
+    done.hidden = false;
+    doneText.textContent = state.day + ' at ' + state.time + ' · ' + state.shop + ' · ' + state.barber;
+    confirm.hidden = true;
+  });
+})();
+</script>
 <script src="/assets/common/site-shell.js"></script>
 </body>
 </html>
