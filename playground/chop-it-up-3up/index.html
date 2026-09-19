@@ -225,7 +225,15 @@ ownerBookingCount.textContent=booked?'1':'0';
 const ownerRevenue=baseOwnerRevenue+bookingValue;
 const projected=baseProjection+bookingValue;
 const pct=Math.round((projected/dailyPar)*100);
-if(ownerRevenueTop) ownerRevenueTop.textContent='
+if(ownerRevenueTop) ownerRevenueTop.textContent='$'+ownerRevenue.toLocaleString();
+if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='$'+ownerRevenue.toLocaleString();
+if(kirklandRevenue) kirklandRevenue.textContent='$'+ownerRevenue.toLocaleString();
+if(paceSoFar) paceSoFar.textContent='$'+ownerRevenue.toLocaleString()+' so far';
+if(paceProjection) paceProjection.textContent='$'+projected.toLocaleString()+' · '+pct+'% of par';
+if(paceFill) paceFill.style.width=Math.min(100,(ownerRevenue/dailyPar)*100)+'%';
+if(barberEarnings) barberEarnings.textContent='$'+(baseBarberEarnings+bookingValue);
+if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
+if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
 barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
 ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
 }
