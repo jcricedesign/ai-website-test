@@ -326,7 +326,7 @@ ownerBookingCount.textContent=String(baseBookings+(booked?1:0));
 const ownerRevenue=baseOwnerRevenue+bookingValue;
 const projected=baseProjection+bookingValue;
 const pct=Math.round((projected/dailyPar)*100);
-if(ownerRevenueTop) ownerRevenueTop.textContent=' ownerRevenueSoFar.textContent='$'+ownerRevenue.toLocaleString();
+if(ownerRevenueTop) ownerRevenueTop.textContent='
 if(kirklandRevenue) kirklandRevenue.textContent='$'+ownerRevenue.toLocaleString();
 if(paceSoFar) paceSoFar.textContent='$'+ownerRevenue.toLocaleString()+' so far';
 if(paceProjection) paceProjection.textContent='$'+projected.toLocaleString()+' · '+pct+'% of par';
@@ -389,12 +389,13 @@ show('home');setJourneyPhase('booking');render();
 <script src="/assets/common/site-shell.js"></script>
 </body>
 </html>+(baseRevenueToday+bookingValue).toLocaleString();
-if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='$'+ownerRevenue.toLocaleString();
+if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='
 if(kirklandRevenue) kirklandRevenue.textContent='$'+ownerRevenue.toLocaleString();
 if(paceSoFar) paceSoFar.textContent='$'+ownerRevenue.toLocaleString()+' so far';
 if(paceProjection) paceProjection.textContent='$'+projected.toLocaleString()+' · '+pct+'% of par';
 if(paceFill) paceFill.style.width=Math.min(100,(ownerRevenue/dailyPar)*100)+'%';
-if(barberEarnings) barberEarnings.textContent='$'+(baseBarberEarnings+bookingValue);
+const barberTotal=baseBarberEarnings+bookingValue;
+if(barberEarnings) barberEarnings.textContent='
 if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
 if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
 
@@ -450,192 +451,13 @@ show('home');setJourneyPhase('booking');render();
 </script>
 <script src="/assets/common/site-shell.js"></script>
 </body>
-</html>+barberTotal;
-if(barberGoalFill) barberGoalFill.style.width=Math.min(100,(barberTotal/300)*100)+'%';
-if(barberGoalSoFar) barberGoalSoFar.textContent='
-if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
-if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
-
-ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
-}
-function setJourneyPhase(phase){
-  document.querySelectorAll('.journey-step').forEach(step=>{
-    const on=step.dataset.phase===phase;
-    step.classList.toggle('active',on);
-    const label=step.querySelector('span');
-    if(!label) return;
-    if(on) label.textContent='Current phase';
-    else if(step.dataset.phase==='appointment') label.textContent=phase==='booking'?'Next':'';
-    else if(step.dataset.phase==='post') label.textContent=phase==='post'?'Current phase':'Later';
-    else label.textContent='';
-  });
-}
-function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
-document.querySelectorAll('.bottom-nav a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
-const availabilityFilter=document.getElementById('availabilityFilter');
-let expandedAll=false;
-availabilityFilter?.addEventListener('click',()=>{
-  expandedAll=!expandedAll;
-  availabilityFilter.textContent=expandedAll?'All':'First Available';
-  document.querySelectorAll('[data-barber-row]').forEach(row=>row.classList.toggle('expanded',expandedAll));
-});
-document.querySelectorAll('.row-more').forEach(btn=>btn.addEventListener('click',e=>{
-  e.preventDefault();e.stopPropagation();
-  const row=btn.closest('[data-barber-row]');
-  row?.classList.toggle('expanded');
-}));
-document.querySelectorAll('.slot-mini').forEach(btn=>btn.addEventListener('click',e=>{
-  e.preventDefault();e.stopPropagation();
-  alert('Demo: claim '+btn.textContent+' appointment.');
-}));
-document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
-document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
-document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
-document.getElementById('confirmBooking').addEventListener('click',()=>{
-const service=document.getElementById('service').value;
-const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
-bookingValue=prices[service]||35;
-appointments.push({time:'2:00 PM',client:'New client',service});
-booked=true;
-playChime();
-const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>John Rice';
-show('done');setJourneyPhase('appointment');render();
-});
-document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
-show('home');setJourneyPhase('booking');render();
-})();
-</script>
-<script src="/assets/common/site-shell.js"></script>
-</body>
-</html>+(baseRevenueToday+bookingValue).toLocaleString();
-if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='$'+ownerRevenue.toLocaleString();
+</html>+ownerRevenue.toLocaleString();
 if(kirklandRevenue) kirklandRevenue.textContent='$'+ownerRevenue.toLocaleString();
 if(paceSoFar) paceSoFar.textContent='$'+ownerRevenue.toLocaleString()+' so far';
 if(paceProjection) paceProjection.textContent='$'+projected.toLocaleString()+' · '+pct+'% of par';
 if(paceFill) paceFill.style.width=Math.min(100,(ownerRevenue/dailyPar)*100)+'%';
-if(barberEarnings) barberEarnings.textContent='$'+(baseBarberEarnings+bookingValue);
-if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
-if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
-
-ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
-}
-function setJourneyPhase(phase){
-  document.querySelectorAll('.journey-step').forEach(step=>{
-    const on=step.dataset.phase===phase;
-    step.classList.toggle('active',on);
-    const label=step.querySelector('span');
-    if(!label) return;
-    if(on) label.textContent='Current phase';
-    else if(step.dataset.phase==='appointment') label.textContent=phase==='booking'?'Next':'';
-    else if(step.dataset.phase==='post') label.textContent=phase==='post'?'Current phase':'Later';
-    else label.textContent='';
-  });
-}
-function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
-document.querySelectorAll('.bottom-nav a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
-const availabilityFilter=document.getElementById('availabilityFilter');
-let expandedAll=false;
-availabilityFilter?.addEventListener('click',()=>{
-  expandedAll=!expandedAll;
-  availabilityFilter.textContent=expandedAll?'All':'First Available';
-  document.querySelectorAll('[data-barber-row]').forEach(row=>row.classList.toggle('expanded',expandedAll));
-});
-document.querySelectorAll('.row-more').forEach(btn=>btn.addEventListener('click',e=>{
-  e.preventDefault();e.stopPropagation();
-  const row=btn.closest('[data-barber-row]');
-  row?.classList.toggle('expanded');
-}));
-document.querySelectorAll('.slot-mini').forEach(btn=>btn.addEventListener('click',e=>{
-  e.preventDefault();e.stopPropagation();
-  alert('Demo: claim '+btn.textContent+' appointment.');
-}));
-document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
-document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
-document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
-document.getElementById('confirmBooking').addEventListener('click',()=>{
-const service=document.getElementById('service').value;
-const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
-bookingValue=prices[service]||35;
-appointments.push({time:'2:00 PM',client:'New client',service});
-booked=true;
-playChime();
-const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>John Rice';
-show('done');setJourneyPhase('appointment');render();
-});
-document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
-show('home');setJourneyPhase('booking');render();
-})();
-</script>
-<script src="/assets/common/site-shell.js"></script>
-</body>
-</html>+barberTotal+' so far';
-if(barberGoalStatus){
-  barberGoalStatus.textContent=barberTotal>=300?'Bonus goal met':barberTotal>=250?'Reserve goal met':barberTotal>=195?'Daily goal met':barberTotal>=75?'Booth rent covered':'Toward booth rent';
-}
-if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
-if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
-
-ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
-}
-function setJourneyPhase(phase){
-  document.querySelectorAll('.journey-step').forEach(step=>{
-    const on=step.dataset.phase===phase;
-    step.classList.toggle('active',on);
-    const label=step.querySelector('span');
-    if(!label) return;
-    if(on) label.textContent='Current phase';
-    else if(step.dataset.phase==='appointment') label.textContent=phase==='booking'?'Next':'';
-    else if(step.dataset.phase==='post') label.textContent=phase==='post'?'Current phase':'Later';
-    else label.textContent='';
-  });
-}
-function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
-document.querySelectorAll('.bottom-nav a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
-const availabilityFilter=document.getElementById('availabilityFilter');
-let expandedAll=false;
-availabilityFilter?.addEventListener('click',()=>{
-  expandedAll=!expandedAll;
-  availabilityFilter.textContent=expandedAll?'All':'First Available';
-  document.querySelectorAll('[data-barber-row]').forEach(row=>row.classList.toggle('expanded',expandedAll));
-});
-document.querySelectorAll('.row-more').forEach(btn=>btn.addEventListener('click',e=>{
-  e.preventDefault();e.stopPropagation();
-  const row=btn.closest('[data-barber-row]');
-  row?.classList.toggle('expanded');
-}));
-document.querySelectorAll('.slot-mini').forEach(btn=>btn.addEventListener('click',e=>{
-  e.preventDefault();e.stopPropagation();
-  alert('Demo: claim '+btn.textContent+' appointment.');
-}));
-document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
-document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
-document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
-document.getElementById('confirmBooking').addEventListener('click',()=>{
-const service=document.getElementById('service').value;
-const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
-bookingValue=prices[service]||35;
-appointments.push({time:'2:00 PM',client:'New client',service});
-booked=true;
-playChime();
-const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>John Rice';
-show('done');setJourneyPhase('appointment');render();
-});
-document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
-show('home');setJourneyPhase('booking');render();
-})();
-</script>
-<script src="/assets/common/site-shell.js"></script>
-</body>
-</html>+(baseRevenueToday+bookingValue).toLocaleString();
-if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='$'+ownerRevenue.toLocaleString();
-if(kirklandRevenue) kirklandRevenue.textContent='$'+ownerRevenue.toLocaleString();
-if(paceSoFar) paceSoFar.textContent='$'+ownerRevenue.toLocaleString()+' so far';
-if(paceProjection) paceProjection.textContent='$'+projected.toLocaleString()+' · '+pct+'% of par';
-if(paceFill) paceFill.style.width=Math.min(100,(ownerRevenue/dailyPar)*100)+'%';
-if(barberEarnings) barberEarnings.textContent='$'+(baseBarberEarnings+bookingValue);
+const barberTotal=baseBarberEarnings+bookingValue;
+if(barberEarnings) barberEarnings.textContent='
 if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
 if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
 
