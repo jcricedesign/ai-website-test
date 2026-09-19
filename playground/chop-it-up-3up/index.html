@@ -22,7 +22,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .journey-step strong{font-size:13px}
 .journey-step span{font-size:10px;color:var(--muted)}
 .board{display:grid;grid-template-columns:repeat(3,minmax(300px,1fr));gap:22px;padding:28px 0 30px;align-items:start}
-.column{min-width:0}.column-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:12px}.column-head h2{font-size:26px;letter-spacing:-.04em;margin:0}.column-head span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.column{min-width:0}.column-head{display:flex;justify-content:center;align-items:center;margin-bottom:12px;text-align:center}.column-head h2{font-size:26px;letter-spacing:-.04em;margin:0}.column-head span{display:none}
 .phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #cbc9c2;border-radius:32px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.12);min-height:710px;display:flex;flex-direction:column}
 .statusbar{height:21px;background:#111}.nav{height:66px;background:#111;padding:0 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}.signin{font-size:11px;color:#fff}.logo{width:126px;height:43px;object-fit:contain}.menu{justify-self:end;color:#fff;font-size:23px}
 .account-avatar{justify-self:end;width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.35);background:#555}
@@ -115,7 +115,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 
 <main class="board">
 <section class="column">
-<div class="column-head"><h2>Customer</h2><span>Mobile website</span></div>
+<div class="column-head"><h2>Customer</h2></div>
 <div class="phone">
 <div class="statusbar"></div>
 <div class="nav"><span class="signin">Sign in</span><img class="logo" src="/playground/chop-it-up-redesign/ChopItUp-Logo.png" alt="Chop It Up"><span class="menu">☰</span></div>
@@ -166,7 +166,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 </section>
 
 <section class="column">
-<div class="column-head"><h2>Barber</h2><span>My Day</span></div>
+<div class="column-head"><h2>Barber</h2></div>
 <div class="phone">
 <div class="statusbar"></div>
 <div class="nav"><span class="signin">Today</span><div style="color:#fff;font-weight:700;font-size:14px">John Rice</div><img class="account-avatar" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="Signed-in barber"></div>
@@ -185,7 +185,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 </section>
 
 <section class="column">
-<div class="column-head"><h2>Owner</h2><span>Mervis</span></div>
+<div class="column-head"><h2>Owner</h2></div>
 <div class="phone">
 <div class="statusbar"></div>
 <div class="nav"><span class="signin">Owner</span><div style="color:#fff;font-weight:700;font-size:14px">Chop It Up</div><img class="account-avatar" src="/playground/chop-it-up-redesign/curtis.jpg" alt="Signed-in owner"></div>
