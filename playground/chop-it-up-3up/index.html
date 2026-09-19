@@ -35,6 +35,8 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .bottom-item.owner-active:before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:#fff}
 .screen{padding:18px;flex:1}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 6px}.screen h3{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}.bodycopy{font-size:14px;line-height:1.45;color:#5d5d59;margin:10px 0 0}.customer-intro{font-size:11.5px;line-height:1.38;max-width:100%;margin-top:9px}
 .section-title{display:flex;justify-content:space-between;align-items:end;margin:32px 0 12px}.section-title h4{font-size:19px;margin:0;letter-spacing:-.03em}.section-title span{font-size:11px;color:#777}
+.avail-filter{border:0;background:transparent;color:#555;font-size:11px;font-weight:700;padding:2px 0;display:flex;align-items:center;gap:4px;cursor:pointer}.avail-filter:after{content:"⌄";font-size:12px}
+.row.expandable{align-items:start}.row-extra{display:none;grid-column:2/4;padding:2px 0 4px}.row.expanded .row-extra{display:block}.slot-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.slot-mini{border:1px solid #aaa;border-radius:14px;background:#fff;padding:6px 8px;font-size:10px;color:#555}.row-more{display:inline-block;margin-top:7px;border:0;background:none;padding:0;font-size:10px;color:#555;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #ddd}.row:first-child{border-top:0}.avatar-link{display:block;width:54px;height:54px;border-radius:50%;overflow:hidden}.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#ddd}.account-avatar-link{justify-self:end;display:block;width:34px;height:34px;border-radius:50%;overflow:hidden}.name{font-size:15px;font-weight:700}.rank{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#777;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px;line-height:1.3}
 .time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
 .pill{display:inline-flex;border:1px solid #bbb;border-radius:999px;padding:5px 8px;font-size:10px}.pill.good{border-color:#98b3a0;color:#456b51}.pill.warn{border-color:#d5b778;color:#8f651a}
@@ -129,10 +131,10 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <p class="eyebrow">Kirkland Shop</p>
 <h3>Find a barber. Pick a time.</h3>
 <p class="bodycopy customer-intro">Our mission is to enhance the lives of our clients and go above and beyond the expectations of today’s barbershops. With our strong focus on being unique and flexible, we strive to set trends that will make us a global entity.</p>
-<div class="section-title"><h4>Working today</h4><span>Openings first</span></div>
-<div class="row"><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/john.jpg" onerror="this.src='/playground/chop-it-up-redesign/jay.jpg'" alt="Judd"></a><div><div class="name">John Rice</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary" id="bookJohn">2:00</button></div>
-<div class="row"><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/jay.jpg" alt="Judd"></a><div><div class="name">Jay</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
-<div class="row"><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Monnae" aria-label="View Monnae profile"><img class="avatar" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"></a><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+<div class="section-title"><h4>Working today</h4><button class="avail-filter" id="availabilityFilter" type="button">First Available</button></div>
+<div class="row expandable" data-barber-row><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/john.jpg" onerror="this.src='/playground/chop-it-up-redesign/jay.jpg'" alt="Judd"></a><div><div class="name">John Rice</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary" id="bookJohn">2:00</button><div class="row-extra"><div class="slot-strip"><button class="slot-mini">2:00</button><button class="slot-mini">2:30</button><button class="slot-mini">3:15</button></div><button class="row-more">More</button></div></div>
+<div class="row expandable" data-barber-row><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/jay.jpg" alt="Judd"></a><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button><div class="row-extra"><div class="slot-strip"><button class="slot-mini">3:00</button><button class="slot-mini">3:45</button><button class="slot-mini">4:30</button></div><button class="row-more">More</button></div></div>
+<div class="row expandable" data-barber-row><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Monnae" aria-label="View Monnae profile"><img class="avatar" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"></a><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button><div class="row-extra"><div class="slot-strip"><button class="slot-mini">4:00</button><button class="slot-mini">4:45</button><button class="slot-mini">5:30</button></div><button class="row-more">More</button></div></div>
 
 </div>
 <div class="screen booking" id="customerBooking">
@@ -317,6 +319,22 @@ function setJourneyPhase(phase){
 }
 function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
 document.querySelectorAll('.bottom-nav a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+const availabilityFilter=document.getElementById('availabilityFilter');
+let expandedAll=false;
+availabilityFilter?.addEventListener('click',()=>{
+  expandedAll=!expandedAll;
+  availabilityFilter.textContent=expandedAll?'All':'First Available';
+  document.querySelectorAll('[data-barber-row]').forEach(row=>row.classList.toggle('expanded',expandedAll));
+});
+document.querySelectorAll('.row-more').forEach(btn=>btn.addEventListener('click',e=>{
+  e.preventDefault();e.stopPropagation();
+  const row=btn.closest('[data-barber-row]');
+  row?.classList.toggle('expanded');
+}));
+document.querySelectorAll('.slot-mini').forEach(btn=>btn.addEventListener('click',e=>{
+  e.preventDefault();e.stopPropagation();
+  alert('Demo: claim '+btn.textContent+' appointment.');
+}));
 document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
 document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
 document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
