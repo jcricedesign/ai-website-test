@@ -26,19 +26,26 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .bottom-item.owner-active{color:#fff}
 .bottom-item.owner-active:before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:#fff}
 .screen{padding:18px;flex:1}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 6px}.screen h3{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}.bodycopy{font-size:14px;line-height:1.45;color:#5d5d59;margin:10px 0 0}
-.section-title{display:flex;justify-content:space-between;align-items:end;margin:24px 0 8px}.section-title h4{font-size:19px;margin:0;letter-spacing:-.03em}.section-title span{font-size:11px;color:#777}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:24px 0 12px}.section-title h4{font-size:19px;margin:0;letter-spacing:-.03em}.section-title span{font-size:11px;color:#777}
 .row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #ddd}.row:first-child{border-top:0}.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#ddd}.name{font-size:15px;font-weight:700}.rank{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#777;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px;line-height:1.3}
 .time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
 .pill{display:inline-flex;border:1px solid #bbb;border-radius:999px;padding:5px 8px;font-size:10px}.pill.good{border-color:#98b3a0;color:#456b51}.pill.warn{border-color:#d5b778;color:#8f651a}
 .card{border:1px solid #d3d3cf;border-radius:14px;background:var(--soft);padding:13px;margin-top:12px}.card h4{font-size:14px;margin:0 0 5px}.card p{font-size:11px;line-height:1.4;color:#666;margin:0}
 .earnings-card{display:flex;justify-content:space-between;align-items:center;border:1px solid #d3d3cf;border-radius:14px;background:#fafafa;padding:12px 13px;margin-top:12px}.earnings-card span{font-size:11px;color:#777}.earnings-card strong{font-size:19px}
-.dayrow.complete{opacity:.55}.dayrow.live{background:#f0e8ff;border-color:#c7a9ff}.dayrow.live .daystate{color:#8f20df}.dayrow.open{border-style:dashed}.daystate{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#777}.daystate.new{color:#2f9c68}.daystate.break{color:#b27a00}
+.dayrow.complete{opacity:.55}.dayrow.live{background:#f0e8ff;border-color:#c7a9ff}.dayrow.live .daystate{color:#8f20df}.daystate{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8b8b86;white-space:nowrap}.daystate.new{color:#2f9c68}.daystate.break{color:#b27a00}
 .money-bump{animation:moneyBump 1.8s ease-out 1}@keyframes moneyBump{0%{background:#dff0e3}35%{background:#c6e1cc}100%{background:transparent}}@media(prefers-reduced-motion:reduce){.money-bump{animation:none}}
 .shops-card{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}.shops-card h4{font-size:14px;margin:0 0 3px}.shops-card>p{font-size:10px;color:#777;margin:0 0 8px}.shop-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #e4e4df}.shop-row:first-of-type{border-top:0}.shop-dot{width:8px;height:8px;border-radius:50%;background:#5d9a6f}.shop-row strong{font-size:12px}.shop-row span{display:block;font-size:10px;color:#777;margin-top:1px}.shop-money{text-align:right}.shop-money strong{display:block;font-size:12px}.shop-money span{font-size:9px;color:#5d7f65}
-.dayrow{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:12px 8px;border-top:1px solid #ddd;border-radius:10px;transition:background .25s ease}
-.dayrow.just-booked{animation:appointmentLand 2.4s ease-out 1;background:#eef5ef}
+.dayrow{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:14px;align-items:center;padding:15px 14px;margin-top:8px;border:1px solid #ddd;border-radius:14px;background:#fff;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}
+.dayrow:first-child{margin-top:0}
+.dayrow.open{border-style:dashed;border-color:#c8c8c2;background:#fbfbf9}
+.dayrow.open:hover{border-color:#aeb8b0;background:#f8fbf8}
+.dayrow.focus-slot{border-color:#b8c8bb;background:#f7faf7;box-shadow:0 0 0 2px rgba(85,129,104,.04)}
+.dayrow.just-booked{animation:appointmentLand 2.4s ease-out 1;background:#eef5ef;border-color:#9cb8a3;box-shadow:0 0 0 3px rgba(85,129,104,.08)}
 @keyframes appointmentLand{0%{background:#dbeadd}18%{background:#bcd6c1}38%{background:#e8f2ea}58%{background:#cfe2d3}100%{background:#eef5ef}}
-@media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}.dayrow:first-child{border-top:0}.daytime{font-size:12px;font-weight:700}.daymain strong{font-size:13px}.daymain span{display:block;font-size:11px;color:#666;margin-top:2px}
+@media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}
+.daytime{font-size:11px;font-weight:700;color:#555;letter-spacing:.01em}
+.daymain strong{font-size:14px;line-height:1.15}
+.daymain span{display:block;font-size:10px;color:#777;margin-top:3px;line-height:1.25}
 .owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
 .business-pulse{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}
 .business-pulse-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -216,7 +223,7 @@ const rows=reservedTimes.map(time=>{
 barberSchedule.innerHTML=rows.map(a=>{
   const isNew=booked && a.time==='2:00 PM' && a.client==='New client';
   const isEmpty=a.client==='Empty slot';
-  const cls=isNew?'just-booked':(isEmpty?'open':'');
+  const cls=isNew?'just-booked':(isEmpty?'open'+(a.time==='2:00 PM'?' focus-slot':''):'');
   const label=isNew?'NEW':(isEmpty?'OPEN':'UPCOMING');
   return '<div class="dayrow '+cls+'"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="daystate '+(label==='NEW'?'new':'')+'">'+label+'</span></div>';
 }).join('');
