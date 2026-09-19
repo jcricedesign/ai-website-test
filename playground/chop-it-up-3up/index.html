@@ -23,6 +23,10 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
 .pill{display:inline-flex;border:1px solid #bbb;border-radius:999px;padding:5px 8px;font-size:10px}.pill.good{border-color:#98b3a0;color:#456b51}.pill.warn{border-color:#d5b778;color:#8f651a}
 .card{border:1px solid #d3d3cf;border-radius:14px;background:var(--soft);padding:13px;margin-top:12px}.card h4{font-size:14px;margin:0 0 5px}.card p{font-size:11px;line-height:1.4;color:#666;margin:0}
+.earnings-card{display:flex;justify-content:space-between;align-items:center;border:1px solid #d3d3cf;border-radius:14px;background:#fafafa;padding:12px 13px;margin-top:12px}.earnings-card span{font-size:11px;color:#777}.earnings-card strong{font-size:19px}
+.dayrow.complete{opacity:.55}.dayrow.live{background:#f0e8ff;border-color:#c7a9ff}.dayrow.live .daystate{color:#8f20df}.dayrow.open{border-style:dashed}.daystate{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#777}.daystate.new{color:#2f9c68}.daystate.break{color:#b27a00}
+.money-bump{animation:moneyBump 1.8s ease-out 1}@keyframes moneyBump{0%{background:#dff0e3}35%{background:#c6e1cc}100%{background:transparent}}@media(prefers-reduced-motion:reduce){.money-bump{animation:none}}
+.shops-card{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}.shops-card h4{font-size:14px;margin:0 0 3px}.shops-card>p{font-size:10px;color:#777;margin:0 0 8px}.shop-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #e4e4df}.shop-row:first-of-type{border-top:0}.shop-dot{width:8px;height:8px;border-radius:50%;background:#5d9a6f}.shop-row strong{font-size:12px}.shop-row span{display:block;font-size:10px;color:#777;margin-top:1px}.shop-money{text-align:right}.shop-money strong{display:block;font-size:12px}.shop-money span{font-size:9px;color:#5d7f65}
 .dayrow{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:12px 8px;border-top:1px solid #ddd;border-radius:10px;transition:background .25s ease}
 .dayrow.just-booked{animation:appointmentLand 2.4s ease-out 1;background:#eef5ef}
 @keyframes appointmentLand{0%{background:#dbeadd}18%{background:#bcd6c1}38%{background:#e8f2ea}58%{background:#cfe2d3}100%{background:#eef5ef}}
@@ -100,7 +104,8 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <div class="statusbar"></div>
 <div class="nav"><span class="signin">Today</span><div style="color:#fff;font-weight:700;font-size:14px">John Rice</div><span class="menu">•••</span></div>
 <div class="screen">
-<div class="card" style="margin-top:0"><h4>Status</h4><p>Working today · Bothell · Booth current</p></div>
+<div class="card" style="margin-top:0"><h4>Status</h4><p>Working today · Kirkland · Booth current</p></div>
+<div class="earnings-card"><span>Projected earnings</span><strong id="barberEarnings">$287</strong></div>
 <div id="barberAlert"></div>
 <div class="section-title"><h4>My Day</h4><span id="barberCount">3 booked</span></div>
 <div id="barberSchedule"></div>
@@ -117,19 +122,27 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <p class="eyebrow">Today</p>
 <h3>Shop overview</h3>
 <p class="bodycopy">For now, Mervis only sees the operational signal: John is working today and a booking has been added.</p>
-<div class="owner-stats"><div class="stat"><span>Barbers working</span><strong>3</strong></div><div class="stat"><span>New bookings</span><strong id="ownerBookingCount">0</strong></div></div>
+<div class="owner-stats"><div class="stat" id="ownerRevenueStat"><span>Revenue today</span><strong id="ownerRevenueTop">$1,115</strong></div><div class="stat"><span>New bookings</span><strong id="ownerBookingCount">0</strong></div></div>
 <div class="business-pulse">
   <div class="business-pulse-head">
     <div><h4>Kirkland today</h4><p>Revenue pace vs expected</p></div>
     <span class="pace-badge">+6% ahead now</span>
   </div>
   <div class="pace-numbers">
-    <div><span>Revenue so far</span><strong>$1,115</strong></div>
+    <div><span>Revenue so far</span><strong id="ownerRevenueSoFar">$1,115</strong></div>
     <div><span>Expected by now</span><strong>$1,050</strong></div>
   </div>
-  <div class="pace-track" aria-label="79.6 percent of daily revenue par"><div class="pace-fill"></div></div>
-  <div class="pace-caption"><span>$1,115 so far</span><span>$1,400 daily par</span></div>
-  <div class="pace-projection">Projected close: <strong>$1,510 · 108% of par</strong></div>
+  <div class="pace-track" aria-label="Revenue progress toward daily par"><div class="pace-fill" id="paceFill"></div></div>
+  <div class="pace-caption"><span id="paceSoFar">$1,115 so far</span><span>$1,400 daily par</span></div>
+  <div class="pace-projection">Projected close: <strong id="paceProjection">$1,510 · 108% of par</strong></div><div id="moneyIncrement" style="margin-top:7px;font-size:10px;color:#486b53;min-height:14px"></div>
+</div>
+<div class="shops-card">
+  <h4>4 shops today</h4>
+  <p>All locations active now</p>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Kirkland</strong><span>3 barbers · ahead of pace</span></div><div class="shop-money"><strong id="kirklandRevenue">$1,115</strong><span>+6%</span></div></div>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Bothell</strong><span>4 barbers · on pace</span></div><div class="shop-money"><strong>$1,280</strong><span>+1%</span></div></div>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Bellevue</strong><span>5 barbers · ahead</span></div><div class="shop-money"><strong>$1,640</strong><span>+9%</span></div></div>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Everett</strong><span>3 barbers · slightly behind</span></div><div class="shop-money"><strong>$980</strong><span style="color:#9a6a16">−3%</span></div></div>
 </div>
 <div class="card"><h4>3 working barbers</h4><p>Active now</p><div class="portrait-stack" aria-label="Three barbers working now"><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/jay.jpg" alt="Jay"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/curtis.jpg" alt="Curtis"><span class="active-dot" aria-hidden="true"></span></div></div></div>
 <div id="ownerAlert"></div>
@@ -149,6 +162,8 @@ const initial=[
 {time:'12:00 PM',client:'Alex',service:'Fade'}
 ];
 let appointments=initial.map(x=>({...x})),booked=false;
+const baseOwnerRevenue=1115, dailyPar=1400, baseProjection=1510, baseBarberEarnings=287;
+let bookingValue=0;
 
 function playChime(){
   try{
@@ -174,14 +189,189 @@ function playChime(){
   }catch(e){}
 }
 const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone');
-const barberSchedule=document.getElementById('barberSchedule'),barberAlert=document.getElementById('barberAlert'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount');
+const barberSchedule=document.getElementById('barberSchedule'),barberAlert=document.getElementById('barberAlert'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount'),barberEarnings=document.getElementById('barberEarnings'),ownerRevenueTop=document.getElementById('ownerRevenueTop'),ownerRevenueSoFar=document.getElementById('ownerRevenueSoFar'),paceFill=document.getElementById('paceFill'),paceSoFar=document.getElementById('paceSoFar'),paceProjection=document.getElementById('paceProjection'),moneyIncrement=document.getElementById('moneyIncrement'),kirklandRevenue=document.getElementById('kirklandRevenue'),ownerRevenueStat=document.getElementById('ownerRevenueStat');
 function render(){
 const rows=[...appointments];
 if(!booked)rows.push({time:'2:00 PM',client:'OPEN',service:'30 min opening'});
 rows.sort((a,b)=>a.time.localeCompare(b.time));
-barberSchedule.innerHTML=rows.map(a=>'<div class="dayrow '+(booked && a.time==='2:00 PM' && a.client==='New client'?'just-booked':'')+'"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="pill '+(a.client==='OPEN'?'good':'')+'">'+(a.client==='OPEN'?'Available':'Booked')+'</span></div>').join('');
+barberSchedule.innerHTML=rows.map(a=>{
+  let cls='',label='UPCOMING';
+  if(a.client==='OPEN'){cls='open';label='OPEN';}
+  else if(booked && a.time==='2:00 PM' && a.client==='New client'){cls='just-booked';label='NEW';}
+  else if(a.time==='9:00 AM'){cls='complete';label='COMPLETE';}
+  else if(a.time==='10:00 AM'){cls='live';label='LIVE';}
+  return '<div class="dayrow '+cls+'"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="daystate '+(label==='NEW'?'new':'')+'">'+label+'</span></div>';
+}).join('');
 barberCount.textContent=appointments.length+' booked';
 ownerBookingCount.textContent=booked?'1':'0';
+const ownerRevenue=baseOwnerRevenue+bookingValue;
+const projected=baseProjection+bookingValue;
+const pct=Math.round((projected/dailyPar)*100);
+if(ownerRevenueTop) ownerRevenueTop.textContent='
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
+bookingValue=prices[service]||35;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+ownerRevenue.toLocaleString();
+if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+ownerRevenue.toLocaleString();
+if(kirklandRevenue) kirklandRevenue.textContent='
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+ownerRevenue.toLocaleString();
+if(paceSoFar) paceSoFar.textContent='
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+ownerRevenue.toLocaleString()+' so far';
+if(paceProjection) paceProjection.textContent='
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+projected.toLocaleString()+' · '+pct+'% of par';
+if(paceFill) paceFill.style.width=Math.min(100,(ownerRevenue/dailyPar)*100)+'%';
+if(barberEarnings) barberEarnings.textContent='
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+(baseBarberEarnings+bookingValue);
+if(moneyIncrement) moneyIncrement.textContent=booked?'+
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>+bookingValue+' from new booking':'';
+if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
 barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
 ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
 }
