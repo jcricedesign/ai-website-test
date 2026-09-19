@@ -33,7 +33,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .bottom-item.active:before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--green)}
 .bottom-item.owner-active{color:#fff}
 .bottom-item.owner-active:before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:#fff}
-.screen{padding:18px;flex:1}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 6px}.screen h3{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}.bodycopy{font-size:14px;line-height:1.45;color:#5d5d59;margin:10px 0 0}
+.screen{padding:18px;flex:1}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 6px}.screen h3{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}.bodycopy{font-size:14px;line-height:1.45;color:#5d5d59;margin:10px 0 0}.customer-intro{font-size:11.5px;line-height:1.38;max-width:100%;margin-top:9px}
 .section-title{display:flex;justify-content:space-between;align-items:end;margin:32px 0 12px}.section-title h4{font-size:19px;margin:0;letter-spacing:-.03em}.section-title span{font-size:11px;color:#777}
 .row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #ddd}.row:first-child{border-top:0}.avatar-link{display:block;width:54px;height:54px;border-radius:50%;overflow:hidden}.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#ddd}.account-avatar-link{justify-self:end;display:block;width:34px;height:34px;border-radius:50%;overflow:hidden}.name{font-size:15px;font-weight:700}.rank{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#777;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px;line-height:1.3}
 .time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
@@ -128,7 +128,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <div class="screen home" id="customerHome">
 <p class="eyebrow">Kirkland Shop</p>
 <h3>Find a barber. Pick a time.</h3>
-<p class="bodycopy">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
+<p class="bodycopy customer-intro">Our mission is to enhance the lives of our clients and go above and beyond the expectations of today’s barbershops. With our strong focus on being unique and flexible, we strive to set trends that will make us a global entity.</p>
 <div class="section-title"><h4>Working today</h4><span>Openings first</span></div>
 <div class="row"><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/john.jpg" onerror="this.src='/playground/chop-it-up-redesign/jay.jpg'" alt="Judd"></a><div><div class="name">John Rice</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary" id="bookJohn">2:00</button></div>
 <div class="row"><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/jay.jpg" alt="Judd"></a><div><div class="name">Jay</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
@@ -178,7 +178,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <div class="nav"><span class="signin">Today</span><div style="color:#fff;font-weight:700;font-size:14px">John Rice</div><a class="account-avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="account-avatar" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="Signed-in barber"></a></div>
 <div class="screen">
 <div class="earnings-card"><div class="earnings-copy"><div class="earnings-title">Projected Earnings</div><div class="earnings-goal">Today’s Goal $195</div></div><strong id="barberEarnings">$36</strong></div>
-<div class="section-title"><h4>My Day</h4><span id="barberCount">Open afternoon</span></div>
+<div class="section-title"><h4>Wednesday, Jun 17th</h4><span id="barberCount">Open afternoon</span></div>
 <div id="barberSchedule"></div>
 </div>
 <nav class="bottom-nav" aria-label="Barber navigation">
@@ -239,7 +239,10 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 
 <script>
 (() => {
-const initial=[];
+const initial=[
+  {time:'1:00 PM',client:'Marcus',service:'Haircut'},
+  {time:'3:00 PM',client:'DeShawn',service:'Haircut + Beard'}
+];
 let appointments=initial.map(x=>({...x})),booked=false;
 const baseOwnerRevenue=1115, dailyPar=1400, baseProjection=1510, baseBarberEarnings=36;
 let bookingValue=0;
