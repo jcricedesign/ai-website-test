@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chop It Up — 3UP Booking Demo</title>
+<meta name="description" content="Three-up Chop It Up prototype showing customer, barber, and owner views updating from one booking.">
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+:root{--page:#f3f1ed;--ink:#111;--muted:#696863;--rule:rgba(17,17,17,.16);--green:#558168;--soft:#f6f5f1;--phone:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.wrap{width:min(1500px,calc(100% - 48px));margin:auto}.hero{padding:72px 0 46px;border-bottom:1px solid var(--rule)}
+.back{display:inline-block;color:var(--muted);text-decoration:none;font-size:14px;margin-bottom:34px}.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}.dek{max-width:820px;font-size:19px;line-height:1.5;color:var(--muted);margin:28px 0 0}
+.board{display:grid;grid-template-columns:repeat(3,minmax(300px,1fr));gap:22px;padding:48px 0 30px;align-items:start}
+.column{min-width:0}.column-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:12px}.column-head h2{font-size:26px;letter-spacing:-.04em;margin:0}.column-head span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #cbc9c2;border-radius:32px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.12);min-height:710px}
+.statusbar{height:21px;background:#111}.nav{height:66px;background:#111;padding:0 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}.signin{font-size:11px;color:#fff}.logo{width:126px;height:43px;object-fit:contain}.menu{justify-self:end;color:#fff;font-size:23px}
+.screen{padding:18px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 6px}.screen h3{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}.bodycopy{font-size:14px;line-height:1.45;color:#5d5d59;margin:10px 0 0}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:24px 0 8px}.section-title h4{font-size:19px;margin:0;letter-spacing:-.03em}.section-title span{font-size:11px;color:#777}
+.row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #ddd}.row:first-child{border-top:0}.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#ddd}.name{font-size:15px;font-weight:700}.rank{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#777;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px;line-height:1.3}
+.time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
+.pill{display:inline-flex;border:1px solid #bbb;border-radius:999px;padding:5px 8px;font-size:10px}.pill.good{border-color:#98b3a0;color:#456b51}.pill.warn{border-color:#d5b778;color:#8f651a}
+.card{border:1px solid #d3d3cf;border-radius:14px;background:var(--soft);padding:13px;margin-top:12px}.card h4{font-size:14px;margin:0 0 5px}.card p{font-size:11px;line-height:1.4;color:#666;margin:0}
+.dayrow{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid #ddd}.dayrow:first-child{border-top:0}.daytime{font-size:12px;font-weight:700}.daymain strong{font-size:13px}.daymain span{display:block;font-size:11px;color:#666;margin-top:2px}
+.owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
+.alert{border:1px solid #a6bea9;background:#f2f7f3;border-radius:14px;padding:12px;margin-top:12px}.alert strong{font-size:12px}.alert p{font-size:11px;color:#666;margin:5px 0 0;line-height:1.4}
+.booking{display:none}.booking.active{display:block}.home.hidden{display:none}.booking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.booking-back{border:0;background:none;padding:0;font-size:12px;font-weight:700}.step{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}
+.field{margin:0 0 16px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field select{width:100%;height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;padding:0 12px;font-size:14px}
+.confirm{width:100%;height:48px;border:0;border-radius:24px;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}.secondary{width:100%;height:42px;border:0;background:transparent;color:#555;font-size:12px;text-decoration:underline;cursor:pointer}
+.done{border:1px solid #9cb8a3;background:#f2f7f3;border-radius:16px;padding:15px}.done h4{font-size:19px;margin:0 0 6px}.done p{font-size:12px;line-height:1.45;color:#555;margin:0}
+.note{padding:28px 0 80px;color:var(--muted);font-size:14px;line-height:1.5;max-width:800px}
+@media(max-width:1100px){.board{grid-template-columns:1fr}.column{max-width:520px;margin:auto;width:100%}.phone{max-width:390px}}
+@media(max-width:600px){.wrap{width:calc(100% - 28px)}.hero{padding-top:52px}.phone{min-height:0;border-radius:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<a class="back" href="/playground/chop-it-up/">← Chop It Up project</a>
+<p class="kicker">3UP system test</p>
+<h1>One booking. Three views.</h1>
+<p class="dek">Customer on the left, barber in the center, owner on the right. For now, this prototype stays deliberately simple: the customer books, the barber receives the appointment, and Mervis sees that the barber is working today and that a new appointment was scheduled.</p>
+</header>
+
+<main class="board">
+<section class="column">
+<div class="column-head"><h2>Customer</h2><span>Mobile website</span></div>
+<div class="phone">
+<div class="statusbar"></div>
+<div class="nav"><span class="signin">Sign in</span><img class="logo" src="/playground/chop-it-up-redesign/ChopItUp-Logo.png" alt="Chop It Up"><span class="menu">☰</span></div>
+<div class="screen home" id="customerHome">
+<p class="eyebrow">Kirkland Shop</p>
+<h3>Find a barber. Pick a time.</h3>
+<p class="bodycopy">Five-star barbers, clean fades, current styles, conversation and a shop that knows your name.</p>
+<div class="section-title"><h4>Working today</h4><span>Openings first</span></div>
+<div class="row"><img class="avatar" src="/playground/chop-it-up-redesign/john.jpg" onerror="this.src='/playground/chop-it-up-redesign/jay.jpg'" alt=""><div><div class="name">John Rice</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary" id="bookJohn">2:00</button></div>
+<div class="row"><img class="avatar" src="/playground/chop-it-up-redesign/jay.jpg" alt=""><div><div class="name">Jay</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
+<div class="row"><img class="avatar" src="/playground/chop-it-up-redesign/monnae.jpg" alt=""><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+<div class="card"><h4>Testing this flow</h4><p>Claim John’s 2:00 PM opening. Finalizing it should immediately change the center and right screens.</p></div>
+</div>
+<div class="screen booking" id="customerBooking">
+<div class="booking-top"><button class="booking-back" id="bookingBack">← Back</button><span class="step">Book · 1 of 1</span></div>
+<p class="eyebrow">John Rice · 2:00 PM</p>
+<h3>Confirm appointment</h3>
+<p class="bodycopy">Choose the service and claim the open time.</p>
+<div class="field" style="margin-top:18px"><label>Service</label><select id="service"><option>Haircut</option><option>Haircut + Beard</option><option>Kids Cut</option></select></div>
+<button class="confirm" id="confirmBooking">Claim 2:00 PM</button>
+<button class="secondary" id="cancelBooking">See additional times</button>
+</div>
+<div class="screen booking" id="customerDone">
+<div class="done"><h4>You’re booked.</h4><p id="doneText">Today at 2:00 PM with John Rice.</p></div>
+<button class="secondary" id="resetDemo" style="margin-top:10px">Reset demo</button>
+</div>
+</div>
+</section>
+
+<section class="column">
+<div class="column-head"><h2>Barber</h2><span>My Day</span></div>
+<div class="phone">
+<div class="statusbar"></div>
+<div class="nav"><span class="signin">Today</span><div style="color:#fff;font-weight:700;font-size:14px">John Rice</div><span class="menu">•••</span></div>
+<div class="screen">
+<div class="card" style="margin-top:0"><h4>Status</h4><p>Working today · Bothell · Booth current</p></div>
+<div id="barberAlert"></div>
+<div class="section-title"><h4>My Day</h4><span id="barberCount">3 booked</span></div>
+<div id="barberSchedule"></div>
+</div>
+</div>
+</section>
+
+<section class="column">
+<div class="column-head"><h2>Owner</h2><span>Mervis</span></div>
+<div class="phone">
+<div class="statusbar"></div>
+<div class="nav"><span class="signin">Owner</span><div style="color:#fff;font-weight:700;font-size:14px">Chop It Up</div><span class="menu">•••</span></div>
+<div class="screen">
+<p class="eyebrow">Today</p>
+<h3>Shop overview</h3>
+<p class="bodycopy">For now, Mervis only sees the operational signal: John is working today and a booking has been added.</p>
+<div class="owner-stats"><div class="stat"><span>Barbers working</span><strong>3</strong></div><div class="stat"><span>New bookings</span><strong id="ownerBookingCount">0</strong></div></div>
+<div class="card"><h4>John Rice</h4><p>Working today · Bothell</p><p style="margin-top:5px">Status: Active</p></div>
+<div id="ownerAlert"></div>
+</div>
+</div>
+</section>
+</main>
+
+<p class="note">This is intentionally limited to the three-screen 3UP interaction. The barber and owner screens contain only enough information to make the customer booking visibly propagate through the system. We can add complexity only when the next testing question requires it.</p>
+</div>
+
+<script>
+(() => {
+const initial=[
+{time:'9:00 AM',client:'Marcus',service:'Haircut'},
+{time:'10:00 AM',client:'Jay',service:'Haircut + Beard'},
+{time:'12:00 PM',client:'Alex',service:'Fade'}
+];
+let appointments=initial.map(x=>({...x})),booked=false;
+const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone');
+const barberSchedule=document.getElementById('barberSchedule'),barberAlert=document.getElementById('barberAlert'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount');
+function render(){
+const rows=[...appointments];
+if(!booked)rows.push({time:'2:00 PM',client:'OPEN',service:'30 min opening'});
+rows.sort((a,b)=>a.time.localeCompare(b.time));
+barberSchedule.innerHTML=rows.map(a=>'<div class="dayrow"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="pill '+(a.client==='OPEN'?'good':'')+'">'+(a.client==='OPEN'?'Available':'Booked')+'</span></div>').join('');
+barberCount.textContent=appointments.length+' booked';
+ownerBookingCount.textContent=booked?'1':'0';
+barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+show('done');render();
+});
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;show('home');render();});
+show('home');render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>
