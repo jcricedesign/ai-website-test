@@ -28,6 +28,20 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 @keyframes appointmentLand{0%{background:#dbeadd}18%{background:#bcd6c1}38%{background:#e8f2ea}58%{background:#cfe2d3}100%{background:#eef5ef}}
 @media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}.dayrow:first-child{border-top:0}.daytime{font-size:12px;font-weight:700}.daymain strong{font-size:13px}.daymain span{display:block;font-size:11px;color:#666;margin-top:2px}
 .owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.business-pulse{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}
+.business-pulse-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.business-pulse-head h4{font-size:14px;margin:0}
+.business-pulse-head p{font-size:10px;color:#777;margin:3px 0 0}
+.pace-badge{font-size:10px;border:1px solid #9db8a4;color:#486b53;border-radius:999px;padding:5px 7px;white-space:nowrap}
+.pace-numbers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pace-numbers div{background:#f7f7f4;border-radius:10px;padding:9px}
+.pace-numbers span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#888}
+.pace-numbers strong{display:block;font-size:16px;margin-top:3px}
+.pace-track{height:8px;background:#e5e5e0;border-radius:999px;margin-top:12px;overflow:hidden}
+.pace-fill{height:100%;width:79.6%;background:#5d9a6f;border-radius:999px}
+.pace-caption{display:flex;justify-content:space-between;gap:10px;margin-top:5px;font-size:9px;color:#777}
+.pace-projection{margin-top:10px;font-size:11px;color:#555}
+.pace-projection strong{color:#111}
 .portrait-stack{display:flex;align-items:center;margin-top:10px;padding-left:8px}.portrait-wrap{position:relative;margin-left:-8px}.portrait-wrap:first-child{margin-left:0}.portrait{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#ddd;display:block}.active-dot{position:absolute;right:0;bottom:1px;width:10px;height:10px;border-radius:50%;background:#5d9a6f;border:2px solid #fff}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
 .alert{border:1px solid #a6bea9;background:#f2f7f3;border-radius:14px;padding:12px;margin-top:12px}.alert strong{font-size:12px}.alert p{font-size:11px;color:#666;margin:5px 0 0;line-height:1.4}
 .booking{display:none}.booking.active{display:block}.home.hidden{display:none}.booking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.booking-back{border:0;background:none;padding:0;font-size:12px;font-weight:700}.step{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}
@@ -104,6 +118,19 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <h3>Shop overview</h3>
 <p class="bodycopy">For now, Mervis only sees the operational signal: John is working today and a booking has been added.</p>
 <div class="owner-stats"><div class="stat"><span>Barbers working</span><strong>3</strong></div><div class="stat"><span>New bookings</span><strong id="ownerBookingCount">0</strong></div></div>
+<div class="business-pulse">
+  <div class="business-pulse-head">
+    <div><h4>Kirkland today</h4><p>Revenue pace vs expected</p></div>
+    <span class="pace-badge">+6% ahead now</span>
+  </div>
+  <div class="pace-numbers">
+    <div><span>Revenue so far</span><strong>$1,115</strong></div>
+    <div><span>Expected by now</span><strong>$1,050</strong></div>
+  </div>
+  <div class="pace-track" aria-label="79.6 percent of daily revenue par"><div class="pace-fill"></div></div>
+  <div class="pace-caption"><span>$1,115 so far</span><span>$1,400 daily par</span></div>
+  <div class="pace-projection">Projected close: <strong>$1,510 · 108% of par</strong></div>
+</div>
 <div class="card"><h4>3 working barbers</h4><p>Active now</p><div class="portrait-stack" aria-label="Three barbers working now"><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/jay.jpg" alt="Jay"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/curtis.jpg" alt="Curtis"><span class="active-dot" aria-hidden="true"></span></div></div></div>
 <div id="ownerAlert"></div>
 </div>
