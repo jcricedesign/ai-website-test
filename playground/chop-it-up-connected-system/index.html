@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chop It Up — Connected System Prototype</title>
+<meta name="description" content="Connected customer, barber and owner prototype for Chop It Up.">
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+:root{--bg:#f4f2ed;--ink:#111;--muted:#6d6b66;--line:#dad8d2;--panel:#fff;--soft:#f6f6f2;--green:#558168}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.wrap{width:min(1180px,calc(100% - 48px));margin:auto}.hero{padding:70px 0 40px;border-bottom:1px solid var(--line)}
+.back{color:var(--muted);text-decoration:none;font-size:14px}.kicker{margin:34px 0 14px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-size:clamp(46px,7vw,92px);line-height:.9;letter-spacing:-.06em}.dek{max-width:760px;margin:28px 0 0;font-size:19px;line-height:1.5;color:var(--muted)}
+.proto{padding:46px 0 80px}.shell{background:var(--panel);border:1px solid #cfcfcf;border-radius:22px;overflow:hidden}
+.top{background:#111;color:#fff;padding:16px 18px}.toprow{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.roles{display:flex;gap:8px;flex-wrap:wrap}.roles button{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:999px;padding:9px 13px;cursor:pointer}.roles button.active{background:#fff;color:#111}
+.status{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}.status span{font-size:12px;color:var(--muted)}
+.body{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:520px}.nav{padding:15px;background:#fafafa;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.nav button{border:0;background:transparent;border-radius:10px;padding:11px 12px;text-align:left;cursor:pointer}.nav button.active{background:#111;color:#fff}.main{padding:24px;min-width:0}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#888}.title{margin:5px 0 0;font-size:30px;letter-spacing:-.04em}.sub{margin:8px 0 20px;color:#666;font-size:14px;line-height:1.45}
+.row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}.row strong{display:block;font-size:14px}.row small{color:#777;font-size:12px}
+.btn{border:1px solid #aaa;background:#fff;border-radius:999px;padding:10px 14px;font-size:13px;cursor:pointer}.btn.primary{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:11px}.card{background:var(--soft);border:1px solid #ddd;border-radius:16px;padding:16px;margin-top:14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{background:var(--soft);border:1px solid #ddd;border-radius:14px;padding:14px}.metric span{display:block;font-size:11px;color:#777}.metric strong{font-size:24px}.toast{padding-top:10px;min-height:26px;color:#666;font-size:12px}
+select,input,textarea{font-size:16px}
+@media(max-width:760px){.wrap{width:calc(100% - 28px)}.body{grid-template-columns:1fr}.nav{border-right:0;border-bottom:1px solid var(--line);flex-direction:row;overflow:auto}.nav button{white-space:nowrap}.grid{grid-template-columns:1fr}.row{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<a class="back" href="/playground/chop-it-up/">← Chop It Up project</a>
+<p class="kicker">Connected system prototype</p>
+<h1>Customer. Barber. Owner.</h1>
+<p class="dek">A working prototype tying the three sides together. Book an appointment as a customer, switch to the barber view, and manage the business from the owner side.</p>
+</header>
+<section class="proto">
+<div class="shell">
+<div class="top"><div class="toprow"><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#aaa">Chop It Up</div><strong>Connected system</strong></div><div class="roles"><button data-role="customer">Customer</button><button data-role="barber">Barber</button><button data-role="owner" class="active">Owner</button></div></div></div>
+<div class="status"><div><strong id="who"></strong><span id="where"></span></div><div id="account"></div></div>
+<div class="body"><nav class="nav" id="nav"></nav><main class="main" id="main"></main></div>
+</div>
+<div class="toast" id="toast"></div>
+</section>
+</div>
+<script>
+(() => {
+const state={role:'owner',tab:{customer:'find',barber:'today',owner:'today'},bookingStep:1,booking:{barber:'Jay Blenz',service:'Haircut',time:'2:00 PM'},booth:'grace',selected:null,appointments:[
+{time:'9:00 AM',client:'Marcus',service:'Haircut',barber:'John Rice'},
+{time:'10:00 AM',client:'Jay',service:'Haircut + Beard',barber:'John Rice'},
+{time:'12:00 PM',client:'Alex',service:'Fade',barber:'John Rice'}
+]};
+const menus={customer:[['find','Find a barber'],['appointments','Appointments']],barber:[['today','My Day'],['schedule','Schedule'],['services','Services'],['profile','Profile'],['business','Business']],owner:[['today','Today'],['barbers','Barbers'],['managers','Managers & Permissions'],['evaluations','Evaluations'],['payments','Booth Payments'],['onboarding','Barber Onboarding']]};
+const nav=document.getElementById('nav'),main=document.getElementById('main'),toast=document.getElementById('toast');
+const btn=(t,a='',p=false)=>'<button type="button" class="btn '+(p?'primary':'')+'" '+a+'>'+t+'</button>';const pill=t=>'<span class="pill">'+t+'</span>';
+function header(){const who=document.getElementById('who'),where=document.getElementById('where'),account=document.getElementById('account');if(state.role==='customer'){who.textContent='John Rice · Customer';where.textContent='Book and manage appointments';account.innerHTML=pill('Customer')}else if(state.role==='barber'){who.textContent='John Rice · New Guy';where.textContent='Independent barber · Bothell';account.innerHTML=pill(state.booth==='current'?'Current':'Grace · 2 days remaining')}else{who.textContent='Mervis · Owner';where.textContent='All shops · Full authority';account.innerHTML=pill('Owner · All shops')}}
+function renderNav(){nav.innerHTML=menus[state.role].map(([id,l])=>'<button data-tab="'+id+'" class="'+(state.tab[state.role]===id?'active':'')+'">'+l+'</button>').join('');nav.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{state.tab[state.role]=b.dataset.tab;state.selected=null;render()})}
+function customerFind(){if(state.bookingStep===1)return '<div class="eyebrow">Kirkland Shop</div><h2 class="title">Find a barber. Pick a time.</h2><p class="sub">Availability comes from each active barber’s schedule, services and account status.</p>'+[['Jay Blenz','Master Barber','2:00 PM'],['Christian','All Star Barber','3:30 PM'],['Curtis','Grandmaster Barber','4:00 PM']].map(r=>'<div class="row"><div><strong>'+r[0]+'</strong><small>'+r[1]+' · Next opening '+r[2]+'</small></div>'+btn('Claim '+r[2],'data-book="'+r[0]+'" data-time="'+r[2]+'"',true)+'</div>').join('');
+return '<div class="eyebrow">Confirm booking</div><h2 class="title">'+state.booking.barber+'</h2><div class="card"><label>Service<select id="service" style="width:100%;margin-top:8px;padding:12px;border:1px solid #bbb;border-radius:10px"><option>Haircut</option><option>Haircut + Beard</option><option>Kids Cut</option></select></label><div style="margin-top:16px"><small>Time</small><strong style="display:block;margin-top:4px">Today · '+state.booking.time+'</strong></div></div><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">'+btn('Confirm appointment','data-action="confirm"',true)+btn('Back','data-action="back"')+'</div>'}
+function customerAppointments(){const mine=state.appointments.filter(a=>a.client==='John Rice');return '<div class="eyebrow">Customer account</div><h2 class="title">Appointments</h2><div style="margin-top:14px">'+(mine.length?mine.map(a=>'<div class="row"><div><strong>Today · '+a.time+'</strong><small>'+a.barber+' · '+a.service+'</small></div></div>').join(''):'<div class="card">No appointments yet.</div>')+'</div>'}
+function barberToday(){const appts=state.appointments.filter(a=>a.barber==='John Rice');return '<div class="eyebrow">Friday, Sep 18</div><h2 class="title">My Day</h2><div style="margin-top:14px">'+appts.map(a=>'<div class="row"><div><strong>'+a.time+' · '+a.client+'</strong><small>'+a.service+'</small></div>'+pill('Booked')+'</div>').join('')+'<div class="row"><div><strong>11:00 AM · OPEN</strong><small>30 min</small></div>'+pill('Available')+'</div><div class="row"><div><strong>2:00 PM · OPEN</strong><small>45 min</small></div>'+pill('Available')+'</div></div>'}
+function simpleBarber(title,sub){return '<div class="eyebrow">Barber workspace</div><h2 class="title">'+title+'</h2><p class="sub">'+sub+'</p>'}
+function ownerToday(){return '<div class="eyebrow">Shop overview</div><h2 class="title">Today</h2><div class="grid" style="margin-top:16px"><div class="metric"><span>Barbers active</span><strong>3</strong></div><div class="metric"><span>Manager Plus</span><strong>1</strong></div><div class="metric"><span>Evaluations due</span><strong>2</strong></div></div><div class="card"><strong>Needs attention</strong><div class="row"><div><strong>John Rice · booth rent</strong><small>Grace · 2 days remaining</small></div></div><div class="row"><div><strong>Christian · Manager Plus</strong><small>Temporary authority ends Sep 27</small></div></div></div>'}
+const barbers=[['john','John Rice','New Guy','Bothell','Barber'],['jay','Jay Blenz','Master Barber','Kirkland','Manager'],['christian','Christian','All Star Barber','Kirkland','Manager Plus'],['curtis','Curtis','Grandmaster Barber','Bellevue','Evaluator']];
+function ownerBarbers(){if(state.selected){const b=barbers.find(x=>x[0]===state.selected);return '<button data-action="all" class="btn">← All barbers</button><div style="margin-top:18px"><div class="eyebrow">'+b[3]+' Shop</div><h2 class="title">'+b[1]+'</h2><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+pill(b[2])+pill(b[4])+pill(b[0]==='john'?(state.booth==='current'?'Current':'Grace'):'Current')+'</div></div><div class="grid" style="margin-top:18px"><div class="metric"><span>Rank</span><strong style="font-size:18px">'+b[2]+'</strong></div><div class="metric"><span>Operational role</span><strong style="font-size:18px">'+b[4]+'</strong></div><div class="metric"><span>Shop</span><strong style="font-size:18px">'+b[3]+'</strong></div></div>'}
+return '<div class="eyebrow">Spectrum of barber states</div><h2 class="title">Barbers</h2><div style="margin-top:14px">'+barbers.map(b=>'<button data-barber="'+b[0]+'" class="row" style="width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left"><div><strong>'+b[1]+'</strong><small>'+b[2]+' · '+b[3]+'</small></div><span>Manage →</span></button>').join('')+'</div>'}
+function ownerManagers(){return '<div class="eyebrow">Authority model</div><h2 class="title">Managers & Permissions</h2><div class="card"><strong>Jay Blenz · Manager</strong><small style="display:block;margin-top:4px">Kirkland only · Permanent</small></div><div class="card"><strong>Christian · Manager Plus</strong><small style="display:block;margin-top:4px">All shops · Sep 20–Sep 27 · Only one active at a time</small></div><div class="card"><strong>Curtis · Evaluator</strong><small style="display:block;margin-top:4px">All shops · Can evaluate without managing a shop</small></div>'}
+function ownerPayments(){return '<div class="eyebrow">Access follows booth status</div><h2 class="title">Booth Payments</h2><div class="card"><div class="row"><div><strong>John Rice · $275</strong><small>Due Sep 15 · grace ends Sep 20</small></div>'+btn('Mark paid','data-action="paid"',true)+'</div></div>'}
+function ownerEvaluations(){return '<div class="eyebrow">Rank & certification</div><h2 class="title">Evaluations</h2><div class="row"><div><strong>John Rice</strong><small>New Guy · 42 completed appointments</small></div>'+btn('Evaluate','data-action="eval"')+'</div><div class="row"><div><strong>Christian</strong><small>All Star Barber · Eligible for review</small></div>'+btn('Evaluate','data-action="eval"')+'</div>'}
+function ownerOnboarding(){return '<div class="eyebrow">Barber onboarding</div><h2 class="title">Invite → Shop → Rank → Booth terms</h2><div class="card"><p style="margin:0;color:#666;font-size:14px">Existing customer accounts can be elevated after accepting an invitation.</p></div>'}
+function renderMain(){if(state.role==='customer')main.innerHTML=state.tab.customer==='find'?customerFind():customerAppointments();else if(state.role==='barber')main.innerHTML=state.tab.barber==='today'?barberToday():simpleBarber(state.tab.barber[0].toUpperCase()+state.tab.barber.slice(1),'Working version retained for this connected prototype.');else main.innerHTML=state.tab.owner==='today'?ownerToday():state.tab.owner==='barbers'?ownerBarbers():state.tab.owner==='managers'?ownerManagers():state.tab.owner==='evaluations'?ownerEvaluations():state.tab.owner==='payments'?ownerPayments():ownerOnboarding()}
+function bind(){main.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>{state.booking.barber=b.dataset.book;state.booking.time=b.dataset.time;state.bookingStep=2;render()});main.querySelectorAll('[data-barber]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.barber;render()});main.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{const a=b.dataset.action;if(a==='confirm'){const service=document.getElementById('service').value;state.appointments.push({time:state.booking.time,client:'John Rice',service,barber:state.booking.barber});state.bookingStep=1;state.tab.customer='appointments';toast.textContent='Appointment booked in shared state.';render()}else if(a==='back'){state.bookingStep=1;render()}else if(a==='paid'){state.booth='current';toast.textContent='John is now current.';render()}else if(a==='all'){state.selected=null;render()}else if(a==='eval')toast.textContent='Evaluation flow opened.'})}
+function render(){header();renderNav();renderMain();bind();document.querySelectorAll('[data-role]').forEach(b=>b.classList.toggle('active',b.dataset.role===state.role))}
+document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{state.role=b.dataset.role;state.selected=null;render()});render();
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>
