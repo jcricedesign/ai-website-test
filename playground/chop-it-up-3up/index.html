@@ -27,7 +27,8 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .dayrow.just-booked{animation:appointmentLand 2.4s ease-out 1;background:#eef5ef}
 @keyframes appointmentLand{0%{background:#dbeadd}18%{background:#bcd6c1}38%{background:#e8f2ea}58%{background:#cfe2d3}100%{background:#eef5ef}}
 @media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}.dayrow:first-child{border-top:0}.daytime{font-size:12px;font-weight:700}.daymain strong{font-size:13px}.daymain span{display:block;font-size:11px;color:#666;margin-top:2px}
-.owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
+.owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.portrait-stack{display:flex;align-items:center;margin-top:10px;padding-left:8px}.portrait-wrap{position:relative;margin-left:-8px}.portrait-wrap:first-child{margin-left:0}.portrait{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#ddd;display:block}.active-dot{position:absolute;right:0;bottom:1px;width:10px;height:10px;border-radius:50%;background:#5d9a6f;border:2px solid #fff}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
 .alert{border:1px solid #a6bea9;background:#f2f7f3;border-radius:14px;padding:12px;margin-top:12px}.alert strong{font-size:12px}.alert p{font-size:11px;color:#666;margin:5px 0 0;line-height:1.4}
 .booking{display:none}.booking.active{display:block}.home.hidden{display:none}.booking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.booking-back{border:0;background:none;padding:0;font-size:12px;font-weight:700}.step{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}
 .field{margin:0 0 16px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field select{width:100%;height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;padding:0 12px;font-size:14px}
@@ -103,7 +104,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <h3>Shop overview</h3>
 <p class="bodycopy">For now, Mervis only sees the operational signal: John is working today and a booking has been added.</p>
 <div class="owner-stats"><div class="stat"><span>Barbers working</span><strong>3</strong></div><div class="stat"><span>New bookings</span><strong id="ownerBookingCount">0</strong></div></div>
-<div class="card"><h4>John Rice</h4><p>Working today · Bothell</p><p style="margin-top:5px">Status: Active</p></div>
+<div class="card"><h4>3 working barbers</h4><p>Active now</p><div class="portrait-stack" aria-label="Three barbers working now"><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/jay.jpg" alt="Jay"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/curtis.jpg" alt="Curtis"><span class="active-dot" aria-hidden="true"></span></div></div></div>
 <div id="ownerAlert"></div>
 </div>
 </div>
