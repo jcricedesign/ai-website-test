@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chop It Up — 3UP Booking Demo</title>
+<meta name="description" content="Three-up Chop It Up prototype showing customer, barber, and owner views updating from one booking.">
+<style>
+:root{--page:#f3f1ed;--ink:#111;--muted:#696863;--rule:rgba(17,17,17,.16);--green:#558168;--soft:#f6f5f1;--phone:#fff}
+*{box-sizing:border-box}html,body{min-height:100%}body{margin:0;background:var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.wrap{width:min(1500px,calc(100% - 32px));margin:auto;padding-bottom:40px}.demo-head{display:grid;grid-template-columns:180px 1fr;gap:28px;align-items:end;padding:34px 0 28px;border-bottom:1px solid var(--rule)}.demo-head>img{width:170px;max-height:90px;object-fit:contain;object-position:left bottom}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+h1{font-size:clamp(42px,6vw,82px);line-height:.92;letter-spacing:-.055em;margin:0}.dek{max-width:760px;font-size:16px;line-height:1.45;color:var(--muted);margin:14px 0 0}
+.journey{padding:30px 0 6px}
+.journey-track{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.journey-track:before{content:"";position:absolute;left:0;right:0;top:17px;height:1px;background:var(--rule)}
+.journey-step{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.journey-dot{width:34px;height:34px;border-radius:50%;border:1px solid #bbb;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;z-index:1}
+.journey-step.active .journey-dot{background:#111;color:#fff;border-color:#111}
+.journey-step strong{font-size:13px}
+.journey-step span{font-size:10px;color:var(--muted)}
+.board{display:grid;grid-template-columns:repeat(3,minmax(300px,1fr));gap:22px;padding:28px 0 30px;align-items:start}
+.column{min-width:0}.column-head{display:flex;justify-content:center;align-items:center;margin-bottom:12px;text-align:center}.column-head h2{font-size:26px;letter-spacing:-.04em;margin:0}.column-head span{display:none}
+.phone{width:min(100%,390px);margin:auto;background:var(--phone);border:1px solid #cbc9c2;border-radius:32px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.12);min-height:710px;display:flex;flex-direction:column}
+.statusbar{height:21px;background:#111}.nav{height:66px;background:#111;padding:0 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}.signin{font-size:11px;color:#fff}.logo{width:126px;height:43px;object-fit:contain}.menu{justify-self:end;color:#fff;font-size:23px}
+.account-avatar{justify-self:end;width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.35);background:#555}
+.bottom-nav{margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #242424;background:#111;min-height:70px}
+.bottom-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#777;font-size:10px;text-decoration:none;position:relative}
+.bottom-item .nav-icon{font-size:18px;line-height:1}
+.bottom-item.active{color:var(--green)}
+.bottom-item.active:before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--green)}
+.bottom-item.owner-active{color:#fff}
+.bottom-item.owner-active:before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:#fff}
+.screen{padding:18px;flex:1}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#777;margin:0 0 6px}.screen h3{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}.bodycopy{font-size:14px;line-height:1.45;color:#5d5d59;margin:10px 0 0}.customer-intro{font-size:11.5px;line-height:1.38;max-width:100%;margin-top:9px}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:32px 0 12px}.section-title h4{font-size:19px;margin:0;letter-spacing:-.03em}.section-title span{font-size:11px;color:#777}
+.avail-filter{border:0;background:transparent;color:#555;font-size:11px;font-weight:700;padding:2px 0;display:flex;align-items:center;gap:4px;cursor:pointer}.avail-filter:after{content:"⌄";font-size:12px}
+.row.expandable{align-items:start}.row-extra{display:none;grid-column:2/4;padding:2px 0 4px}.row.expanded .row-extra{display:block}.slot-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.slot-mini{border:1px solid #aaa;border-radius:14px;background:#fff;padding:6px 8px;font-size:10px;color:#555}.row-more{display:inline-block;margin-top:7px;border:0;background:none;padding:0;font-size:10px;color:#555;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #ddd}.row:first-child{border-top:0}.avatar-link{display:block;width:54px;height:54px;border-radius:50%;overflow:hidden}.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#ddd}.account-avatar-link{justify-self:end;display:block;width:34px;height:34px;border-radius:50%;overflow:hidden}.name{font-size:15px;font-weight:700}.rank{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#777;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px;line-height:1.3}
+.time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
+.pill{display:inline-flex;border:1px solid #bbb;border-radius:999px;padding:5px 8px;font-size:10px}.pill.good{border-color:#98b3a0;color:#456b51}.pill.warn{border-color:#d5b778;color:#8f651a}
+.card{border:1px solid #d3d3cf;border-radius:14px;background:var(--soft);padding:13px;margin-top:12px}.card h4{font-size:14px;margin:0 0 5px}.card p{font-size:11px;line-height:1.4;color:#666;margin:0}
+.earnings-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;border:1px solid #d3d3cf;border-radius:20px;background:#fafafa;padding:20px 20px 18px;margin-top:0}
+.earnings-copy{min-width:0}
+.earnings-title{font-size:22px;font-weight:700;line-height:1.05;letter-spacing:-.03em;color:#111}
+.earnings-goal{font-size:12px;color:#555;margin-top:8px}
+.earnings-card strong{font-size:22px;line-height:1.05;letter-spacing:-.03em;color:#355f43}
+.barber-goals{grid-column:1/-1;margin-top:2px}
+.barber-goal-track{position:relative;height:8px;background:#e5e5e0;border-radius:999px;overflow:visible}
+.barber-goal-fill{height:100%;width:12%;background:#5d9a6f;border-radius:999px;transition:width .35s ease}
+.goal-mark{position:absolute;top:-4px;width:1px;height:16px;background:#888}
+.goal-mark.rent{left:25%}.goal-mark.daily{left:65%}.goal-mark.reserve{left:83%}
+.goal-labels{position:relative;height:27px;margin-top:6px;font-size:8px;color:#777}
+.goal-labels span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.goal-labels .rent{left:25%}.goal-labels .daily{left:65%}.goal-labels .reserve{left:83%}.goal-labels .bonus{right:0;transform:none}
+.goal-caption{display:flex;justify-content:space-between;gap:8px;margin-top:2px;font-size:9px;color:#777}.goal-caption strong{font-size:9px;color:#555;letter-spacing:0}
+.dayrow.complete{opacity:.55}.dayrow.live{background:#f0e8ff;border-color:#c7a9ff}.dayrow.live .daystate{color:#8f20df}.daystate{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8b8b86;white-space:nowrap}.daystate.new{color:#2f9c68}.daystate.break{color:#b27a00}
+.money-bump{animation:moneyBump 1.8s ease-out 1}@keyframes moneyBump{0%{background:#dff0e3}35%{background:#c6e1cc}100%{background:transparent}}@media(prefers-reduced-motion:reduce){.money-bump{animation:none}}
+.shops-card{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}.shops-card h4{font-size:14px;margin:0 0 3px}.shops-card>p{font-size:10px;color:#777;margin:0 0 8px}.shop-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #e4e4df}.shop-row:first-of-type{border-top:0}.shop-dot{width:8px;height:8px;border-radius:50%;background:#5d9a6f}.shop-row strong{font-size:12px}.shop-row span{display:block;font-size:10px;color:#777;margin-top:1px}.shop-money{text-align:right}.shop-money strong{display:block;font-size:12px}.shop-money span{font-size:9px;color:#5d7f65}
+.dayrow{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:14px;align-items:center;padding:15px 14px;margin-top:8px;border:1px solid #ddd;border-radius:14px;background:#fff;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}
+.dayrow:first-child{margin-top:0}
+.dayrow.open{border-style:dashed;border-color:#c8c8c2;background:#fbfbf9}
+.dayrow.open:hover{border-color:#aeb8b0;background:#f8fbf8}
+.dayrow.focus-slot{border-color:#b8c8bb;background:#f7faf7;box-shadow:0 0 0 2px rgba(85,129,104,.04)}
+.dayrow.just-booked{animation:appointmentLand 2.4s ease-out 1;background:#eef5ef;border-color:#9cb8a3;box-shadow:0 0 0 3px rgba(85,129,104,.08)}
+@keyframes appointmentLand{0%{background:#dbeadd}18%{background:#bcd6c1}38%{background:#e8f2ea}58%{background:#cfe2d3}100%{background:#eef5ef}}
+@media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}
+.daytime{font-size:11px;font-weight:700;color:#555;letter-spacing:.01em}
+.daymain strong{font-size:14px;line-height:1.15}
+.dayrow.open .daymain strong{font-weight:600;color:#555}
+.dayrow.open .daymain span{color:#999}
+.daymain span{display:block;font-size:10px;color:#777;margin-top:3px;line-height:1.25}
+.owner-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.owner-stat{border:0;border-radius:0;padding:12px 11px;min-height:78px}
+.owner-stat span{display:block;font-size:10px;color:#222;font-weight:700}
+.owner-stat strong{display:block;font-size:22px;margin-top:8px;line-height:1}
+.owner-stat.revenue{background:#e9f6d8}
+.owner-stat.bookings{background:#d9f3ee}
+.owner-stat.rent{background:#f5e8d4}
+.business-pulse{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}
+.business-pulse-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.business-pulse-head h4{font-size:14px;margin:0}
+.business-pulse-head p{font-size:10px;color:#777;margin:3px 0 0}
+.pace-badge{font-size:10px;border:1px solid #9db8a4;color:#486b53;border-radius:999px;padding:5px 7px;white-space:nowrap}
+.pace-numbers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pace-numbers div{background:#f7f7f4;border-radius:10px;padding:9px}
+.pace-numbers span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#888}
+.pace-numbers strong{display:block;font-size:16px;margin-top:3px}
+.pace-track{height:8px;background:#e5e5e0;border-radius:999px;margin-top:12px;overflow:hidden}
+.pace-fill{height:100%;width:79.6%;background:#5d9a6f;border-radius:999px}
+.pace-caption{display:flex;justify-content:space-between;gap:10px;margin-top:5px;font-size:9px;color:#777}
+.pace-projection{margin-top:10px;font-size:11px;color:#555}
+.pace-projection strong{color:#111}
+.portrait-stack{display:flex;align-items:center;margin-top:10px;padding-left:8px}.portrait-wrap{position:relative;margin-left:-8px}.portrait-wrap:first-child{margin-left:0}.portrait{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#ddd;display:block}.active-dot{position:absolute;right:0;bottom:1px;width:10px;height:10px;border-radius:50%;background:#5d9a6f;border:2px solid #fff}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
+.alert{border:1px solid #a6bea9;background:#f2f7f3;border-radius:14px;padding:12px;margin-top:12px}.alert strong{font-size:12px}.alert p{font-size:11px;color:#666;margin:5px 0 0;line-height:1.4}
+.booking{display:none}.booking.active{display:block}.home.hidden{display:none}.booking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.booking-back{border:0;background:none;padding:0;font-size:12px;font-weight:700}.step{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}
+.field{margin:0 0 16px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field select{width:100%;height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;padding:0 12px;font-size:14px}
+.confirm{width:100%;height:48px;border:0;border-radius:24px;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}.secondary{width:100%;height:42px;border:0;background:transparent;color:#555;font-size:12px;text-decoration:underline;cursor:pointer}
+.done{border:1px solid #9cb8a3;background:#f2f7f3;border-radius:16px;padding:15px}.done h4{font-size:19px;margin:0 0 6px}.done p{font-size:12px;line-height:1.45;color:#555;margin:0}
+.customer-profile{padding-top:4px;text-align:center}
+.customer-avatar{width:86px;height:86px;border-radius:50%;object-fit:cover;filter:grayscale(1);border:1px solid #ccc;background:#eee}
+.customer-name{font-size:30px;letter-spacing:-.04em;font-weight:700;margin-top:10px}
+.customer-meta{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#777;margin-top:4px}
+.verified{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;font-weight:700}
+.verified-mark{width:18px;height:18px;border:1.5px solid #111;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+.upcoming-title{text-align:left;font-size:18px;font-weight:700;margin:22px 0 8px;letter-spacing:-.02em}
+.appointment-card{text-align:left;border:1.5px solid #222;border-radius:16px;padding:14px;background:#fff}
+.appt-head{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:center}
+.appt-barber{width:58px;height:58px;border-radius:50%;object-fit:cover;filter:grayscale(1);background:#ddd}
+.appt-head strong{font-size:18px;line-height:1.05}
+.appt-time{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding-top:11px;border-top:2px solid #111;font-size:18px;font-weight:700}
+.appt-actions{margin-top:10px;display:grid;gap:5px}
+.appt-action{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:6px 0;text-align:left;font-size:11px;text-decoration:underline;text-underline-offset:2px;cursor:pointer;color:#222}
+.appt-icon{width:18px;height:18px;border:1px solid #444;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;text-decoration:none}
+.past-button{width:100%;margin-top:14px;border:0;background:#f2f2ef;padding:14px;font-size:11px;font-weight:700;text-align:center;cursor:pointer}
+.note{padding:28px 0 80px;color:var(--muted);font-size:14px;line-height:1.5;max-width:800px}
+@media(max-width:1100px){.board{grid-template-columns:1fr}.column{max-width:520px;margin:auto;width:100%}.phone{max-width:390px}}
+@media(max-width:600px){.wrap{width:calc(100% - 20px)}.demo-head{grid-template-columns:1fr;gap:12px;padding:20px 0}.demo-head>img{width:140px}.phone{min-height:0;border-radius:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="demo-head">
+  <img src="/playground/chop-it-up-redesign/ChopItUp-Logo.png" alt="Chop It Up">
+  <div>
+    <p class="kicker">Live system demo</p>
+    <h1>One booking. Three views.</h1>
+    <p class="dek">Book on the customer side and watch the appointment update the barber and shop in real time.</p>
+  </div>
+</header>
+
+<section class="journey" aria-label="Service timeline">
+  <div class="journey-track">
+    <div class="journey-step active" data-phase="booking"><div class="journey-dot">1</div><strong>Booking</strong><span>Current phase</span></div>
+    <div class="journey-step" data-phase="appointment"><div class="journey-dot">2</div><strong>Appointment</strong><span>Next</span></div>
+    <div class="journey-step" data-phase="post"><div class="journey-dot">3</div><strong>Post-Appt</strong><span>Later</span></div>
+  </div>
+</section>
+
+<main class="board">
+<section class="column">
+<div class="column-head"><h2>Customer</h2></div>
+<div class="phone">
+<div class="statusbar"></div>
+<div class="nav"><span class="signin">Sign in</span><img class="logo" src="/playground/chop-it-up-redesign/ChopItUp-Logo.png" alt="Chop It Up"><span class="menu">☰</span></div>
+<div class="screen home" id="customerHome">
+<p class="eyebrow">Kirkland Shop</p>
+<h3>Find a barber. Pick a time.</h3>
+<p class="bodycopy customer-intro">Our mission is to enhance the lives of our clients and go above and beyond the expectations of today’s barbershops. With our strong focus on being unique and flexible, we strive to set trends that will make us a global entity.</p>
+<div class="section-title"><h4>Working today</h4><button class="avail-filter" id="availabilityFilter" type="button">First Available</button></div>
+<div class="row expandable" data-barber-row><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/john.jpg" onerror="this.src='/playground/chop-it-up-redesign/jay.jpg'" alt="Judd"></a><div><div class="name">John Rice</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary" id="bookJohn">2:00</button><div class="row-extra"><div class="slot-strip"><button class="slot-mini">2:00</button><button class="slot-mini">2:30</button><button class="slot-mini">3:15</button></div><button class="row-more">More</button></div></div>
+<div class="row expandable" data-barber-row><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="avatar" src="/playground/chop-it-up-redesign/jay.jpg" alt="Judd"></a><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button><div class="row-extra"><div class="slot-strip"><button class="slot-mini">3:00</button><button class="slot-mini">3:45</button><button class="slot-mini">4:30</button></div><button class="row-more">More</button></div></div>
+<div class="row expandable" data-barber-row><a class="avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Monnae" aria-label="View Monnae profile"><img class="avatar" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"></a><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button><div class="row-extra"><div class="slot-strip"><button class="slot-mini">4:00</button><button class="slot-mini">4:45</button><button class="slot-mini">5:30</button></div><button class="row-more">More</button></div></div>
+
+</div>
+<div class="screen booking" id="customerBooking">
+<div class="booking-top"><button class="booking-back" id="bookingBack">← Back</button><span class="step">Book · 1 of 1</span></div>
+<p class="eyebrow">John Rice · 2:00 PM</p>
+<h3>Confirm appointment</h3>
+<p class="bodycopy">Choose the service and claim the open time.</p>
+<div class="field" style="margin-top:18px"><label>Service</label><select id="service"><option>Haircut</option><option>Haircut + Beard</option><option>Kids Cut</option></select></div>
+<button class="confirm" id="confirmBooking">Claim 2:00 PM</button>
+<button class="secondary" id="cancelBooking">See additional times</button>
+</div>
+<div class="screen booking" id="customerDone">
+  <div class="customer-profile">
+    <img class="customer-avatar" src="/playground/chop-it-up-redesign/haircut-1bw.png" alt="Customer profile">
+    <div class="customer-name">John R.</div>
+    <div class="customer-meta">Client since 2026</div>
+    <div class="verified"><span class="verified-mark">✓</span> Verified customer</div>
+  </div>
+
+  <div class="upcoming-title">Upcoming appointment</div>
+  <div class="appointment-card">
+    <div class="appt-head">
+      <img class="appt-barber" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="John Rice">
+      <div><strong id="apptServiceTitle">Haircut with<br>John Rice</strong><div class="meta" style="margin-top:5px">Chop It Up · Kirkland</div></div>
+    </div>
+    <div class="appt-time"><span>Today</span><span>2:00 PM</span></div>
+    <div class="appt-actions">
+      <button type="button" class="appt-action" data-customer-action="calendar"><span class="appt-icon">✓</span>Add to calendar</button>
+      <button type="button" class="appt-action" data-customer-action="directions"><span class="appt-icon">●</span>Get directions to Kirkland</button>
+      <button type="button" class="appt-action" data-customer-action="cancel"><span class="appt-icon">×</span>Cancel appointment</button>
+    </div>
+  </div>
+  <button type="button" class="past-button" data-customer-action="past">View past appointments →</button>
+  <button class="secondary" id="resetDemo" style="margin-top:10px">Reset demo</button>
+</div>
+</div>
+</section>
+
+<section class="column">
+<div class="column-head"><h2>Barber</h2></div>
+<div class="phone">
+<div class="statusbar"></div>
+<div class="nav"><span class="signin">Today</span><div style="color:#fff;font-weight:700;font-size:14px">John Rice</div><a class="account-avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Judd" aria-label="View Judd profile"><img class="account-avatar" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="Signed-in barber"></a></div>
+<div class="screen">
+<div class="earnings-card">
+    <div class="earnings-copy"><div class="earnings-title">Projected Earnings</div><div class="earnings-goal">Today’s Goal $195</div></div>
+    <strong id="barberEarnings">$36</strong>
+    <div class="barber-goals">
+      <div class="barber-goal-track" aria-label="Progress toward barber goals">
+        <div class="barber-goal-fill" id="barberGoalFill"></div>
+        <span class="goal-mark rent"></span>
+        <span class="goal-mark daily"></span>
+        <span class="goal-mark reserve"></span>
+      </div>
+      <div class="goal-labels">
+        <span class="rent">Booth $75</span>
+        <span class="daily">Daily $195</span>
+        <span class="reserve">Reserve $250</span>
+        <span class="bonus">Bonus $300</span>
+      </div>
+      <div class="goal-caption"><span id="barberGoalSoFar">$36 so far</span><span><strong id="barberGoalStatus">Toward daily goal</strong></span></div>
+    </div>
+  </div>
+<div class="section-title"><h4>Wednesday, Jun 17th</h4><span id="barberCount">Open afternoon</span></div>
+<div id="barberSchedule"></div>
+</div>
+<nav class="bottom-nav" aria-label="Barber navigation">
+  <a class="bottom-item" href="#"><span class="nav-icon">⌂</span><span>Home</span></a>
+  <a class="bottom-item active" href="#"><span class="nav-icon">▣</span><span>My Day</span></a>
+  <a class="bottom-item" href="#"><span class="nav-icon">◉</span><span>Business</span></a>
+  <a class="bottom-item" href="#"><span class="nav-icon">♜</span><span>Stats</span></a>
+</nav>
+</div>
+</section>
+
+<section class="column">
+<div class="column-head"><h2>Owner</h2></div>
+<div class="phone">
+<div class="statusbar"></div>
+<div class="nav"><span class="signin">Owner</span><div style="color:#fff;font-weight:700;font-size:14px">Chop It Up</div><a class="account-avatar-link" href="/playground/chop-it-up-redesign/profile.html?barber=Curtis" aria-label="View Curtis profile"><img class="account-avatar" src="/playground/chop-it-up-redesign/curtis.jpg" alt="Signed-in owner"></a></div>
+<div class="screen">
+<p class="eyebrow">Today</p>
+<h3>Shop&#39;s Dashboard</h3>
+<p class="bodycopy">For now, Mervis only sees the operational signal: John is working today and a booking has been added.</p>
+<div class="owner-stats"><div class="owner-stat revenue" id="ownerRevenueStat"><span>Revenue today</span><strong id="ownerRevenueTop">$1,340</strong></div><div class="owner-stat bookings"><span>Bookings</span><strong id="ownerBookingCount">24</strong></div><div class="owner-stat rent"><span>Booth rent</span><strong>$750</strong></div></div>
+<div class="business-pulse">
+  <div class="business-pulse-head">
+    <div><h4>Kirkland today</h4><p>Revenue pace vs expected</p></div>
+    <span class="pace-badge">+6% ahead now</span>
+  </div>
+  <div class="pace-numbers">
+    <div><span>Revenue so far</span><strong id="ownerRevenueSoFar">$1,115</strong></div>
+    <div><span>Expected by now</span><strong>$1,050</strong></div>
+  </div>
+  <div class="pace-track" aria-label="Revenue progress toward daily par"><div class="pace-fill" id="paceFill"></div></div>
+  <div class="pace-caption"><span id="paceSoFar">$1,115 so far</span><span>$1,400 daily par</span></div>
+  <div class="pace-projection">Projected close: <strong id="paceProjection">$1,510 · 108% of par</strong></div><div id="moneyIncrement" style="margin-top:7px;font-size:10px;color:#486b53;min-height:14px"></div>
+</div>
+<div class="shops-card">
+  <h4>4 shops today</h4>
+  <p>All locations active now</p>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Kirkland</strong><span>3 barbers · ahead of pace</span></div><div class="shop-money"><strong id="kirklandRevenue">$1,115</strong><span>+6%</span></div></div>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Bothell</strong><span>4 barbers · on pace</span></div><div class="shop-money"><strong>$1,280</strong><span>+1%</span></div></div>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Bellevue</strong><span>5 barbers · ahead</span></div><div class="shop-money"><strong>$1,640</strong><span>+9%</span></div></div>
+  <div class="shop-row"><span class="shop-dot"></span><div><strong>Everett</strong><span>3 barbers · slightly behind</span></div><div class="shop-money"><strong>$980</strong><span style="color:#9a6a16">−3%</span></div></div>
+</div>
+<div class="card"><h4>3 working barbers</h4><p>Active now</p><div class="portrait-stack" aria-label="Three barbers working now"><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/jay.jpg" alt="Jay"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/monnae.jpg" alt="Monnae"><span class="active-dot" aria-hidden="true"></span></div><div class="portrait-wrap"><img class="portrait" src="/playground/chop-it-up-redesign/curtis.jpg" alt="Curtis"><span class="active-dot" aria-hidden="true"></span></div></div></div>
+<div id="ownerAlert"></div>
+</div>
+<nav class="bottom-nav" aria-label="Owner navigation">
+  <a class="bottom-item owner-active" href="#"><span class="nav-icon">⌂</span><span>Today</span></a>
+  <a class="bottom-item" href="#"><span class="nav-icon">▦</span><span>Shops</span></a>
+  <a class="bottom-item" href="#"><span class="nav-icon">●</span><span>Barbers</span></a>
+  <a class="bottom-item" href="#"><span class="nav-icon">$</span><span>Business</span></a>
+</nav>
+</div>
+</section>
+</main>
+
+</div>
+
+<script>
+(() => {
+const initial=[
+  {time:'1:00 PM',client:'Marcus',service:'Haircut'},
+  {time:'3:00 PM',client:'DeShawn',service:'Haircut + Beard'}
+];
+let appointments=initial.map(x=>({...x})),booked=false;
+const baseRevenueToday=1340, baseOwnerRevenue=1115, baseBookings=24, dailyPar=1400, baseProjection=1510, baseBarberEarnings=36;
+let bookingValue=0;
+
+function playChime(){
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx) return;
+    const ctx=new AudioCtx();
+    const now=ctx.currentTime;
+    const gain=ctx.createGain();
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(0.18,now+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.75);
+    gain.connect(ctx.destination);
+
+    const o1=ctx.createOscillator();
+    const o2=ctx.createOscillator();
+    o1.type='sine'; o2.type='sine';
+    o1.frequency.setValueAtTime(880,now);
+    o2.frequency.setValueAtTime(1320,now+0.12);
+    o1.connect(gain); o2.connect(gain);
+    o1.start(now); o1.stop(now+0.35);
+    o2.start(now+0.12); o2.stop(now+0.6);
+    setTimeout(()=>ctx.close().catch(()=>{}),900);
+  }catch(e){}
+}
+const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone');
+const barberSchedule=document.getElementById('barberSchedule'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount'),barberEarnings=document.getElementById('barberEarnings'),barberGoalFill=document.getElementById('barberGoalFill'),barberGoalSoFar=document.getElementById('barberGoalSoFar'),barberGoalStatus=document.getElementById('barberGoalStatus'),ownerRevenueTop=document.getElementById('ownerRevenueTop'),ownerRevenueSoFar=document.getElementById('ownerRevenueSoFar'),paceFill=document.getElementById('paceFill'),paceSoFar=document.getElementById('paceSoFar'),paceProjection=document.getElementById('paceProjection'),moneyIncrement=document.getElementById('moneyIncrement'),kirklandRevenue=document.getElementById('kirklandRevenue'),ownerRevenueStat=document.getElementById('ownerRevenueStat');
+function render(){
+const reservedTimes=['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
+const rows=reservedTimes.map(time=>{
+  const appt=appointments.find(a=>a.time===time);
+  if(appt) return {...appt};
+  return {time,client:'Empty slot',service:'Reserved availability'};
+});
+barberSchedule.innerHTML=rows.map(a=>{
+  const isNew=booked && a.time==='2:00 PM' && a.client==='New client';
+  const isEmpty=a.client==='Empty slot';
+  const cls=isNew?'just-booked':(isEmpty?'open'+(a.time==='2:00 PM'?' focus-slot':''):'');
+  const label=isNew?'NEW':(isEmpty?'OPEN':'UPCOMING');
+  return '<div class="dayrow '+cls+'"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="daystate '+(label==='NEW'?'new':'')+'">'+label+'</span></div>';
+}).join('');
+barberCount.textContent=appointments.length?appointments.length+' booked':'Open afternoon';
+ownerBookingCount.textContent=String(baseBookings+(booked?1:0));
+const ownerRevenue=baseOwnerRevenue+bookingValue;
+const projected=baseProjection+bookingValue;
+const pct=Math.round((projected/dailyPar)*100);
+if(ownerRevenueTop) ownerRevenueTop.textContent='$'+(baseRevenueToday+bookingValue).toLocaleString();
+if(ownerRevenueSoFar) ownerRevenueSoFar.textContent='$'+ownerRevenue.toLocaleString();
+if(kirklandRevenue) kirklandRevenue.textContent='$'+ownerRevenue.toLocaleString();
+if(paceSoFar) paceSoFar.textContent='$'+ownerRevenue.toLocaleString()+' so far';
+if(paceProjection) paceProjection.textContent='$'+projected.toLocaleString()+' · '+pct+'% of par';
+if(paceFill) paceFill.style.width=Math.min(100,(ownerRevenue/dailyPar)*100)+'%';
+const barberTotal=baseBarberEarnings+bookingValue;
+if(barberEarnings) barberEarnings.textContent='$'+barberTotal;
+if(barberGoalFill) barberGoalFill.style.width=Math.min(100,(barberTotal/300)*100)+'%';
+if(barberGoalSoFar) barberGoalSoFar.textContent='$'+barberTotal+' so far';
+if(barberGoalStatus){
+  barberGoalStatus.textContent=barberTotal>=300?'Bonus goal met':barberTotal>=250?'Reserve goal met':barberTotal>=195?'Daily goal met':barberTotal>=75?'Booth rent covered':'Toward booth rent';
+}
+if(moneyIncrement) moneyIncrement.textContent=booked?'+$'+bookingValue+' from new booking':'';
+if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
+ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
+}
+function setJourneyPhase(phase){
+  document.querySelectorAll('.journey-step').forEach(step=>{
+    const on=step.dataset.phase===phase;
+    step.classList.toggle('active',on);
+    const label=step.querySelector('span');
+    if(!label) return;
+    if(on) label.textContent='Current phase';
+    else if(step.dataset.phase==='appointment') label.textContent=phase==='booking'?'Next':'';
+    else if(step.dataset.phase==='post') label.textContent=phase==='post'?'Current phase':'Later';
+    else label.textContent='';
+  });
+}
+function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
+document.querySelectorAll('.bottom-nav a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+const availabilityFilter=document.getElementById('availabilityFilter');
+let expandedAll=false;
+availabilityFilter?.addEventListener('click',()=>{
+  expandedAll=!expandedAll;
+  availabilityFilter.textContent=expandedAll?'All':'First Available';
+  document.querySelectorAll('[data-barber-row]').forEach(row=>row.classList.toggle('expanded',expandedAll));
+});
+document.querySelectorAll('.row-more').forEach(btn=>btn.addEventListener('click',e=>{
+  e.preventDefault();e.stopPropagation();
+  const row=btn.closest('[data-barber-row]');
+  row?.classList.toggle('expanded');
+}));
+document.querySelectorAll('.slot-mini').forEach(btn=>btn.addEventListener('click',e=>{
+  e.preventDefault();e.stopPropagation();
+  alert('Demo: claim '+btn.textContent+' appointment.');
+}));
+document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
+document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
+document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
+bookingValue=prices[service]||35;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>John Rice';
+show('done');setJourneyPhase('appointment');render();
+});
+document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
+show('home');setJourneyPhase('booking');render();
+})();
+</script>
+</body>
+</html>
