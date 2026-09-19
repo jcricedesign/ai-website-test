@@ -23,7 +23,10 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 10px;font-size:12px;cursor:pointer}.time.primary{background:var(--green);color:#fff}
 .pill{display:inline-flex;border:1px solid #bbb;border-radius:999px;padding:5px 8px;font-size:10px}.pill.good{border-color:#98b3a0;color:#456b51}.pill.warn{border-color:#d5b778;color:#8f651a}
 .card{border:1px solid #d3d3cf;border-radius:14px;background:var(--soft);padding:13px;margin-top:12px}.card h4{font-size:14px;margin:0 0 5px}.card p{font-size:11px;line-height:1.4;color:#666;margin:0}
-.dayrow{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid #ddd}.dayrow:first-child{border-top:0}.daytime{font-size:12px;font-weight:700}.daymain strong{font-size:13px}.daymain span{display:block;font-size:11px;color:#666;margin-top:2px}
+.dayrow{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:12px 8px;border-top:1px solid #ddd;border-radius:10px;transition:background .25s ease}
+.dayrow.just-booked{animation:appointmentLand 2.4s ease-out 1;background:#eef5ef}
+@keyframes appointmentLand{0%{background:#dbeadd}18%{background:#bcd6c1}38%{background:#e8f2ea}58%{background:#cfe2d3}100%{background:#eef5ef}}
+@media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}.dayrow:first-child{border-top:0}.daytime{font-size:12px;font-weight:700}.daymain strong{font-size:13px}.daymain span{display:block;font-size:11px;color:#666;margin-top:2px}
 .owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
 .alert{border:1px solid #a6bea9;background:#f2f7f3;border-radius:14px;padding:12px;margin-top:12px}.alert strong{font-size:12px}.alert p{font-size:11px;color:#666;margin:5px 0 0;line-height:1.4}
 .booking{display:none}.booking.active{display:block}.home.hidden{display:none}.booking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.booking-back{border:0;background:none;padding:0;font-size:12px;font-weight:700}.step{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}
@@ -148,7 +151,7 @@ function render(){
 const rows=[...appointments];
 if(!booked)rows.push({time:'2:00 PM',client:'OPEN',service:'30 min opening'});
 rows.sort((a,b)=>a.time.localeCompare(b.time));
-barberSchedule.innerHTML=rows.map(a=>'<div class="dayrow"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="pill '+(a.client==='OPEN'?'good':'')+'">'+(a.client==='OPEN'?'Available':'Booked')+'</span></div>').join('');
+barberSchedule.innerHTML=rows.map(a=>'<div class="dayrow '+(booked && a.time==='2:00 PM' && a.client==='New client'?'just-booked':'')+'"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="pill '+(a.client==='OPEN'?'good':'')+'">'+(a.client==='OPEN'?'Available':'Booked')+'</span></div>').join('');
 barberCount.textContent=appointments.length+' booked';
 ownerBookingCount.textContent=booked?'1':'0';
 barberAlert.innerHTML=booked?'<div class="alert"><strong>● Chime · New appointment</strong><p>2:00 PM · Customer booking received.</p></div>':'';
