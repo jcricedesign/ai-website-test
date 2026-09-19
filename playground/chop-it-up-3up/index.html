@@ -75,6 +75,22 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 .field{margin:0 0 16px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field select{width:100%;height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;padding:0 12px;font-size:14px}
 .confirm{width:100%;height:48px;border:0;border-radius:24px;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}.secondary{width:100%;height:42px;border:0;background:transparent;color:#555;font-size:12px;text-decoration:underline;cursor:pointer}
 .done{border:1px solid #9cb8a3;background:#f2f7f3;border-radius:16px;padding:15px}.done h4{font-size:19px;margin:0 0 6px}.done p{font-size:12px;line-height:1.45;color:#555;margin:0}
+.customer-profile{padding-top:4px;text-align:center}
+.customer-avatar{width:86px;height:86px;border-radius:50%;object-fit:cover;filter:grayscale(1);border:1px solid #ccc;background:#eee}
+.customer-name{font-size:30px;letter-spacing:-.04em;font-weight:700;margin-top:10px}
+.customer-meta{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#777;margin-top:4px}
+.verified{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;font-weight:700}
+.verified-mark{width:18px;height:18px;border:1.5px solid #111;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+.upcoming-title{text-align:left;font-size:18px;font-weight:700;margin:22px 0 8px;letter-spacing:-.02em}
+.appointment-card{text-align:left;border:1.5px solid #222;border-radius:16px;padding:14px;background:#fff}
+.appt-head{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:center}
+.appt-barber{width:58px;height:58px;border-radius:50%;object-fit:cover;filter:grayscale(1);background:#ddd}
+.appt-head strong{font-size:18px;line-height:1.05}
+.appt-time{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding-top:11px;border-top:2px solid #111;font-size:18px;font-weight:700}
+.appt-actions{margin-top:10px;display:grid;gap:5px}
+.appt-action{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:6px 0;text-align:left;font-size:11px;text-decoration:underline;text-underline-offset:2px;cursor:pointer;color:#222}
+.appt-icon{width:18px;height:18px;border:1px solid #444;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;text-decoration:none}
+.past-button{width:100%;margin-top:14px;border:0;background:#f2f2ef;padding:14px;font-size:11px;font-weight:700;text-align:center;cursor:pointer}
 .note{padding:28px 0 80px;color:var(--muted);font-size:14px;line-height:1.5;max-width:800px}
 @media(max-width:1100px){.board{grid-template-columns:1fr}.column{max-width:520px;margin:auto;width:100%}.phone{max-width:390px}}
 @media(max-width:600px){.wrap{width:calc(100% - 28px)}.hero{padding-top:52px}.phone{min-height:0;border-radius:26px}}
@@ -123,8 +139,28 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <button class="secondary" id="cancelBooking">See additional times</button>
 </div>
 <div class="screen booking" id="customerDone">
-<div class="done"><h4>You’re booked.</h4><p id="doneText">Today at 2:00 PM with John Rice.</p></div>
-<button class="secondary" id="resetDemo" style="margin-top:10px">Reset demo</button>
+  <div class="customer-profile">
+    <img class="customer-avatar" src="/playground/chop-it-up-redesign/haircut-1bw.png" alt="Customer profile">
+    <div class="customer-name">John R.</div>
+    <div class="customer-meta">Client since 2026</div>
+    <div class="verified"><span class="verified-mark">✓</span> Verified customer</div>
+  </div>
+
+  <div class="upcoming-title">Upcoming appointment</div>
+  <div class="appointment-card">
+    <div class="appt-head">
+      <img class="appt-barber" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="John Rice">
+      <div><strong id="apptServiceTitle">Haircut with<br>John Rice</strong><div class="meta" style="margin-top:5px">Chop It Up · Kirkland</div></div>
+    </div>
+    <div class="appt-time"><span>Today</span><span>2:00 PM</span></div>
+    <div class="appt-actions">
+      <button type="button" class="appt-action" data-customer-action="calendar"><span class="appt-icon">✓</span>Add to calendar</button>
+      <button type="button" class="appt-action" data-customer-action="directions"><span class="appt-icon">●</span>Get directions to Kirkland</button>
+      <button type="button" class="appt-action" data-customer-action="cancel"><span class="appt-icon">×</span>Cancel appointment</button>
+    </div>
+  </div>
+  <button type="button" class="past-button" data-customer-action="past">View past appointments →</button>
+  <button class="secondary" id="resetDemo" style="margin-top:10px">Reset demo</button>
 </div>
 </div>
 </section>
@@ -270,9 +306,10 @@ bookingValue=prices[service]||35;
 appointments.push({time:'2:00 PM',client:'New client',service});
 booked=true;
 playChime();
-document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
+const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>John Rice';
 show('done');render();
 });
+document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
 document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');render();});
 show('home');render();
 })();
