@@ -53,6 +53,8 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 @media (prefers-reduced-motion:reduce){.dayrow.just-booked{animation:none;background:#eef5ef}}
 .daytime{font-size:11px;font-weight:700;color:#555;letter-spacing:.01em}
 .daymain strong{font-size:14px;line-height:1.15}
+.dayrow.open .daymain strong{font-weight:600;color:#555}
+.dayrow.open .daymain span{color:#999}
 .daymain span{display:block;font-size:10px;color:#777;margin-top:3px;line-height:1.25}
 .owner-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
 .business-pulse{margin-top:12px;border:1px solid #d3d3cf;border-radius:14px;background:#fff;padding:13px}
@@ -107,9 +109,9 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 
 <section class="journey" aria-label="Service timeline">
   <div class="journey-track">
-    <div class="journey-step active"><div class="journey-dot">1</div><strong>Booking</strong><span>Current phase</span></div>
-    <div class="journey-step"><div class="journey-dot">2</div><strong>Appointment</strong><span>Next</span></div>
-    <div class="journey-step"><div class="journey-dot">3</div><strong>Post-Appt</strong><span>Later</span></div>
+    <div class="journey-step active" data-phase="booking"><div class="journey-dot">1</div><strong>Booking</strong><span>Current phase</span></div>
+    <div class="journey-step" data-phase="appointment"><div class="journey-dot">2</div><strong>Appointment</strong><span>Next</span></div>
+    <div class="journey-step" data-phase="post"><div class="journey-dot">3</div><strong>Post-Appt</strong><span>Later</span></div>
   </div>
 </section>
 
@@ -127,7 +129,7 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <div class="row"><img class="avatar" src="/playground/chop-it-up-redesign/john.jpg" onerror="this.src='/playground/chop-it-up-redesign/jay.jpg'" alt=""><div><div class="name">John Rice</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary" id="bookJohn">2:00</button></div>
 <div class="row"><img class="avatar" src="/playground/chop-it-up-redesign/jay.jpg" alt=""><div><div class="name">Jay</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
 <div class="row"><img class="avatar" src="/playground/chop-it-up-redesign/monnae.jpg" alt=""><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
-<div class="card"><h4>Testing this flow</h4><p>Claim John’s 2:00 PM opening. Finalizing it should immediately change the center and right screens.</p></div>
+
 </div>
 <div class="screen booking" id="customerBooking">
 <div class="booking-top"><button class="booking-back" id="bookingBack">← Back</button><span class="step">Book · 1 of 1</span></div>
@@ -294,6 +296,18 @@ if(ownerRevenueStat) ownerRevenueStat.classList.toggle('money-bump',booked);
 
 ownerAlert.innerHTML=booked?'<div class="alert"><strong>New appointment scheduled</strong><p>John Rice · 2:00 PM · working today.</p></div>':'';
 }
+function setJourneyPhase(phase){
+  document.querySelectorAll('.journey-step').forEach(step=>{
+    const on=step.dataset.phase===phase;
+    step.classList.toggle('active',on);
+    const label=step.querySelector('span');
+    if(!label) return;
+    if(on) label.textContent='Current phase';
+    else if(step.dataset.phase==='appointment') label.textContent=phase==='booking'?'Next':'';
+    else if(step.dataset.phase==='post') label.textContent=phase==='post'?'Current phase':'Later';
+    else label.textContent='';
+  });
+}
 function show(which){home.classList.toggle('hidden',which!=='home');booking.classList.toggle('active',which==='booking');done.classList.toggle('active',which==='done');}
 document.querySelectorAll('.bottom-nav a').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
 document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
@@ -307,11 +321,11 @@ appointments.push({time:'2:00 PM',client:'New client',service});
 booked=true;
 playChime();
 const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>John Rice';
-show('done');render();
+show('done');setJourneyPhase('appointment');render();
 });
 document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');render();});
-show('home');render();
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
+show('home');setJourneyPhase('booking');render();
 })();
 </script>
 <script src="/assets/common/site-shell.js"></script>
