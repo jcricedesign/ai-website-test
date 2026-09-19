@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Barber Profile — Chop It Up</title>
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+:root{--bg:#f3f1ed;--ink:#111;--muted:#666;--green:#558168;--rule:#ddd}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.wrap{width:min(960px,calc(100% - 36px));margin:auto;padding:34px 0 80px}
+.back{display:inline-flex;align-items:center;gap:8px;color:#111;text-decoration:none;font-weight:700;margin:0 0 28px}
+.card{background:#fff;border:1px solid #d4d2cc;border-radius:28px;overflow:hidden;box-shadow:0 20px 48px rgba(0,0,0,.08)}
+.header{background:#101010;padding:18px 22px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.header img{height:46px;width:138px;object-fit:contain;justify-self:center}.header .signin{color:#fff;font-size:12px}.header .menu{color:#fff;justify-self:end;font-size:24px}
+.profile{padding:28px}
+.identity{display:grid;grid-template-columns:120px 1fr;gap:24px;align-items:center}
+.portrait{width:120px;height:120px;border-radius:50%;object-fit:cover}
+.name{font-size:52px;line-height:.95;letter-spacing:-.055em;margin:0 0 8px}.rank{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:#555;margin-bottom:12px}.tags{display:flex;flex-wrap:wrap;gap:7px}.tag{border:1px solid #bbb;border-radius:16px;padding:6px 9px;font-size:11px}
+.shop{margin-top:24px;border:1px solid #ccc;border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;gap:16px;align-items:center}.shop strong{display:block;font-size:15px}.shop span{font-size:12px;color:#666}.shop a{font-size:12px;color:#555;text-decoration:none}
+.primary{width:100%;height:52px;border:0;border-radius:26px;background:var(--green);color:#fff;font-size:15px;font-weight:700;margin-top:18px}
+.work-title,.section h2{font-size:26px;letter-spacing:-.035em;margin:30px 0 12px}.work{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.work img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px}
+.grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:0;border-top:1px solid var(--rule);margin-top:30px}.section{padding:24px}.section+.section{border-left:1px solid var(--rule)}.section h2{margin-top:0}.section p{font-size:14px;line-height:1.55;color:#555;margin:0}.service{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}.pay{display:flex;flex-wrap:wrap;gap:7px}.pay span{border:1px solid #bbb;border-radius:16px;padding:6px 9px;font-size:11px}
+@media(max-width:700px){.wrap{width:100%;padding:0}.card{border-radius:0;border:0;box-shadow:none}.back{margin:18px}.profile{padding:22px 20px 32px}.identity{grid-template-columns:90px 1fr;gap:16px}.portrait{width:90px;height:90px}.name{font-size:42px}.grid{grid-template-columns:1fr}.section+.section{border-left:0;border-top:1px solid var(--rule)}.work{gap:5px}.header{padding:12px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="./">← Back</a>
+<div class="card">
+  <div class="header"><span class="signin">Sign in</span><img src="ChopItUp-Logo.png" alt="Chop It Up"><span class="menu">☰</span></div>
+  <div class="profile">
+    <div class="identity">
+      <img class="portrait" id="portrait" src="jay.jpg" alt="">
+      <div>
+        <h1 class="name" id="name">Judd</h1>
+        <div class="rank" id="rank">Master Barber</div>
+        <div class="tags" id="tags"></div>
+      </div>
+    </div>
+    <div class="shop">
+      <div><strong>Kirkland Shop</strong><span>12305 120th Ave NE · Kirkland, WA</span></div>
+      <a href="#">Get directions</a>
+    </div>
+    <button class="primary" id="bookBtn">Book with Judd</button>
+    <h2 class="work-title">Recent work</h2>
+    <div class="work">
+      <img src="haircut-1.png" alt="Recent haircut">
+      <img src="haircut-2.png" alt="Recent haircut">
+      <img src="haircut-3.png" alt="Recent haircut">
+    </div>
+    <div class="grid">
+      <section class="section">
+        <h2>About</h2>
+        <p id="about"></p>
+      </section>
+      <section class="section">
+        <h2>Services</h2>
+        <div class="service"><span>Haircut</span><strong>$40</strong></div>
+        <div class="service"><span>Haircut + beard</span><strong>$55</strong></div>
+        <div class="service"><span>Kids haircut</span><strong>$35</strong></div>
+        <div class="service"><span>Line up</span><strong>$25</strong></div>
+      </section>
+      <section class="section">
+        <h2>Payment</h2>
+        <div class="pay"><span>Cash</span><span>Zelle</span><span>Venmo</span><span>Square</span></div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+const data={
+  Curtis:{img:'curtis.jpg',rank:'Grandmaster Barber',tags:['Fades','Tapers','Beard'],about:'Fades, tapers, beard work and precise finishing with an experienced, classic approach.'},
+  Judd:{img:'jay.jpg',rank:'Master Barber',tags:['Classic','Business','Kids'],about:'Classic cuts, business styles and clean detail work with a calm, practical approach.'},
+  Monnae:{img:'monnae.jpg',rank:'All Star Barber',tags:['Texture','Design','Fades'],about:'Texture, design work and modern fades with a strong eye for personal style.'},
+  Bree:{img:'bree.jpg',rank:'5-Star Barber',tags:['Texture','Kids','Design'],about:'Versatile cuts with a focus on texture, kids and expressive design work.'},
+  Meek:{img:'meek.jpg',rank:'5-Star Barber',tags:['Fades','Line ups','Beard'],about:'Clean fades, sharp line ups and beard work with a straightforward, detailed approach.'}
+};
+const q=new URLSearchParams(location.search).get('barber')||'Judd';
+const p=data[q]||data.Judd;
+document.getElementById('portrait').src=p.img;
+document.getElementById('portrait').alt=q;
+document.getElementById('name').textContent=q;
+document.getElementById('rank').textContent=p.rank;
+document.getElementById('about').textContent=p.about;
+document.getElementById('bookBtn').textContent='Book with '+q;
+document.getElementById('tags').innerHTML=p.tags.map(t=>'<span class="tag">'+t+'</span>').join('');
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>
