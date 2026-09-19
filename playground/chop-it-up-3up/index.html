@@ -118,6 +118,30 @@ const initial=[
 {time:'12:00 PM',client:'Alex',service:'Fade'}
 ];
 let appointments=initial.map(x=>({...x})),booked=false;
+
+function playChime(){
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx) return;
+    const ctx=new AudioCtx();
+    const now=ctx.currentTime;
+    const gain=ctx.createGain();
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(0.18,now+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.75);
+    gain.connect(ctx.destination);
+
+    const o1=ctx.createOscillator();
+    const o2=ctx.createOscillator();
+    o1.type='sine'; o2.type='sine';
+    o1.frequency.setValueAtTime(880,now);
+    o2.frequency.setValueAtTime(1320,now+0.12);
+    o1.connect(gain); o2.connect(gain);
+    o1.start(now); o1.stop(now+0.35);
+    o2.start(now+0.12); o2.stop(now+0.6);
+    setTimeout(()=>ctx.close().catch(()=>{}),900);
+  }catch(e){}
+}
 const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone');
 const barberSchedule=document.getElementById('barberSchedule'),barberAlert=document.getElementById('barberAlert'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount');
 function render(){
@@ -138,6 +162,7 @@ document.getElementById('confirmBooking').addEventListener('click',()=>{
 const service=document.getElementById('service').value;
 appointments.push({time:'2:00 PM',client:'New client',service});
 booked=true;
+playChime();
 document.getElementById('doneText').textContent='Today at 2:00 PM with John Rice · '+service+'.';
 show('done');render();
 });
