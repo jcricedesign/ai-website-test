@@ -113,9 +113,9 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 <div class="nav"><span class="signin">Today</span><div style="color:#fff;font-weight:700;font-size:14px">John Rice</div><img class="account-avatar" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="Signed-in barber"></div>
 <div class="screen">
 <div class="card" style="margin-top:0"><h4>Status</h4><p>Working today · Kirkland · Booth current</p></div>
-<div class="earnings-card"><span>Projected earnings</span><strong id="barberEarnings">$287</strong></div>
+<div class="earnings-card"><span>Projected earnings</span><strong id="barberEarnings">$0</strong></div>
 <div id="barberAlert"></div>
-<div class="section-title"><h4>My Day</h4><span id="barberCount">3 booked</span></div>
+<div class="section-title"><h4>My Day</h4><span id="barberCount">Open afternoon</span></div>
 <div id="barberSchedule"></div>
 </div>
 <nav class="bottom-nav" aria-label="Barber navigation">
@@ -176,13 +176,9 @@ h1{font-size:clamp(48px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0}
 
 <script>
 (() => {
-const initial=[
-{time:'9:00 AM',client:'Marcus',service:'Haircut'},
-{time:'10:00 AM',client:'Jay',service:'Haircut + Beard'},
-{time:'12:00 PM',client:'Alex',service:'Fade'}
-];
+const initial=[];
 let appointments=initial.map(x=>({...x})),booked=false;
-const baseOwnerRevenue=1115, dailyPar=1400, baseProjection=1510, baseBarberEarnings=287;
+const baseOwnerRevenue=1115, dailyPar=1400, baseProjection=1510, baseBarberEarnings=0;
 let bookingValue=0;
 
 function playChime(){
@@ -211,18 +207,20 @@ function playChime(){
 const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone');
 const barberSchedule=document.getElementById('barberSchedule'),barberAlert=document.getElementById('barberAlert'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount'),barberEarnings=document.getElementById('barberEarnings'),ownerRevenueTop=document.getElementById('ownerRevenueTop'),ownerRevenueSoFar=document.getElementById('ownerRevenueSoFar'),paceFill=document.getElementById('paceFill'),paceSoFar=document.getElementById('paceSoFar'),paceProjection=document.getElementById('paceProjection'),moneyIncrement=document.getElementById('moneyIncrement'),kirklandRevenue=document.getElementById('kirklandRevenue'),ownerRevenueStat=document.getElementById('ownerRevenueStat');
 function render(){
-const rows=[...appointments];
-if(!booked)rows.push({time:'2:00 PM',client:'OPEN',service:'30 min opening'});
-rows.sort((a,b)=>a.time.localeCompare(b.time));
+const reservedTimes=['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
+const rows=reservedTimes.map(time=>{
+  const appt=appointments.find(a=>a.time===time);
+  if(appt) return {...appt};
+  return {time,client:'Empty slot',service:'Reserved availability'};
+});
 barberSchedule.innerHTML=rows.map(a=>{
-  let cls='',label='UPCOMING';
-  if(a.client==='OPEN'){cls='open';label='OPEN';}
-  else if(booked && a.time==='2:00 PM' && a.client==='New client'){cls='just-booked';label='NEW';}
-  else if(a.time==='9:00 AM'){cls='complete';label='COMPLETE';}
-  else if(a.time==='10:00 AM'){cls='live';label='LIVE';}
+  const isNew=booked && a.time==='2:00 PM' && a.client==='New client';
+  const isEmpty=a.client==='Empty slot';
+  const cls=isNew?'just-booked':(isEmpty?'open':'');
+  const label=isNew?'NEW':(isEmpty?'OPEN':'UPCOMING');
   return '<div class="dayrow '+cls+'"><div class="daytime">'+a.time+'</div><div class="daymain"><strong>'+a.client+'</strong><span>'+a.service+'</span></div><span class="daystate '+(label==='NEW'?'new':'')+'">'+label+'</span></div>';
 }).join('');
-barberCount.textContent=appointments.length+' booked';
+barberCount.textContent=appointments.length?appointments.length+' booked':'Open afternoon';
 ownerBookingCount.textContent=booked?'1':'0';
 const ownerRevenue=baseOwnerRevenue+bookingValue;
 const projected=baseProjection+bookingValue;
