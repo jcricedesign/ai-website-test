@@ -144,7 +144,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const captionH=caption?caption.getBoundingClientRect().height:0;
     const maxH=Math.max(420,window.innerHeight-box.top-captionH-54);
     const maxW=Math.max(280,stage.clientWidth-12);
-    const scale=Math.min(1,maxH/784,maxW/414);
+    const scale=Math.min(1,maxH/866,maxW/414);
     phone.style.transform='translate(-50%,-50%) scale('+scale+')';
     stage.style.height=maxH+'px';
   }
