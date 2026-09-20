@@ -380,64 +380,18 @@ function syncServicePrice(){
   const service=serviceSelect?.value||'Haircut';
   const price=servicePrices[service]||35;
   if(selectedServiceName) selectedServiceName.textContent=service;
-  if(selectedServicePrice) selectedServicePrice.textContent='
+  if(selectedServicePrice) selectedServicePrice.textContent='$'+price;
+}
+serviceSelect?.addEventListener('change',syncServicePrice);
+syncServicePrice();
+
+document.getElementById('confirmBooking').addEventListener('click',()=>{
 const service=document.getElementById('service').value;
 bookingValue=servicePrices[service]||35;
 appointments.push({time:'2:00 PM',client:'New client',service});
 booked=true;
 playChime();
-const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>Jaudon Miller'; if(apptServicePrice) apptServicePrice.textContent='
-show('done');setJourneyPhase('appointment');render();
-});
-document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
-show('home');setJourneyPhase('booking');render();
-})();
-</script>
-</body>
-</html>+price;
-}
-serviceSelect?.addEventListener('change',syncServicePrice);
-syncServicePrice();
-
-document.getElementById('confirmBooking').addEventListener('click',()=>{
-const service=document.getElementById('service').value;
-const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
-bookingValue=prices[service]||35;
-appointments.push({time:'2:00 PM',client:'New client',service});
-booked=true;
-playChime();
-const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>Jaudon Miller';
-show('done');setJourneyPhase('appointment');render();
-});
-document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
-show('home');setJourneyPhase('booking');render();
-})();
-</script>
-</body>
-</html>+bookingValue;
-show('done');setJourneyPhase('appointment');render();
-});
-document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
-document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
-show('home');setJourneyPhase('booking');render();
-})();
-</script>
-</body>
-</html>+price;
-}
-serviceSelect?.addEventListener('change',syncServicePrice);
-syncServicePrice();
-
-document.getElementById('confirmBooking').addEventListener('click',()=>{
-const service=document.getElementById('service').value;
-const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
-bookingValue=prices[service]||35;
-appointments.push({time:'2:00 PM',client:'New client',service});
-booked=true;
-playChime();
-const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>Jaudon Miller';
+const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>Jaudon Miller'; if(apptServicePrice) apptServicePrice.textContent='$'+bookingValue;
 show('done');setJourneyPhase('appointment');render();
 });
 document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
