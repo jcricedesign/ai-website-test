@@ -2,14 +2,14 @@
   --flow-left:#b8bcc0;
   --flow-right:#7f8b95;
   --flow-rail:#2d4353;
-  --flow-left-width:min(42vw,540px);
+  --flow-left-width:min(34vw,500px);
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;overflow:hidden}
 .flow-viewer-shell{
   min-height:100vh;
   display:grid;
-  grid-template-columns:var(--flow-left-width) 1fr;
+  grid-template-columns:var(--flow-left-width) minmax(0,1fr);
 }
 .flow-sidebar{
   background:var(--flow-left);
@@ -75,7 +75,7 @@ html,body{margin:0;min-height:100%;overflow:hidden}
   position:relative;
   display:grid;
   place-items:center;
-  padding:34px;
+  padding:28px 34px;
 }
 .flow-main .stage-wrap{
   width:100%;
