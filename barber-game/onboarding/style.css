@@ -17,3 +17,8 @@
 .hero .mark img{width:240px;max-width:88%;height:auto;object-fit:contain}
 
 .states::-webkit-scrollbar,.phone::-webkit-scrollbar{display:none;width:0;height:0}
+
+.state.complete{background:rgba(255,255,255,.18)}
+.state.complete:before{content:"✓";background:rgba(255,255,255,.22);color:#fff}
+.action,.choices button,.state,.text-action{cursor:pointer;touch-action:manipulation}
+.text-action{display:block;width:100%;border:0;background:transparent;color:#eee;text-decoration:underline;text-underline-offset:3px;margin-top:18px;font-size:14px}
