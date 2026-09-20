@@ -140,11 +140,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(!stage||!phone) return;
     phone.style.transform='scale(1)';
     const box=stage.getBoundingClientRect();
-    const maxH=Math.max(420,window.innerHeight-box.top-46);
+    const caption=document.getElementById('caption');
+    const captionH=caption?caption.getBoundingClientRect().height:0;
+    const maxH=Math.max(420,window.innerHeight-box.top-captionH-28);
     const maxW=Math.max(280,stage.clientWidth-12);
     const scale=Math.min(1,maxH/784,maxW/414);
     phone.style.transform='scale('+scale+')';
-    stage.style.height=(784*scale)+'px';
+    stage.style.height=maxH+'px';
   }
   window.addEventListener('resize',fitPhone);
   show(0);
