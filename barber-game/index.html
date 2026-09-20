@@ -4,19 +4,73 @@
 <link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Barber Game — John Rice</title>
+<title>The Barber Game — Login</title>
 <script>(()=>{const s=localStorage.getItem('theme'),d=matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.dataset.theme=s||(d?'dark':'light')})();</script>
 <link rel="stylesheet" href="/assets/common/site-shell.css">
 <style>
-:root{--bg:#f3f3ef;--text:#111}:root[data-theme=dark]{--bg:#181817;--text:#eee}
+:root{--bg:#f3f3ef;--text:#111;--muted:#6f6f6a;--line:#c9c9c4;--panel:#fff}
+:root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817}
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif}
-main{min-height:72vh}
+main{min-height:72vh;display:grid;place-items:center;padding:72px 24px}
+.login-card{width:min(720px,100%);border:1px solid var(--line);background:var(--panel);padding:clamp(34px,6vw,72px)}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+h1{font-size:clamp(42px,6vw,78px);line-height:.92;letter-spacing:-.055em;margin:0 0 18px}
+.intro{font-size:18px;line-height:1.45;color:var(--muted);max-width:520px;margin:0 0 42px}
+.form{display:grid;gap:16px}
+label{font-size:12px;font-weight:700}
+.field{display:grid;gap:8px}
+input{width:100%;height:56px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 16px;font:inherit;font-size:18px;outline:none}
+input:focus{border-color:var(--text)}
+button{height:56px;border:0;background:var(--text);color:var(--bg);font:inherit;font-weight:700;font-size:16px;cursor:pointer;margin-top:6px}
+.status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}
+.status.error{color:#b14e42}
 </style>
 </head>
 <body>
-<main></main>
+<main>
+  <section class="login-card" aria-labelledby="loginTitle">
+    <p class="eyebrow">The Barber Game</p>
+    <h1 id="loginTitle">Login</h1>
+    <p class="intro">Login to your account to view.</p>
+    <form class="form" id="loginForm">
+      <div class="field">
+        <label for="username">User</label>
+        <input id="username" name="username" autocomplete="username" autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password">
+      </div>
+      <button type="submit">Login</button>
+      <p class="status" id="status" role="status"></p>
+    </form>
+  </section>
+</main>
+
+<script>
+const PASSWORD='jaudonmiller1234';
+const form=document.getElementById('loginForm');
+const status=document.getElementById('status');
+
+if(sessionStorage.getItem('tbg-auth')==='1'){
+  window.location.replace('/barber-game/chop-it-up/');
+}
+
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const password=document.getElementById('password').value;
+  if(password===PASSWORD){
+    sessionStorage.setItem('tbg-auth','1');
+    window.location.href='/barber-game/chop-it-up/';
+    return;
+  }
+  status.textContent='Incorrect password.';
+  status.className='status error';
+  document.getElementById('password').select();
+});
+</script>
 <script src="/assets/common/site-shell.js"></script>
 <script src="/assets/common/display-mode.js"></script>
 </body>
