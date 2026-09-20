@@ -26,14 +26,37 @@ window.addEventListener('DOMContentLoaded',()=>{
     photo:null
   };
   let current=0;
+  const hiddenSteps=new Set();
+
+  const eyeOpen='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+  const eyeClosed='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a15 15 0 0 1-3 3.7M6.3 6.3C3.6 8 2 12 2 12s3.5 6 10 6c1.5 0 2.8-.3 4-.8M9.9 9.9A3 3 0 0 0 14.1 14.1"/></svg>';
 
   OOBE.forEach((s,i)=>{
-    const b=document.createElement('button');
-    b.className='state'+(i===0?' active':'');
-    b.dataset.id=s.id;
-    b.textContent=s.label;
-    b.onclick=()=>show(i);
-    nav.appendChild(b);
+    const row=document.createElement('div');
+    row.className='state'+(i===0?' active':'');
+    row.dataset.id=s.id;
+
+    const eye=document.createElement('button');
+    eye.className='state-eye';
+    eye.type='button';
+    eye.setAttribute('aria-label','Hide '+s.label+' from flow');
+    eye.innerHTML=eyeOpen;
+    eye.onclick=e=>{
+      e.stopPropagation();
+      if(hiddenSteps.has(i)) hiddenSteps.delete(i); else hiddenSteps.add(i);
+      row.classList.toggle('hidden-step',hiddenSteps.has(i));
+      eye.innerHTML=hiddenSteps.has(i)?eyeClosed:eyeOpen;
+      eye.setAttribute('aria-label',(hiddenSteps.has(i)?'Show ':'Hide ')+s.label+' in flow');
+    };
+
+    const select=document.createElement('button');
+    select.className='state-select';
+    select.type='button';
+    select.innerHTML='<span class="state-num">'+(i+1)+'</span><span class="state-label">'+s.label+'</span>';
+    select.onclick=()=>show(i);
+
+    row.append(eye,select);
+    nav.appendChild(row);
   });
 
   function profileHTML(){
@@ -56,9 +79,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     current=Math.max(0,Math.min(index,OOBE.length-1));
     const s=OOBE[current];
     screen.innerHTML=s.id==='profile' ? profileHTML() : s.html;
-    [...nav.children].forEach((b,i)=>{
-      b.classList.toggle('active',i===current);
-      b.classList.toggle('complete',i<current);
+    [...nav.children].forEach((row,i)=>{
+      row.classList.toggle('active',i===current);
+      row.classList.toggle('complete',i<current);
     });
     caption.textContent=s.caption||'';
     hydrate();
@@ -101,8 +124,13 @@ window.addEventListener('DOMContentLoaded',()=>{
       const code=screen.querySelector('[data-key="code"]');
       if(code) code.focus();
     });
-    screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>show(current+1));
-    screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>show(current-1));
+    const nextVisible=direction=>{
+      let i=current+direction;
+      while(i>=0 && i<OOBE.length && hiddenSteps.has(i)) i+=direction;
+      if(i>=0 && i<OOBE.length) show(i);
+    };
+    screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>nextVisible(1));
+    screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>nextVisible(-1));
     screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
   }
 
