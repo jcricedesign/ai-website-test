@@ -56,7 +56,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     current=Math.max(0,Math.min(index,OOBE.length-1));
     const s=OOBE[current];
     screen.innerHTML=s.id==='profile' ? profileHTML() : s.html;
-    [...nav.children].forEach((b,i)=>b.classList.toggle('active',i===current));
+    [...nav.children].forEach((b,i)=>{
+      b.classList.toggle('active',i===current);
+      b.classList.toggle('complete',i<current);
+    });
     caption.textContent=s.caption||'';
     hydrate();
     screen.scrollTop=0;
@@ -93,6 +96,11 @@ window.addEventListener('DOMContentLoaded',()=>{
       });
     }
 
+    screen.querySelectorAll('[data-send-code]').forEach(btn=>btn.onclick=()=>{
+      btn.textContent='Code sent';
+      const code=screen.querySelector('[data-key="code"]');
+      if(code) code.focus();
+    });
     screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>show(current+1));
     screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>show(current-1));
     screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
