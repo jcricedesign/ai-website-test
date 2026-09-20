@@ -127,6 +127,7 @@ button{font:inherit}
 
 <script>
 const PASSWORD='jaudonmiller1234';
+const USERS=new Set(['mervis','judd','john']);
 const loginWrap=document.getElementById('loginWrap');
 const dashboard=document.getElementById('dashboard');
 const form=document.getElementById('loginForm');
@@ -140,12 +141,14 @@ if(sessionStorage.getItem('tbg-auth')==='1') showDashboard();
 
 form.addEventListener('submit',e=>{
   e.preventDefault();
-  if(document.getElementById('password').value===PASSWORD){
+  const username=document.getElementById('username').value.trim().toLowerCase();
+  const password=document.getElementById('password').value;
+  if(USERS.has(username) && password===PASSWORD){
     sessionStorage.setItem('tbg-auth','1');
     showDashboard();
     return;
   }
-  status.textContent='Incorrect password.';
+  status.textContent='Incorrect username or password.';
   status.className='status error';
   document.getElementById('password').select();
 });
