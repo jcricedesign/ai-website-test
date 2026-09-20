@@ -4,71 +4,155 @@
 <link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Barber Game — Login</title>
+<title>The Barbergame</title>
 <script>(()=>{const s=localStorage.getItem('theme'),d=matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.dataset.theme=s||(d?'dark':'light')})();</script>
 <link rel="stylesheet" href="/assets/common/site-shell.css">
 <style>
-:root{--bg:#f3f3ef;--text:#111;--muted:#6f6f6a;--line:#c9c9c4;--panel:#fff}
-:root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817}
+:root{--bg:#f3f3ef;--text:#111;--muted:#6f6f6a;--line:#c9c9c4;--panel:#fff;--soft:#e5e5e1}
+:root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif}
-main{min-height:72vh;display:grid;place-items:center;padding:72px 24px}
+main{min-height:72vh}
+.login-wrap{min-height:72vh;display:grid;place-items:center;padding:72px 24px}
 .login-card{width:min(720px,100%);border:1px solid var(--line);background:var(--panel);padding:clamp(34px,6vw,72px)}
 .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
-h1{font-size:clamp(42px,6vw,78px);line-height:.92;letter-spacing:-.055em;margin:0 0 18px}
+.login-card h1{font-size:clamp(42px,6vw,78px);line-height:.92;letter-spacing:-.055em;margin:0 0 18px}
 .intro{font-size:18px;line-height:1.45;color:var(--muted);max-width:520px;margin:0 0 42px}
 .form{display:grid;gap:16px}
 label{font-size:12px;font-weight:700}
 .field{display:grid;gap:8px}
 input{width:100%;height:56px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 16px;font:inherit;font-size:18px;outline:none}
 input:focus{border-color:var(--text)}
-button{height:56px;border:0;background:var(--text);color:var(--bg);font:inherit;font-weight:700;font-size:16px;cursor:pointer;margin-top:6px}
-.status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}
-.status.error{color:#b14e42}
+button{font:inherit}
+.login-button{height:56px;border:0;background:var(--text);color:var(--bg);font-weight:700;font-size:16px;cursor:pointer;margin-top:6px}
+.status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}.status.error{color:#b14e42}
+
+.dashboard{display:none;width:min(1060px,calc(100% - 48px));margin:0 auto;padding:82px 0 120px}
+.dashboard.active{display:block}
+.dashboard h1{font-size:clamp(56px,8vw,106px);line-height:.9;letter-spacing:-.06em;margin:0 0 34px}
+.dashboard h2{font-size:clamp(34px,4.5vw,58px);line-height:1;letter-spacing:-.045em;margin:0 0 30px}
+.block{padding:0 0 58px}
+.block+.block{border-top:1px solid var(--line);padding-top:52px}
+.demo-links{display:grid;gap:24px;padding-left:48px}
+.demo-links a{font-size:26px;font-weight:700;color:inherit;text-decoration:underline;text-underline-offset:5px;width:max-content}
+.streams{display:grid;gap:18px;font-size:23px;padding-left:14px}
+.prototype-head{display:grid;grid-template-columns:170px repeat(3,1fr);gap:14px;align-items:end;margin-bottom:22px}
+.prototype-head .spacer{height:1px}
+.role-tab{border:0;background:var(--soft);color:var(--text);padding:16px;font-size:20px;font-weight:700}
+.proto-grid{display:grid;grid-template-columns:170px repeat(3,1fr);gap:12px 14px;align-items:center}
+.proto-row-label{font-size:22px;font-weight:700;padding:9px 0}
+.proto-cell{min-height:44px;border:1px solid var(--line);background:transparent;display:flex;align-items:center;padding:0 12px;color:var(--muted);font-size:13px;text-decoration:none}
+.proto-cell.live{color:var(--text);background:var(--panel)}
+.logout{margin-top:50px;border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+@media(max-width:760px){
+  .dashboard{width:calc(100% - 28px);padding-top:48px}
+  .demo-links,.streams{padding-left:0}
+  .prototype-head{grid-template-columns:repeat(3,1fr)}
+  .prototype-head .spacer{display:none}
+  .proto-grid{grid-template-columns:1fr}
+  .proto-row-label{margin-top:16px}
+  .proto-cell{min-height:50px}
+}
 </style>
 </head>
 <body>
 <main>
-  <section class="login-card" aria-labelledby="loginTitle">
-    <p class="eyebrow">The Barber Game</p>
-    <h1 id="loginTitle">Login</h1>
-    <p class="intro">Login to your account to view.</p>
-    <form class="form" id="loginForm">
-      <div class="field">
-        <label for="username">User</label>
-        <input id="username" name="username" autocomplete="username" autofocus>
+  <div class="login-wrap" id="loginWrap">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <p class="eyebrow">The Barbergame</p>
+      <h1 id="loginTitle">Login</h1>
+      <p class="intro">Login to your account to view.</p>
+      <form class="form" id="loginForm">
+        <div class="field"><label for="username">User</label><input id="username" name="username" autocomplete="username" autofocus></div>
+        <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password"></div>
+        <button class="login-button" type="submit">Login</button>
+        <p class="status" id="status" role="status"></p>
+      </form>
+    </section>
+  </div>
+
+  <section class="dashboard" id="dashboard">
+    <div class="block">
+      <h1>The Barbergame</h1>
+      <h2>Demos</h2>
+      <div class="demo-links">
+        <a href="/barber-game/chop-it-up/">Chop it Up</a>
+        <a href="/barber-game/mobile/">Barbergame</a>
       </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password">
+    </div>
+
+    <div class="block">
+      <h2>Work streams</h2>
+      <div class="streams">
+        <div>OOBE</div>
+        <div>Signing up</div>
+        <div>Scheduling an appointment</div>
       </div>
-      <button type="submit">Login</button>
-      <p class="status" id="status" role="status"></p>
-    </form>
+    </div>
+
+    <div class="block">
+      <h2>Visual/Prototype Dashboard</h2>
+      <div class="prototype-head">
+        <div class="spacer"></div>
+        <button class="role-tab" type="button">Customer</button>
+        <button class="role-tab" type="button">Barber</button>
+        <button class="role-tab" type="button">Owner</button>
+      </div>
+      <div class="proto-grid">
+        <div class="proto-row-label">OOBE</div>
+        <a class="proto-cell" href="/barber-game/client/app.html">Client flow</a>
+        <a class="proto-cell live" href="/barber-game/onboarding/">Onboarding</a>
+        <div class="proto-cell">—</div>
+
+        <div class="proto-row-label">Landing</div>
+        <a class="proto-cell live" href="/barber-game/chop-it-up/redesign/">Chop It Up customer</a>
+        <a class="proto-cell" href="/barber-game/mobile/">Barber home</a>
+        <a class="proto-cell" href="/barber-game/chop-it-up/demo/">Owner view</a>
+
+        <div class="proto-row-label">Sign in</div>
+        <div class="proto-cell">Planned</div>
+        <div class="proto-cell">Planned</div>
+        <div class="proto-cell">Planned</div>
+
+        <div class="proto-row-label">Sign up</div>
+        <div class="proto-cell">Planned</div>
+        <a class="proto-cell live" href="/barber-game/onboarding/">Barber signup</a>
+        <div class="proto-cell">Planned</div>
+      </div>
+      <button class="logout" id="logout" type="button">Log out</button>
+    </div>
   </section>
 </main>
 
 <script>
 const PASSWORD='jaudonmiller1234';
+const loginWrap=document.getElementById('loginWrap');
+const dashboard=document.getElementById('dashboard');
 const form=document.getElementById('loginForm');
 const status=document.getElementById('status');
 
-if(sessionStorage.getItem('tbg-auth')==='1'){
-  window.location.replace('/barber-game/chop-it-up/');
+function showDashboard(){
+  loginWrap.style.display='none';
+  dashboard.classList.add('active');
 }
+if(sessionStorage.getItem('tbg-auth')==='1') showDashboard();
 
 form.addEventListener('submit',e=>{
   e.preventDefault();
-  const password=document.getElementById('password').value;
-  if(password===PASSWORD){
+  if(document.getElementById('password').value===PASSWORD){
     sessionStorage.setItem('tbg-auth','1');
-    window.location.href='/barber-game/chop-it-up/';
+    showDashboard();
     return;
   }
   status.textContent='Incorrect password.';
   status.className='status error';
   document.getElementById('password').select();
+});
+
+document.getElementById('logout').addEventListener('click',()=>{
+  sessionStorage.removeItem('tbg-auth');
+  location.reload();
 });
 </script>
 <script src="/assets/common/site-shell.js"></script>
