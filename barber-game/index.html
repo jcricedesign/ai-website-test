@@ -12,7 +12,7 @@
 :root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
 *{box-sizing:border-box}
 html,body{min-height:100%}
-body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif;transition:background .2s ease,color .2s ease}body.logged-in{background:#111;color:#f5f5f2;--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
 main{min-height:72vh}
 .login-wrap{min-height:72vh;display:grid;place-items:center;padding:72px 24px}
 .login-card{width:min(720px,100%);border:1px solid var(--line);background:var(--panel);padding:clamp(34px,6vw,72px)}
@@ -136,6 +136,7 @@ const status=document.getElementById('status');
 function showDashboard(){
   loginWrap.style.display='none';
   dashboard.classList.add('active');
+  document.body.classList.add('logged-in');
 }
 if(sessionStorage.getItem('tbg-auth')==='1') showDashboard();
 
@@ -155,6 +156,7 @@ form.addEventListener('submit',e=>{
 
 document.getElementById('logout').addEventListener('click',()=>{
   sessionStorage.removeItem('tbg-auth');
+  document.body.classList.remove('logged-in');
   location.reload();
 });
 </script>
