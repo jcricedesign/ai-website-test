@@ -106,5 +106,19 @@ window.addEventListener('DOMContentLoaded',()=>{
     screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
   }
 
+  function fitPhone(){
+    const stage=document.querySelector('.stage');
+    const phone=document.querySelector('.phone');
+    if(!stage||!phone) return;
+    phone.style.transform='scale(1)';
+    const box=stage.getBoundingClientRect();
+    const maxH=Math.max(420,window.innerHeight-box.top-46);
+    const maxW=Math.max(280,stage.clientWidth-12);
+    const scale=Math.min(1,maxH/760,maxW/390);
+    phone.style.transform='scale('+scale+')';
+    stage.style.height=(760*scale)+'px';
+  }
+  window.addEventListener('resize',fitPhone);
   show(0);
+  requestAnimationFrame(fitPhone);
 });
