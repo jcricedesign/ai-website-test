@@ -93,7 +93,7 @@ h1{font-size:clamp(42px,6vw,82px);line-height:.92;letter-spacing:-.055em;margin:
 .portrait-stack{display:flex;align-items:center;margin-top:10px;padding-left:8px}.portrait-wrap{position:relative;margin-left:-8px}.portrait-wrap:first-child{margin-left:0}.portrait{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#ddd;display:block}.active-dot{position:absolute;right:0;bottom:1px;width:10px;height:10px;border-radius:50%;background:#5d9a6f;border:2px solid #fff}.stat{border:1px solid #ddd;border-radius:12px;background:#fafafa;padding:11px}.stat span{display:block;font-size:10px;color:#777}.stat strong{display:block;font-size:20px;margin-top:3px}
 .alert{border:1px solid #a6bea9;background:#f2f7f3;border-radius:14px;padding:12px;margin-top:12px}.alert strong{font-size:12px}.alert p{font-size:11px;color:#666;margin:5px 0 0;line-height:1.4}
 .booking{display:none}.booking.active{display:block}.home.hidden{display:none}.booking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.booking-back{border:0;background:none;padding:0;font-size:12px;font-weight:700}.step{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}
-.field{margin:0 0 16px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field select{width:100%;height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;padding:0 12px;font-size:14px}
+.field{margin:0 0 16px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field select{width:100%;height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;padding:0 12px;font-size:14px}.service-price{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:10px 12px;border-radius:10px;background:#f6f6f2;font-size:12px}.service-price strong{font-size:15px}.confirm-price{font-size:12px;color:#666;margin-top:5px}
 .confirm{width:100%;height:48px;border:0;border-radius:24px;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}.secondary{width:100%;height:42px;border:0;background:transparent;color:#555;font-size:12px;text-decoration:underline;cursor:pointer}
 .done{border:1px solid #9cb8a3;background:#f2f7f3;border-radius:16px;padding:15px}.done h4{font-size:19px;margin:0 0 6px}.done p{font-size:12px;line-height:1.45;color:#555;margin:0}
 .customer-profile{padding-top:4px;text-align:center}
@@ -157,7 +157,7 @@ h1{font-size:clamp(42px,6vw,82px);line-height:.92;letter-spacing:-.055em;margin:
 <p class="eyebrow">Jaudon Miller · 2:00 PM</p>
 <h3>Confirm appointment</h3>
 <p class="bodycopy">Choose the service and claim the open time.</p>
-<div class="field" style="margin-top:18px"><label>Service</label><select id="service"><option>Haircut</option><option>Haircut + Beard</option><option>Kids Cut</option></select></div>
+<div class="field" style="margin-top:18px"><label>Service</label><select id="service"><option value="Haircut">Haircut — $35</option><option value="Haircut + Beard">Haircut + Beard — $50</option><option value="Kids Cut">Kids Cut — $30</option></select><div class="service-price"><span id="selectedServiceName">Haircut</span><strong id="selectedServicePrice">$35</strong></div></div>
 <button class="confirm" id="confirmBooking">Claim 2:00 PM</button>
 <button class="secondary" id="cancelBooking">See additional times</button>
 </div>
@@ -173,7 +173,7 @@ h1{font-size:clamp(42px,6vw,82px);line-height:.92;letter-spacing:-.055em;margin:
   <div class="appointment-card">
     <div class="appt-head">
       <img class="appt-barber" src="/playground/chop-it-up-redesign/jay-miller.jpg" alt="Jaudon Miller">
-      <div><strong id="apptServiceTitle">Haircut with<br>Jaudon Miller</strong><div class="meta" style="margin-top:5px">Chop It Up · Kirkland</div></div>
+      <div><strong id="apptServiceTitle">Haircut with<br>Jaudon Miller</strong><div class="confirm-price" id="apptServicePrice">$35</div><div class="meta" style="margin-top:5px">Chop It Up · Kirkland</div></div>
     </div>
     <div class="appt-time"><span>Today</span><span>2:00 PM</span></div>
     <div class="appt-actions">
@@ -304,7 +304,7 @@ function playChime(){
     setTimeout(()=>ctx.close().catch(()=>{}),900);
   }catch(e){}
 }
-const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone');
+const home=document.getElementById('customerHome'),booking=document.getElementById('customerBooking'),done=document.getElementById('customerDone'),serviceSelect=document.getElementById('service'),selectedServiceName=document.getElementById('selectedServiceName'),selectedServicePrice=document.getElementById('selectedServicePrice'),apptServicePrice=document.getElementById('apptServicePrice');
 const barberSchedule=document.getElementById('barberSchedule'),barberCount=document.getElementById('barberCount'),ownerAlert=document.getElementById('ownerAlert'),ownerBookingCount=document.getElementById('ownerBookingCount'),barberEarnings=document.getElementById('barberEarnings'),barberGoalFill=document.getElementById('barberGoalFill'),barberGoalSoFar=document.getElementById('barberGoalSoFar'),barberGoalStatus=document.getElementById('barberGoalStatus'),ownerRevenueTop=document.getElementById('ownerRevenueTop'),ownerRevenueSoFar=document.getElementById('ownerRevenueSoFar'),paceFill=document.getElementById('paceFill'),paceSoFar=document.getElementById('paceSoFar'),paceProjection=document.getElementById('paceProjection'),moneyIncrement=document.getElementById('moneyIncrement'),kirklandRevenue=document.getElementById('kirklandRevenue'),ownerRevenueStat=document.getElementById('ownerRevenueStat');
 function render(){
 const reservedTimes=['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
@@ -375,6 +375,61 @@ document.querySelectorAll('.slot-mini').forEach(btn=>btn.addEventListener('click
 document.getElementById('bookJohn').addEventListener('click',()=>show('booking'));
 document.getElementById('bookingBack').addEventListener('click',()=>show('home'));
 document.getElementById('cancelBooking').addEventListener('click',()=>show('home'));
+const servicePrices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
+function syncServicePrice(){
+  const service=serviceSelect?.value||'Haircut';
+  const price=servicePrices[service]||35;
+  if(selectedServiceName) selectedServiceName.textContent=service;
+  if(selectedServicePrice) selectedServicePrice.textContent='
+const service=document.getElementById('service').value;
+bookingValue=servicePrices[service]||35;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>Jaudon Miller'; if(apptServicePrice) apptServicePrice.textContent='
+show('done');setJourneyPhase('appointment');render();
+});
+document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
+show('home');setJourneyPhase('booking');render();
+})();
+</script>
+</body>
+</html>+price;
+}
+serviceSelect?.addEventListener('change',syncServicePrice);
+syncServicePrice();
+
+document.getElementById('confirmBooking').addEventListener('click',()=>{
+const service=document.getElementById('service').value;
+const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
+bookingValue=prices[service]||35;
+appointments.push({time:'2:00 PM',client:'New client',service});
+booked=true;
+playChime();
+const title=document.getElementById('apptServiceTitle'); if(title) title.innerHTML=service+' with<br>Jaudon Miller';
+show('done');setJourneyPhase('appointment');render();
+});
+document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
+show('home');setJourneyPhase('booking');render();
+})();
+</script>
+</body>
+</html>+bookingValue;
+show('done');setJourneyPhase('appointment');render();
+});
+document.querySelectorAll('[data-customer-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.customerAction;if(a==='calendar') alert('Demo: appointment added to calendar.');else if(a==='directions') alert('Demo: directions to Chop It Up Kirkland.');else if(a==='cancel') alert('Demo: cancellation flow would open here.');else if(a==='past') alert('Demo: past appointments.');}));
+document.getElementById('resetDemo').addEventListener('click',()=>{appointments=initial.map(x=>({...x}));booked=false;bookingValue=0;show('home');setJourneyPhase('booking');render();});
+show('home');setJourneyPhase('booking');render();
+})();
+</script>
+</body>
+</html>+price;
+}
+serviceSelect?.addEventListener('change',syncServicePrice);
+syncServicePrice();
+
 document.getElementById('confirmBooking').addEventListener('click',()=>{
 const service=document.getElementById('service').value;
 const prices={'Haircut':35,'Haircut + Beard':50,'Kids Cut':30};
