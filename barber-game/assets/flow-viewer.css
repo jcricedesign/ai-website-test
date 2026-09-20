@@ -1,0 +1,103 @@
+:root{
+  --flow-left:#b8bcc0;
+  --flow-right:#7f8b95;
+  --flow-rail:#2d4353;
+  --flow-left-width:min(42vw,540px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;overflow:hidden}
+.flow-viewer-shell{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:var(--flow-left-width) 1fr;
+}
+.flow-sidebar{
+  background:var(--flow-left);
+  color:#111;
+  padding:clamp(54px,8vh,92px) clamp(42px,5vw,78px);
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.flow-sidebar .back{
+  color:#38444c;
+  margin-bottom:34px;
+}
+.flow-sidebar h1{
+  color:#111;
+  font-size:clamp(46px,5vw,78px);
+  line-height:.95;
+  letter-spacing:-.055em;
+  margin:0 0 18px;
+}
+.flow-sidebar .flow-subtitle{
+  color:#4e5960;
+  font-size:13px;
+  margin:0 0 30px;
+  max-width:320px;
+}
+.flow-sidebar .states{
+  width:min(290px,100%);
+  margin-top:6px;
+}
+.flow-sidebar .state{
+  color:var(--flow-rail);
+}
+.flow-sidebar .state-eye{
+  color:var(--flow-rail);
+}
+.flow-sidebar .state:not(:last-child):after{
+  background:rgba(45,67,83,.35);
+}
+.flow-sidebar .state-num{
+  border-color:rgba(45,67,83,.55);
+}
+.flow-sidebar .state.active .state-select{
+  background:transparent;
+  color:#111;
+}
+.flow-sidebar .state.active .state-num{
+  background:var(--flow-rail);
+  color:#fff;
+  border-color:var(--flow-rail);
+}
+.flow-sidebar .state.complete .state-num{
+  background:var(--flow-rail);
+  color:#fff;
+}
+.flow-sidebar .state.hidden-step{
+  opacity:.28;
+}
+.flow-main{
+  background:var(--flow-right);
+  min-width:0;
+  min-height:100vh;
+  position:relative;
+  display:grid;
+  place-items:center;
+  padding:34px;
+}
+.flow-main .stage-wrap{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:1fr auto;
+}
+.flow-main .stage{
+  position:relative;
+  min-height:0;
+}
+.flow-main .caption{
+  color:rgba(255,255,255,.7);
+  margin:12px 0 0;
+}
+@media(max-width:800px){
+  html,body{overflow:auto}
+  .flow-viewer-shell{grid-template-columns:1fr;min-height:100vh}
+  .flow-sidebar{padding:24px 16px 14px}
+  .flow-sidebar h1{font-size:44px}
+  .flow-sidebar .flow-subtitle{display:none}
+  .flow-sidebar .states{width:100%;display:flex;flex-direction:row;overflow:auto}
+  .flow-main{min-height:calc(100vh - 210px);padding:20px 12px 28px}
+}
