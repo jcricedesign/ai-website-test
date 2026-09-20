@@ -142,9 +142,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     const box=stage.getBoundingClientRect();
     const maxH=Math.max(420,window.innerHeight-box.top-46);
     const maxW=Math.max(280,stage.clientWidth-12);
-    const scale=Math.min(1,maxH/760,maxW/390);
+    const scale=Math.min(1,maxH/784,maxW/414);
     phone.style.transform='scale('+scale+')';
-    stage.style.height=(760*scale)+'px';
+    stage.style.height=(784*scale)+'px';
   }
   window.addEventListener('resize',fitPhone);
   show(0);
