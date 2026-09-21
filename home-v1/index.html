@@ -38,10 +38,18 @@ h1{margin:18px 0 22px;font-size:clamp(58px,6.5vw,102px);line-height:.89;letter-s
 
 .evidence.single{min-height:220px;display:flex;align-items:flex-start;justify-content:flex-end}
 .evidence.single img{display:block;max-width:78%;max-height:180px;width:auto;height:auto;object-fit:contain;border:0;background:transparent}
+.mondrian{display:grid;grid-template-columns:1.25fr .72fr .95fr;grid-template-rows:1.05fr .65fr;gap:7px;min-height:220px;align-self:start}
+.mondrian-cell{overflow:hidden;background:rgba(255,255,255,.018);min-width:0;min-height:0}
+.mondrian-cell img{width:100%;height:100%;display:block;object-fit:cover}
+.mondrian-cell.logo{grid-column:1 / 3;grid-row:1;background:#10110f}
+.mondrian-cell.logo img{object-fit:contain;padding:12%}
+.mondrian-cell.research{grid-column:3;grid-row:1 / 3}
+.mondrian-cell.system{grid-column:1;grid-row:2}
+.mondrian-cell.empty{grid-column:2;grid-row:2;background:rgba(255,255,255,.025)}
 .more{border-top:5px solid var(--line);padding:54px 0 64px;display:grid;grid-template-columns:30% 70%;gap:24px}.more h2{font-size:31px;line-height:1;letter-spacing:-.04em;margin:8px 0 0}.more-list{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.more-item{border-top:0;padding:14px 0 22px}.more-item strong{display:block;font-size:14px;margin-bottom:5px}.more-item span{font-size:12px;color:var(--muted)}
 .cta{border-top:5px solid var(--line);padding:96px 0 108px;text-align:left}.cta-photo{width:88px;height:88px;display:block;object-fit:cover;object-position:center;border-radius:50%;margin:0 0 24px 0}.cta-sigil{width:36px;height:36px;display:block;object-fit:contain;margin:24px 0 0 0}.cta>div{max-width:760px;margin:0}.cta h2{font-size:52px;line-height:.93;letter-spacing:-.055em;margin:0 0 20px;max-width:680px}.cta p{max-width:620px;margin:0;color:var(--muted);font-size:14px}.cta-links{display:flex;justify-content:flex-start;gap:18px;margin-top:22px;font-size:12px}
 footer{border-top:0;padding:22px 0 42px;font-size:12px;color:var(--muted)}
-@media(max-width:1100px){.page{width:auto;max-width:none;margin:0;padding-left:22px;padding-right:22px}.brand-meta{display:none}.hero-logo-gif{margin:-54px 0 -42px -120px;transform:translateY(-40px)}.nav a:not(.schedule),.nav .work-trigger{display:none}.nav-wrap{gap:14px}.schedule{padding:7px 9px!important}.hero{min-height:auto;padding:96px 0 62px}h1{font-size:58px}.project,.more{grid-template-columns:1fr}.pillar-grid{grid-template-columns:1fr}.project{gap:22px}.role-line{padding-top:0;max-width:540px}.evidence{min-height:235px}.work-menu{display:none!important}}
+@media(max-width:1100px){.page{width:auto;max-width:none;margin:0;padding-left:22px;padding-right:22px}.brand-meta{display:none}.hero-logo-gif{margin:-54px 0 -42px -120px;transform:translateY(-40px)}.nav a:not(.schedule),.nav .work-trigger{display:none}.nav-wrap{gap:14px}.schedule{padding:7px 9px!important}.hero{min-height:auto;padding:96px 0 62px}h1{font-size:58px}.project,.more{grid-template-columns:1fr}.pillar-grid{grid-template-columns:1fr}.project{gap:22px}.role-line{padding-top:0;max-width:540px}.evidence{min-height:235px}.mondrian{width:min(100%,560px);grid-template-columns:1.2fr .7fr 1fr;grid-template-rows:150px 92px}.work-menu{display:none!important}}
 </style>
 </head>
 <body>
@@ -99,7 +107,12 @@ footer{border-top:0;padding:22px 0 42px;font-size:12px;color:var(--muted)}
   <article class="project" id="barber">
     <div class="project-copy"><div class="project-no">01 / Create from nothing</div><h3>The Barber Game</h3><p>Research changed the product before we built it.</p><a class="text-link" href="#">Explore case study →</a></div>
     <div class="role-line">Took an ambiguous idea from research into a coherent product and operating model.</div>
-    <div class="evidence single"><img src="/work/barbergame-tile.png" alt="The Barber Game product and research work"></div>
+    <div class="evidence mondrian barber-mondrian" aria-label="The Barber Game visual evidence">
+      <div class="mondrian-cell logo"><img src="/work/barbergame-tile.png" alt="The Barber Game logo"></div>
+      <div class="mondrian-cell research"><img src="/barber-game/assets/barbergame-brainstorm.png" alt="The Barber Game research and systems work"></div>
+      <div class="mondrian-cell system"><img src="/barber-game/chop-it-up/redesign/work-collage.png" alt="The Barber Game connected product work"></div>
+      <div class="mondrian-cell empty" aria-hidden="true"></div>
+    </div>
   </article>
 
   <article class="project" id="mozilla">
