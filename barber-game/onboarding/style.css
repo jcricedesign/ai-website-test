@@ -81,3 +81,7 @@ html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 .time-pair select:disabled{opacity:.35}
 .time-pair span{font-size:10px;color:#aaa}
 .hours-copy{margin:14px 0 0;border:0;background:transparent;color:#eee;text-decoration:underline;text-underline-offset:3px;font-size:11px;padding:2px 0;cursor:pointer}
+
+.service-card-actions{display:flex;gap:10px;align-items:center}
+.service-delete{border:0;background:transparent;color:#f18b8b;text-decoration:underline;text-underline-offset:3px;font-size:11px;cursor:pointer;padding:2px 0}
+.service-delete:disabled{opacity:.28;cursor:default;text-decoration:none}
