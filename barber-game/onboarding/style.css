@@ -68,3 +68,16 @@ html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 .price-field span{position:absolute;left:9px;top:16px;color:#aaa;font-size:12px}
 .price-field input{padding-left:20px}
 .service-add{margin-top:12px;border:0;background:transparent;color:#eee;text-decoration:underline;text-underline-offset:3px;font-size:12px;padding:4px 0;cursor:pointer}
+
+.hours-editor{display:grid;gap:8px;margin-top:18px}
+.hours-row{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #393939;opacity:.48}
+.hours-row.active{opacity:1}
+.day-toggle{width:24px;height:24px;border:1px solid #777;border-radius:50%;background:transparent;color:#fff;padding:0;display:grid;place-items:center;cursor:pointer}
+.hours-row.active .day-toggle{border-color:#fff}
+.day-toggle span{font-size:12px;line-height:1}
+.day-name{font-size:14px;font-weight:700}
+.time-pair{display:grid;grid-template-columns:74px auto 74px;gap:6px;align-items:center}
+.time-pair select{height:34px;border:1px solid #777;border-radius:7px;background:#303030;color:#fff;padding:0 7px;font-size:11px}
+.time-pair select:disabled{opacity:.35}
+.time-pair span{font-size:10px;color:#aaa}
+.hours-copy{margin:14px 0 0;border:0;background:transparent;color:#eee;text-decoration:underline;text-underline-offset:3px;font-size:11px;padding:2px 0;cursor:pointer}
