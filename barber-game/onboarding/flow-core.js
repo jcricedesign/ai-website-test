@@ -17,6 +17,11 @@ window.addEventListener('DOMContentLoaded',()=>{
     shop:'',
     license:'',
     licenseType:'',
+    insurance:'',
+    insuranceExpiration:'',
+    businessLicense:'',
+    businessLicenseExpiration:'',
+    businessLicenseReminder:'30 days before',
     services:[
       {base:'Haircut Only (no beard)',name:'Haircut Only (no beard)',price:'22',duration:'30'}
     ],
@@ -24,21 +29,21 @@ window.addEventListener('DOMContentLoaded',()=>{
     photo:null
   };
   let current=0;
-  const hiddenSteps=new Set();
+  const hiddenSteps=new Set(OOBE.map((s,i)=>s.hidden?i:null).filter(i=>i!==null));
 
   const eyeOpen='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
   const eyeClosed='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A10.8 10.8 0 0 1 12 6c6.5 0 10 6 10 6a15 15 0 0 1-3 3.7M6.3 6.3C3.6 8 2 12 2 12s3.5 6 10 6c1.5 0 2.8-.3 4-.8M9.9 9.9A3 3 0 0 0 14.1 14.1"/></svg>';
 
   OOBE.forEach((s,i)=>{
     const row=document.createElement('div');
-    row.className='state'+(i===0?' active':'');
+    row.className='state'+(i===0?' active':'')+(hiddenSteps.has(i)?' hidden-step':'');
     row.dataset.id=s.id;
 
     const eye=document.createElement('button');
     eye.className='state-eye';
     eye.type='button';
-    eye.setAttribute('aria-label','Hide '+s.label+' from flow');
-    eye.innerHTML=eyeOpen;
+    eye.setAttribute('aria-label',(hiddenSteps.has(i)?'Show ':'Hide ')+s.label+' in flow');
+    eye.innerHTML=hiddenSteps.has(i)?eyeClosed:eyeOpen;
     eye.onclick=e=>{
       e.stopPropagation();
       if(hiddenSteps.has(i)) hiddenSteps.delete(i); else hiddenSteps.add(i);
