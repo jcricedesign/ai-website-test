@@ -142,7 +142,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       const editor=screen.querySelector('[data-service-editor]');
       if(!editor) return;
       editor.innerHTML=state.services.map((s,i)=>'<div class="service-card" data-service-index="'+i+'">'+
-        '<div class="service-card-head"><div><strong>'+s.name+'</strong><span>Based on: '+s.base+'</span></div><button type="button" class="service-duplicate" data-duplicate="'+i+'">Duplicate</button></div>'+
+        '<div class="service-card-head"><div><strong>'+s.name+'</strong><span>Based on: '+s.base+'</span></div><div class="service-card-actions"><button type="button" class="service-duplicate" data-duplicate="'+i+'">Duplicate</button><button type="button" class="service-delete" data-delete="'+i+'"'+(state.services.length===1?' disabled':'')+'>Delete</button></div></div>'+
         '<div class="service-grid">'+
           '<label>Service name<input data-service-name="'+i+'" value="'+s.name.replace(/"/g,'&quot;')+'"></label>'+
           '<label>Time<select data-service-duration="'+i+'"><option value="15"'+(s.duration==='15'?' selected':'')+'>15 min</option><option value="30"'+(s.duration==='30'?' selected':'')+'>30 min</option><option value="45"'+(s.duration==='45'?' selected':'')+'>45 min</option><option value="60"'+(s.duration==='60'?' selected':'')+'>60 min</option></select></label>'+
@@ -156,6 +156,11 @@ window.addEventListener('DOMContentLoaded',()=>{
       editor.querySelectorAll('[data-duplicate]').forEach(btn=>btn.onclick=()=>{
         const source=state.services[+btn.dataset.duplicate];
         state.services.splice(+btn.dataset.duplicate+1,0,{...source,name:source.name+' copy'});
+        renderServices();validateCurrent(false);
+      });
+      editor.querySelectorAll('[data-delete]').forEach(btn=>btn.onclick=()=>{
+        if(state.services.length<=1) return;
+        state.services.splice(+btn.dataset.delete,1);
         renderServices();validateCurrent(false);
       });
     }
