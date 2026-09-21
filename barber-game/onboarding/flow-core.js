@@ -14,8 +14,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     email:'',
     password:'',
     username:'',
-    workType:'Home',
-    address:'17624 15th Ave SE #101A, Bothell, WA 98012',
+    shop:'',
     license:'4019',
     licenseType:'Barber',
     services:[
@@ -68,7 +67,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       : '<div class="profile-photo fallback">'+(state.firstName||'B').slice(0,1)+(state.lastName||'G').slice(0,1)+'</div>';
     return '<div class="profile-preview">'+
       '<div class="profile-top">'+photo+'<div><div class="profile-kicker">@'+(state.username||'barber')+'</div><h2>'+name+'</h2><div class="profile-meta">'+(state.license?'Licensed '+state.licenseType+' · #'+state.license:'Barber profile')+'</div></div></div>'+
-      '<div class="profile-section"><span class="profile-label">Working location</span><strong>'+state.workType+'</strong><p>'+state.address+'</p></div>'+
+      '<div class="profile-section"><span class="profile-label">Shop</span><strong>'+(state.shop||'Not selected')+'</strong></div>'+
       '<div class="profile-section"><span class="profile-label">Availability</span><strong>'+state.hours+'</strong></div>'+
       '<div class="profile-section"><span class="profile-label">Services</span>'+services+'</div>'+
       '<div class="profile-section"><span class="profile-label">Contact</span><p>'+state.email+'<br>'+state.phone+'</p></div>'+
@@ -107,11 +106,12 @@ window.addEventListener('DOMContentLoaded',()=>{
       el.addEventListener('blur',()=>{el.dataset.touched='1';validateCurrent(false)});
     });
 
-    screen.querySelectorAll('[data-work]').forEach(btn=>{
-      btn.classList.toggle('on',btn.dataset.work===state.workType);
+    screen.querySelectorAll('[data-shop]').forEach(btn=>{
+      btn.classList.toggle('on',btn.dataset.shop===state.shop);
       btn.onclick=()=>{
-        state.workType=btn.dataset.work;
-        screen.querySelectorAll('[data-work]').forEach(x=>x.classList.toggle('on',x===btn));
+        state.shop=btn.dataset.shop;
+        screen.querySelectorAll('[data-shop]').forEach(x=>x.classList.toggle('on',x===btn));
+        validateCurrent(false);
       };
     });
 
@@ -146,6 +146,7 @@ window.addEventListener('DOMContentLoaded',()=>{
         if(force || el.dataset.touched==='1' || value) fieldMessage(el,message);
         else fieldMessage(el,'');
       });
+      if(screen.querySelector('[data-shop]') && !state.shop) valid=false;
       const gated=screen.querySelector('[data-gated-next]');
       if(gated){
         gated.disabled=!valid;
