@@ -9,9 +9,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   const state={
     phone:'425-555-1212',
     code:'45678',
-    firstName:'John',
-    lastName:'Rice',
-    email:'john.rice@gmail.com',
+    firstName:'',
+    lastName:'',
+    email:'',
+    password:'',
     username:'overweightunicorn',
     workType:'Home',
     address:'17624 15th Ave SE #101A, Bothell, WA 98012',
@@ -95,9 +96,10 @@ window.addEventListener('DOMContentLoaded',()=>{
       const key=el.dataset.key;
       if(el.type==='file') return;
       if(state[key]!=null) el.value=state[key];
-      const save=()=>{state[key]=el.value};
+      const save=()=>{state[key]=el.value; validateCurrent(false)};
       el.addEventListener('input',save);
       el.addEventListener('change',save);
+      el.addEventListener('blur',()=>{el.dataset.touched='1';validateCurrent(false)});
     });
 
     screen.querySelectorAll('[data-work]').forEach(btn=>{
@@ -119,6 +121,34 @@ window.addEventListener('DOMContentLoaded',()=>{
       });
     }
 
+    function fieldMessage(el,message){
+      const field=el.closest('.field');
+      if(!field) return;
+      const msg=field.querySelector('.field-message');
+      field.classList.toggle('invalid',!!message);
+      if(msg) msg.textContent=message||msg.dataset.default||'';
+    }
+    function validateCurrent(force){
+      const required=[...screen.querySelectorAll('[data-required]')];
+      let valid=true;
+      required.forEach(el=>{
+        let message='';
+        const value=(el.value||'').trim();
+        if(!value) message='Required';
+        else if(el.dataset.validate==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) message='Enter a valid email address';
+        else if(el.dataset.validate==='password' && value.length<8) message='Use at least 8 characters';
+        if(message) valid=false;
+        if(force || el.dataset.touched==='1' || value) fieldMessage(el,message);
+        else fieldMessage(el,'');
+      });
+      const gated=screen.querySelector('[data-gated-next]');
+      if(gated){
+        gated.disabled=!valid;
+        gated.classList.toggle('ready',valid);
+      }
+      return valid;
+    }
+
     screen.querySelectorAll('[data-send-code]').forEach(btn=>btn.onclick=()=>{
       btn.textContent='Code sent';
       const code=screen.querySelector('[data-key="code"]');
@@ -129,9 +159,13 @@ window.addEventListener('DOMContentLoaded',()=>{
       while(i>=0 && i<OOBE.length && hiddenSteps.has(i)) i+=direction;
       if(i>=0 && i<OOBE.length) show(i);
     };
-    screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>nextVisible(1));
+    screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>{
+      if(btn.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
+      nextVisible(1);
+    });
     screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>nextVisible(-1));
     screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
+    validateCurrent(false);
   }
 
   function fitPhone(){
