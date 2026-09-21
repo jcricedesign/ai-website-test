@@ -61,6 +61,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const name=((state.firstName||'')+' '+(state.lastName||'')).trim()||'Your name';
     const services=state.services.map(s=>'<div class="profile-service"><span>'+s.name+' · '+s.duration+' min</span><strong>'+String.fromCharCode(36)+s.price+'</strong></div>').join('');
     const photo=state.photo
+      ? '<img class="profile-photo" src="'+state.photo+'" alt="Profile photo">'
       : '<div class="profile-photo fallback">'+(state.firstName||'B').slice(0,1)+(state.lastName||'G').slice(0,1)+'</div>';
     return '<div class="profile-preview">'+
       '<div class="profile-top">'+photo+'<div><div class="profile-kicker">@'+(state.username||'barber')+'</div><h2>'+name+'</h2><div class="profile-meta">'+(state.license?'Licensed '+state.licenseType+' · #'+state.license:'Barber profile')+'</div></div></div>'+
