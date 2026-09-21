@@ -63,13 +63,22 @@ h2{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}
 .customer-flow .state-btn.active::before{background:var(--flow-rail);color:#fff;border-color:var(--flow-rail)}
 .customer-flow .stage{position:relative;min-height:0}
 .customer-flow .phone{position:absolute;left:50%;top:50%;width:414px;height:866px;padding:12px;background:#090a0b;border:2px solid #25272a;border-radius:48px;overflow:visible;box-shadow:0 26px 70px rgba(0,0,0,.45),inset 0 0 0 1px #000;transform-origin:center center;color:#111;display:block;min-height:0}
-.customer-flow .device-screen{width:390px;height:842px;background:#fff;border-radius:36px;overflow:hidden;position:relative}
+.customer-flow .device-screen{width:390px;height:842px;background:#fff;border-radius:36px;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:none}
 .customer-flow .phone:before{content:"";position:absolute;z-index:8;top:5px;left:50%;transform:translateX(-50%);width:58px;height:5px;border-radius:999px;background:#292b2e}
 .customer-flow .phone:after{content:"";position:absolute;z-index:8;top:8px;right:70px;width:6px;height:6px;border-radius:50%;background:#1b1d20;box-shadow:0 0 0 1px #303236}
-.customer-flow .shop-nav{border-radius:36px 36px 0 0}
+.customer-flow .shop-nav{border-radius:36px 36px 0 0;position:sticky;top:0;z-index:6}
 .customer-flow .screen{min-height:764px}
 .customer-flow .caption{color:rgba(255,255,255,.7)}
 @media(max-width:800px){.customer-flow .states{flex-direction:row;gap:12px;overflow:auto}.customer-flow .state-btn{flex:0 0 142px}.customer-flow .state-btn:not(:last-child)::after{display:none}}
+
+.customer-flow .device-screen::-webkit-scrollbar{display:none;width:0;height:0}
+.shop-module{margin-top:28px}
+.shop-module:first-of-type{margin-top:0}
+.shop-divider{border-top:1px solid var(--line);padding-top:18px;margin-top:24px}
+.shop-module-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:8px}
+.shop-module-head h3{margin:0;font-size:17px}
+.shop-module-head span{font-size:10px;color:#777}
+.shop-module .barber:first-of-type{border-top:1px solid var(--line)}
 
 </style>
 </head>
@@ -106,10 +115,21 @@ h2{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}
       <section class="screen active" data-screen="discover">
         <p class="eyebrow">Kirkland Shop</p><h2>Find a barber. Pick a time.</h2>
         <p class="body">Our mission is to enhance the lives of our clients and go above and beyond the expectations of today’s barbershops.</p>
-        <div class="section-head"><h3>Working today</h3><span>First Available⌄</span></div>
-        <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name">Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
-        <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
-        <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+
+        <div class="shop-module">
+          <div class="shop-module-head"><h3>Kirkland Shop</h3><span>First Available⌄</span></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name">Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard</div></div><button class="time primary">2:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+        </div>
+
+        <div class="shop-module shop-divider">
+          <div class="shop-module-head"><h3>Bothell Shop</h3><span>First Available⌄</span></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/curtis.jpg"><div><div class="name">Curtis</div><div class="rank">Grandmaster Barber</div><div class="meta">Fades · Beard · Line ups</div></div><button class="time primary">1:30</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/bree.jpg"><div><div class="name">Bree</div><div class="rank">5-Star Barber</div><div class="meta">Cuts · Texture · Kids</div></div><button class="time">2:30</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/meek.jpg"><div><div class="name">Meek</div><div class="rank">5-Star Barber</div><div class="meta">Classic · Beard · Fades</div></div><button class="time">3:30</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/mel.jpg"><div><div class="name">Mel</div><div class="rank">Barber</div><div class="meta">Fades · Line ups · Beard</div></div><button class="time">5:00</button></div>
+        </div>
       </section>
 
       <section class="screen" data-screen="profile">
