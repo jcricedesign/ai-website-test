@@ -59,7 +59,332 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   function profileHTML(){
     const name=((state.firstName||'')+' '+(state.lastName||'')).trim()||'Your name';
-    const services=state.services.map(s=>'<div class="profile-service"><span>'+s.name+' · '+s.duration+' min</span><strong>
+    const services=state.services.map(s=>'<div class="profile-service"><span>'+s.name+' · '+s.duration+' min</span><strong>    const photo=state.photo
+      ? '<img class="profile-photo" src="'+state.photo+'" alt="Profile photo">'
+      : '<div class="profile-photo fallback">'+(state.firstName||'B').slice(0,1)+(state.lastName||'G').slice(0,1)+'</div>';
+    return '<div class="profile-preview">'+
+      '<div class="profile-top">'+photo+'<div><div class="profile-kicker">@'+(state.username||'barber')+'</div><h2>'+name+'</h2><div class="profile-meta">'+(state.license?'Licensed '+state.licenseType+' · #'+state.license:'Barber profile')+'</div></div></div>'+
+      '<div class="profile-section"><span class="profile-label">Shop</span><strong>'+(state.shop||'Not selected')+'</strong></div>'+
+      '<div class="profile-section"><span class="profile-label">Availability</span><strong>'+state.hours+'</strong></div>'+
+      '<div class="profile-section"><span class="profile-label">Services</span>'+services+'</div>'+
+      '<div class="profile-section"><span class="profile-label">Contact</span><p>'+state.email+'<br>'+state.phone+'</p></div>'+
+      '<button class="action" data-restart>Start over</button>'+
+    '</div>';
+  }
+
+  function show(index){
+    current=Math.max(0,Math.min(index,OOBE.length-1));
+    const s=OOBE[current];
+    screen.innerHTML=s.id==='profile' ? profileHTML() : s.html;
+    [...nav.children].forEach((row,i)=>{
+      row.classList.toggle('active',i===current);
+      row.classList.toggle('complete',i<current);
+    });
+    caption.textContent=s.caption||'';
+    hydrate();
+    screen.scrollTop=0;
+    const phone=document.querySelector('.phone');
+    if(phone) phone.scrollTop=0;
+  }
+
+  function hydrate(){
+    const licenseTitle=screen.querySelector('[data-license-title]');
+    const licenseNumber=screen.querySelector('[data-license-number]');
+    if(licenseTitle) licenseTitle.textContent='Licensed '+(state.licenseType||'barber');
+    if(licenseNumber) licenseNumber.textContent='#'+(state.license||'');
+
+    const usernameDisplay=screen.querySelector('[data-username-display]');
+    const usernameUrl=screen.querySelector('[data-username-url]');
+    if(usernameDisplay) usernameDisplay.textContent='@'+(state.username||'barber');
+    if(usernameUrl) usernameUrl.textContent='barbergame.com/'+(state.username||'barber');
+
+    screen.querySelectorAll('[data-key]').forEach(el=>{
+      const key=el.dataset.key;
+      if(el.type==='file') return;
+      if(state[key]!=null) el.value=state[key];
+      const save=()=>{state[key]=el.value; validateCurrent(false)};
+      el.addEventListener('input',save);
+      el.addEventListener('change',save);
+      el.addEventListener('blur',()=>{el.dataset.touched='1';validateCurrent(false)});
+    });
+
+    screen.querySelectorAll('[data-shop]').forEach(btn=>{
+      btn.classList.toggle('on',btn.dataset.shop===state.shop);
+      btn.onclick=()=>{
+        state.shop=btn.dataset.shop;
+        screen.querySelectorAll('[data-shop]').forEach(x=>x.classList.toggle('on',x===btn));
+        validateCurrent(false);
+      };
+    });
+
+    function renderServices(){
+      const editor=screen.querySelector('[data-service-editor]');
+      if(!editor) return;
+      editor.innerHTML=state.services.map((s,i)=>'<div class="service-card" data-service-index="'+i+'">'+
+        '<div class="service-card-head"><div><strong>'+s.name+'</strong><span>Based on: '+s.base+'</span></div><button type="button" class="service-duplicate" data-duplicate="'+i+'">Duplicate</button></div>'+
+        '<div class="service-grid">'+
+          '<label>Service name<input data-service-name="'+i+'" value="'+s.name.replace(/"/g,'&quot;')+'"></label>'+
+          '<label>Time<select data-service-duration="'+i+'"><option value="15"'+(s.duration==='15'?' selected':'')+'>15 min</option><option value="30"'+(s.duration==='30'?' selected':'')+'>30 min</option><option value="45"'+(s.duration==='45'?' selected':'')+'>45 min</option><option value="60"'+(s.duration==='60'?' selected':'')+'>60 min</option></select></label>'+
+          '<label>Price<div class="price-field"><span>$</span><input inputmode="decimal" data-service-price="'+i+'" value="'+s.price+'"></div></label>'+
+        '</div>'+
+      '</div>').join('');
+
+      editor.querySelectorAll('[data-service-name]').forEach(el=>el.addEventListener('input',()=>{state.services[+el.dataset.serviceName].name=el.value;validateCurrent(false)}));
+      editor.querySelectorAll('[data-service-duration]').forEach(el=>el.addEventListener('change',()=>{state.services[+el.dataset.serviceDuration].duration=el.value;validateCurrent(false)}));
+      editor.querySelectorAll('[data-service-price]').forEach(el=>el.addEventListener('input',()=>{state.services[+el.dataset.servicePrice].price=el.value;validateCurrent(false)}));
+      editor.querySelectorAll('[data-duplicate]').forEach(btn=>btn.onclick=()=>{
+        const source=state.services[+btn.dataset.duplicate];
+        state.services.splice(+btn.dataset.duplicate+1,0,{...source,name:source.name+' copy'});
+        renderServices();validateCurrent(false);
+      });
+    }
+    renderServices();
+    const addService=screen.querySelector('[data-add-service]');
+    if(addService) addService.onclick=()=>{
+      state.services.push({base:'Haircut Only (no beard)',name:'Haircut Only (no beard)',price:'22',duration:'30'});
+      renderServices();validateCurrent(false);
+    };
+
+    const photo=screen.querySelector('[data-photo]');
+    if(photo){
+      photo.addEventListener('change',e=>{
+        const file=e.target.files&&e.target.files[0];
+        if(!file) return;
+        const reader=new FileReader();
+        reader.onload=()=>{state.photo=reader.result; const preview=screen.querySelector('.photo'); if(preview) preview.style.backgroundImage='url('+reader.result+')'};
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function fieldMessage(el,message){
+      const field=el.closest('.field');
+      if(!field) return;
+      const msg=field.querySelector('.field-message');
+      field.classList.toggle('invalid',!!message);
+      if(msg) msg.textContent=message||msg.dataset.default||'';
+    }
+    function validateCurrent(force){
+      const required=[...screen.querySelectorAll('[data-required]')];
+      let valid=true;
+      required.forEach(el=>{
+        let message='';
+        const value=(el.value||'').trim();
+        if(!value) message='Required';
+        else if(el.dataset.validate==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) message='Enter a valid email address';
+        else if(el.dataset.validate==='password' && value.length<8) message='Use at least 8 characters';
+        if(message) valid=false;
+        if(force || el.dataset.touched==='1' || value) fieldMessage(el,message);
+        else fieldMessage(el,'');
+      });
+      if(screen.querySelector('[data-shop]') && !state.shop) valid=false;
+      if(screen.querySelector('[data-service-editor]')){
+        if(!state.services.length) valid=false;
+        state.services.forEach(s=>{
+          if(!String(s.name||'').trim() || !String(s.duration||'').trim() || !String(s.price||'').trim()) valid=false;
+        });
+      }
+      const gated=screen.querySelector('[data-gated-next]');
+      if(gated){
+        gated.disabled=!valid;
+        gated.classList.toggle('ready',valid);
+      }
+      return valid;
+    }
+
+    screen.querySelectorAll('[data-send-code]').forEach(btn=>btn.onclick=()=>{
+      btn.textContent='Code sent';
+      const code=screen.querySelector('[data-key="code"]');
+      if(code) code.focus();
+    });
+    const nextVisible=direction=>{
+      let i=current+direction;
+      while(i>=0 && i<OOBE.length && hiddenSteps.has(i)) i+=direction;
+      if(i>=0 && i<OOBE.length) show(i);
+    };
+    screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>{
+      if(btn.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
+      nextVisible(1);
+    });
+
+    screen.querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener('keydown',e=>{
+        if(e.key!=='Enter') return;
+        const next=screen.querySelector('[data-next]');
+        if(!next) return;
+        e.preventDefault();
+        if(next.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
+        next.click();
+      });
+    });
+    screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>nextVisible(-1));
+    screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
+    validateCurrent(false);
+  }
+
+  function fitPhone(){
+    const stage=document.querySelector('.stage');
+    const phone=document.querySelector('.phone');
+    if(!stage||!phone) return;
+    phone.style.transform='translate(-50%,-50%) scale(1)';
+    const box=stage.getBoundingClientRect();
+    const caption=document.getElementById('caption');
+    const captionH=caption?caption.getBoundingClientRect().height:0;
+    const maxH=Math.max(420,window.innerHeight-box.top-captionH-54);
+    const maxW=Math.max(280,stage.clientWidth-12);
+    const scale=Math.min(1,maxH/866,maxW/414);
+    phone.style.transform='translate(-50%,-50%) scale('+scale+')';
+    stage.style.height=maxH+'px';
+  }
+  window.addEventListener('resize',fitPhone);
+  show(0);
+  requestAnimationFrame(fitPhone);
+});+s.price+'</strong></div>').join('');
+    const photo=state.photo
+      ? '<img class="profile-photo" src="'+state.photo+'" alt="Profile photo">'
+      : '<div class="profile-photo fallback">'+(state.firstName||'B').slice(0,1)+(state.lastName||'G').slice(0,1)+'</div>';
+    return '<div class="profile-preview">'+
+      '<div class="profile-top">'+photo+'<div><div class="profile-kicker">@'+(state.username||'barber')+'</div><h2>'+name+'</h2><div class="profile-meta">'+(state.license?'Licensed '+state.licenseType+' · #'+state.license:'Barber profile')+'</div></div></div>'+
+      '<div class="profile-section"><span class="profile-label">Shop</span><strong>'+(state.shop||'Not selected')+'</strong></div>'+
+      '<div class="profile-section"><span class="profile-label">Availability</span><strong>'+state.hours+'</strong></div>'+
+      '<div class="profile-section"><span class="profile-label">Services</span>'+services+'</div>'+
+      '<div class="profile-section"><span class="profile-label">Contact</span><p>'+state.email+'<br>'+state.phone+'</p></div>'+
+      '<button class="action" data-restart>Start over</button>'+
+    '</div>';
+  }
+
+  function show(index){
+    current=Math.max(0,Math.min(index,OOBE.length-1));
+    const s=OOBE[current];
+    screen.innerHTML=s.id==='profile' ? profileHTML() : s.html;
+    [...nav.children].forEach((row,i)=>{
+      row.classList.toggle('active',i===current);
+      row.classList.toggle('complete',i<current);
+    });
+    caption.textContent=s.caption||'';
+    hydrate();
+    screen.scrollTop=0;
+    const phone=document.querySelector('.phone');
+    if(phone) phone.scrollTop=0;
+  }
+
+  function hydrate(){
+    const licenseTitle=screen.querySelector('[data-license-title]');
+    const licenseNumber=screen.querySelector('[data-license-number]');
+    if(licenseTitle) licenseTitle.textContent='Licensed '+(state.licenseType||'barber');
+    if(licenseNumber) licenseNumber.textContent='#'+(state.license||'');
+
+    const usernameDisplay=screen.querySelector('[data-username-display]');
+    const usernameUrl=screen.querySelector('[data-username-url]');
+    if(usernameDisplay) usernameDisplay.textContent='@'+(state.username||'barber');
+    if(usernameUrl) usernameUrl.textContent='barbergame.com/'+(state.username||'barber');
+
+    screen.querySelectorAll('[data-key]').forEach(el=>{
+      const key=el.dataset.key;
+      if(el.type==='file') return;
+      if(state[key]!=null) el.value=state[key];
+      const save=()=>{state[key]=el.value; validateCurrent(false)};
+      el.addEventListener('input',save);
+      el.addEventListener('change',save);
+      el.addEventListener('blur',()=>{el.dataset.touched='1';validateCurrent(false)});
+    });
+
+    screen.querySelectorAll('[data-shop]').forEach(btn=>{
+      btn.classList.toggle('on',btn.dataset.shop===state.shop);
+      btn.onclick=()=>{
+        state.shop=btn.dataset.shop;
+        screen.querySelectorAll('[data-shop]').forEach(x=>x.classList.toggle('on',x===btn));
+        validateCurrent(false);
+      };
+    });
+
+    const photo=screen.querySelector('[data-photo]');
+    if(photo){
+      photo.addEventListener('change',e=>{
+        const file=e.target.files&&e.target.files[0];
+        if(!file) return;
+        const reader=new FileReader();
+        reader.onload=()=>{state.photo=reader.result; const preview=screen.querySelector('.photo'); if(preview) preview.style.backgroundImage='url('+reader.result+')'};
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function fieldMessage(el,message){
+      const field=el.closest('.field');
+      if(!field) return;
+      const msg=field.querySelector('.field-message');
+      field.classList.toggle('invalid',!!message);
+      if(msg) msg.textContent=message||msg.dataset.default||'';
+    }
+    function validateCurrent(force){
+      const required=[...screen.querySelectorAll('[data-required]')];
+      let valid=true;
+      required.forEach(el=>{
+        let message='';
+        const value=(el.value||'').trim();
+        if(!value) message='Required';
+        else if(el.dataset.validate==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) message='Enter a valid email address';
+        else if(el.dataset.validate==='password' && value.length<8) message='Use at least 8 characters';
+        if(message) valid=false;
+        if(force || el.dataset.touched==='1' || value) fieldMessage(el,message);
+        else fieldMessage(el,'');
+      });
+      if(screen.querySelector('[data-shop]') && !state.shop) valid=false;
+      const gated=screen.querySelector('[data-gated-next]');
+      if(gated){
+        gated.disabled=!valid;
+        gated.classList.toggle('ready',valid);
+      }
+      return valid;
+    }
+
+    screen.querySelectorAll('[data-send-code]').forEach(btn=>btn.onclick=()=>{
+      btn.textContent='Code sent';
+      const code=screen.querySelector('[data-key="code"]');
+      if(code) code.focus();
+    });
+    const nextVisible=direction=>{
+      let i=current+direction;
+      while(i>=0 && i<OOBE.length && hiddenSteps.has(i)) i+=direction;
+      if(i>=0 && i<OOBE.length) show(i);
+    };
+    screen.querySelectorAll('[data-next]').forEach(btn=>btn.onclick=()=>{
+      if(btn.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
+      nextVisible(1);
+    });
+
+    screen.querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener('keydown',e=>{
+        if(e.key!=='Enter') return;
+        const next=screen.querySelector('[data-next]');
+        if(!next) return;
+        e.preventDefault();
+        if(next.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
+        next.click();
+      });
+    });
+    screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>nextVisible(-1));
+    screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
+    validateCurrent(false);
+  }
+
+  function fitPhone(){
+    const stage=document.querySelector('.stage');
+    const phone=document.querySelector('.phone');
+    if(!stage||!phone) return;
+    phone.style.transform='translate(-50%,-50%) scale(1)';
+    const box=stage.getBoundingClientRect();
+    const caption=document.getElementById('caption');
+    const captionH=caption?caption.getBoundingClientRect().height:0;
+    const maxH=Math.max(420,window.innerHeight-box.top-captionH-54);
+    const maxW=Math.max(280,stage.clientWidth-12);
+    const scale=Math.min(1,maxH/866,maxW/414);
+    phone.style.transform='translate(-50%,-50%) scale('+scale+')';
+    stage.style.height=maxH+'px';
+  }
+  window.addEventListener('resize',fitPhone);
+  show(0);
+  requestAnimationFrame(fitPhone);
+});+s.price+'</strong></div>').join('');
     const photo=state.photo
       ? '<img class="profile-photo" src="'+state.photo+'" alt="Profile photo">'
       : '<div class="profile-photo fallback">'+(state.firstName||'B').slice(0,1)+(state.lastName||'G').slice(0,1)+'</div>';
