@@ -25,7 +25,15 @@ window.addEventListener('DOMContentLoaded',()=>{
     services:[
       {base:'Haircut Only (no beard)',name:'Haircut Only (no beard)',price:'22',duration:'30'}
     ],
-    hours:'Mon–Wed · 9am–5pm',
+    hours:[
+      {day:'Monday',active:true,start:'09:00',end:'17:00'},
+      {day:'Tuesday',active:true,start:'09:00',end:'17:00'},
+      {day:'Wednesday',active:true,start:'09:00',end:'17:00'},
+      {day:'Thursday',active:true,start:'09:00',end:'17:00'},
+      {day:'Friday',active:true,start:'09:00',end:'17:00'},
+      {day:'Saturday',active:false,start:'09:00',end:'17:00'},
+      {day:'Sunday',active:false,start:'09:00',end:'17:00'}
+    ],
     photo:null
   };
   let current=0;
@@ -62,6 +70,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     nav.appendChild(row);
   });
 
+  function formatTime(value){
+    const [h,m]=value.split(':').map(Number);
+    const suffix=h>=12?'pm':'am';
+    const hour=((h+11)%12)+1;
+    return hour+(m?':'+String(m).padStart(2,'0'):'')+suffix;
+  }
+
   function profileHTML(){
     const name=((state.firstName||'')+' '+(state.lastName||'')).trim()||'Your name';
     const services=state.services.map(s=>'<div class="profile-service"><span>'+s.name+' · '+s.duration+' min</span><strong>'+String.fromCharCode(36)+s.price+'</strong></div>').join('');
@@ -71,7 +86,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     return '<div class="profile-preview">'+
       '<div class="profile-top">'+photo+'<div><div class="profile-kicker">@'+(state.username||'barber')+'</div><h2>'+name+'</h2><div class="profile-meta">'+(state.license?'Licensed '+state.licenseType+' · #'+state.license:'Barber profile')+'</div></div></div>'+
       '<div class="profile-section"><span class="profile-label">Shop</span><strong>'+(state.shop||'Not selected')+'</strong></div>'+
-      '<div class="profile-section"><span class="profile-label">Availability</span><strong>'+state.hours+'</strong></div>'+
+      '<div class="profile-section"><span class="profile-label">Availability</span><strong>'+state.hours.filter(d=>d.active).map(d=>d.day.slice(0,3)+' '+formatTime(d.start)+'–'+formatTime(d.end)).join('<br>')+'</strong></div>'+
       '<div class="profile-section"><span class="profile-label">Services</span>'+services+'</div>'+
       '<div class="profile-section"><span class="profile-label">Contact</span><p>'+state.email+'<br>'+state.phone+'</p></div>'+
       '<button class="action" data-restart>Start over</button>'+
@@ -151,6 +166,42 @@ window.addEventListener('DOMContentLoaded',()=>{
       renderServices();validateCurrent(false);
     };
 
+    function renderHours(){
+      const editor=screen.querySelector('[data-hours-editor]');
+      if(!editor) return;
+      const times=[];
+      for(let h=6;h<=21;h++) for(const m of [0,30]) times.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'));
+      const options=value=>times.map(t=>'<option value="'+t+'"'+(t===value?' selected':'')+'>'+formatTime(t)+'</option>').join('');
+      editor.innerHTML=state.hours.map((d,i)=>'<div class="hours-row'+(d.active?' active':'')+'" data-hours-row="'+i+'">'+
+        '<button type="button" class="day-toggle" data-day-toggle="'+i+'" aria-pressed="'+d.active+'"><span>'+(d.active?'✓':'')+'</span></button>'+
+        '<div class="day-name">'+d.day+'</div>'+
+        '<div class="time-pair">'+
+          '<select data-start="'+i+'"'+(d.active?'':' disabled')+'>'+options(d.start)+'</select>'+
+          '<span>to</span>'+
+          '<select data-end="'+i+'"'+(d.active?'':' disabled')+'>'+options(d.end)+'</select>'+
+        '</div>'+
+      '</div>').join('');
+
+      editor.querySelectorAll('[data-day-toggle]').forEach(btn=>btn.onclick=()=>{
+        const i=+btn.dataset.dayToggle;
+        state.hours[i].active=!state.hours[i].active;
+        renderHours(); validateCurrent(false);
+      });
+      editor.querySelectorAll('[data-start]').forEach(el=>el.onchange=()=>{
+        state.hours[+el.dataset.start].start=el.value;validateCurrent(false);
+      });
+      editor.querySelectorAll('[data-end]').forEach(el=>el.onchange=()=>{
+        state.hours[+el.dataset.end].end=el.value;validateCurrent(false);
+      });
+    }
+    renderHours();
+    const copyHours=screen.querySelector('[data-copy-hours]');
+    if(copyHours) copyHours.onclick=()=>{
+      const source=state.hours[0];
+      state.hours.slice(1,5).forEach(d=>{d.active=true;d.start=source.start;d.end=source.end});
+      renderHours(); validateCurrent(false);
+    };
+
     const photo=screen.querySelector('[data-photo]');
     if(photo){
       photo.addEventListener('change',e=>{
@@ -188,6 +239,11 @@ window.addEventListener('DOMContentLoaded',()=>{
         state.services.forEach(s=>{
           if(!String(s.name||'').trim() || !String(s.duration||'').trim() || !String(s.price||'').trim()) valid=false;
         });
+      }
+      if(screen.querySelector('[data-hours-editor]')){
+        const active=state.hours.filter(d=>d.active);
+        if(!active.length) valid=false;
+        active.forEach(d=>{ if(!d.start||!d.end||d.start>=d.end) valid=false; });
       }
       const gated=screen.querySelector('[data-gated-next]');
       if(gated){
