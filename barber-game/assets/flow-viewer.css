@@ -21,19 +21,19 @@ html,body{margin:0;min-height:100%;overflow:hidden}
 }
 .flow-sidebar .back{
   color:#38444c;
-  margin-bottom:34px;
+  margin-bottom:24px;
 }
 .flow-sidebar h1{
   color:#111;
-  font-size:clamp(46px,5vw,78px);
-  line-height:.95;
-  letter-spacing:-.055em;
-  margin:0 0 18px;
+  font-size:clamp(38px,4vw,62px);
+  line-height:.96;
+  letter-spacing:-.05em;
+  margin:0 0 14px;
 }
 .flow-sidebar .flow-subtitle{
   color:#4e5960;
   font-size:13px;
-  margin:0 0 30px;
+  margin:0 0 20px;
   max-width:320px;
 }
 .flow-sidebar .states{
