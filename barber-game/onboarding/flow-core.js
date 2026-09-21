@@ -92,6 +92,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   function hydrate(){
+    const usernameDisplay=screen.querySelector('[data-username-display]');
+    const usernameUrl=screen.querySelector('[data-username-url]');
+    if(usernameDisplay) usernameDisplay.textContent='@'+(state.username||'barber');
+    if(usernameUrl) usernameUrl.textContent='barbergame.com/'+(state.username||'barber');
+
     screen.querySelectorAll('[data-key]').forEach(el=>{
       const key=el.dataset.key;
       if(el.type==='file') return;
