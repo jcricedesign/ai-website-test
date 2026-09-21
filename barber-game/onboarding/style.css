@@ -46,3 +46,5 @@ html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 .gated-next{opacity:.38;transition:opacity .16s ease,background .16s ease,border-color .16s ease}
 .gated-next.ready{opacity:1;background:#151515;border-color:#8f8f8a}
 .gated-next:disabled{cursor:default}
+
+.action{display:flex;align-items:center;justify-content:center;line-height:1;padding:0 20px}
