@@ -15,8 +15,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     password:'',
     username:'',
     shop:'',
-    license:'4019',
-    licenseType:'Barber',
+    license:'',
+    licenseType:'',
     services:[
       {name:'Haircut',price:'22',duration:'30m'},
       {name:'Senior Haircut',price:'22',duration:'30m'},
@@ -91,6 +91,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   function hydrate(){
+    const licenseTitle=screen.querySelector('[data-license-title]');
+    const licenseNumber=screen.querySelector('[data-license-number]');
+    if(licenseTitle) licenseTitle.textContent='Licensed '+(state.licenseType||'barber');
+    if(licenseNumber) licenseNumber.textContent='#'+(state.license||'');
+
     const usernameDisplay=screen.querySelector('[data-username-display]');
     const usernameUrl=screen.querySelector('[data-username-url]');
     if(usernameDisplay) usernameDisplay.textContent='@'+(state.username||'barber');
