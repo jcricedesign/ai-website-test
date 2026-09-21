@@ -33,7 +33,7 @@ h2{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}
 .section-head span{font-size:11px;color:#777}
 .barber{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
 .avatar{width:54px;height:54px;border-radius:50%;object-fit:cover}
-.name{font-size:15px;font-weight:700}.rank{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px}
+.name{font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px}.working-dot{width:8px;height:8px;border-radius:50%;background:#4f9a6e;box-shadow:0 0 0 0 rgba(79,154,110,.18);flex:0 0 auto;animation:workingPulse 1.8s ease-in-out infinite}.rank{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}.meta{font-size:11px;color:#666;margin-top:3px}@keyframes workingPulse{0%,100%{opacity:.7;box-shadow:0 0 0 0 rgba(79,154,110,0)}50%{opacity:1;box-shadow:0 0 0 4px rgba(79,154,110,.12)}}@media (prefers-reduced-motion:reduce){.working-dot{animation:none}}
 .time{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:18px;padding:8px 11px;font-size:12px}.time.primary{background:var(--green);color:#fff}
 .hero-profile{text-align:center;padding:8px 0 4px}.hero-profile img{width:96px;height:96px;border-radius:50%;object-fit:cover;filter:grayscale(1)}.hero-profile h2{font-size:46px;margin-top:14px}.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-top:14px}.chip{border:1px solid #aaa;border-radius:999px;padding:7px 10px;font-size:10px}
 .card{border:1px solid #d0d0ca;border-radius:16px;padding:14px;margin-top:14px;background:#fff}
@@ -123,27 +123,27 @@ h2{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}
         <div class="shop-module">
           <div class="shop-title-row"><h3>Kirkland Shop</h3><span>3.6 mi away</span></div>
           <div class="shop-module-head"><h4>Working today</h4><span>First Available⌄</span></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name">Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
           <button class="view-more" type="button">view more</button>
         </div>
 
         <div class="shop-module shop-divider">
           <div class="shop-title-row"><h3>Everett</h3><span>7.1 mi away</span></div>
           <div class="shop-module-head"><h4>Working today</h4><span>First Available⌄</span></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name">Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
           <button class="view-more" type="button">view more</button>
         </div>
 
         <div class="shop-module shop-divider">
           <div class="shop-title-row"><h3>Bothell Shop</h3><span>13.1 mi away</span></div>
           <div class="shop-module-head"><h4>Working today</h4><span>First Available⌄</span></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name">Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name">Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
-          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name">Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Jaudon Miller</div><div class="rank">New Guy</div><div class="meta">Haircut · Beard · 2:00 PM</div></div><button class="time primary">2:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/jay.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Judd</div><div class="rank">Master Barber</div><div class="meta">Classic · Business · Kids</div></div><button class="time">3:00</button></div>
+          <div class="barber"><img class="avatar" src="/barber-game/chop-it-up/redesign/monnae.jpg"><div><div class="name"><span class="working-dot" title="Working now" aria-label="Working now"></span>Monnae</div><div class="rank">All Star Barber</div><div class="meta">Texture · Design · Fades</div></div><button class="time">4:00</button></div>
           <button class="view-more" type="button">view more</button>
         </div>
       </section>
