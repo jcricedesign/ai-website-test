@@ -163,6 +163,17 @@ window.addEventListener('DOMContentLoaded',()=>{
       if(btn.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
       nextVisible(1);
     });
+
+    screen.querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener('keydown',e=>{
+        if(e.key!=='Enter') return;
+        const next=screen.querySelector('[data-next]');
+        if(!next) return;
+        e.preventDefault();
+        if(next.hasAttribute('data-gated-next') && !validateCurrent(true)) return;
+        next.click();
+      });
+    });
     screen.querySelectorAll('[data-prev]').forEach(btn=>btn.onclick=()=>nextVisible(-1));
     screen.querySelectorAll('[data-restart]').forEach(btn=>btn.onclick=()=>show(0));
     validateCurrent(false);
