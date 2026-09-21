@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     lastName:'',
     email:'',
     password:'',
-    username:'overweightunicorn',
+    username:'',
     workType:'Home',
     address:'17624 15th Ave SE #101A, Bothell, WA 98012',
     license:'4019',
