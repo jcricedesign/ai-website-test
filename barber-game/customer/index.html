@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Barbergame — Customer lane</title>
+<link rel="stylesheet" href="/barber-game/assets/flow-viewer.css">
 <style>
 :root{--workspace:#747d85;--ink:#111;--muted:#6f6f6b;--line:#deded8;--green:#558168;--soft:#f3f3ef;--blue:#eef6fb}
 *{box-sizing:border-box}
@@ -53,30 +54,53 @@ h2{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}
 .history{margin-top:26px}.history h3{font-size:20px}.history-row{display:grid;grid-template-columns:80px 1fr auto;gap:10px;padding:12px 0;border-top:1px solid var(--line);font-size:11px}.history-row strong{font-size:12px}.rebook{border:1px solid #aaa;border-radius:14px;padding:14px;margin-top:14px}.rebook .who{display:flex;gap:10px;align-items:center}.rebook .who img{width:48px;height:48px;border-radius:50%;object-fit:cover}.rebook .buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.rebook .buttons button{border:1px solid #aaa;background:#fff;border-radius:999px;padding:7px 9px;font-size:10px}
 .caption{color:rgba(255,255,255,.76);text-align:center;font-size:12px;margin-top:18px}
 @media(max-width:600px){.workspace{width:100%;padding:12px}.topbar{padding:4px 4px 0}.topbar p{display:none}.phone{border-radius:24px}}
+
+.customer-flow .states{display:flex;flex-direction:column;gap:2px;overflow:visible;padding:0;margin:0}
+.customer-flow .state-btn{position:relative;width:100%;min-width:0;border:0;background:transparent;color:var(--flow-rail);border-radius:0;padding:7px 4px 7px 34px;font-size:11px;font-weight:700;text-align:left;cursor:pointer;counter-increment:none}
+.customer-flow .state-btn::before{content:attr(data-num);position:absolute;left:0;top:50%;transform:translateY(-50%);width:20px;height:20px;border:1px solid rgba(45,67,83,.55);display:grid;place-items:center;font-size:9px;font-weight:700;background:transparent}
+.customer-flow .state-btn:not(:last-child)::after{content:"";position:absolute;left:9px;top:26px;width:1px;height:8px;background:rgba(45,67,83,.35)}
+.customer-flow .state-btn.active{background:transparent;color:#111}
+.customer-flow .state-btn.active::before{background:var(--flow-rail);color:#fff;border-color:var(--flow-rail)}
+.customer-flow .stage{position:relative;min-height:0}
+.customer-flow .phone{position:absolute;left:50%;top:50%;width:414px;height:866px;padding:12px;background:#090a0b;border:2px solid #25272a;border-radius:48px;overflow:visible;box-shadow:0 26px 70px rgba(0,0,0,.45),inset 0 0 0 1px #000;transform-origin:center center;color:#111;display:block;min-height:0}
+.customer-flow .device-screen{width:390px;height:842px;background:#fff;border-radius:36px;overflow:hidden;position:relative}
+.customer-flow .phone:before{content:"";position:absolute;z-index:8;top:5px;left:50%;transform:translateX(-50%);width:58px;height:5px;border-radius:999px;background:#292b2e}
+.customer-flow .phone:after{content:"";position:absolute;z-index:8;top:8px;right:70px;width:6px;height:6px;border-radius:50%;background:#1b1d20;box-shadow:0 0 0 1px #303236}
+.customer-flow .shop-nav{border-radius:36px 36px 0 0}
+.customer-flow .screen{min-height:764px}
+.customer-flow .caption{color:rgba(255,255,255,.7)}
+@media(max-width:800px){.customer-flow .states{flex-direction:row;gap:12px;overflow:auto}.customer-flow .state-btn{flex:0 0 142px}.customer-flow .state-btn:not(:last-child)::after{display:none}}
+
 </style>
 </head>
 <body>
-<div class="workspace">
-  <div class="topbar">
-    <div><a class="back" href="/barber-game/">← The Barbergame</a><h1>Customer lane</h1><p>Mobile web · no account required to book.</p></div>
-  </div>
-  <nav class="states" id="states">
-    <button class="state-btn active" data-state="discover">Discover</button>
-    <button class="state-btn" data-state="profile">Barber profile</button>
-    <button class="state-btn" data-state="service">Service</button>
-    <button class="state-btn" data-state="time">Time</button>
-    <button class="state-btn" data-state="confirm">Confirm</button>
-    <button class="state-btn" data-state="confirmed">Confirmed</button>
-    <button class="state-btn" data-state="verify">Verify</button>
-    <button class="state-btn" data-state="upcoming">Upcoming</button>
-    <button class="state-btn" data-state="checkin">Check in</button>
-    <button class="state-btn" data-state="checked">Checked in</button>
-    <button class="state-btn" data-state="review">After appointment</button>
-    <button class="state-btn" data-state="rebook">Rebook</button>
+<div class="flow-viewer-shell customer-flow">
+  <aside class="flow-sidebar">
+    <a class="back" href="/barber-game/">← The Barbergame</a>
+    <h1>Customer<br>booking</h1>
+    <p class="flow-subtitle">Mobile web · no account required to book.</p>
+    <nav class="states" id="states">
+    <button class="state-btn active" data-state="discover" data-num="1">Discover</button>
+    <button class="state-btn" data-state="profile" data-num="2">Barber profile</button>
+    <button class="state-btn" data-state="service" data-num="3">Service</button>
+    <button class="state-btn" data-state="time" data-num="4">Time</button>
+    <button class="state-btn" data-state="confirm" data-num="5">Confirm</button>
+    <button class="state-btn" data-state="confirmed" data-num="6">Confirmed</button>
+    <button class="state-btn" data-state="verify" data-num="7">Verify</button>
+    <button class="state-btn" data-state="upcoming" data-num="8">Upcoming</button>
+    <button class="state-btn" data-state="checkin" data-num="9">Check in</button>
+    <button class="state-btn" data-state="checked" data-num="10">Checked in</button>
+    <button class="state-btn" data-state="review" data-num="11">After appointment</button>
+    <button class="state-btn" data-state="rebook" data-num="12">Rebook</button>
   </nav>
 
-  <div class="stage">
-    <div class="phone">
+  
+  </aside>
+  <section class="flow-main">
+    <div class="stage-wrap">
+      <div class="stage">
+        <div class="phone">
+      <div class="device-screen">
       <div class="shop-nav"><span class="left">Sign in</span><img src="/barber-game/chop-it-up/redesign/ChopItUp-Logo.png" alt="Chop It Up"><span class="menu">☰</span></div>
 
       <section class="screen active" data-screen="discover">
@@ -160,9 +184,13 @@ h2{font-size:34px;line-height:.96;letter-spacing:-.05em;margin:0}
         <div class="rebook"><div class="who"><img src="/barber-game/chop-it-up/redesign/jay-miller.jpg"><div><strong>Jaudon Miller</strong><div class="meta">Your recent barber</div></div></div><div class="buttons"><button>Haircut · $35</button><button>Today 2:00</button><button>More times</button></div><button class="primary">Book again</button></div>
         <div class="history"><h3>Past appointments</h3><div class="history-row"><strong>Dec 14</strong><span>Haircut + Beard<br>Jaudon Miller</span><u>Leave review</u></div><div class="history-row"><strong>Dec 4</strong><span>Haircut<br>Jaudon Miller</span><u>Review 5.0</u></div></div>
       </section>
+      </div>
     </div>
-  </div>
-  <div class="caption" id="caption">Discover / book — guest-friendly entry point.</div>
+
+      </div>
+      <div class="caption" id="caption">Discover / book — guest-friendly entry point.</div>
+    </div>
+  </section>
 </div>
 <script>
 if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
@@ -180,6 +208,22 @@ checked:'Checked in — clear acknowledgment that the barber has the signal.',
 review:'After appointment — capture lightweight feedback.',
 rebook:'Easy rebook — history and recent context reduce future effort.'
 };
+function fitCustomerPhone(){
+  const stage=document.querySelector('.customer-flow .stage');
+  const phone=document.querySelector('.customer-flow .phone');
+  if(!stage||!phone) return;
+  const box=stage.getBoundingClientRect();
+  const caption=document.getElementById('caption');
+  const captionH=caption?caption.getBoundingClientRect().height:0;
+  const maxH=Math.max(420,window.innerHeight-box.top-captionH-54);
+  const maxW=Math.max(280,stage.clientWidth-12);
+  const scale=Math.min(1,maxH/866,maxW/414);
+  phone.style.transform='translate(-50%,-50%) scale('+scale+')';
+  stage.style.height=maxH+'px';
+}
+window.addEventListener('resize',fitCustomerPhone);
+requestAnimationFrame(fitCustomerPhone);
+
 document.querySelectorAll('.state-btn').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('.state-btn').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
