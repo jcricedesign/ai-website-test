@@ -39,3 +39,10 @@
 html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 
 .phone{position:absolute;left:50%;top:50%}
+
+.field-message{min-height:17px;margin-top:6px;font-size:11px;color:#a9a9a5}
+.field.invalid input{border-color:#e66262}
+.field.invalid .field-message{color:#ff7777}
+.gated-next{opacity:.38;transition:opacity .16s ease,background .16s ease,border-color .16s ease}
+.gated-next.ready{opacity:1;background:#151515;border-color:#8f8f8a}
+.gated-next:disabled{cursor:default}
