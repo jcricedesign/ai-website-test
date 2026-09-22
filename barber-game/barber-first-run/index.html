@@ -46,10 +46,20 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .app-view.active{display:block}
 .myday-feed{height:100%;overflow-y:auto;padding:18px 18px 34px;scrollbar-width:none}
 .myday-feed::-webkit-scrollbar{display:none}
-.earnings-card{background:#0f0f0f;border-radius:9px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.earnings-card .earnings-left{display:flex;align-items:center;gap:12px;color:#cfcfcb}
-.earnings-card .money-icon{width:28px;height:28px;border:2px solid #f2f2ee;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
-.earnings-card strong{font-size:22px}
+.earnings-goal{background:#f4f4f1;color:#111;border:1px solid #d0d0ca;border-radius:9px;padding:16px 16px 14px;margin-bottom:16px}
+.earnings-top{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.earnings-copy h3{margin:0;font-size:24px;line-height:1;letter-spacing:-.03em}
+.earnings-copy p{margin:7px 0 0;font-size:12px;color:#595955}
+.earnings-total{font-size:25px;font-weight:800;color:#2f6b45;line-height:1}
+.goal-track{position:relative;height:52px;margin-top:18px}
+.goal-rail{position:absolute;left:0;right:0;top:12px;height:10px;border-radius:999px;background:#deded9;overflow:hidden}
+.goal-fill{height:100%;width:12%;background:#5a9a70;border-radius:999px}
+.goal-mark{position:absolute;top:4px;width:1px;height:24px;background:#7f7f79}
+.goal-mark.booth{left:25%}.goal-mark.daily{left:65%}.goal-mark.reserve{left:82%}
+.goal-label{position:absolute;top:30px;font-size:9px;color:#666;transform:translateX(-50%);white-space:nowrap}
+.goal-label.booth{left:25%}.goal-label.daily{left:65%}.goal-label.reserve{left:82%}.goal-label.bonus{right:0;transform:none}
+.goal-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:10px;color:#666}
+.goal-footer strong{font-size:10px;color:#555}
 .day-label{font-size:12px;color:#b5b5b0;margin:4px 0 10px;letter-spacing:.02em}
 .appt-list{display:grid;gap:10px}
 .appt-slot{min-height:72px;background:#242424;border:1px solid #2f2f2f;border-radius:9px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
@@ -175,10 +185,26 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 
                 <section class="app-view" data-app-view="myday">
                   <div class="myday-feed">
-                    <div class="earnings-card">
-                      <div class="earnings-left"><span class="money-icon">$</span><span>Projected Earnings</span></div>
-                      <strong>$322</strong>
-                    </div>
+                    <section class="earnings-goal">
+                      <div class="earnings-top">
+                        <div class="earnings-copy">
+                          <h3>Projected Earnings</h3>
+                          <p>Today’s Goal $195</p>
+                        </div>
+                        <div class="earnings-total">$36</div>
+                      </div>
+                      <div class="goal-track">
+                        <div class="goal-rail"><div class="goal-fill"></div></div>
+                        <span class="goal-mark booth"></span>
+                        <span class="goal-mark daily"></span>
+                        <span class="goal-mark reserve"></span>
+                        <span class="goal-label booth">Booth $75</span>
+                        <span class="goal-label daily">Daily $195</span>
+                        <span class="goal-label reserve">Reserve $250</span>
+                        <span class="goal-label bonus">Bonus $300</span>
+                      </div>
+                      <div class="goal-footer"><span>$36 so far</span><strong>Toward booth rent</strong></div>
+                    </section>
                     <div class="day-label">Today · Monday</div>
                     <div class="appt-list">
                       <article class="appt-slot complete">
