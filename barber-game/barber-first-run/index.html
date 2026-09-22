@@ -158,6 +158,27 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .stats-section h3{margin:0 0 10px;font-size:17px;font-weight:600}
 .stats-section p{margin:0;color:#e0e0dc;font-size:15px;line-height:1.5}
 .stats-quote{font-style:italic;color:#f0f0ec}
+.profile-trigger{border:0;background:transparent;padding:0;cursor:pointer;border-radius:50%}
+.settings-overlay{position:absolute;inset:0;z-index:30;background:#1d1d1d;color:#fff;display:none;grid-template-rows:auto 1fr}
+.settings-overlay.open{display:grid}
+.settings-top{height:72px;display:flex;align-items:center;justify-content:flex-end;padding:0 22px;border-bottom:1px solid #2a2a2a;background:#1d1d1d;position:sticky;top:0;z-index:2}
+.settings-close{width:38px;height:38px;border:1px solid #8a8a85;border-radius:50%;background:transparent;color:#cfcfca;font-size:28px;line-height:1;display:grid;place-items:center;cursor:pointer}
+.settings-scroll{overflow-y:auto;padding:24px 24px 42px;scrollbar-width:none}
+.settings-scroll::-webkit-scrollbar{display:none}
+.settings-title{margin:0 0 6px;font-size:28px;font-weight:600;letter-spacing:-.035em}
+.settings-sub{margin:0 0 24px;color:#8d8d88;font-size:11px;line-height:1.45}
+.settings-section{margin-top:28px}
+.settings-section:first-of-type{margin-top:0}
+.settings-section h3{margin:0 0 10px;font-size:13px;font-weight:500;color:#9a9a95;text-transform:uppercase;letter-spacing:.08em}
+.settings-list{display:grid;border-top:1px solid #2e2e2e}
+.settings-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:15px 0;border-bottom:1px solid #2e2e2e;color:#f0f0ec;text-decoration:none}
+.settings-row strong{display:block;font-size:13px;font-weight:500}
+.settings-row small{display:block;margin-top:5px;color:#7f7f7a;font-size:9px;line-height:1.4}
+.settings-row .chev{font-size:20px;color:#858580}
+.settings-row.link strong{color:#9e83ff}
+.settings-row.danger strong{color:#cf6868}
+.settings-inline{display:flex;align-items:center;gap:8px;color:#b0b0ab;font-size:10px}
+.settings-badge{display:inline-block;padding:3px 7px;border:1px solid #4b4b47;border-radius:999px;color:#aaa;font-size:9px}
 @media(max-width:800px){.phone{width:414px;height:866px}}
 </style>
 </head>
@@ -198,6 +219,12 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
         </button>
         <button class="state-select" type="button" data-view-jump="stats"><span class="state-num">5</span><span>Stats</span></button>
       </div>
+      <div class="state">
+        <button class="state-eye" type="button" aria-label="Visible">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+        </button>
+        <button class="state-select" type="button" data-open-settings><span class="state-num">6</span><span>Settings overlay</span></button>
+      </div>
     </nav>
   </aside>
   <section class="flow-main">
@@ -208,7 +235,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
             <div class="barber-app-shell">
               <header class="barber-app-header">
                 <img class="barber-app-logo" src="/barber-game/assets/TBG-logo.svg" alt="TBG">
-                <img class="barber-app-profile" src="/barber-game/assets/barber-profile-large.png" alt="Barber profile">
+                <button class="profile-trigger" type="button" aria-label="Open settings"><img class="barber-app-profile" src="/barber-game/assets/barber-profile-large.png" alt="Barber profile"></button>
               </header>
               <main class="barber-app-content">
                 <section class="app-view active" data-app-view="home">
@@ -496,6 +523,62 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                 <a class="barber-nav-item" href="#" data-view="business"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
                 <a class="barber-nav-item" href="#" data-view="stats"><img src="/barber-game/assets/icon-trophy.svg" alt=""><span class="barber-nav-label">Stats</span></a>
               </nav>
+
+              <section class="settings-overlay" aria-hidden="true">
+                <div class="settings-top">
+                  <button class="settings-close" type="button" aria-label="Close settings">×</button>
+                </div>
+                <div class="settings-scroll">
+                  <h2 class="settings-title">Settings</h2>
+                  <p class="settings-sub">Manage the account, business setup, and preferences you created during onboarding.</p>
+
+                  <section class="settings-section">
+                    <h3>Account</h3>
+                    <div class="settings-list">
+                      <a class="settings-row" href="#"><div><strong>Basic info</strong><small>Name, email, password</small></div><span class="chev">›</span></a>
+                      <a class="settings-row" href="#"><div><strong>Phone verification</strong><small>(425) 555-1212 · Verified</small></div><span class="chev">›</span></a>
+                      <a class="settings-row" href="#"><div><strong>Username</strong><small>jaudonmiller</small></div><span class="chev">›</span></a>
+                      <a class="settings-row" href="#"><div><strong>Profile photo</strong><small>Change public photo</small></div><span class="chev">›</span></a>
+                    </div>
+                  </section>
+
+                  <section class="settings-section">
+                    <h3>Appointments & profile</h3>
+                    <div class="settings-list">
+                      <a class="settings-row link" href="#"><div><strong>Shop location</strong><small>Kirkland Shop</small></div><span class="chev">›</span></a>
+                      <a class="settings-row link" href="#"><div><strong>Services & prices</strong><small>3 active services</small></div><span class="chev">›</span></a>
+                      <a class="settings-row link" href="#"><div><strong>Days & hours</strong><small>Mon–Fri · 9am–5pm</small></div><span class="chev">›</span></a>
+                      <a class="settings-row" href="#"><div><strong>Notifications</strong><small>Appointment and client alerts</small></div><span class="chev">›</span></a>
+                      <a class="settings-row" href="#"><div><strong>Payment methods</strong><small>What clients can use to pay you</small></div><span class="chev">›</span></a>
+                    </div>
+                  </section>
+
+                  <section class="settings-section">
+                    <h3>Licenses & documents</h3>
+                    <div class="settings-list">
+                      <a class="settings-row link" href="#"><div><strong>Barber license</strong><small>#4019 · Expires Aug 12, 2027</small></div><span class="chev">›</span></a>
+                      <a class="settings-row link" href="#"><div><strong>Insurance</strong><small>Expires Mar 31, 2027</small></div><span class="chev">›</span></a>
+                      <a class="settings-row link" href="#"><div><strong>Salon license</strong><small>Expires Nov 15, 2026</small></div><span class="chev">›</span></a>
+                    </div>
+                  </section>
+
+                  <section class="settings-section">
+                    <h3>Privacy & data</h3>
+                    <div class="settings-list">
+                      <a class="settings-row" href="#"><div><strong>Manage data</strong><small>Download or review your account data</small></div><span class="chev">›</span></a>
+                      <a class="settings-row" href="#"><div><strong>Terms of use</strong></div><span class="chev">›</span></a>
+                      <a class="settings-row danger" href="#"><div><strong>Delete account</strong><small>Permanently remove your Barbergame account</small></div><span class="chev">›</span></a>
+                    </div>
+                  </section>
+
+                  <section class="settings-section">
+                    <h3>Help</h3>
+                    <div class="settings-list">
+                      <a class="settings-row" href="#"><div><strong>Report a problem</strong></div><span class="chev">›</span></a>
+                    </div>
+                  </section>
+                </div>
+              </section>
             </div>
           </div>
         </div>
@@ -531,6 +614,32 @@ document.querySelectorAll('.barber-nav-item[data-view]').forEach(el=>el.addEvent
   setView(el.dataset.view);
 }));
 document.querySelectorAll('[data-view-jump]').forEach(el=>el.addEventListener('click',()=>setView(el.dataset.viewJump)));
+
+let previousView='home';
+const settingsOverlay=document.querySelector('.settings-overlay');
+const profileTrigger=document.querySelector('.profile-trigger');
+const settingsClose=document.querySelector('.settings-close');
+function openSettings(){
+  const active=document.querySelector('[data-app-view].active');
+  previousView=active?active.dataset.appView:'home';
+  if(settingsOverlay){
+    settingsOverlay.classList.add('open');
+    settingsOverlay.setAttribute('aria-hidden','false');
+  }
+  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',i===5));
+  const cap=document.getElementById('viewCaption');
+  if(cap) cap.textContent='Settings — manage onboarding information, account data and help.';
+}
+function closeSettings(){
+  if(settingsOverlay){
+    settingsOverlay.classList.remove('open');
+    settingsOverlay.setAttribute('aria-hidden','true');
+  }
+  setView(previousView);
+}
+if(profileTrigger) profileTrigger.addEventListener('click',openSettings);
+if(settingsClose) settingsClose.addEventListener('click',closeSettings);
+document.querySelectorAll('[data-open-settings]').forEach(el=>el.addEventListener('click',openSettings));
 
 const liveSlot=document.querySelector('[data-open-live]');
 if(liveSlot){
