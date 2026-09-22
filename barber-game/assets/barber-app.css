@@ -6,6 +6,6 @@
 .barber-bottom-nav{display:grid;grid-template-columns:repeat(4,1fr);background:#111;border-top:1px solid rgba(255,255,255,.04);position:relative;z-index:10}
 .barber-nav-item{display:grid;grid-template-rows:30px 16px;place-items:center;align-content:center;row-gap:10px;color:#747474;text-decoration:none;font-size:11px;font-weight:500;line-height:1;letter-spacing:-.01em;min-width:0}
 .barber-nav-item img{width:27px;height:27px;object-fit:contain;opacity:.65;align-self:center}
-.barber-nav-item.active{background:#8b35ea;color:#fff;font-weight:600}
+.barber-nav-item.active{background:var(--barber-accent,#8b35ea);color:#fff;font-weight:600}
 .barber-nav-item.active img{opacity:1;filter:brightness(0) invert(1)}
 .barber-nav-label{white-space:nowrap;display:block;line-height:16px;text-align:center}
