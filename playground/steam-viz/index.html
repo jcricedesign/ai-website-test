@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Steam Live Population Prototype</title>
+  <style>
+    :root {
+      --bg: #ef6354;
+      --text: #fff8f0;
+      --muted: rgba(255, 248, 240, 0.8);
+      --cs2: #f4f1e8;
+      --dota: #243447;
+      --pubg: #ffd166;
+      --hd2: #8ecae6;
+      --gta: #caffbf;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: 100%;
+      min-height: 100vh;
+      padding: 3vw 3vw 2vw 3vw;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 2vh;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 2rem;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .eyebrow {
+      font-size: clamp(16px, 1.2vw, 24px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .total {
+      font-size: clamp(48px, 7vw, 120px);
+      line-height: 0.95;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .scale {
+      text-align: right;
+      font-size: clamp(16px, 1.3vw, 26px);
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .viz {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.2vw;
+      align-items: end;
+      min-height: 0;
+    }
+
+    .game {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 0;
+    }
+
+    .circles {
+      display: flex;
+      flex-wrap: wrap-reverse;
+      align-content: flex-start;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 100%;
+      padding: 1vw 0.5vw 0.5vw;
+      border-left: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .game:first-child .circles {
+      border-left: none;
+    }
+
+    .dot {
+      width: clamp(18px, 1.9vw, 34px);
+      height: clamp(18px, 1.9vw, 34px);
+      border-radius: 50%;
+      opacity: 0.96;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+      animation: breathe 5s ease-in-out infinite;
+      animation-delay: var(--delay);
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    .label {
+      padding-top: 0.8rem;
+      border-top: 2px solid rgba(255,255,255,0.2);
+      display: grid;
+      gap: 0.3rem;
+    }
+
+    .name {
+      font-size: clamp(18px, 1.8vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .count {
+      font-size: clamp(16px, 1.4vw, 28px);
+      color: var(--text);
+      opacity: 0.95;
+    }
+
+    .delta {
+      font-size: clamp(14px, 1vw, 20px);
+      color: var(--muted);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      font-size: clamp(14px, 1vw, 20px);
+      color: var(--muted);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 1100px) {
+      .viz {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .circles {
+        min-height: 140px;
+      }
+
+      .header,
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .scale {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title-block">
+        <div class="eyebrow">Steam live population</div>
+        <div class="total" id="totalPlayers">1,072,671 playing now</div>
+      </div>
+      <div class="scale">
+        <div><strong>1 circle = 10,000 players</strong></div>
+        <div>Live snapshot prototype</div>
+      </div>
+    </div>
+
+    <div class="viz" id="viz"></div>
+
+    <div class="footer">
+      <div class="legend" id="legend"></div>
+      <div id="updatedAt">Using captured sample data</div>
+    </div>
+  </div>
+
+  <script>
+    const unit = 10000;
+
+    const games = [
+      {
+        key: "cs2",
+        name: "CS2",
+        fullName: "Counter-Strike 2",
+        players: 491698,
+        delta: 0,
+        color: "var(--cs2)"
+      },
+      {
+        key: "dota2",
+        name: "DOTA 2",
+        fullName: "Dota 2",
+        players: 393337,
+        delta: 0,
+        color: "var(--dota)"
+      },
+      {
+        key: "pubg",
+        name: "PUBG",
+        fullName: "PUBG: BATTLEGROUNDS",
+        players: 112950,
+        delta: 0,
+        color: "var(--pubg)"
+      },
+      {
+        key: "hd2",
+        name: "HD2",
+        fullName: "HELLDIVERS 2",
+        players: 45942,
+        delta: 0,
+        color: "var(--hd2)"
+      },
+      {
+        key: "gtav",
+        name: "GTA V",
+        fullName: "Grand Theft Auto V",
+        players: 28744,
+        delta: -547,
+        color: "var(--gta)"
+      }
+    ];
+
+    function formatNumber(n) {
+      return n.toLocaleString();
+    }
+
+    function formatDelta(n) {
+      if (n > 0) return `+${formatNumber(n)} last sample`;
+      if (n < 0) return `${formatNumber(n)} last sample`;
+      return `no change last sample`;
+    }
+
+    function build() {
+      const viz = document.getElementById("viz");
+      const legend = document.getElementById("legend");
+      const totalPlayers = document.getElementById("totalPlayers");
+
+      const total = games.reduce((sum, g) => sum + g.players, 0);
+      totalPlayers.textContent = `${formatNumber(total)} playing now`;
+
+      viz.innerHTML = "";
+      legend.innerHTML = "";
+
+      games.forEach(game => {
+        const circleCount = Math.round(game.players / unit);
+
+        const gameEl = document.createElement("section");
+        gameEl.className = "game";
+
+        const circles = document.createElement("div");
+        circles.className = "circles";
+
+        for (let i = 0; i < circleCount; i++) {
+          const dot = document.createElement("div");
+          dot.className = "dot";
+          dot.style.background = game.color;
+          dot.style.setProperty("--delay", `${(i % 9) * 0.25}s`);
+          circles.appendChild(dot);
+        }
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.innerHTML = `
+          <div class="name">${game.name}</div>
+          <div class="count">${formatNumber(game.players)} players</div>
+          <div class="delta">${formatDelta(game.delta)}</div>
+        `;
+
+        gameEl.appendChild(circles);
+        gameEl.appendChild(label);
+        viz.appendChild(gameEl);
+
+        const legendItem = document.createElement("div");
+        legendItem.className = "legend-item";
+        legendItem.innerHTML = `
+          <span class="legend-swatch" style="background:${game.color}"></span>
+          <span>${game.fullName}</span>
+        `;
+        legend.appendChild(legendItem);
+      });
+    }
+
+    build();
+  </script>
+</body>
+</html>
