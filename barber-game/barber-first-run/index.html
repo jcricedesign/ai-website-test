@@ -36,10 +36,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .feed-card.reminder strong{display:block;font-size:16px;margin-top:1px}
 .feed-card.reminder p{font-size:12px;line-height:1.5;color:#aaa;margin:8px 0 0}
 .feed-card.reminder .chev{font-size:22px;color:#aaa;line-height:1}
-.feed-card.small{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.feed-card.small strong{font-size:15px;font-weight:600}
-.feed-card.small span{display:block;color:#999;font-size:11px;margin-top:5px;line-height:1.4}
-.feed-card.small .chev{font-size:22px;color:#aaa}.feed-card.small.utility{background:#1d1d1d;border-color:#2d2d2d;box-shadow:none}.feed-card.small.utility strong{font-weight:500;color:#deded9}.feed-card.small.utility span{color:#858580}
+.feed-card.small{padding:14px 2px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;border:0;border-radius:0;box-shadow:none}
+.feed-card.small strong{font-size:14px;font-weight:500}
+.feed-card.small span{display:block;color:#8f8f8a;font-size:11px;margin-top:4px;line-height:1.4}
+.feed-card.small .chev{font-size:20px;color:#8a8a85}.feed-card.small.utility{background:transparent;border:0;box-shadow:none}.feed-card.small.utility strong{font-weight:500;color:#deded9}.feed-card.small.utility span{color:#858580}
 .feed-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#777;margin:22px 2px 2px}
 .caption{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:12px}
 @media(max-width:800px){.phone{width:414px;height:866px}}
@@ -141,3 +141,4 @@ requestAnimationFrame(fitPhone);
 </script>
 </body>
 </html>
+.feed-card.small + .feed-card.small{border-top:1px solid #2b2b2b}
