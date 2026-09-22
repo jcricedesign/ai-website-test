@@ -46,6 +46,17 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .app-view.active{display:block}
 .myday-feed{height:100%;overflow-y:auto;padding:18px 18px 34px;scrollbar-width:none}
 .myday-feed::-webkit-scrollbar{display:none}
+.myday-oobe-feed{height:100%;overflow-y:auto;padding:18px 18px 34px;scrollbar-width:none}
+.myday-oobe-feed::-webkit-scrollbar{display:none}
+.booking-link-card{border:1px solid #3a3a3a;border-radius:9px;padding:16px;margin-bottom:16px;background:#1b1b1b}
+.booking-link-card strong{display:block;font-size:16px;font-weight:500;color:#f1f1ed}
+.booking-link-card p{margin:7px 0 12px;color:#91918c;font-size:11px;line-height:1.45}
+.booking-link-action{border:0;background:transparent;color:#9e83ff;padding:0;font:inherit;font-size:12px;font-weight:500;cursor:pointer}
+.empty-list{display:grid;gap:10px}
+.empty-slot{min-height:64px;border:1px solid #4b4b4b;border-radius:9px;padding:13px 15px;display:grid;grid-template-columns:1fr auto;align-items:center;background:transparent}
+.empty-slot strong{font-size:14px;font-weight:500;color:#bcbcb7}
+.empty-slot span{font-size:12px;color:#8b8b86}
+
 .earnings-goal{position:sticky;top:0;z-index:5;background:#191919;color:#f4f4f2;border:1px solid #393939;border-radius:9px;padding:16px 16px 14px;margin-bottom:16px;box-shadow:0 10px 24px rgba(0,0,0,.14);transition:padding .2s ease,box-shadow .2s ease,transform .2s ease}
 .earnings-top{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
 .earnings-copy h3{margin:0;font-size:24px;line-height:1;letter-spacing:-.03em;transition:font-size .2s ease}
@@ -199,31 +210,37 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
         <button class="state-eye" type="button" aria-label="Visible">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
-        <button class="state-select" type="button" data-view-jump="myday"><span class="state-num">2</span><span>My Day</span></button>
+        <button class="state-select" type="button" data-view-jump="myday-oobe"><span class="state-num">2</span><span>My Day - OOBE</span></button>
       </div>
       <div class="state">
         <button class="state-eye" type="button" aria-label="Visible">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
-        <button class="state-select" type="button" data-view-jump="live"><span class="state-num">3</span><span>Live appointment</span></button>
+        <button class="state-select" type="button" data-view-jump="myday"><span class="state-num">3</span><span>My Day - populated</span></button>
       </div>
       <div class="state">
         <button class="state-eye" type="button" aria-label="Visible">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
-        <button class="state-select" type="button" data-view-jump="business"><span class="state-num">4</span><span>Business</span></button>
+        <button class="state-select" type="button" data-view-jump="live"><span class="state-num">4</span><span>Live appointment</span></button>
       </div>
       <div class="state">
         <button class="state-eye" type="button" aria-label="Visible">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
-        <button class="state-select" type="button" data-view-jump="stats"><span class="state-num">5</span><span>Stats</span></button>
+        <button class="state-select" type="button" data-view-jump="business"><span class="state-num">5</span><span>Business</span></button>
       </div>
       <div class="state">
         <button class="state-eye" type="button" aria-label="Visible">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
-        <button class="state-select" type="button" data-open-settings><span class="state-num">6</span><span>Settings overlay</span></button>
+        <button class="state-select" type="button" data-view-jump="stats"><span class="state-num">6</span><span>Stats</span></button>
+      </div>
+      <div class="state">
+        <button class="state-eye" type="button" aria-label="Visible">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+        </button>
+        <button class="state-select" type="button" data-open-settings><span class="state-num">7</span><span>Settings overlay</span></button>
       </div>
     </nav>
   </aside>
@@ -276,6 +293,36 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                     </article>
                   </div>
 
+                  </div>
+                </section>
+
+                <section class="app-view" data-app-view="myday-oobe">
+                  <div class="myday-oobe-feed">
+                    <div class="booking-link-card">
+                      <strong>Add your booking link</strong>
+                      <p>Share your public booking link so clients can start filling your day.</p>
+                      <button class="booking-link-action" type="button">Copy booking link</button>
+                    </div>
+                    <div class="day-label">Today · Monday</div>
+                    <div class="empty-list">
+                      <div class="empty-slot"><strong>Empty slot</strong><span>9a</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>9:30a</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>10a</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>10:30a</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>11a</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>11:30a</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>12p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>12:30p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>1p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>1:30p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>2p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>2:30p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>3p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>3:30p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>4p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>4:30p</span></div>
+                      <div class="empty-slot"><strong>Empty slot</strong><span>5p</span></div>
+                    </div>
                   </div>
                 </section>
 
@@ -519,7 +566,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
               </main>
               <nav class="barber-bottom-nav" aria-label="Barber app">
                 <a class="barber-nav-item active" href="#" data-view="home" aria-current="page"><img src="/barber-game/assets/icon-home-solid.svg" alt=""><span class="barber-nav-label">Home</span></a>
-                <a class="barber-nav-item" href="#" data-view="myday"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
+                <a class="barber-nav-item" href="#" data-view="myday-oobe"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
                 <a class="barber-nav-item" href="#" data-view="business"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
                 <a class="barber-nav-item" href="#" data-view="stats"><img src="/barber-game/assets/icon-trophy.svg" alt=""><span class="barber-nav-label">Stats</span></a>
               </nav>
@@ -591,7 +638,8 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
 const viewCaptions={
   home:'Home — first-run card feed after Barber Onboarding.',
-  myday:'My Day — appointment slot states and current-day activity.',
+  'myday-oobe':'My Day - OOBE — empty day ready for the barber to share and fill.',
+  myday:'My Day - populated — appointment slot states and current-day activity.',
   live:'Live appointment — simplified one-handed appointment mode.',
   business:'Business — licenses, insurance, booth rent, time off and tax reporting.',
   stats:'Stats — barber performance, tenure, specialties and customer feedback.'
@@ -603,7 +651,7 @@ function setView(view){
     el.classList.toggle('active',active);
     if(active) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
-  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',(view==='home'&&i===0)||(view==='myday'&&i===1)||(view==='live'&&i===2)||(view==='business'&&i===3)||(view==='stats'&&i===4)));
+  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',(view==='home'&&i===0)||(view==='myday-oobe'&&i===1)||(view==='myday'&&i===2)||(view==='live'&&i===3)||(view==='business'&&i===4)||(view==='stats'&&i===5)));
   const shell=document.querySelector('.barber-app-shell');
   if(shell) shell.classList.toggle('live-mode',view==='live');
   const cap=document.getElementById('viewCaption');
@@ -626,7 +674,7 @@ function openSettings(){
     settingsOverlay.classList.add('open');
     settingsOverlay.setAttribute('aria-hidden','false');
   }
-  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',i===5));
+  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',i===6));
   const cap=document.getElementById('viewCaption');
   if(cap) cap.textContent='Settings — manage onboarding information, account data and help.';
 }
