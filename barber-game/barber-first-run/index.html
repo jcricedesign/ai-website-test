@@ -42,6 +42,37 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .feed-card.small .chev{font-size:20px;color:#8a8a85}.feed-card.small.utility{background:transparent;border:0;box-shadow:none}.feed-card.small.utility strong{font-weight:500;color:#deded9}.feed-card.small.utility span{color:#858580}
 .feed-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#777;margin:22px 2px 2px}
 .caption{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:12px}
+.app-view{height:100%;display:none}
+.app-view.active{display:block}
+.myday-feed{height:100%;overflow-y:auto;padding:18px 18px 34px;scrollbar-width:none}
+.myday-feed::-webkit-scrollbar{display:none}
+.earnings-card{background:#0f0f0f;border-radius:9px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.earnings-card .earnings-left{display:flex;align-items:center;gap:12px;color:#cfcfcb}
+.earnings-card .money-icon{width:28px;height:28px;border:2px solid #f2f2ee;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
+.earnings-card strong{font-size:22px}
+.day-label{font-size:12px;color:#b5b5b0;margin:4px 0 10px;letter-spacing:.02em}
+.appt-list{display:grid;gap:10px}
+.appt-slot{min-height:72px;background:#242424;border:1px solid #2f2f2f;border-radius:9px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.appt-main{min-width:0}
+.appt-name{font-size:18px;color:#f4f4f2;line-height:1.1}
+.appt-service{font-size:12px;color:#aaa;margin-top:5px}
+.appt-right{text-align:right;min-width:74px}
+.appt-time{font-size:13px;color:#ddd;margin-top:5px}
+.appt-status{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#8a8a85}
+.appt-slot.complete{background:transparent;border-color:#4a4a4a}
+.appt-slot.complete .appt-name,.appt-slot.complete .appt-service{color:#8e8e89;font-style:italic}
+.appt-slot.new .appt-status{color:#28cf72}
+.appt-slot.break{background:transparent;border-color:#555}
+.appt-slot.live{background:#8734ec;border-color:#8734ec;grid-template-columns:72px 1fr 92px;padding:0;overflow:hidden;min-height:104px}
+.appt-slot.live .live-photo-wrap{height:100%;background:rgba(0,0,0,.14);display:grid;place-items:center}
+.appt-slot.live img{width:54px;height:54px;border-radius:50%;object-fit:cover}
+.appt-slot.live .appt-name{font-size:20px}
+.appt-slot.live .appt-service{color:#e4d9fb}
+.appt-slot.live .appt-right{padding-right:14px}
+.appt-slot.live .appt-status{font-size:24px;color:#fff;letter-spacing:0;text-transform:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e53d4f;margin-left:6px;vertical-align:middle}
+.live-progress{font-size:11px;color:#fff;margin-top:18px}
+
 @media(max-width:800px){.phone{width:414px;height:866px}}
 </style>
 </head>
@@ -52,11 +83,17 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
     <h1>Barber<br>first run</h1>
     <p class="flow-subtitle">First experience immediately after onboarding.</p>
     <nav class="states">
+      <div class="state active">
+        <button class="state-eye" type="button" aria-label="Visible">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+        </button>
+        <button class="state-select" type="button" data-view-jump="home"><span class="state-num">1</span><span>Home</span></button>
+      </div>
       <div class="state">
         <button class="state-eye" type="button" aria-label="Visible">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
-        <button class="state-select" type="button"><span class="state-num">1</span><span>First run</span></button>
+        <button class="state-select" type="button" data-view-jump="myday"><span class="state-num">2</span><span>My Day</span></button>
       </div>
     </nav>
   </aside>
@@ -71,7 +108,8 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                 <img class="barber-app-profile" src="/barber-game/assets/barber-profile-large.png" alt="Barber profile">
               </header>
               <main class="barber-app-content">
-                <div class="home-feed">
+                <section class="app-view active" data-app-view="home">
+                  <div class="home-feed">
                   <div class="welcome-strip"><span><em>Welcome, Jaudon!</em></span></div>
 
                   <div class="card-stack">
@@ -107,11 +145,76 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                       <div class="chev">›</div>
                     </article>
                   </div>
-                </div>
+
+                  </div>
+                </section>
+
+                <section class="app-view" data-app-view="myday">
+                  <div class="myday-feed">
+                    <div class="earnings-card">
+                      <div class="earnings-left"><span class="money-icon">$</span><span>Projected Earnings</span></div>
+                      <strong>$322</strong>
+                    </div>
+                    <div class="day-label">Today · Monday</div>
+                    <div class="appt-list">
+                      <article class="appt-slot complete">
+                        <div class="appt-main">
+                          <div class="appt-name">Marcus</div>
+                          <div class="appt-service">Haircut</div>
+                        </div>
+                        <div class="appt-right"><div class="appt-status">Complete</div></div>
+                      </article>
+
+                      <article class="appt-slot live">
+                        <div class="live-photo-wrap"><img src="/barber-game/chop-it-up/marcus-jackson-profile.png" alt="Roger"></div>
+                        <div class="appt-main">
+                          <div class="appt-name">Roger</div>
+                          <div class="appt-service">Haircut</div>
+                        </div>
+                        <div class="appt-right">
+                          <div class="appt-status">LIVE <span class="live-dot"></span></div>
+                          <div class="live-progress">12m 37s / 30m</div>
+                        </div>
+                      </article>
+
+                      <article class="appt-slot new">
+                        <div class="appt-main">
+                          <div class="appt-name">Bob</div>
+                          <div class="appt-service">Haircut</div>
+                        </div>
+                        <div class="appt-right"><div class="appt-status">New</div><div class="appt-time">10a</div></div>
+                      </article>
+
+                      <article class="appt-slot">
+                        <div class="appt-main">
+                          <div class="appt-name">Charles</div>
+                          <div class="appt-service">Line up</div>
+                        </div>
+                        <div class="appt-right"><div class="appt-time">11a</div></div>
+                      </article>
+
+                      <article class="appt-slot break">
+                        <div class="appt-main">
+                          <div class="appt-name">Break</div>
+                          <div class="appt-service">Lunch</div>
+                        </div>
+                        <div class="appt-right"><div class="appt-time">30m</div></div>
+                      </article>
+
+                      <article class="appt-slot">
+                        <div class="appt-main">
+                          <div class="appt-name">Philip</div>
+                          <div class="appt-service">Haircut + Beard trim</div>
+                        </div>
+                        <div class="appt-right"><div class="appt-time">1p</div></div>
+                      </article>
+                    </div>
+                  </div>
+                </section>
               </main>
               <nav class="barber-bottom-nav" aria-label="Barber app">
-                <a class="barber-nav-item active" href="#" aria-current="page"><img src="/barber-game/assets/icon-home-solid.svg" alt=""><span class="barber-nav-label">Home</span></a>
-                <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
+                <a class="barber-nav-item active" href="#" data-view="home" aria-current="page"><img src="/barber-game/assets/icon-home-solid.svg" alt=""><span class="barber-nav-label">Home</span></a>
+                <a class="barber-nav-item" href="#" data-view="myday"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
                 <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
                 <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-trophy.svg" alt=""><span class="barber-nav-label">Stats</span></a>
               </nav>
@@ -119,12 +222,33 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
           </div>
         </div>
       </div>
-      <div class="caption">Home — first-run card feed after Barber Onboarding.</div>
+      <div class="caption" id="viewCaption">Home — first-run card feed after Barber Onboarding.</div>
     </div>
   </section>
 </div>
 <script>
 if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
+const viewCaptions={
+  home:'Home — first-run card feed after Barber Onboarding.',
+  myday:'My Day — appointment slot states and current-day activity.'
+};
+function setView(view){
+  document.querySelectorAll('[data-app-view]').forEach(el=>el.classList.toggle('active',el.dataset.appView===view));
+  document.querySelectorAll('.barber-nav-item[data-view]').forEach(el=>{
+    const active=el.dataset.view===view;
+    el.classList.toggle('active',active);
+    if(active) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',(view==='home'&&i===0)||(view==='myday'&&i===1)));
+  const cap=document.getElementById('viewCaption');
+  if(cap) cap.textContent=viewCaptions[view]||'';
+}
+document.querySelectorAll('.barber-nav-item[data-view]').forEach(el=>el.addEventListener('click',e=>{
+  e.preventDefault();
+  setView(el.dataset.view);
+}));
+document.querySelectorAll('[data-view-jump]').forEach(el=>el.addEventListener('click',()=>setView(el.dataset.viewJump)));
+
 function fitPhone(){
   const stage=document.querySelector('.stage');
   const phone=document.querySelector('.phone');
@@ -141,4 +265,3 @@ requestAnimationFrame(fitPhone);
 </script>
 </body>
 </html>
-.feed-card.small + .feed-card.small{border-top:1px solid #2b2b2b}
