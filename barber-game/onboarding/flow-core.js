@@ -109,6 +109,19 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   function hydrate(){
+    const heroAudio=screen.querySelector('.hero-audio');
+    if(heroAudio){
+      heroAudio.volume=.55;
+      const tryPlay=()=>heroAudio.play().catch(()=>{});
+      tryPlay();
+      const unlock=()=>{
+        tryPlay();
+        window.removeEventListener('pointerdown',unlock);
+        window.removeEventListener('keydown',unlock);
+      };
+      window.addEventListener('pointerdown',unlock,{once:true});
+      window.addEventListener('keydown',unlock,{once:true});
+    }
     const licenseTitle=screen.querySelector('[data-license-title]');
     const licenseNumber=screen.querySelector('[data-license-number]');
     if(licenseTitle) licenseTitle.textContent='Licensed '+(state.licenseType||'barber');
