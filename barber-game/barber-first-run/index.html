@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Barbergame — Barber First Run Experience</title>
 <link rel="stylesheet" href="/barber-game/assets/flow-viewer.css">
+<link rel="stylesheet" href="/barber-game/assets/barber-app.css">
 <style>
 :root{--phone:#222}
 *{box-sizing:border-box}
@@ -20,9 +21,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .device-screen{width:390px;height:842px;background:var(--phone);border-radius:36px;overflow:hidden;position:relative}
 .phone:before{content:"";position:absolute;z-index:8;top:5px;left:50%;transform:translateX(-50%);width:58px;height:5px;border-radius:999px;background:#292b2e}
 .phone:after{content:"";position:absolute;z-index:8;top:8px;right:70px;width:6px;height:6px;border-radius:50%;background:#1b1d20;box-shadow:0 0 0 1px #303236}
-.phone-head{height:78px;padding:0 20px;display:grid;grid-template-columns:1fr auto;align-items:center;background:#222;color:#aaa}
-.phone-head .menu{justify-self:end;font-size:24px}
-.placeholder{height:764px;display:grid;place-items:center;padding:32px;color:#aaa;text-align:center}
+.placeholder{height:100%;display:grid;place-items:center;padding:32px;color:#aaa;text-align:center}
 .placeholder strong{display:block;color:#fff;font-size:26px;letter-spacing:-.03em;margin-bottom:8px}
 .caption{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:12px}
 @media(max-width:800px){.phone{width:414px;height:866px}}
@@ -48,8 +47,21 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
       <div class="stage">
         <div class="phone">
           <div class="device-screen">
-            <div class="phone-head"><div></div><div class="menu">☰</div></div>
-            <div class="placeholder"><div><strong>Barber First Run Experience</strong>Ready for the first post-onboarding state.</div></div>
+            <div class="barber-app-shell">
+              <header class="barber-app-header">
+                <img class="barber-app-logo" src="/barber-game/assets/TBG-logo.svg" alt="TBG">
+                <img class="barber-app-profile" src="/barber-game/assets/barber-profile-large.png" alt="Barber profile">
+              </header>
+              <main class="barber-app-content">
+                <div class="placeholder"><div><strong>Barber First Run Experience</strong>Ready for the first post-onboarding state.</div></div>
+              </main>
+              <nav class="barber-bottom-nav" aria-label="Barber app">
+                <a class="barber-nav-item active" href="#" aria-current="page"><img src="/barber-game/assets/icon-home-solid.svg" alt=""><span class="barber-nav-label">Home</span></a>
+                <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
+                <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
+                <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-trophy.svg" alt=""><span class="barber-nav-label">Stats</span></a>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
