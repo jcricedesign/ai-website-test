@@ -85,3 +85,18 @@ html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 .service-card-actions{display:flex;gap:10px;align-items:center}
 .service-delete{border:0;background:transparent;color:#f18b8b;text-decoration:underline;text-underline-offset:3px;font-size:11px;cursor:pointer;padding:2px 0}
 .service-delete:disabled{opacity:.28;cursor:default;text-decoration:none}
+
+.onboarding-titlebar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.onboarding-titlebar .back{margin:0!important;font-size:18px;line-height:1;text-decoration:none;color:#38444c}
+.flow-sidebar .onboarding-titlebar h1{font-size:26px;line-height:1;letter-spacing:-.035em;margin:0;white-space:nowrap}
+.flow-sidebar .flow-subtitle{font-size:11px;line-height:1.25;margin:0 0 12px;max-width:260px}
+.flow-sidebar .states{margin-top:0}
+.state{min-height:30px}
+.state:not(:last-child):after{top:25px;height:7px}
+.state-eye{height:26px;padding:4px}
+.state-select{height:26px;font-size:10px;line-height:1.05;grid-template-columns:20px 1fr;gap:6px}
+.state-num{width:18px;height:18px;font-size:8px}
+@media(max-width:800px){
+  .flow-sidebar .onboarding-titlebar h1{font-size:24px}
+  .onboarding-titlebar{margin-bottom:4px}
+}
