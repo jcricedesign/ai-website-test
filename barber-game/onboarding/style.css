@@ -110,3 +110,8 @@ html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 .hero-video .action:last-child{margin-top:0}
 
 .hero-brand{position:absolute;z-index:2;top:18%;left:28px;right:28px;width:calc(100% - 56px);height:auto;max-height:120px;object-fit:contain;pointer-events:none;user-select:none}
+
+.hero-video~*{}
+.device-screen:has(.hero-video) .head{background:rgba(20,20,20,.38);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05)}
+.device-screen:has(.hero-video) .menu{color:rgba(255,255,255,.72)}
+.hero-version{text-align:center;font-size:8px;line-height:1;letter-spacing:.14em;color:rgba(255,255,255,.42);margin-top:2px;text-transform:uppercase}
