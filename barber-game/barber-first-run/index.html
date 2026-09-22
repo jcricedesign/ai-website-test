@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/barber-game/assets/flow-viewer.css">
 <link rel="stylesheet" href="/barber-game/assets/barber-app.css">
 <style>
-:root{--phone:#222}
+:root{--phone:#222;--barber-accent:#8b35ea;--barber-accent-text:#fff}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .states{display:flex;flex-direction:column;gap:2px;padding:0;margin:0}
@@ -27,7 +27,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .card-stack{display:grid;gap:16px}
 .feed-card{background:#242424;border:1px solid #3b3b3b;border-radius:9px;color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.02),0 10px 24px rgba(0,0,0,.12)}
 .feed-card.hero{padding:0 20px 22px;overflow:hidden}
-.feed-card.hero .hero-label{display:inline-flex;align-items:center;width:auto;max-width:max-content;margin:0 0 20px -20px;padding:10px 18px;background:#6d2fd4;border-radius:0 0 9px 0;font-size:11px;font-weight:700;letter-spacing:.06em}
+.feed-card.hero .hero-label{display:inline-flex;align-items:center;width:auto;max-width:max-content;margin:0 0 20px -20px;padding:10px 18px;background:var(--barber-accent);border-radius:0 0 9px 0;font-size:11px;font-weight:700;letter-spacing:.06em}
 .feed-card.hero h2{font-size:30px;line-height:1.03;letter-spacing:-.04em;margin:0 0 14px}
 .feed-card.hero p{font-size:14px;line-height:1.5;color:#c8c8c3;margin:0}
 .feed-card.hero .hero-action{display:block;margin:22px auto 0;width:auto;min-width:0;height:46px;padding:0 24px;border:1px solid #5b5b5b;border-radius:999px;background:#171717;color:#fff;font-size:14px}
@@ -51,7 +51,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .booking-link-card{border:1px solid #3a3a3a;border-radius:9px;padding:16px;margin-bottom:16px;background:#1b1b1b}
 .booking-link-card strong{display:block;font-size:16px;font-weight:500;color:#f1f1ed}
 .booking-link-card p{margin:7px 0 12px;color:#91918c;font-size:11px;line-height:1.45}
-.booking-link-action{border:0;background:transparent;color:#9e83ff;padding:0;font:inherit;font-size:12px;font-weight:500;cursor:pointer}
+.booking-link-action{border:0;background:transparent;color:var(--barber-accent);padding:0;font:inherit;font-size:12px;font-weight:500;cursor:pointer}
 .empty-list{display:grid;gap:10px}
 .empty-slot{min-height:64px;border:1px solid #4b4b4b;border-radius:9px;padding:13px 15px;display:grid;grid-template-columns:1fr auto;align-items:center;background:transparent}
 .empty-slot strong{font-size:14px;font-weight:500;color:#bcbcb7}
@@ -90,7 +90,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .appt-slot.complete .appt-name,.appt-slot.complete .appt-service{color:#8e8e89;font-style:italic}
 .appt-slot.new .appt-status{color:#28cf72}
 .appt-slot.break{background:transparent;border-color:#555}
-.appt-slot.live{background:#8734ec;border-color:#8734ec;grid-template-columns:72px 1fr 92px;padding:0;overflow:hidden;min-height:104px}
+.appt-slot.live{background:var(--barber-accent);border-color:var(--barber-accent);grid-template-columns:72px 1fr 92px;padding:0;overflow:hidden;min-height:104px}
 .appt-slot.live .live-photo-wrap{height:100%;background:rgba(0,0,0,.14);display:grid;place-items:center}
 .appt-slot.live img{width:54px;height:54px;border-radius:50%;object-fit:cover}
 .appt-slot.live .appt-name{font-size:20px}
@@ -101,10 +101,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .live-progress{font-size:11px;color:#fff;margin-top:18px}
 .appt-slot.live{cursor:pointer}
 .appt-slot.live:focus{outline:2px solid #fff;outline-offset:2px}
-.live-appointment-view{background:#8a08f5}
-.live-appointment{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding:26px 22px 28px;background:#8a08f5;color:#fff}
+.live-appointment-view{background:var(--barber-accent)}
+.live-appointment{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding:26px 22px 28px;background:var(--barber-accent);color:var(--barber-accent-text)}
 .live-topbar{display:flex;align-items:center;justify-content:space-between}
-.live-badge{background:#f3f3f0;color:#8a08f5;font-size:18px;font-weight:800;line-height:1;padding:11px 14px}
+.live-badge{background:#f3f3f0;color:var(--barber-accent);font-size:18px;font-weight:800;line-height:1;padding:11px 14px}
 .live-close{width:42px;height:42px;border:0;background:transparent;color:#fff;font-size:40px;font-weight:200;line-height:1;cursor:pointer}
 .live-client{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding-left:20px}
 .live-client-photo{width:104px;height:104px;border-radius:50%;object-fit:cover;filter:grayscale(1);margin-bottom:26px}
@@ -135,7 +135,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .biz-row .right{text-align:right}
 .biz-row.inspectable{cursor:pointer;border-radius:7px;padding-left:8px;padding-right:8px;transition:background .14s ease}
 .biz-row.inspectable:hover,.biz-row.inspectable:focus{background:#242424;outline:none}
-.biz-row.inspectable strong{color:#9e83ff}
+.biz-row.inspectable strong{color:var(--barber-accent)}
 .biz-row.inspectable:after{content:"›";color:#686864;font-size:18px;margin-left:2px}
 .biz-row.inspectable{grid-template-columns:minmax(0,1fr) auto auto}
 .biz-status{color:#75b88a;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
@@ -147,7 +147,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .tax-row:hover{background:#232323}
 .tax-row strong{display:block;color:#deded9;font-size:13px;font-weight:500}
 .tax-row small{display:block;color:#858580;font-size:9px;margin-top:4px}
-.tax-row .tax-link{color:#9e83ff;font-size:11px;white-space:nowrap}
+.tax-row .tax-link{color:var(--barber-accent);font-size:11px;white-space:nowrap}
 .tax-row .tax-link:after{content:"›";margin-left:7px;color:#8d8d88;font-size:16px}
 .tax-current{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px;border:1px solid #3a3a3a;border-radius:9px;background:#1d1d1d}
 .tax-current strong{display:block;font-size:14px;font-weight:500}
@@ -186,10 +186,20 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .settings-row strong{display:block;font-size:13px;font-weight:500}
 .settings-row small{display:block;margin-top:5px;color:#7f7f7a;font-size:9px;line-height:1.4}
 .settings-row .chev{font-size:20px;color:#858580}
-.settings-row.link strong{color:#9e83ff}
+.settings-row.link strong{color:var(--barber-accent)}
 .settings-row.danger strong{color:#cf6868}
 .settings-inline{display:flex;align-items:center;gap:8px;color:#b0b0ab;font-size:10px}
 .settings-badge{display:inline-block;padding:3px 7px;border:1px solid #4b4b47;border-radius:999px;color:#aaa;font-size:9px}
+.theme-picker{padding:4px 0 2px}
+.theme-picker-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:13px}
+.theme-picker-head strong{font-size:13px;font-weight:500}
+.theme-picker-head span{font-size:9px;color:#7f7f7a}
+.theme-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.theme-swatch{width:34px;height:34px;border:2px solid transparent;border-radius:50%;padding:0;background:var(--swatch);cursor:pointer;position:relative}
+.theme-swatch[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px #1d1d1d,0 0 0 3px #777}
+.theme-swatch:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.theme-swatch::after{content:"";position:absolute;inset:7px;border-radius:50%;background:rgba(255,255,255,.08)}
+
 @media(max-width:800px){.phone{width:414px;height:866px}}
 </style>
 </head>
@@ -590,6 +600,24 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                   </section>
 
                   <section class="settings-section">
+                    <h3>Appearance</h3>
+                    <div class="theme-picker">
+                      <div class="theme-picker-head">
+                        <strong>Accent color</strong>
+                        <span id="themeName">Violet</span>
+                      </div>
+                      <div class="theme-swatches" role="group" aria-label="Accent color">
+                        <button class="theme-swatch" type="button" style="--swatch:#8b35ea" data-accent="#8b35ea" data-name="Violet" aria-label="Violet" aria-pressed="true"></button>
+                        <button class="theme-swatch" type="button" style="--swatch:#6d28d9" data-accent="#6d28d9" data-name="Grape" aria-label="Grape" aria-pressed="false"></button>
+                        <button class="theme-swatch" type="button" style="--swatch:#4f46e5" data-accent="#4f46e5" data-name="Indigo" aria-label="Indigo" aria-pressed="false"></button>
+                        <button class="theme-swatch" type="button" style="--swatch:#2563eb" data-accent="#2563eb" data-name="Cobalt" aria-label="Cobalt" aria-pressed="false"></button>
+                        <button class="theme-swatch" type="button" style="--swatch:#0f766e" data-accent="#0f766e" data-name="Teal" aria-label="Teal" aria-pressed="false"></button>
+                        <button class="theme-swatch" type="button" style="--swatch:#2f6b45" data-accent="#2f6b45" data-name="Forest" aria-label="Forest" aria-pressed="false"></button>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section class="settings-section">
                     <h3>Barber setup</h3>
                     <div class="settings-list">
                       <a class="settings-row link" href="#"><div><strong>Shop location</strong><small>Kirkland Shop</small></div><span class="chev">›</span></a>
@@ -662,6 +690,22 @@ document.querySelectorAll('.barber-nav-item[data-view]').forEach(el=>el.addEvent
   setView(el.dataset.view);
 }));
 document.querySelectorAll('[data-view-jump]').forEach(el=>el.addEventListener('click',()=>setView(el.dataset.viewJump)));
+
+const themeSwatches=[...document.querySelectorAll('.theme-swatch')];
+const themeName=document.getElementById('themeName');
+function applyAccent(color,name,save=true){
+  document.documentElement.style.setProperty('--barber-accent',color);
+  themeSwatches.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.accent.toLowerCase()===color.toLowerCase())));
+  if(themeName) themeName.textContent=name||'Accent';
+  if(save){
+    localStorage.setItem('barbergame-accent',color);
+    localStorage.setItem('barbergame-accent-name',name||'Accent');
+  }
+}
+const savedAccent=localStorage.getItem('barbergame-accent');
+const savedAccentName=localStorage.getItem('barbergame-accent-name');
+if(savedAccent) applyAccent(savedAccent,savedAccentName||'Accent',false);
+themeSwatches.forEach(btn=>btn.addEventListener('click',()=>applyAccent(btn.dataset.accent,btn.dataset.name)));
 
 let previousView='home';
 const settingsOverlay=document.querySelector('.settings-overlay');
