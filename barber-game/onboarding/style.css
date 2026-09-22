@@ -108,3 +108,5 @@ html,body{overflow:hidden}.screen{min-height:764px;overflow:hidden}
 .hero-video .action{margin-top:0;background:#050505;border-color:#fff;color:#fff}
 .hero-video .action:first-child{margin-top:0}
 .hero-video .action:last-child{margin-top:0}
+
+.hero-brand{position:absolute;z-index:2;top:18%;left:50%;transform:translateX(-50%);width:170px;max-width:62%;height:auto;pointer-events:none;user-select:none}
