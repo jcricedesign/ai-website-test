@@ -122,9 +122,25 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .biz-row strong{display:block;font-size:13px;font-weight:500}
 .biz-row small{display:block;color:#858580;font-size:9px;margin-top:5px;line-height:1.4}
 .biz-row .right{text-align:right}
+.biz-row.inspectable{cursor:pointer;border-radius:7px;padding-left:8px;padding-right:8px;transition:background .14s ease}
+.biz-row.inspectable:hover,.biz-row.inspectable:focus{background:#242424;outline:none}
+.biz-row.inspectable strong{color:#9e83ff}
+.biz-row.inspectable:after{content:"›";color:#8d8d88;font-size:20px;margin-left:2px}
+.biz-row.inspectable{grid-template-columns:minmax(0,1fr) auto auto}
 .biz-status{color:#75b88a;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
 .biz-value{font-size:12px;color:#cfcfca;margin-top:4px}
 .biz-action{width:auto;height:40px;margin-top:12px;padding:0 16px;border:1px solid #434343;border-radius:999px;background:#171717;color:#e8e8e4;font:inherit;font-size:12px}
+.tax-list{display:grid;border:1px solid #333;border-radius:9px;overflow:hidden;margin-top:10px}
+.tax-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:13px 14px;border-top:1px solid #303030;cursor:pointer}
+.tax-row:first-child{border-top:0}
+.tax-row:hover{background:#232323}
+.tax-row strong{display:block;color:#deded9;font-size:13px;font-weight:500}
+.tax-row small{display:block;color:#858580;font-size:9px;margin-top:4px}
+.tax-row .tax-link{color:#9e83ff;font-size:11px;white-space:nowrap}
+.tax-row .tax-link:after{content:"›";margin-left:7px;color:#8d8d88;font-size:16px}
+.tax-current{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px;border:1px solid #3a3a3a;border-radius:9px;background:#1d1d1d}
+.tax-current strong{display:block;font-size:14px;font-weight:500}
+.tax-current small{display:block;color:#858580;font-size:10px;margin-top:4px}
 .biz-note{margin-top:22px;color:#7f7f7a;font-size:10px;line-height:1.55}
 @media(max-width:800px){.phone{width:414px;height:866px}}
 </style>
@@ -335,7 +351,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 
                 <section class="app-view" data-app-view="business">
                   <div class="business-feed">
-                    <h2 class="business-title">Business</h2>
+                    <h2 class="business-title">My Business</h2>
                     <p class="business-sub">Stay current on rent, documents, and taxes.</p>
 
                     <div class="biz-summary">
@@ -346,15 +362,15 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 
                     <section class="biz-block">
                       <h3>Licenses & insurance</h3>
-                      <div class="biz-row">
+                      <div class="biz-row inspectable" role="button" tabindex="0">
                         <div><strong>Barber license</strong><small>License #4019</small></div>
                         <div class="right"><div class="biz-status">Active</div><div class="biz-value">Aug 12, 2027</div></div>
                       </div>
-                      <div class="biz-row">
+                      <div class="biz-row inspectable" role="button" tabindex="0">
                         <div><strong>Insurance</strong><small>Professional liability</small></div>
                         <div class="right"><div class="biz-status">Active</div><div class="biz-value">Mar 31, 2027</div></div>
                       </div>
-                      <div class="biz-row">
+                      <div class="biz-row inspectable" role="button" tabindex="0">
                         <div><strong>Salon license</strong><small>Shop credential</small></div>
                         <div class="right"><div class="biz-status">Active</div><div class="biz-value">Nov 15, 2026</div></div>
                       </div>
@@ -377,12 +393,25 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                     </section>
 
                     <section class="biz-block">
-                      <h3>Taxes</h3>
-                      <div class="biz-row">
-                        <div><strong>2026 income summary</strong><small>For bookkeeping and tax prep</small></div>
-                        <div class="right"><div class="biz-value">Ready</div></div>
+                      <h3>Taxes & reports</h3>
+                      <div class="tax-current">
+                        <div><strong>2026 year-to-date</strong><small>Income summary for bookkeeping and tax prep</small></div>
+                        <button class="biz-action" type="button">Generate report</button>
                       </div>
-                      <button class="biz-action" type="button">Generate tax report</button>
+                      <div class="tax-list">
+                        <div class="tax-row">
+                          <div><strong>2025 tax report</strong><small>Annual income summary</small></div>
+                          <div class="tax-link">View</div>
+                        </div>
+                        <div class="tax-row">
+                          <div><strong>2024 tax report</strong><small>Annual income summary</small></div>
+                          <div class="tax-link">View</div>
+                        </div>
+                        <div class="tax-row">
+                          <div><strong>Previous years</strong><small>Older reports and exports</small></div>
+                          <div class="tax-link">Browse</div>
+                        </div>
+                      </div>
                     </section>
 
                     <p class="biz-note">We’ll remind you before licenses, insurance, or rent are due.</p>
