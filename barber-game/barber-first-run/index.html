@@ -107,6 +107,25 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
 .barber-app-shell.live-mode .barber-app-header,
 .barber-app-shell.live-mode .barber-bottom-nav{display:none}
 
+.business-feed{height:100%;overflow-y:auto;padding:22px 18px 34px;scrollbar-width:none}
+.business-feed::-webkit-scrollbar{display:none}
+.business-title{margin:0 0 6px;font-size:34px;line-height:1;letter-spacing:-.045em}
+.business-sub{margin:0 0 22px;color:#aaa;font-size:13px;line-height:1.45}
+.biz-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.biz-stat{background:#202020;border:1px solid #363636;border-radius:9px;padding:12px 10px;min-height:82px}
+.biz-stat span{display:block;color:#8f8f89;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+.biz-stat strong{display:block;margin-top:7px;font-size:18px;line-height:1.05}
+.biz-block{border-top:1px solid #383838;padding-top:16px;margin-top:18px}
+.biz-block h3{margin:0 0 10px;font-size:18px;letter-spacing:-.02em}
+.biz-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid #303030}
+.biz-row:first-of-type{border-top:0}
+.biz-row strong{display:block;font-size:14px}
+.biz-row small{display:block;color:#8f8f89;font-size:10px;margin-top:4px}
+.biz-row .right{text-align:right}
+.biz-status{color:#75b88a;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.biz-value{font-size:13px;color:#dededa;margin-top:3px}
+.biz-action{width:100%;height:44px;margin-top:10px;border:1px solid #4a4a4a;border-radius:9px;background:#171717;color:#fff;font:inherit;font-size:13px}
+.biz-note{margin-top:16px;color:#8f8f89;font-size:11px;line-height:1.5}
 @media(max-width:800px){.phone{width:414px;height:866px}}
 </style>
 </head>
@@ -134,6 +153,12 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
         </button>
         <button class="state-select" type="button" data-view-jump="live"><span class="state-num">3</span><span>Live appointment</span></button>
+      </div>
+      <div class="state">
+        <button class="state-eye" type="button" aria-label="Visible">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+        </button>
+        <button class="state-select" type="button" data-view-jump="business"><span class="state-num">4</span><span>Business</span></button>
       </div>
     </nav>
   </aside>
@@ -308,6 +333,62 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                   </div>
                 </section>
 
+                <section class="app-view" data-app-view="business">
+                  <div class="business-feed">
+                    <h2 class="business-title">Business</h2>
+                    <p class="business-sub">Stay current on rent, documents, and taxes.</p>
+
+                    <div class="biz-summary">
+                      <div class="biz-stat"><span>Booth rent</span><strong>$150</strong><small>Due Friday</small></div>
+                      <div class="biz-stat"><span>Documents</span><strong>3</strong><small>Current</small></div>
+                      <div class="biz-stat"><span>Time off</span><strong>1 week</strong><small>Remaining</small></div>
+                    </div>
+
+                    <section class="biz-block">
+                      <h3>Licenses & insurance</h3>
+                      <div class="biz-row">
+                        <div><strong>Barber license</strong><small>License #4019</small></div>
+                        <div class="right"><div class="biz-status">Active</div><div class="biz-value">Aug 12, 2027</div></div>
+                      </div>
+                      <div class="biz-row">
+                        <div><strong>Insurance</strong><small>Professional liability</small></div>
+                        <div class="right"><div class="biz-status">Active</div><div class="biz-value">Mar 31, 2027</div></div>
+                      </div>
+                      <div class="biz-row">
+                        <div><strong>Salon license</strong><small>Shop credential</small></div>
+                        <div class="right"><div class="biz-status">Active</div><div class="biz-value">Nov 15, 2026</div></div>
+                      </div>
+                    </section>
+
+                    <section class="biz-block">
+                      <h3>Booth rent</h3>
+                      <div class="biz-row">
+                        <div><strong>Paid through Sep 26</strong><small>Next payment</small></div>
+                        <div class="right"><div class="biz-value">$150 Friday</div></div>
+                      </div>
+                    </section>
+
+                    <section class="biz-block">
+                      <h3>Time off</h3>
+                      <div class="biz-row">
+                        <div><strong>Free 1-week voucher</strong><small>Use for vacation or recovery week</small></div>
+                        <div class="right"><div class="biz-value">1 left</div></div>
+                      </div>
+                    </section>
+
+                    <section class="biz-block">
+                      <h3>Taxes</h3>
+                      <div class="biz-row">
+                        <div><strong>2026 income summary</strong><small>For bookkeeping and tax prep</small></div>
+                        <div class="right"><div class="biz-value">Ready</div></div>
+                      </div>
+                      <button class="biz-action" type="button">Generate tax report</button>
+                    </section>
+
+                    <p class="biz-note">We’ll remind you before licenses, insurance, or rent are due.</p>
+                  </div>
+                </section>
+
                 <section class="app-view live-appointment-view" data-app-view="live">
                   <div class="live-appointment">
                     <div class="live-topbar">
@@ -331,7 +412,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
               <nav class="barber-bottom-nav" aria-label="Barber app">
                 <a class="barber-nav-item active" href="#" data-view="home" aria-current="page"><img src="/barber-game/assets/icon-home-solid.svg" alt=""><span class="barber-nav-label">Home</span></a>
                 <a class="barber-nav-item" href="#" data-view="myday"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
-                <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
+                <a class="barber-nav-item" href="#" data-view="business"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
                 <a class="barber-nav-item" href="#"><img src="/barber-game/assets/icon-trophy.svg" alt=""><span class="barber-nav-label">Stats</span></a>
               </nav>
             </div>
@@ -347,7 +428,8 @@ if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
 const viewCaptions={
   home:'Home — first-run card feed after Barber Onboarding.',
   myday:'My Day — appointment slot states and current-day activity.',
-  live:'Live appointment — simplified one-handed appointment mode.'
+  live:'Live appointment — simplified one-handed appointment mode.',
+  business:'Business — licenses, insurance, booth rent, time off and tax reporting.'
 };
 function setView(view){
   document.querySelectorAll('[data-app-view]').forEach(el=>el.classList.toggle('active',el.dataset.appView===view));
@@ -356,7 +438,7 @@ function setView(view){
     el.classList.toggle('active',active);
     if(active) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
-  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',(view==='home'&&i===0)||(view==='myday'&&i===1)||(view==='live'&&i===2)));
+  document.querySelectorAll('.state').forEach((row,i)=>row.classList.toggle('active',(view==='home'&&i===0)||(view==='myday'&&i===1)||(view==='live'&&i===2)||(view==='business'&&i===3)));
   const shell=document.querySelector('.barber-app-shell');
   if(shell) shell.classList.toggle('live-mode',view==='live');
   const cap=document.getElementById('viewCaption');
