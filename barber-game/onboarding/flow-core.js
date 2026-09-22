@@ -37,6 +37,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     photo:null
   };
   let current=0;
+  let soundEnabled=true;
   const hiddenSteps=new Set(OOBE.map((s,i)=>s.hidden?i:null).filter(i=>i!==null));
 
   const eyeOpen='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
@@ -110,17 +111,37 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   function hydrate(){
     const heroAudio=screen.querySelector('.hero-audio');
+    const soundToggle=document.querySelector('.sound-toggle');
+    const syncSoundUI=()=>{
+      if(!soundToggle) return;
+      soundToggle.setAttribute('aria-pressed',String(soundEnabled));
+      soundToggle.setAttribute('aria-label',soundEnabled?'Turn sound off':'Turn sound on');
+      soundToggle.classList.toggle('muted',!soundEnabled);
+    };
     if(heroAudio){
       heroAudio.volume=.55;
+      heroAudio.muted=!soundEnabled;
       const tryPlay=()=>heroAudio.play().catch(()=>{});
       tryPlay();
       const unlock=()=>{
-        tryPlay();
+        if(soundEnabled) tryPlay();
         window.removeEventListener('pointerdown',unlock);
         window.removeEventListener('keydown',unlock);
       };
       window.addEventListener('pointerdown',unlock,{once:true});
       window.addEventListener('keydown',unlock,{once:true});
+      if(soundToggle){
+        soundToggle.onclick=()=>{
+          soundEnabled=!soundEnabled;
+          heroAudio.muted=!soundEnabled;
+          if(soundEnabled) tryPlay();
+          syncSoundUI();
+        };
+      }
+      syncSoundUI();
+    } else if(soundToggle){
+      soundToggle.onclick=null;
+      soundToggle.classList.remove('muted');
     }
     const licenseTitle=screen.querySelector('[data-license-title]');
     const licenseNumber=screen.querySelector('[data-license-number]');
