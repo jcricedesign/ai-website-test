@@ -9,19 +9,27 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .hero h1{font-size:clamp(3rem,6vw,5.6rem);line-height:.92;letter-spacing:-.055em;margin:0}
 .hero p{max-width:680px;margin:28px 0 0;font-size:clamp(1rem,1.4vw,1.2rem);line-height:1.55;color:var(--muted)}
 .stream{padding-bottom:100px}
-.entry{display:grid;grid-template-columns:145px 1fr auto;gap:36px;align-items:start;padding:32px 0 36px;border-top:1px solid var(--rule);color:inherit;text-decoration:none}
-.entry:hover .entry-title{transform:translateX(6px)}
+.entry{display:grid;grid-template-columns:145px minmax(0,1fr) 156px 18px;gap:28px;align-items:start;padding:28px 0 32px;border-top:1px solid var(--rule);color:inherit;text-decoration:none}
+.entry:hover .entry-title{transform:translateX(5px)}
 .meta{font-size:.68rem;line-height:1.55;color:var(--faint)}
 .entry-title{transition:transform .22s ease}
-.entry-title h2{font-size:clamp(1.65rem,3vw,2.85rem);line-height:1;letter-spacing:-.04em;margin:0 0 10px}
-.entry-title p{max-width:680px;margin:0;color:var(--muted);font-size:.92rem;line-height:1.55}
-.arrow{font-size:1.25rem;color:var(--faint);padding-top:3px}
-@media(max-width:800px){
+.entry-title h2{font-size:clamp(1.65rem,2.8vw,2.7rem);line-height:1;letter-spacing:-.04em;margin:0 0 10px}
+.entry-title p{max-width:620px;margin:0;color:var(--muted);font-size:.9rem;line-height:1.5}
+.preview{width:156px;aspect-ratio:16/10;position:relative;overflow:hidden;background:rgba(127,127,127,.08);border:1px solid var(--rule)}
+.preview iframe{position:absolute;top:0;left:0;width:960px;height:600px;border:0;transform:scale(.1625);transform-origin:top left;pointer-events:none;background:var(--bg)}
+.arrow{font-size:1.1rem;color:var(--faint);padding-top:2px}
+@media(max-width:900px){
+  .entry{grid-template-columns:125px minmax(0,1fr) 120px 16px;gap:20px}
+  .preview{width:120px}
+  .preview iframe{transform:scale(.125)}
+}
+@media(max-width:700px){
   .wrap{width:calc(100% - 36px)}
   .hero{padding:64px 0 58px}
   .entry{grid-template-columns:1fr auto;gap:14px;padding:26px 0 30px}
   .meta{grid-column:1/-1}
   .entry-title{grid-column:1}
+  .preview{display:none}
   .arrow{grid-column:2}
 }
 </style></head><body><div class="wrap"><main>
@@ -35,81 +43,97 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
   <a class="entry" href="/playground/flight-tracker/">
     <div class="meta">Experiment<br>September 2026 · Signals + hardware</div>
     <div class="entry-title"><h2>Flight Tracker v1.0</h2><p>A local ADS-B receiver turns aircraft broadcasts over Western Washington into a live, 10-foot-friendly view of the airspace.</p></div>
-    <div class="arrow">↗</div>
-  </a>
-  <a class="entry" href="/playground/human-interfaces/">
-    <div class="meta">Ongoing folio<br>September 2026 · Visual inquiry</div>
-    <div class="entry-title"><h2>Human Interfaces</h2><p>What happens when we stop teaching people the language of computers and start teaching computers the languages people already use? Touch, gesture, material, space, sound and the body.</p></div>
-    <div class="arrow">↗</div>
-  </a>
-  <a class="entry" href="/playground/design-vocabulary/">
-    <div class="meta">Ongoing research<br>September 2026 · Working vocabulary</div>
-    <div class="entry-title"><h2>Design Vocabulary</h2><p>A living genealogy of ideas discovered through designing, making, teaching, observing and conversation—plus framing verbs for seeing problems differently.</p></div>
-    <div class="arrow">↗</div>
-  </a>
-  <a class="entry" href="/playground/digital-consequences/">
-    <div class="meta">Ongoing visual inquiry<br>September 2026 · Attention + consequence</div>
-    <div class="entry-title"><h2>Digital Consequences</h2><p>What we pay attention to determines our reality.</p></div>
-    <div class="arrow">↗</div>
-  </a>
-  <a class="entry" href="/playground/notes-from-the-territory/">
-    <div class="meta">Ongoing field notes<br>September 2026 · Memory + learning</div>
-    <div class="entry-title"><h2>Notes from the Territory</h2><p>Records of places explored: what we found, where reality stopped us, what survived, and which paths may be worth walking again. Beginning with Mozilla / Flowstate.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/flight-tracker/" loading="lazy" tabindex="-1" title="Flight Tracker v1.0 preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/interlinked-pi/">
     <div class="meta">Startup guide<br>September 2026</div>
     <div class="entry-title"><h2>Interlinked Pi</h2><p>A one-page guide to connecting by terminal, seeing what's installed, and keeping useful commands close.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interlinked-pi/" loading="lazy" tabindex="-1" title="Interlinked Pi preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
-  <a class="entry" href="/playground/portfolio/">
-    <div class="meta">Portfolio exploration<br>September 2026</div>
-    <div class="entry-title"><h2>Portfolio — Monograph</h2><p>A restrained recruiting-page exploration: Swiss typography, selected evidence and progressive disclosure into deeper case studies.</p></div>
+  <a class="entry" href="/playground/digital-consequences/">
+    <div class="meta">Ongoing visual inquiry<br>September 2026 · Attention + consequence</div>
+    <div class="entry-title"><h2>Digital Consequences</h2><p>What we pay attention to determines our reality.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/digital-consequences/" loading="lazy" tabindex="-1" title="Digital Consequences preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/design-vocabulary/">
+    <div class="meta">Ongoing research<br>September 2026 · Working vocabulary</div>
+    <div class="entry-title"><h2>Design Vocabulary</h2><p>A living genealogy of ideas discovered through designing, making, teaching, observing and conversation—plus framing verbs for seeing problems differently.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/design-vocabulary/" loading="lazy" tabindex="-1" title="Design Vocabulary preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/bothellsuites/version-a.html">
     <div class="meta">Client prototype<br>September 2026</div>
     <div class="entry-title"><h2>Bothell Suites</h2><p>A working destination and leasing prototype for six independent businesses.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/bothellsuites/version-a.html" loading="lazy" tabindex="-1" title="Bothell Suites preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/notes-from-the-territory/">
+    <div class="meta">Ongoing field notes<br>September 2026 · Memory + learning</div>
+    <div class="entry-title"><h2>Notes from the Territory</h2><p>Records of places explored: what we found, where reality stopped us, what survived, and which paths may be worth walking again. Beginning with Mozilla / Flowstate.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/notes-from-the-territory/" loading="lazy" tabindex="-1" title="Notes from the Territory preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/human-interfaces/">
+    <div class="meta">Ongoing folio<br>September 2026 · Visual inquiry</div>
+    <div class="entry-title"><h2>Human Interfaces</h2><p>What happens when we stop teaching people the language of computers and start teaching computers the languages people already use? Touch, gesture, material, space, sound and the body.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/human-interfaces/" loading="lazy" tabindex="-1" title="Human Interfaces preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/portfolio/">
+    <div class="meta">Portfolio exploration<br>September 2026</div>
+    <div class="entry-title"><h2>Portfolio — Monograph</h2><p>A restrained recruiting-page exploration: Swiss typography, selected evidence and progressive disclosure into deeper case studies.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/portfolio/" loading="lazy" tabindex="-1" title="Portfolio — Monograph preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/zawadi/">
     <div class="meta">Client exploration<br>August 2026</div>
     <div class="entry-title"><h2>Zawadi visual explorations</h2><p>Three rapid directions testing brand tone, storytelling and business-system complexity.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/zawadi/" loading="lazy" tabindex="-1" title="Zawadi visual explorations preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/tolt/">
     <div class="meta">Client prototype<br>August 2026</div>
     <div class="entry-title"><h2>Tolt Technologies</h2><p>A rapid website prototype for assistive mobility technology.</p></div>
-    <div class="arrow">↗</div>
-  </a>
-  <a class="entry" href="/playground/10-foot-ui/">
-    <div class="meta">Experiment<br>August 2026</div>
-    <div class="entry-title"><h2>10' UI</h2><p>Exploring interfaces designed to be used from across the room.</p></div>
-    <div class="arrow">↗</div>
-  </a>
-  <a class="entry" href="/playground/native-demo/">
-    <div class="meta">Experiment<br>August 2026</div>
-    <div class="entry-title"><h2>Native Demo</h2><p>Testing a native application temporarily owning the display and returning cleanly to the existing website state.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/tolt/" loading="lazy" tabindex="-1" title="Tolt Technologies preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/remote-media/">
     <div class="meta">Investigation<br>August 2026</div>
     <div class="entry-title"><h2>Remote Media</h2><p>Separating large media storage from playback.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/remote-media/" loading="lazy" tabindex="-1" title="Remote Media preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/native-demo/">
+    <div class="meta">Experiment<br>August 2026</div>
+    <div class="entry-title"><h2>Native Demo</h2><p>Testing a native application temporarily owning the display and returning cleanly to the existing website state.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/native-demo/" loading="lazy" tabindex="-1" title="Native Demo preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/10-foot-ui/">
+    <div class="meta">Experiment<br>August 2026</div>
+    <div class="entry-title"><h2>10' UI</h2><p>Exploring interfaces designed to be used from across the room.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/10-foot-ui/" loading="lazy" tabindex="-1" title="10' UI preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/display-screensaver/">
     <div class="meta">Prototype<br>August 2026</div>
     <div class="entry-title"><h2>Display Screensaver</h2><p>Treating the portfolio television like an extended OS.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/display-screensaver/" loading="lazy" tabindex="-1" title="Display Screensaver preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/babymaker/">
-    <div class="meta">Concept<br>Visual sequence</div>
+    <div class="meta">Concept<br>August 2026 · Visual sequence</div>
     <div class="entry-title"><h2>Babymaker</h2><p>Bespoke babies. Designed to specification.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/babymaker/" loading="lazy" tabindex="-1" title="Babymaker preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
   <a class="entry" href="/playground/features-for-one/">
     <div class="meta">Working idea<br>August 2026</div>
     <div class="entry-title"><h2>Features for One</h2><p>What happens when software becomes cheap enough to adapt to individuals?</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/features-for-one/" loading="lazy" tabindex="-1" title="Features for One preview"></iframe></div>
     <div class="arrow">↗</div>
   </a>
 </section>
