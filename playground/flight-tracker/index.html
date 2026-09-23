@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flight Tracker v1.0 — John Rice Playground</title>
+  <meta name="description" content="Flight Tracker v1.0 is a Raspberry Pi and SDR experiment that turns live ADS-B aircraft broadcasts over Western Washington into a 10-foot-friendly map experience.">
+  <style>
+    :root{
+      --ink:#0d0d0c;
+      --muted:#676761;
+      --paper:#f3f1e8;
+      --rule:#c9c6ba;
+      --panel:#111311;
+      --green:#5f8d55;
+      --red:#d35d4d;
+      --yellow:#d5a93d;
+      --blue:#4c74a8;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit}
+    .shell{width:min(1180px,calc(100% - 48px));margin:0 auto}
+    .top{
+      display:flex;justify-content:space-between;align-items:center;
+      min-height:72px;border-bottom:1px solid var(--rule);
+      font-size:14px;font-weight:650;
+    }
+    .top a{text-decoration:none}
+    .top .back{color:var(--muted)}
+    .hero{padding:78px 0 62px}
+    .kicker{
+      margin:0 0 14px;
+      font-size:13px;font-weight:750;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--muted);
+    }
+    h1{
+      margin:0;
+      max-width:850px;
+      font-size:clamp(58px,8vw,112px);
+      line-height:.9;
+      letter-spacing:-.065em;
+      font-weight:800;
+    }
+    .lede{
+      max-width:760px;
+      margin:36px 0 0;
+      font-size:clamp(21px,2.4vw,34px);
+      line-height:1.15;
+      letter-spacing:-.025em;
+    }
+    .rule{border:0;border-top:1px solid var(--rule);margin:0}
+    .section{padding:64px 0}
+    .grid{display:grid;grid-template-columns:1fr 2fr;gap:56px}
+    .section-label{
+      margin:0;
+      font-size:13px;font-weight:750;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--muted);
+    }
+    h2{
+      margin:0 0 22px;
+      font-size:clamp(34px,4vw,58px);
+      line-height:.98;
+      letter-spacing:-.045em;
+    }
+    p{font-size:18px;line-height:1.55;margin:0 0 18px}
+    .feature-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:1px;
+      background:var(--rule);
+      border:1px solid var(--rule);
+      margin-top:34px;
+    }
+    .feature{
+      background:var(--paper);
+      padding:28px;
+      min-height:170px;
+    }
+    .feature strong{display:block;font-size:22px;margin-bottom:10px}
+    .feature p{font-size:16px;color:var(--muted);margin:0}
+    .stack{
+      background:var(--panel);
+      color:white;
+      padding:34px;
+      margin-top:30px;
+    }
+    .stack-row{
+      display:grid;
+      grid-template-columns:180px 1fr;
+      gap:28px;
+      padding:18px 0;
+      border-bottom:1px solid rgba(255,255,255,.15);
+      align-items:start;
+    }
+    .stack-row:last-child{border-bottom:0}
+    .stack-row strong{font-size:15px;letter-spacing:.03em}
+    .stack-row span{color:rgba(255,255,255,.72);font-size:16px;line-height:1.45}
+    .flow{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      border:1px solid var(--rule);
+    }
+    .flow div{
+      min-height:120px;
+      padding:22px 18px;
+      border-right:1px solid var(--rule);
+      display:flex;flex-direction:column;justify-content:space-between;
+    }
+    .flow div:last-child{border-right:0}
+    .flow b{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .flow span{font-size:17px;font-weight:700}
+    .notes{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+    }
+    .note{
+      border-top:4px solid var(--ink);
+      padding-top:16px;
+    }
+    .note p{font-size:16px;color:var(--muted)}
+    footer{
+      padding:40px 0 56px;
+      border-top:1px solid var(--rule);
+      color:var(--muted);
+      font-size:14px;
+    }
+    @media (max-width:800px){
+      .shell{width:min(100% - 28px,1180px)}
+      .hero{padding:54px 0 42px}
+      .grid{grid-template-columns:1fr;gap:18px}
+      .feature-grid{grid-template-columns:1fr}
+      .flow{grid-template-columns:1fr}
+      .flow div{border-right:0;border-bottom:1px solid var(--rule)}
+      .flow div:last-child{border-bottom:0}
+      .notes{grid-template-columns:1fr}
+      .stack-row{grid-template-columns:1fr;gap:6px}
+    }
+  </style>
+</head>
+<body>
+  <header class="shell top">
+    <a href="/" aria-label="John Rice home">John Rice</a>
+    <a class="back" href="/">Playground / Flight Tracker</a>
+  </header>
+
+  <main>
+    <section class="shell hero">
+      <p class="kicker">Playground · Signals / Hardware / Visualization</p>
+      <h1>Flight Tracker<br>v1.0</h1>
+      <p class="lede">A local receiver turns aircraft broadcasts over Western Washington into a live, 10-foot-friendly view of the airspace.</p>
+    </section>
+
+    <hr class="rule">
+
+    <section class="shell section">
+      <div class="grid">
+        <p class="section-label">What it does</p>
+        <div>
+          <h2>Makes the aircraft overhead visible.</h2>
+          <p>Flight Tracker listens to 1090 MHz ADS-B broadcasts and plots aircraft on a live map of the Puget Sound region. The experience is built for a television rather than a desk: large aircraft silhouettes, altitude masts, bold labels and a rotating hero treatment make the traffic readable from across the room.</p>
+          <p>It is intentionally local-first. The receiver, decoder, route enrichment and interface run as a small appliance on the home network.</p>
+
+          <div class="feature-grid">
+            <div class="feature"><strong>Live position</strong><p>Aircraft position, speed, heading and barometric altitude update from locally received ADS-B messages.</p></div>
+            <div class="feature"><strong>Altitude as space</strong><p>Normalized vertical masts make relative altitude immediately visible. A mast-top indicator shows climbing, level flight or descent.</p></div>
+            <div class="feature"><strong>Motion history</strong><p>Ghosted recent positions and trails make direction and movement visible without turning the map into a dense tracking interface.</p></div>
+            <div class="feature"><strong>Hero rotation</strong><p>Every few seconds one aircraft is promoted into a large, readable card with callsign, altitude, speed, broad aircraft class and a plausible origin-to-destination route.</p></div>
+            <div class="feature"><strong>Session records</strong><p>A scoreboard overlay tracks highest altitude, fastest aircraft, longest observed aircraft and total aircraft seen during the current session.</p></div>
+            <div class="feature"><strong>Built to fail clearly</strong><p>If receiver data stops, the interface detects staleness, fades stale traffic, clears frozen aircraft and recovers automatically when fresh data returns.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section class="shell section">
+      <div class="grid">
+        <p class="section-label">Hardware</p>
+        <div>
+          <h2>A small radio appliance.</h2>
+          <div class="stack">
+            <div class="stack-row"><strong>Computer</strong><span>Raspberry Pi running Debian Linux — the dedicated <em>lab-pi</em> node.</span></div>
+            <div class="stack-row"><strong>Receiver</strong><span>Airspy R2 software-defined radio receiving 1090 MHz ADS-B traffic.</span></div>
+            <div class="stack-row"><strong>Antenna</strong><span>Outdoor RF antenna and coax feed the receiver with local aircraft transmissions.</span></div>
+            <div class="stack-row"><strong>Display</strong><span>55-inch TCL television used as the primary 10-foot interface.</span></div>
+            <div class="stack-row"><strong>Network</strong><span>Local Ethernet/Wi-Fi network for browser access and service management.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section class="shell section">
+      <div class="grid">
+        <p class="section-label">Software stack</p>
+        <div>
+          <h2>Radio in. Browser out.</h2>
+          <div class="flow" aria-label="Flight Tracker software flow">
+            <div><b>01</b><span>Airspy R2</span></div>
+            <div><b>02</b><span>airspy_adsb</span></div>
+            <div><b>03</b><span>readsb</span></div>
+            <div><b>04</b><span>JSON + route cache</span></div>
+            <div><b>05</b><span>Leaflet browser UI</span></div>
+          </div>
+
+          <div class="stack">
+            <div class="stack-row"><strong>Reception</strong><span><code>airspy_adsb</code> receives and forwards 1090 MHz ADS-B messages.</span></div>
+            <div class="stack-row"><strong>Decode</strong><span><code>readsb</code> turns those messages into aircraft state and continuously writes local JSON.</span></div>
+            <div class="stack-row"><strong>Map</strong><span>Leaflet with OpenStreetMap provides the detailed regional geography and town labels.</span></div>
+            <div class="stack-row"><strong>Interface</strong><span>Custom HTML, CSS and JavaScript render silhouettes, altitude masts, trails, hero cards and session records.</span></div>
+            <div class="stack-row"><strong>Routes</strong><span>A small Python helper enriches callsigns with route data, caches successful lookups and hides routes that fail a position/heading plausibility check.</span></div>
+            <div class="stack-row"><strong>Services</strong><span>systemd manages receiver, decoder, web UI and route enrichment together as one <em>Invisible World</em> stack.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section class="shell section">
+      <div class="grid">
+        <p class="section-label">Design notes</p>
+        <div>
+          <h2>Designed to be watched.</h2>
+          <p>The map keeps its geographic detail because the labels are part of the experience: it is satisfying to notice exactly which town an aircraft is crossing. Aircraft markers are deliberately larger than a conventional flight-tracking UI because the display is meant to work at television distance.</p>
+          <div class="notes">
+            <div class="note"><p><strong>Local truth first.</strong> Position, altitude, heading and speed come from the receiver. External route information is treated as optional enrichment and hidden when it looks implausible.</p></div>
+            <div class="note"><p><strong>Part of Invisible World.</strong> Flight Tracker is the first mature layer in a broader experiment about making signals and systems that already surround us visible.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">Flight Tracker v1.0 · John Rice Playground · 2026</div>
+  </footer>
+</body>
+</html>
