@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Barbergame Video Splashscreen</title>
+<link rel="stylesheet" href="/barber-game/assets/flow-viewer.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
+.states{display:flex;flex-direction:column;gap:2px}
+.state{display:grid;grid-template-columns:24px 1fr;align-items:center;min-height:30px;color:var(--flow-rail)}
+.state-eye{width:24px;height:26px;border:0;background:transparent;color:var(--flow-rail);display:grid;place-items:center}
+.state-eye svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6}
+.state-select{height:26px;border:0;background:transparent;color:#111;padding:0 4px;display:grid;grid-template-columns:20px 1fr;gap:6px;align-items:center;text-align:left;font-size:10px;font-weight:700;cursor:pointer}
+.state-num{width:18px;height:18px;background:var(--flow-rail);color:#fff;border:1px solid var(--flow-rail);display:grid;place-items:center;font-size:8px}
+.stage{position:relative;min-height:0}
+.phone{position:absolute;left:50%;top:50%;width:414px;height:866px;padding:12px;background:#090a0b;border:2px solid #25272a;border-radius:48px;overflow:visible;box-shadow:0 26px 70px rgba(0,0,0,.45),inset 0 0 0 1px #000;transform:translate(-50%,-50%);transform-origin:center center}
+.phone:before{content:"";position:absolute;z-index:8;top:5px;left:50%;transform:translateX(-50%);width:58px;height:5px;border-radius:999px;background:#292b2e}
+.phone:after{content:"";position:absolute;z-index:8;top:8px;right:70px;width:6px;height:6px;border-radius:50%;background:#1b1d20;box-shadow:0 0 0 1px #303236}
+.device-screen{width:390px;height:842px;border-radius:36px;overflow:hidden;position:relative;background:#111}
+.splash{position:absolute;inset:0;background:#111;color:#fff}
+.splash video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.shade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.12) 0%,rgba(0,0,0,.08) 58%,rgba(0,0,0,.42) 100%)}
+.header{position:absolute;z-index:3;top:0;left:0;right:0;height:78px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;background:rgba(20,20,20,.36);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05)}
+.header-logo{display:none;width:145px;max-height:48px;object-fit:contain;object-position:left center}
+.header-actions{display:flex;align-items:center;gap:12px;margin-left:auto}
+.sound,.menu{width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(8,8,8,.18);color:rgba(255,255,255,.82);display:grid;place-items:center;font-size:11px;cursor:pointer}
+.menu{border:0;border-radius:0;background:transparent;font-size:22px;color:rgba(255,255,255,.72)}
+.center-logo{position:absolute;z-index:2;left:28px;right:28px;top:29%;width:calc(100% - 56px);height:130px;object-fit:contain}
+.center-logo.stacked{top:25%;left:50%;right:auto;transform:translateX(-50%);width:180px;height:180px}
+.actions{position:absolute;z-index:3;left:28px;right:28px;bottom:34px;display:grid;justify-items:center;gap:12px}
+.primary{width:100%;height:56px;border:1px solid rgba(255,255,255,.32);border-radius:999px;background:rgba(8,8,8,.34);color:#fff;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font:inherit;font-size:18px}
+.secondary{border:0;background:transparent;color:rgba(255,255,255,.82);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:4px;padding:4px 8px}
+.version{font-size:8px;letter-spacing:.14em;color:rgba(255,255,255,.42);text-transform:uppercase}
+.caption{text-align:center;color:rgba(255,255,255,.7);font-size:12px;margin-top:12px}
+[data-variant]{display:none}
+[data-variant].active{display:block}
+.variant-10 .header-logo{display:none}
+.variant-10 .sound{display:grid}
+.variant-11 .header-logo{display:block}
+.variant-13 .header-logo{display:none}
+@media(max-width:800px){.phone{width:414px;height:866px}}
+</style>
+</head>
+<body>
+<div class="flow-viewer-shell">
+  <aside class="flow-sidebar">
+    <a class="back" href="/barber-game/">← The Barbergame</a>
+    <h1 style="font-size:32px;line-height:1;letter-spacing:-.04em;margin-bottom:10px">Video splashscreen</h1>
+    <p class="flow-subtitle">Barbergame welcome-screen variations.</p>
+    <nav class="states">
+      <div class="state"><span class="state-eye">◉</span><button class="state-select" data-show="v10"><span class="state-num">1</span><span>V1.0 · centered wordmark</span></button></div>
+      <div class="state"><span class="state-eye">◉</span><button class="state-select" data-show="v11"><span class="state-num">2</span><span>V1.1 · header wordmark</span></button></div>
+      <div class="state"><span class="state-eye">◉</span><button class="state-select" data-show="v13"><span class="state-num">3</span><span>V1.3 · stacked badge</span></button></div>
+    </nav>
+  </aside>
+  <section class="flow-main">
+    <div class="stage-wrap">
+      <div class="stage">
+        <div class="phone">
+          <div class="device-screen">
+            <div class="splash variant-10" data-variant="v10">
+              <video autoplay muted loop playsinline preload="auto" src="/barber-game/assets/Barbergame_social-master-E-compressed.mov"></video>
+              <audio loop preload="auto" src="/barber-game/assets/tbg-theme-8s-fade.mp3"></audio>
+              <div class="shade"></div>
+              <div class="header"><div></div><div class="header-actions"><button class="sound">◖))</button><button class="menu">☰</button></div></div>
+              <img class="center-logo" src="/barber-game/assets/barbergame-combo-white.svg" alt="The Barbergame">
+              <div class="actions"><button class="primary">Sign In</button><button class="secondary">Sign up</button><div class="version">V1.0</div></div>
+            </div>
+
+            <div class="splash variant-11 active" data-variant="v11">
+              <video autoplay muted loop playsinline preload="auto" src="/barber-game/assets/Barbergame_social-master-E-compressed.mov"></video>
+              <audio loop preload="auto" src="/barber-game/assets/tbg-theme-8s-fade.mp3"></audio>
+              <div class="shade"></div>
+              <div class="header"><img class="header-logo" src="/barber-game/assets/barbergame-combo-white.svg" alt="The Barbergame"><div class="header-actions"><button class="sound">◖))</button><button class="menu">☰</button></div></div>
+              <div class="actions"><button class="primary">Sign In</button><button class="secondary">Sign up</button><div class="version">V1.1</div></div>
+            </div>
+
+            <div class="splash variant-13" data-variant="v13">
+              <video autoplay muted loop playsinline preload="auto" src="/barber-game/assets/Barbergame_social-master-E-compressed.mov"></video>
+              <audio loop preload="auto" src="/barber-game/assets/tbg-theme-8s-fade.mp3"></audio>
+              <div class="shade"></div>
+              <div class="header"><div></div><div class="header-actions"><button class="sound">◖))</button><button class="menu">☰</button></div></div>
+              <img class="center-logo stacked" src="/barber-game/assets/barbergamed-stacked-logo-badge.png" alt="The Barbergame">
+              <div class="actions"><button class="primary">Sign In</button><button class="secondary">Sign up</button><div class="version">V1.3</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="caption" id="caption">V1.1 — Barbergame logo in the glass header.</div>
+    </div>
+  </section>
+</div>
+<script>
+if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
+const captions={v10:'V1.0 — centered Barbergame wordmark over the video.',v11:'V1.1 — Barbergame logo in the glass header.',v13:'V1.3 — stacked Barbergame badge centered over the video.'};
+let soundOn=true;
+function show(id){
+  document.querySelectorAll('[data-variant]').forEach(v=>v.classList.toggle('active',v.dataset.variant===id));
+  document.querySelectorAll('.state').forEach((s,i)=>s.classList.toggle('active',s.querySelector('[data-show]').dataset.show===id));
+  document.getElementById('caption').textContent=captions[id]||'';
+  document.querySelectorAll('audio').forEach(a=>{a.pause();a.currentTime=0});
+  const active=document.querySelector('[data-variant].active audio');
+  if(active && soundOn){active.volume=.55;active.play().catch(()=>{})}
+}
+document.querySelectorAll('[data-show]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.show)));
+document.querySelectorAll('.sound').forEach(btn=>btn.addEventListener('click',()=>{
+  soundOn=!soundOn;
+  document.querySelectorAll('.sound').forEach(x=>x.textContent=soundOn?'◖))':'◖×');
+  const a=document.querySelector('[data-variant].active audio');
+  if(a){if(soundOn){a.volume=.55;a.play().catch(()=>{})}else a.pause()}
+}));
+window.addEventListener('pointerdown',()=>{const a=document.querySelector('[data-variant].active audio');if(a&&soundOn)a.play().catch(()=>{})},{once:true});
+function fit(){
+  const stage=document.querySelector('.stage'),phone=document.querySelector('.phone');
+  const box=stage.getBoundingClientRect(),cap=document.querySelector('.caption');
+  const maxH=Math.max(420,innerHeight-box.top-(cap?cap.getBoundingClientRect().height:0)-54);
+  const maxW=Math.max(280,stage.clientWidth-12);
+  const scale=Math.min(1,maxH/866,maxW/414);
+  phone.style.transform='translate(-50%,-50%) scale('+scale+')';
+  stage.style.height=maxH+'px';
+}
+addEventListener('resize',fit);requestAnimationFrame(()=>{fit();show('v11')});
+</script>
+</body>
+</html>
