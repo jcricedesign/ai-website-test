@@ -27,9 +27,13 @@ const metadata={
  es:{title:'Sobre mí — John Rice',description:'Sobre John Rice: diseñador de producto en Seattle, formado por la edición, los juegos, el software, el dibujo, la fabricación y una curiosidad persistente por cómo funcionan las cosas.'},
  fr:{title:'À propos — John Rice',description:'À propos de John Rice : designer produit à Seattle, façonné par l’édition, les jeux, le logiciel, le dessin, la fabrication et une curiosité persistante pour le fonctionnement des choses.'},type:'profile'},
 '/career/':{
- en:{title:'Career — John Rice',description:'John Rice’s career across product design, Xbox, Mozilla, Microsoft, interactive work, publishing, and building products from zero.'},
- es:{title:'Trayectoria — John Rice',description:'La trayectoria de John Rice a través del diseño de producto, Xbox, Mozilla, Microsoft, trabajo interactivo, edición y construcción de productos desde cero.'},
- fr:{title:'Parcours — John Rice',description:'Le parcours de John Rice à travers le design produit, Xbox, Mozilla, Microsoft, le travail interactif, l’édition et la création de produits à partir de zéro.'},type:'profile'},
+ en:{title:'Career — John Rice',description:'Legacy career page for John Rice.'},
+ es:{title:'Trayectoria — John Rice',description:'Página anterior de trayectoria de John Rice.'},
+ fr:{title:'Parcours — John Rice',description:'Ancienne page de parcours de John Rice.'},type:'profile'},
+'/experience/':{
+ en:{title:'Experience — John Rice',description:'John Rice’s experience across product design, Xbox, Mozilla, Microsoft, interactive work, publishing, and building products from zero.'},
+ es:{title:'Experiencia — John Rice',description:'La experiencia de John Rice a través del diseño de producto, Xbox, Mozilla, Microsoft, trabajo interactivo, edición y construcción de productos desde cero.'},
+ fr:{title:'Expérience — John Rice',description:'L’expérience de John Rice à travers le design produit, Xbox, Mozilla, Microsoft, le travail interactif, l’édition et la création de produits à partir de zéro.'},type:'profile'},
 '/work/':{
  en:{title:'Selected Work — John Rice',description:'Selected product, platform, game, and venture work by John Rice.'},
  es:{title:'Trabajo seleccionado — John Rice',description:'Selección de trabajo de John Rice en producto, plataformas, juegos y nuevas iniciativas.'},
@@ -58,17 +62,19 @@ const metadata={
 
 const nav=[
  ['work/','Selected Work','Trabajo seleccionado','Travaux sélectionnés','Products, platforms, games, and new ventures.','Productos, plataformas, juegos y nuevas iniciativas.','Produits, plateformes, jeux et nouvelles initiatives.'],
- ['career/','Career','Trayectoria','Parcours','A chronology of the work and places that shaped it.','Una cronología del trabajo y los lugares que le dieron forma.','Une chronologie du travail et des lieux qui l’ont façonné.'],
+ ['experience/','Experience','Experiencia','Expérience','The pattern behind the work across industries and stages.','El patrón detrás del trabajo a través de industrias y etapas.','Le fil conducteur du travail à travers les secteurs et les étapes.'],
  ['barber-game/','The Barber Game','The Barber Game','The Barber Game','Building a product and company from zero.','Construyendo un producto y una empresa desde cero.','Construire un produit et une entreprise à partir de zéro.'],
  ['playground/','Playground','Exploraciones','Explorations','Experiments, prototypes, drafts, and curiosities.','Experimentos, prototipos, borradores y curiosidades.','Expériences, prototypes, brouillons et curiosités.']
 ];
 
 const T={
 'Career':{es:'Trayectoria',fr:'Parcours'},
+'Experience':{es:'Experiencia',fr:'Expérience'},
 'Selected Work':{es:'Trabajo seleccionado',fr:'Travaux sélectionnés'},
 'Playground':{es:'Exploraciones',fr:'Explorations'},
 'Products, platforms, games, and new ventures.':{es:'Productos, plataformas, juegos y nuevas iniciativas.',fr:'Produits, plateformes, jeux et nouvelles initiatives.'},
 'A chronology of the work and places that shaped it.':{es:'Una cronología del trabajo y los lugares que le dieron forma.',fr:'Une chronologie du travail et des lieux qui l’ont façonné.'},
+'The pattern behind the work across industries and stages.':{es:'El patrón detrás del trabajo a través de industrias y etapas.',fr:'Le fil conducteur du travail à travers les secteurs et les étapes.'},
 'Building a product and company from zero.':{es:'Construyendo un producto y una empresa desde cero.',fr:'Construire un produit et une entreprise à partir de zéro.'},
 'Experiments, prototypes, drafts, and curiosities.':{es:'Experimentos, prototipos, borradores y curiosidades.',fr:'Expériences, prototypes, brouillons et curiosités.'},
 'Skip to content':{es:'Saltar al contenido',fr:'Aller au contenu'},
@@ -237,5 +243,5 @@ const observer=new MutationObserver(records=>{records.forEach(r=>{if(r.type==='c
 
 registerHeadlines();applyLang(lang);
 
-setTimeout(()=>{if(location.pathname!==ROOT&&location.pathname!==ROOT+'index.html')return;const main=document.querySelector('main.page');if(!main||document.querySelector('[data-project="nintendo"]'))return;const section=document.createElement('section');section.className='project-module';section.dataset.project='nintendo';section.innerHTML=`<div class="project-controls"><button class="project-control" data-replay aria-label="Replay project sequence">↻</button><button class="project-control" data-fullscreen aria-label="Expand project fullscreen">↗</button></div><div class="project-editorial"><aside class="project-story"><p class="project-count" aria-live="polite">01 / 06</p><h2>Playing the game was only the beginning.</h2><p>The work began by understanding complex games deeply enough to explain them—then turning that knowledge into maps, strategies, illustrations, and information another player could actually use.</p><div class="project-meta">Nintendo · Nintendo Power / Official Strategy Guides</div></aside><div class="project-stream"></div></div>`;main.append(section);const items=[['01-guides.jpg','Nintendo Power','A body of work'],['02-metal-gear.jpg','Metal Gear Solid: The Twin Snakes','Information design'],['03-resident-evil.jpg','Resident Evil 4','Strategy + editorial'],['04-map.jpg','Game map','Understanding the system'],['05-strategy-guides.jpg','Official Strategy Guides','Finished artifacts'],['06-redesign.jpg','Nintendo Power','Redesign exploration']],stream=section.querySelector('.project-stream'),count=section.querySelector('.project-count');items.forEach(([src,label,kicker])=>{const f=document.createElement('figure');f.className='project-media';f.innerHTML=`<div class="project-frame"><img loading="lazy" decoding="async" src="${ROOT}assets/nintendo/${src}" alt="${label}"></div><figcaption class="project-caption"><span>${label}</span><span>${kicker}</span></figcaption>`;stream.append(f)});const figs=[...stream.children],replay=section.querySelector('[data-replay]'),full=section.querySelector('[data-fullscreen]');let played=false,timers=[],wasFullscreen=false;function play(force=false){if(played&&!force)return;played=true;timers.forEach(clearTimeout);timers=[];figs.forEach(f=>f.classList.remove('visible'));if(matchMedia('(prefers-reduced-motion:reduce)').matches){figs.forEach(f=>f.classList.add('visible'));count.textContent='06 / 06';return}figs.forEach((f,i)=>timers.push(setTimeout(()=>{f.classList.add('visible');count.textContent=`${String(i+1).padStart(2,'0')} / 06`},i*300)))}new IntersectionObserver(e=>e.forEach(x=>x.isIntersecting&&play()),{threshold:.18}).observe(section.querySelector('.project-editorial'));replay.onclick=()=>play(true);full.onclick=async()=>{try{if(document.fullscreenElement===section)await document.exitFullscreen();else{wasFullscreen=true;await section.requestFullscreen()}}catch(e){wasFullscreen=false}};document.addEventListener('fullscreenchange',()=>{const active=document.fullscreenElement===section;full.textContent=active?'↙':'↗';full.setAttribute('aria-label',tr(active?'Exit project fullscreen':'Expand project fullscreen'));if(!active&&wasFullscreen){wasFullscreen=false;full.focus()}});walk(section)},0);
+
 })();
