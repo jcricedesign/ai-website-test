@@ -56,6 +56,13 @@
       line-height:1.15;
       letter-spacing:-.025em;
     }
+    .hero-video{
+      width:100%;
+      height:auto;
+      display:block;
+      margin-top:42px;
+      background:#111;
+    }
     .rule{border:0;border-top:1px solid var(--rule);margin:0}
     .section{padding:64px 0}
     .grid{display:grid;grid-template-columns:1fr 2fr;gap:56px}
@@ -159,6 +166,17 @@
       <p class="kicker">Playground · Signals / Hardware / Visualization</p>
       <h1>Flight Tracker<br>v1.0</h1>
       <p class="lede">A local receiver turns aircraft broadcasts over Western Washington into a live, 10-foot-friendly view of the airspace.</p>
+      <video
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        aria-label="Time-lapse of Invisible World Traffic"
+      >
+        <source src="invisible-world-traffic-preview-12fps.mp4" type="video/mp4">
+      </video>
     </section>
 
     <hr class="rule">
