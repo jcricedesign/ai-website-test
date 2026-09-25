@@ -5,7 +5,7 @@
     "author": "John Rice",
     "location": "Seattle, WA",
     "defaultLanguage": "en",
-    "supportedLanguages": ["en", "es"]
+    "supportedLanguages": ["en", "es", "fr"]
   },
   "pages": [
     {
@@ -25,12 +25,12 @@
       "tags": ["about", "design values", "influences", "Seattle"]
     },
     {
-      "path": "/career/",
-      "title": "Career — John Rice",
-      "description": "A career across editorial design, Nintendo, Publicis, Xbox, Bing, Mozilla, independent product work, and The Barber Game.",
-      "type": "career",
+      "path": "/experience/",
+      "title": "Experience — John Rice",
+      "description": "Experience across editorial design, Nintendo, Publicis, Xbox, Bing, Mozilla, independent product work, and The Barber Game.",
+      "type": "experience",
       "status": "published",
-      "tags": ["career", "product design", "Microsoft", "Xbox", "Mozilla", "Nintendo", "0→1"]
+      "tags": ["experience", "product design", "Microsoft", "Xbox", "Mozilla", "Nintendo", "0→1"]
     },
     {
       "path": "/playground/",
@@ -61,7 +61,7 @@
       "title": "Selected Work — John Rice",
       "description": "Selected product, platform, game, and new-venture work by John Rice.",
       "type": "work-index",
-      "status": "draft",
+      "status": "published",
       "tags": ["portfolio", "selected work"]
     },
     {
@@ -69,7 +69,7 @@
       "title": "The Barber Game — John Rice",
       "description": "Building a product and company from zero through research, strategy, interaction, prototyping, and product definition.",
       "type": "case-study",
-      "status": "draft",
+      "status": "published",
       "tags": ["0→1", "startup", "product design", "research", "The Barber Game"]
     }
   ]
