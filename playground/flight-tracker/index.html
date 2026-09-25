@@ -136,6 +136,34 @@
       padding-top:16px;
     }
     .note p{font-size:16px;color:var(--muted)}
+    .diy-list{
+      margin-top:30px;
+      border-top:1px solid var(--rule);
+    }
+    .diy-row{
+      display:grid;
+      grid-template-columns:1.45fr .7fr 2fr;
+      gap:24px;
+      padding:18px 0;
+      border-bottom:1px solid var(--rule);
+      align-items:start;
+    }
+    .diy-row strong{font-size:17px}
+    .diy-price{font-size:17px;font-weight:800;white-space:nowrap}
+    .diy-note{font-size:15px;color:var(--muted);line-height:1.45}
+    .diy-total{
+      margin-top:28px;
+      padding:26px 28px;
+      background:var(--panel);
+      color:white;
+      display:flex;
+      justify-content:space-between;
+      gap:24px;
+      align-items:baseline;
+    }
+    .diy-total span{font-size:15px;color:rgba(255,255,255,.68)}
+    .diy-total strong{font-size:clamp(28px,4vw,48px);letter-spacing:-.04em}
+    .diy-small{margin-top:16px;font-size:14px;color:var(--muted)}
     footer{
       padding:40px 0 56px;
       border-top:1px solid var(--rule);
@@ -152,6 +180,8 @@
       .flow div:last-child{border-bottom:0}
       .notes{grid-template-columns:1fr}
       .stack-row{grid-template-columns:1fr;gap:6px}
+      .diy-row{grid-template-columns:1fr;gap:5px}
+      .diy-total{align-items:flex-start;flex-direction:column}
     }
   </style>
 </head>
@@ -258,6 +288,58 @@
             <div class="note"><p><strong>Local truth first.</strong> Position, altitude, heading and speed come from the receiver. External route information is treated as optional enrichment and hidden when it looks implausible.</p></div>
             <div class="note"><p><strong>Part of Invisible World.</strong> Flight Tracker is the first mature layer in a broader experiment about making signals and systems that already surround us visible.</p></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section class="shell section">
+      <div class="grid">
+        <p class="section-label">Do it yourself</p>
+        <div>
+          <h2>Build one for roughly $350.</h2>
+          <p>You do not need specialized aviation hardware to make a version of this. The core system is a Raspberry Pi, an SDR receiver and a 1090 MHz antenna. Most of the software is open source.</p>
+
+          <div class="diy-list" aria-label="Approximate parts cost">
+            <div class="diy-row">
+              <strong>Raspberry Pi 5 · 4 GB</strong>
+              <span class="diy-price">~$85</span>
+              <span class="diy-note">More than enough compute for ADS-B decoding, the local web interface and the other lightweight collectors used here.</span>
+            </div>
+            <div class="diy-row">
+              <strong>Airspy R2 SDR</strong>
+              <span class="diy-price">~$170</span>
+              <span class="diy-note">The radio receiver used in this build. Less expensive SDRs can also receive ADS-B, but this is the hardware used for this project.</span>
+            </div>
+            <div class="diy-row">
+              <strong>1090 MHz antenna</strong>
+              <span class="diy-price">~$40–65</span>
+              <span class="diy-note">An outdoor antenna improves range substantially. Indoor antennas can work for a simpler first experiment.</span>
+            </div>
+            <div class="diy-row">
+              <strong>Pi case + cooling</strong>
+              <span class="diy-price">~$12–20</span>
+              <span class="diy-note">A fan-cooled case keeps the Pi comfortable during continuous operation.</span>
+            </div>
+            <div class="diy-row">
+              <strong>USB-C power supply</strong>
+              <span class="diy-price">~$15</span>
+              <span class="diy-note">Use a proper Raspberry Pi 5-compatible USB-C supply.</span>
+            </div>
+            <div class="diy-row">
+              <strong>microSD + cables / adapters</strong>
+              <span class="diy-price">~$25–40</span>
+              <span class="diy-note">Storage, HDMI and any small RF adapters needed for your particular antenna and cable run.</span>
+            </div>
+          </div>
+
+          <div class="diy-total">
+            <span>Approximate total · display not included</span>
+            <strong>$350–395</strong>
+          </div>
+
+          <p class="diy-small">Approximate U.S. street prices in 2026. Antenna mounting, long coax runs, lightning protection and a display can add to the total. If you already have a Pi, display or compatible SDR, the cost drops quickly.</p>
         </div>
       </div>
     </section>
