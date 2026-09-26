@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Flight Tracker v1.0 — John Rice Playground</title>
-  <meta name="description" content="Flight Tracker v1.0 is a Raspberry Pi and SDR experiment that turns live ADS-B aircraft broadcasts over Western Washington into a 10-foot-friendly map experience.">
+  <meta name="description" content="Flight Tracker v1.0 is a Raspberry Pi and SDR experiment that turns live ADS-B aircraft broadcasts over Western Washington into a 10-foot-friendly map experience.">\n  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     :root{
       --ink:#0d0d0c;
@@ -67,6 +67,121 @@
       width:100%;
       height:auto;
       display:block;
+    }
+    .live-wrap{
+      margin-top:42px;
+      background:#111;
+      color:white;
+      border:1px solid #111;
+    }
+    .live-head{
+      display:flex;
+      justify-content:space-between;
+      gap:24px;
+      align-items:flex-end;
+      padding:22px 24px;
+      border-bottom:1px solid rgba(255,255,255,.16);
+    }
+    .live-title{
+      margin:0;
+      font-size:clamp(24px,3vw,38px);
+      line-height:1;
+      letter-spacing:-.035em;
+    }
+    .live-status{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      color:rgba(255,255,255,.72);
+      font-size:13px;
+      font-weight:750;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .live-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#777;
+    }
+    .live-status.is-live .live-dot{
+      background:#61bf72;
+      box-shadow:0 0 0 4px rgba(97,191,114,.12);
+    }
+    .live-status.is-delayed .live-dot{background:#d5a93d}
+    .live-status.is-off .live-dot{background:#d35d4d}
+    #public-traffic-map{
+      width:100%;
+      height:min(68vh,720px);
+      min-height:520px;
+      background:#d9d8d2;
+    }
+    .public-plane{
+      background:transparent;
+      border:0;
+    }
+    .public-plane-inner{
+      position:relative;
+      width:46px;
+      height:46px;
+      transform-origin:50% 50%;
+    }
+    .public-plane-inner svg{
+      width:46px;
+      height:46px;
+      display:block;
+      filter:
+        drop-shadow(0 0 2px rgba(255,255,255,.95))
+        drop-shadow(0 0 2px rgba(255,255,255,.95));
+    }
+    .public-plane-label{
+      position:absolute;
+      left:29px;
+      top:13px;
+      min-width:128px;
+      color:#111;
+      font-size:11px;
+      line-height:1.15;
+      font-weight:800;
+      letter-spacing:.02em;
+      white-space:nowrap;
+      text-shadow:
+        0 0 3px white,
+        0 0 3px white,
+        0 0 3px white;
+    }
+    .public-plane-label span{
+      display:block;
+      margin-top:2px;
+      font-size:9px;
+      font-weight:700;
+      color:#555;
+    }
+    .public-station-label,
+    .public-range-label{
+      color:#111;
+      font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+      font-weight:800;
+      white-space:nowrap;
+      text-shadow:0 0 3px white,0 0 3px white,0 0 3px white;
+    }
+    .public-station-label{
+      font-size:10px;
+      letter-spacing:.05em;
+    }
+    .public-range-label{
+      font-size:9px;
+      letter-spacing:.08em;
+      color:rgba(17,17,17,.56);
+      text-align:center;
+      text-transform:uppercase;
+    }
+    .live-note{
+      padding:15px 24px 18px;
+      color:rgba(255,255,255,.58);
+      font-size:13px;
+      line-height:1.45;
     }
     .rule{border:0;border-top:1px solid var(--rule);margin:0}
     .section{padding:64px 0}
@@ -177,6 +292,8 @@
     }
     @media (max-width:800px){
       .shell{width:min(100% - 28px,1180px)}
+      .live-head{align-items:flex-start;flex-direction:column}
+      #public-traffic-map{height:62vh;min-height:430px}
       .hero{padding:54px 0 42px}
       .grid{grid-template-columns:1fr;gap:18px}
       .feature-grid{grid-template-columns:1fr}
@@ -212,6 +329,31 @@
       >
         <source src="invisible-world-traffic-preview-12fps.mp4" type="video/mp4">
       </video>
+    </section>
+
+
+    <hr class="rule">
+
+    <section class="shell section" id="live">
+      <div class="grid">
+        <p class="section-label">Semi-live</p>
+        <div>
+          <h2>Live from the listening station.</h2>
+          <p>When the receiver is on air, this read-only public mirror updates from the local ADS-B installation about every ten seconds. The listening-station location shown here is deliberately approximate.</p>
+        </div>
+      </div>
+
+      <div class="live-wrap">
+        <div class="live-head">
+          <h3 class="live-title">Invisible World / Traffic</h3>
+          <div class="live-status is-off" id="live-status">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span id="live-status-text">Connecting…</span>
+          </div>
+        </div>
+        <div id="public-traffic-map" aria-label="Semi-live public aircraft map"></div>
+        <div class="live-note" id="live-note">Waiting for the latest public snapshot.</div>
+      </div>
     </section>
 
     <hr class="rule">
@@ -362,5 +504,183 @@
   <footer>
     <div class="shell">Flight Tracker v1.0 · John Rice Playground · 2026</div>
   </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    (() => {
+      const ENDPOINT = 'https://invisible-world-traffic-live.john-cae.workers.dev/latest';
+      const mapEl = document.getElementById('public-traffic-map');
+      if (!mapEl || !window.L) return;
+
+      const map = L.map(mapEl, {
+        zoomControl: false,
+        attributionControl: true,
+        preferCanvas: true
+      }).setView([47.68, -122.33], 9);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      const aircraftLayer = L.layerGroup().addTo(map);
+      const referenceLayer = L.layerGroup().addTo(map);
+      let stationKey = '';
+
+      function stationReference(station) {
+        const lat = Number(station?.lat);
+        const lon = Number(station?.lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+        const key = lat + ',' + lon;
+        if (key === stationKey) return;
+        stationKey = key;
+        referenceLayer.clearLayers();
+
+        const stationIcon = L.divIcon({
+          className: '',
+          html: '<div style="position:relative;width:150px;height:32px;pointer-events:none">' +
+            '<div style="position:absolute;left:0;top:3px;width:22px;height:22px">' +
+            '<svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true">' +
+            '<path fill="#111" d="M8 29L32 8L56 29L51 35L48 32L48 56L37 56L37 40L27 40L27 56L16 56L16 32L13 35Z"/></svg></div>' +
+            '<div class="public-station-label" style="position:absolute;left:28px;top:8px">LISTENING STATION</div></div>',
+          iconSize: [150, 32],
+          iconAnchor: [11, 16]
+        });
+
+        L.marker([lat, lon], {
+          icon: stationIcon,
+          interactive: false,
+          zIndexOffset: -200
+        }).addTo(referenceLayer);
+
+        [10,20,30,40,50].forEach(nm => {
+          L.circle([lat, lon], {
+            radius: nm * 1852,
+            color: '#111',
+            weight: 1,
+            opacity: .18,
+            fill: false,
+            interactive: false
+          }).addTo(referenceLayer);
+
+          L.marker([lat + nm / 60, lon], {
+            icon: L.divIcon({
+              className: '',
+              html: '<div class="public-range-label">' + nm + ' nm</div>',
+              iconSize: [48, 16],
+              iconAnchor: [24, 8]
+            }),
+            interactive: false,
+            zIndexOffset: -250
+          }).addTo(referenceLayer);
+        });
+      }
+
+      function markerForAircraft(a) {
+        const lat = Number(a.lat);
+        const lon = Number(a.lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+        if (Number(a.seen_pos) > 30) return null;
+
+        const track = Number.isFinite(Number(a.track)) ? Number(a.track) : 0;
+        const flight = String(a.flight || a.hex || 'AIRCRAFT').trim().toUpperCase();
+        const altitude = Number.isFinite(Number(a.alt_baro))
+          ? Math.round(Number(a.alt_baro)).toLocaleString() + ' ft'
+          : 'altitude —';
+        const speed = Number.isFinite(Number(a.gs))
+          ? Math.round(Number(a.gs)) + ' kt'
+          : 'speed —';
+
+        const html =
+          '<div class="public-plane-inner" style="transform:rotate(' + track + 'deg)">' +
+            '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+              '<path fill="#111" d="M31 4c2 0 4 2 4 5v17l20 12v6L35 38v12l7 5v5l-10-3-10 3v-5l7-5V38L9 44v-6l20-12V9c0-3 1-5 2-5z"/>' +
+            '</svg>' +
+            '<div class="public-plane-label" style="transform:rotate(' + (-track) + 'deg);transform-origin:left center">' +
+              flight + '<span>' + altitude + ' · ' + speed + '</span>' +
+            '</div>' +
+          '</div>';
+
+        return L.marker([lat, lon], {
+          icon: L.divIcon({
+            className: 'public-plane',
+            html,
+            iconSize: [46, 46],
+            iconAnchor: [23, 23]
+          }),
+          interactive: false
+        });
+      }
+
+      function ageSeconds(updated) {
+        const t = Date.parse(updated || '');
+        if (!Number.isFinite(t)) return Infinity;
+        return Math.max(0, (Date.now() - t) / 1000);
+      }
+
+      function setStatus(data) {
+        const status = document.getElementById('live-status');
+        const text = document.getElementById('live-status-text');
+        const note = document.getElementById('live-note');
+        const age = ageSeconds(data?.updated);
+        const count = Array.isArray(data?.aircraft) ? data.aircraft.filter(a => Number(a.seen_pos) <= 30).length : 0;
+
+        status.classList.remove('is-live','is-delayed','is-off');
+
+        if (data?.on_air && age < 30) {
+          status.classList.add('is-live');
+          text.textContent = 'Live · updated ' + Math.round(age) + ' sec ago';
+          note.textContent = count + ' aircraft with fresh positions · public mirror updates about every 10 seconds.';
+        } else if (data?.on_air && age < 90) {
+          status.classList.add('is-delayed');
+          text.textContent = 'Delayed · ' + Math.round(age) + ' sec';
+          note.textContent = 'The latest snapshot is aging; waiting for the listening station to update.';
+        } else {
+          status.classList.add('is-off');
+          text.textContent = 'Off air';
+          note.textContent = data?.updated
+            ? 'Last public snapshot: ' + new Date(data.updated).toLocaleString()
+            : 'No public snapshot has been published yet.';
+        }
+      }
+
+      async function refreshTraffic() {
+        try {
+          const response = await fetch(ENDPOINT, { cache: 'no-store' });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          const data = await response.json();
+
+          setStatus(data);
+          stationReference(data.station);
+
+          aircraftLayer.clearLayers();
+          (data.aircraft || []).forEach(a => {
+            const marker = markerForAircraft(a);
+            if (marker) marker.addTo(aircraftLayer);
+          });
+        } catch (err) {
+          const status = document.getElementById('live-status');
+          const text = document.getElementById('live-status-text');
+          const note = document.getElementById('live-note');
+          status.classList.remove('is-live','is-delayed');
+          status.classList.add('is-off');
+          text.textContent = 'Unavailable';
+          note.textContent = 'The public traffic relay could not be reached.';
+        }
+      }
+
+      refreshTraffic();
+      setInterval(refreshTraffic, 10000);
+      setInterval(async () => {
+        try {
+          const r = await fetch(ENDPOINT, { cache: 'no-store' });
+          if (r.ok) setStatus(await r.json());
+        } catch (_) {}
+      }, 1000);
+    })();
+  </script>
 </body>
 </html>
