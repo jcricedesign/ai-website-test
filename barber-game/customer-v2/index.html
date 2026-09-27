@@ -115,7 +115,7 @@ function pick(s,b,slot=''){state.shop=s;state.barber=b;state.slot=slot;state.day
 function claim(s,b,t,day='Today'){state.shop=s;state.barber=b;state.slot=t;state.day=day;state.service=services[serviceIndexFor(s,b,t,day)];state.generalBooking=false;go('confirm')}
 function directions(shop){if(shop)window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(shop.address),'_blank','noopener')}
 document.addEventListener('click',async e=>{const btn=e.target.closest('[data-action]');if(!btn)return;const a=btn.dataset.action,s=shops.find(x=>x.id===btn.dataset.shop),b=s?.barbers[Number(btn.dataset.barber)];
- if(a==='jump'){if(['discover','all-barbers'].includes(btn.dataset.step)||state.shop||(state.generalBooking&&['service','service-results'].includes(btn.dataset.step)))go(btn.dataset.step);return}
+ if(a==='jump'){if(['discover','all-barbers','customer-profile'].includes(btn.dataset.step)||state.shop||(state.generalBooking&&['service','service-results'].includes(btn.dataset.step)))go(btn.dataset.step);return}
  if(a==='all-barbers'){state.directoryFromMenu=state.overlay==='menu';go('all-barbers');return}
  if(a==='home'){state.directoryFromMenu=false;state.locationsFromMenu=false;state.generalBooking=false;go('discover');return}
  if(a==='menu-back'){if(state.overlay==='locations'){state.overlay=state.locationsFromMenu?'menu':'';render()}else if(state.step==='all-barbers'){if(state.directoryFromMenu){go('discover');state.overlay='menu';render()}else go('discover')}return}
