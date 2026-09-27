@@ -6,6 +6,7 @@
 <title>The Barbergame — Barber First Run Experience</title>
 <link rel="stylesheet" href="/barber-game/assets/flow-viewer.css">
 <link rel="stylesheet" href="/barber-game/assets/barber-app.css">
+<link rel="stylesheet" href="/barber-game/barber-first-run/management.css">
 <style>
 :root{--phone:#222;--barber-accent:#8b35ea;--barber-accent-text:#fff}
 *{box-sizing:border-box}
@@ -458,13 +459,22 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                 <section class="app-view" data-app-view="business">
                   <div class="business-feed">
                     <h2 class="business-title">My Business</h2>
-                    <p class="business-sub">Stay current on rent, documents, and taxes.</p>
+                    <p class="business-sub">Your chair, schedule, services, and business records in one place.</p>
 
                     <div class="biz-summary">
                       <div class="biz-stat"><span>Booth rent</span><strong>$150</strong><small>Due Friday</small></div>
                       <div class="biz-stat"><span>Documents</span><strong>3</strong><small>Current</small></div>
                       <div class="biz-stat"><span>Time off</span><strong>1 week</strong><small>Remaining</small></div>
                     </div>
+
+                    <section class="biz-block manage-block">
+                      <h3>Manage your chair</h3>
+                      <button class="manage-entry" type="button" data-manage="hours"><span><strong>My Hours</strong><small>Working hours, days off, and shop hours</small></span><span aria-hidden="true">›</span></button>
+                      <button class="manage-entry" type="button" data-manage="services"><span><strong>My Services</strong><small>Bookable services, time, and price</small></span><span aria-hidden="true">›</span></button>
+                      <button class="manage-entry" type="button" data-manage="appointments"><span><strong>My Appointments</strong><small>Upcoming, past, and cancelled</small></span><span aria-hidden="true">›</span></button>
+                      <button class="manage-entry" type="button" data-manage="reup"><span><strong>Work Re-Up / Voucher</strong><small>Rent balance and time-off voucher</small></span><span aria-hidden="true">›</span></button>
+                      <button class="manage-entry" type="button" data-manage="earnings"><span><strong>Earnings / Expenses</strong><small>Personal business snapshot</small></span><span aria-hidden="true">›</span></button>
+                    </section>
 
                     <section class="biz-block">
                       <h3>Licenses & insurance</h3>
@@ -587,15 +597,14 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                 </div>
                 <div class="settings-scroll">
                   <h2 class="settings-title">Settings</h2>
-                  <p class="settings-sub">Manage your account, business setup, and preferences.</p>
+                  <p class="settings-sub">Manage your public profile, account, and preferences.</p>
 
                   <section class="settings-section">
                     <h3>Account</h3>
                     <div class="settings-list">
-                      <a class="settings-row" href="/barber-game/barber-profile/#details"><div><strong>Basic info</strong><small>Name and contact details</small></div><span class="chev">›</span></a>
+                      <button class="settings-row" type="button" data-manage="profile"><div><strong>Barber profile</strong><small>Name, photo, description, and social links</small></div><span class="chev">›</span></button>
                       <a class="settings-row" href="#"><div><strong>Phone verification</strong><small>(425) 555-1212 · Verified</small></div><span class="chev">›</span></a>
-                      <a class="settings-row" href="#"><div><strong>Username</strong><small>jaudonmiller</small></div><span class="chev">›</span></a>
-                      <a class="settings-row" href="/barber-game/barber-profile/#details"><div><strong>Barber profile</strong><small>Public details and photo preview</small></div><span class="chev">›</span></a>
+                      <button class="settings-row" type="button" data-manage="profile"><div><strong>Basic info</strong><small>Username, email, and phone</small></div><span class="chev">›</span></button>
                     </div>
                   </section>
 
@@ -618,22 +627,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                   </section>
 
                   <section class="settings-section">
-                    <h3>Barber setup</h3>
+                    <h3>Preferences</h3>
                     <div class="settings-list">
-                      <a class="settings-row link" href="#"><div><strong>Shop location</strong><small>Kirkland Shop</small></div><span class="chev">›</span></a>
-                      <a class="settings-row link" href="/barber-game/barber-profile/#services"><div><strong>Services & prices</strong><small>Edit your bookable services</small></div><span class="chev">›</span></a>
-                      <a class="settings-row link" href="/barber-game/barber-profile/#hours"><div><strong>Days & hours</strong><small>Mon–Fri · 9am–5pm</small></div><span class="chev">›</span></a>
                       <a class="settings-row" href="#"><div><strong>Notifications</strong><small>Appointment and client alerts</small></div><span class="chev">›</span></a>
                       <a class="settings-row" href="#"><div><strong>Payment methods</strong><small>What clients can use to pay you</small></div><span class="chev">›</span></a>
-                    </div>
-                  </section>
-
-                  <section class="settings-section">
-                    <h3>Licenses & documents</h3>
-                    <div class="settings-list">
-                      <a class="settings-row link" href="#"><div><strong>Barber license</strong><small>#4019 · Expires Aug 12, 2027</small></div><span class="chev">›</span></a>
-                      <a class="settings-row link" href="#"><div><strong>Insurance</strong><small>Expires Mar 31, 2027</small></div><span class="chev">›</span></a>
-                      <a class="settings-row link" href="#"><div><strong>Salon license</strong><small>Expires Nov 15, 2026</small></div><span class="chev">›</span></a>
                     </div>
                   </section>
 
@@ -654,6 +651,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                   </section>
                 </div>
               </section>
+              <section class="manage-overlay" aria-hidden="true" aria-label="Barber management">
+                <div class="manage-top"><button class="manage-back" type="button">← Back</button><span>Chop It Up · Jaudon</span></div>
+                <div class="manage-scroll"><div id="manage-content"></div></div>
+              </section>
             </div>
           </div>
         </div>
@@ -669,7 +670,7 @@ const viewCaptions={
   'myday-oobe':'My Day - OOBE — empty day ready for the barber to share and fill.',
   myday:'My Day - populated — appointment slot states and current-day activity.',
   live:'Live appointment — simplified one-handed appointment mode.',
-  business:'Business — licenses, insurance, booth rent, time off and tax reporting.',
+  business:'Business — hours, services, appointments, rent, documents, and earnings.',
   stats:'Stats — barber performance, tenure, specialties and customer feedback.'
 };
 function setView(view){
@@ -776,5 +777,6 @@ function fitPhone(){
 window.addEventListener('resize',fitPhone);
 requestAnimationFrame(fitPhone);
 </script>
+<script src="/barber-game/barber-first-run/management.js"></script>
 </body>
 </html>
