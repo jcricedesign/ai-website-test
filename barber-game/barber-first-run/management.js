@@ -6,7 +6,7 @@
     profile: {name:'Jaudon Miller',username:'jaudonmiller',title:'New Guy',shop:'Kirkland Shop',email:'',phone:'425-555-1212',bio:'Clean cuts, good conversation, and a chair you can count on.',instagram:'',facebook:'',twitter:'',nickname:'Jaudon',barberId:'0'},
     photo:'',
     hours: [['Monday',true,'09:00','17:00'],['Tuesday',true,'09:00','17:00'],['Wednesday',true,'09:00','17:00'],['Thursday',true,'09:00','17:00'],['Friday',true,'09:00','17:00'],['Saturday',false,'09:00','17:00'],['Sunday',false,'09:00','17:00']],
-    daysOff: [],
+    daysOff: [], blockedSlots: [], blockedClients: [],
     services: [{name:'Haircut Only (no beard)',minutes:30,price:35,description:'Haircut'},{name:'Haircut & Beard',minutes:45,price:50,description:''},{name:'Kids 9 & under',minutes:30,price:25,description:''},{name:'Braids',minutes:60,price:80,description:''}],
     appointments: [{name:'Roger',service:'Haircut Only (no beard)',time:'9:00 AM',status:'Complete'},{name:'Philip',service:'Haircut & Beard',time:'1:00 PM',status:'Confirmed'},{name:'Mark',service:'Haircut Only (no beard)',time:'2:00 PM',status:'New'},{name:'George',service:'Braids',time:'3:00 PM',status:'Confirmed'}],
     vouchers: [], expenses: []
@@ -67,7 +67,8 @@
       html = heading('My Hours','Set your working week and upcoming days off.') +
         `<div class="manage-card"><h3>Regular hours</h3>${data.hours.map((day,i) => `<div class="manage-day"><label><input type="checkbox" data-hour-active="${i}" ${day[1]?'checked':''}>${day[0]}</label><div class="manage-day-times"><input type="time" aria-label="${day[0]} start" data-hour-start="${i}" value="${esc(day[2])}" ${day[1]?'':'disabled'}><span>to</span><input type="time" aria-label="${day[0]} end" data-hour-end="${i}" value="${esc(day[3])}" ${day[1]?'':'disabled'}></div></div>`).join('')}</div><button class="manage-action" data-manage-action="save-hours">Save hours</button>
         <div class="manage-card"><h3>Upcoming days off</h3>${data.daysOff.length ? data.daysOff.map((day,i) => `<div class="manage-row"><strong>${esc(day)}</strong><button class="manage-minor" data-manage-action="remove-day" data-index="${i}">Remove</button></div>`).join('') : '<p>No days off added.</p>'}<form id="manage-day-form"><label class="manage-field">Add a day off<input name="date" type="date" required></label><button class="manage-minor" type="submit">Add day off</button></form></div>
-        <div class="manage-card"><h3>Shop hours · Kirkland</h3><div class="manage-row"><strong>Mon–Sat</strong><span>10:00 AM – 6:00 PM</span></div><div class="manage-row"><strong>Sunday</strong><span>10:00 AM – 5:00 PM</span></div><p>Shop hours are set by Chop It Up.</p></div><p class="manage-note">${note}</p>`;
+        <div class="manage-card"><h3>Block a time</h3>${data.blockedSlots.map((slot,i)=>`<div class="manage-row"><strong>${esc(slot.date)} · ${esc(slot.start)}–${esc(slot.end)}</strong><button class="manage-minor" data-manage-action="remove-block" data-index="${i}">Remove</button></div>`).join('')||'<p>No blocked times in this preview.</p>'}<form id="manage-block-form"><label class="manage-field">Date<input name="date" type="date" required></label><div class="manage-fields-two"><label class="manage-field">Start<input name="start" type="time" required></label><label class="manage-field">End<input name="end" type="time" required></label></div><button class="manage-minor" type="submit">Block time preview</button></form></div>
+        <div class="manage-card"><h3>Shop hours · Kirkland</h3><div class="manage-row"><strong>Mon–Sat</strong><span>10:00 AM – 6:00 PM</span></div><div class="manage-row"><strong>Sunday</strong><span>10:00 AM – 5:00 PM</span></div><p>Shop hours are set by Chop It Up.</p></div><p class="manage-note">Blocking time here does not remove real booking slots. ${note}</p>`;
     }
     if (panel === 'services') {
       html = heading('My Services','Choose the services clients can book with you.') +
@@ -77,7 +78,7 @@
     if (panel === 'appointments') {
       const shown = data.appointments.map((item,index) => ({...item,index})).filter(item => appointmentFilter === 'Upcoming' ? ['New','Confirmed'].includes(item.status) : appointmentFilter === 'Past' ? item.status === 'Complete' : item.status === 'Cancelled');
       html = heading('My Appointments','Review the sample schedule and its status.') +
-        `<div class="manage-filters">${['Upcoming','Past','Cancelled'].map(f => `<button class="manage-filter ${appointmentFilter===f?'active':''}" data-appointment-filter="${f}" aria-pressed="${appointmentFilter===f}">${f}</button>`).join('')}</div><div class="manage-card">${shown.length ? shown.map(item => `<div class="manage-row"><div><strong>${esc(item.name)} · ${esc(item.time)}</strong><small>${esc(item.service)} · ${esc(item.status)}</small></div>${appointmentFilter==='Upcoming'?`<button class="manage-minor" data-manage-action="complete-appointment" data-index="${item.index}">Complete</button>`:''}</div>`).join('') : '<p>No appointments in this group.</p>'}</div><button class="manage-action" data-manage-action="view-day">View My Day</button><p class="manage-note">${note}</p>`;
+        `<div class="manage-filters">${['Upcoming','Past','Cancelled'].map(f => `<button class="manage-filter ${appointmentFilter===f?'active':''}" data-appointment-filter="${f}" aria-pressed="${appointmentFilter===f}">${f}</button>`).join('')}</div><div class="manage-card">${shown.length ? shown.map(item => `<div class="manage-row"><div><strong>${esc(item.name)} · ${esc(item.time)}</strong><small>${esc(item.service)} · ${esc(item.status)}${data.blockedClients.includes(item.name)?' · Future bookings blocked':''}</small></div>${appointmentFilter==='Upcoming'?`<button class="manage-minor" data-manage-action="complete-appointment" data-index="${item.index}">Complete</button>`:''}</div>`).join('') : '<p>No appointments in this group.</p>'}</div><div class="manage-card"><h3>Client booking controls</h3><p>Mark a sample client as blocked for future bookings in this local preview.</p>${data.appointments.map((item,i)=>`<div class="manage-row"><strong>${esc(item.name)}</strong><button class="manage-minor" data-manage-action="toggle-client-block" data-index="${i}">${data.blockedClients.includes(item.name)?'Unblock':'Block client'}</button></div>`).join('')}</div><button class="manage-action" data-manage-action="view-day">View My Day</button><p class="manage-note">Blocking a client here does not change real account access. ${note}</p>`;
     }
     if (panel === 'reup') {
       html = heading('Work Re-Up / Voucher','Keep track of booth rent and your time-off voucher.') +
@@ -110,6 +111,12 @@
       case 'complete-appointment': data.appointments[index].status='Complete'; persist('Appointment marked complete in this preview.'); break;
       case 'view-day': close(); if (origin==='settings') document.querySelector('.settings-close')?.click(); setView('myday'); break;
       case 'remove-day': data.daysOff.splice(index,1); persist('Day off removed locally.'); break;
+      case 'remove-block': data.blockedSlots.splice(index,1); persist('Blocked time removed locally.'); break;
+      case 'toggle-client-block': {
+        const name=data.appointments[index].name, current=data.blockedClients.indexOf(name);
+        if (current<0) data.blockedClients.push(name); else data.blockedClients.splice(current,1);
+        persist(current<0?'Client blocked in this preview only.':'Client unblocked in this preview.'); break;
+      }
       case 'remove-voucher': data.vouchers.splice(index,1); persist('Voucher plan removed locally.'); break;
       case 'remove-expense': data.expenses.splice(index,1); persist('Expense removed locally.'); break;
     }
@@ -133,13 +140,18 @@
     else if (el.matches('[data-service-description]')) data.services[Number(el.dataset.serviceDescription)].description=el.value;
   });
   overlay.addEventListener('submit', event => {
-    const form=event.target; if (!['manage-profile-form','manage-day-form','manage-voucher-form','manage-expense-form'].includes(form.id)) return;
+    const form=event.target; if (!['manage-profile-form','manage-day-form','manage-block-form','manage-voucher-form','manage-expense-form'].includes(form.id)) return;
     event.preventDefault(); const values=new FormData(form);
     if (form.id==='manage-profile-form') {
       for (const key of ['username','email','phone','bio','nickname','instagram','facebook','twitter']) data.profile[key]=String(values.get(key)||'').trim();
       data.profile.name=[values.get('first'),values.get('last')].map(value=>String(value||'').trim()).filter(Boolean).join(' ');
       persist('Public profile saved locally.');
     } else if (form.id==='manage-day-form') { data.daysOff.push(String(values.get('date'))); persist('Day off added locally.'); }
+    else if (form.id==='manage-block-form') {
+      const slot={date:String(values.get('date')),start:String(values.get('start')),end:String(values.get('end'))};
+      if (slot.start>=slot.end) { message='End time must be after start time.'; render(); return; }
+      data.blockedSlots.push(slot); persist('Time blocked in this preview only.');
+    }
     else if (form.id==='manage-voucher-form') { data.vouchers.push(String(values.get('date'))); persist('Voucher week planned in this preview only.'); }
     else { data.expenses.push({description:String(values.get('description')).trim(),amount:Number(values.get('amount'))}); persist('Expense added locally.'); }
   });
