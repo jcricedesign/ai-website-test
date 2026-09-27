@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chop It Up — Customer booking v2</title>
+<title>Chop It Up — Customer booking</title>
 <link rel="stylesheet" href="/barber-game/assets/flow-viewer.css">
 <style>
 :root{--ink:#111;--muted:#676965;--line:#deded9;--green:#538467;--pale:#f3f4f0;--rail:#2d4353}
@@ -21,8 +21,8 @@
 </head>
 <body>
 <div class="flow-viewer-shell"><aside class="flow-sidebar">
-  <a class="back" href="/barber-game/customer/">← Approved v1 checkpoint</a>
-  <div class="version">Prototype · v2</div><h1>Customer<br>booking</h1>
+  <a class="back" href="/barber-game/">← The Barbergame</a>
+  <div class="version">Current customer prototype</div><h1>Customer<br>booking</h1>
   <p class="flow-subtitle">Shop discovery by approximate distance. Tap through a booking.</p>
   <nav class="states" id="states" aria-label="Prototype states"></nav>
   <p class="note">Shop addresses come from the current locations page. Barber names appear on Chop It Up’s published roster; shop placement, ranks, specialties, distances, and availability are illustrative. The published site lists seven Washington shops; the eighth slot is marked pending.</p>
@@ -32,7 +32,7 @@
 </div></div></div><p class="caption" id="caption">Discover shops · nearest first, with availability up front.</p></div></main></div>
 <script>
 if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
-// The v1 storyboard remains at /barber-game/customer/. This page uses illustrative availability only.
+// Customer booking prototype. Availability and shop placement are illustrative.
 const AS='/barber-game/chop-it-up/';
 const shops=[
  {id:'kirkland',name:'Kirkland Shop',address:'12305 120th Ave NE Suite J, Kirkland, WA 98034',lat:47.709,lng:-122.180,phone:'',barbers:[
