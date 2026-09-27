@@ -26,6 +26,25 @@
     try { localStorage.setItem(KEY, JSON.stringify(data)); message = text; }
     catch { message = 'Browser storage is full. Try a smaller profile photo.'; }
     render();
+    renderDay();
+  }
+  function renderDay() {
+    const list = document.getElementById('managed-day-appointments');
+    if (!list) return;
+    list.innerHTML = data.appointments.map(item => {
+      const status = item.status || 'Confirmed';
+      const style = status === 'Complete' ? 'complete' : status === 'New' ? 'new' : '';
+      return `<article class="appt-slot ${style}"><div class="appt-main"><div class="appt-name">${esc(item.name)}</div><div class="appt-service">${esc(item.service)}</div></div><div class="appt-right"><div class="appt-status">${esc(status)}</div><div class="appt-time">${esc(item.time)}</div></div></article>`;
+    }).join('') || '<p class="day-label">No appointments today.</p>';
+
+    const price = item => Number(data.services.find(service => service.name === item.service)?.price) || 0;
+    const earned = data.appointments.filter(item => item.status === 'Complete').reduce((sum, item) => sum + price(item), 0);
+    const projected = data.appointments.filter(item => item.status !== 'Cancelled').reduce((sum, item) => sum + price(item), 0);
+    const view = list.closest('[data-app-view="myday"]');
+    view.querySelector('.earnings-total').textContent = `$${projected}`;
+    view.querySelector('.goal-footer span').textContent = `$${earned} so far`;
+    view.querySelector('.goal-footer strong').textContent = earned >= 75 ? 'Booth rent covered' : `$${Math.max(0, 75 - earned)} to booth rent`;
+    view.querySelector('.goal-fill').style.width = `${Math.min(100, projected / 300 * 100)}%`;
   }
   function open(which, fromSettings = false) {
     panel = which;
@@ -156,4 +175,5 @@
     else { data.expenses.push({description:String(values.get('description')).trim(),amount:Number(values.get('amount'))}); persist('Expense added locally.'); }
   });
   if (data.photo) document.querySelector('.barber-app-profile').src=data.photo;
+  renderDay();
 })();

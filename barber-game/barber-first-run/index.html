@@ -359,100 +359,8 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
                       </div>
                       <div class="goal-footer"><span>$105 so far</span><strong>Booth rent covered</strong></div>
                     </section>
-                    <div class="day-label">Today · Monday</div>
-                    <div class="appt-list">
-                      <article class="appt-slot complete">
-                        <div class="appt-main">
-                          <div class="appt-name">Marcus</div>
-                          <div class="appt-service">Haircut</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Complete</div><div class="appt-time">8a</div></div>
-                      </article>
-
-                      <article class="appt-slot complete">
-                        <div class="appt-main">
-                          <div class="appt-name">Aaron Gomez</div>
-                          <div class="appt-service">Haircut</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Complete</div><div class="appt-time">8:30a</div></div>
-                      </article>
-
-                      <article class="appt-slot complete">
-                        <div class="appt-main">
-                          <div class="appt-name">Brianna Campbell</div>
-                          <div class="appt-service">Haircut</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Complete</div><div class="appt-time">9a</div></div>
-                      </article>
-
-                      <article class="appt-slot live" data-open-live role="button" tabindex="0" aria-label="Open live appointment">
-                        <div class="live-photo-wrap"><img src="/barber-game/chop-it-up/marcus-jackson-profile.png" alt="Roger"></div>
-                        <div class="appt-main">
-                          <div class="appt-name">Roger</div>
-                          <div class="appt-service">Haircut</div>
-                        </div>
-                        <div class="appt-right">
-                          <div class="appt-status">LIVE <span class="live-dot"></span></div>
-                          <div class="live-progress">12m 37s / 30m</div>
-                        </div>
-                      </article>
-
-                      <article class="appt-slot new">
-                        <div class="appt-main">
-                          <div class="appt-name">Bob</div>
-                          <div class="appt-service">Haircut</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">New</div><div class="appt-time">10a</div></div>
-                      </article>
-
-                      <article class="appt-slot">
-                        <div class="appt-main">
-                          <div class="appt-name">Charles</div>
-                          <div class="appt-service">Line up</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Upcoming</div><div class="appt-time">11a</div></div>
-                      </article>
-
-                      <article class="appt-slot break">
-                        <div class="appt-main">
-                          <div class="appt-name">Break</div>
-                          <div class="appt-service">Lunch</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-time">30m</div></div>
-                      </article>
-
-                      <article class="appt-slot">
-                        <div class="appt-main">
-                          <div class="appt-name">Philip</div>
-                          <div class="appt-service">Haircut + Beard trim</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Upcoming</div><div class="appt-time">1p</div></div>
-                      </article>
-
-                      <article class="appt-slot">
-                        <div class="appt-main">
-                          <div class="appt-name">Mark</div>
-                          <div class="appt-service">Line up</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Upcoming</div><div class="appt-time">2p</div></div>
-                      </article>
-
-                      <article class="appt-slot">
-                        <div class="appt-main">
-                          <div class="appt-name">George</div>
-                          <div class="appt-service">Braids</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Upcoming</div><div class="appt-time">3p</div></div>
-                      </article>
-
-                      <article class="appt-slot break">
-                        <div class="appt-main">
-                          <div class="appt-name">Open spot</div>
-                          <div class="appt-service">45 minutes available</div>
-                        </div>
-                        <div class="appt-right"><div class="appt-status">Open</div><div class="appt-time">4p</div></div>
-                      </article>
-                    </div>
+                    <div class="day-label">Today</div>
+                    <div class="appt-list" id="managed-day-appointments"></div>
                   </div>
                 </section>
 
@@ -586,7 +494,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif}
               </main>
               <nav class="barber-bottom-nav" aria-label="Barber app">
                 <a class="barber-nav-item active" href="#" data-view="home" aria-current="page"><img src="/barber-game/assets/icon-home-solid.svg" alt=""><span class="barber-nav-label">Home</span></a>
-                <a class="barber-nav-item" href="#" data-view="myday-oobe"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
+                <a class="barber-nav-item" href="#" data-view="myday"><img src="/barber-game/assets/icon-date.svg" alt=""><span class="barber-nav-label">My Day</span></a>
                 <a class="barber-nav-item" href="#" data-view="business"><img src="/barber-game/assets/icon-barber-chair.svg" alt=""><span class="barber-nav-label">Business</span></a>
                 <a class="barber-nav-item" href="#" data-view="stats"><img src="/barber-game/assets/icon-trophy.svg" alt=""><span class="barber-nav-label">Stats</span></a>
               </nav>
