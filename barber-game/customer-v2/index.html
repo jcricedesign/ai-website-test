@@ -26,7 +26,7 @@
   <div class="version">Current customer prototype</div><h1>Customer<br>booking</h1><button class="splash-replay" id="splash-replay" type="button">Replay loading screen</button>
   <p class="flow-subtitle">Shop discovery by approximate distance. Tap through a booking.</p>
   <nav class="states" id="states" aria-label="Prototype states"></nav>
-  <p class="note">Shop addresses come from the current locations page. Barber names appear on Chop It Up’s published roster; shop placement, ranks, specialties, distances, and availability are illustrative. The published site lists seven Washington shops; the eighth slot is marked pending.</p>
+  <p class="note">Shop addresses come from the current locations page. Barber names and portraits use the official uploaded assets; shop placement, ranks, specialties, distances, and availability are illustrative. The published site lists seven Washington shops; the eighth slot is marked pending.</p>
 </aside><main class="flow-main"><div class="stage-wrap"><div class="stage"><div class="phone"><div class="device" id="device">
   <div class="splash-overlay" id="splash-overlay" role="status" aria-label="Chop It Up loading"><div class="splash-content"><img src="/barber-game/chop-it-up/ChopItUp-Logo.png" alt="Chop It Up Barbershop"><p class="splash-tagline">A real barbershop.</p><p class="splash-progress">Finding availability...</p></div></div>
   <header class="header"><button class="logo-home" type="button" data-action="home" aria-label="Chop It Up home"><img class="logo" src="/barber-game/chop-it-up/ChopItUp-Logo.png" alt="Chop It Up"></button><div class="header-right"><button type="button" id="account-nav" data-action="signin">Sign in</button><button class="menu-btn" type="button" data-action="menu" aria-label="Menu">☰</button></div></header>
@@ -36,41 +36,44 @@
 if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
 // Customer booking prototype. Availability and shop placement are illustrative.
 const AS='/barber-game/chop-it-up/';
+// Official portrait/name pairs. Shop placement, titles and schedules remain prototype fixtures.
+// IMG_2156.jpg is intentionally excluded until its barber name is confirmed.
 const shops=[
  {id:'kirkland',name:'Kirkland Shop',address:'12305 120th Ave NE Suite J, Kirkland, WA 98034',lat:47.709,lng:-122.180,phone:'',barbers:[
-  {name:'Jaudon Miller',rank:'Master Barber',meta:'Haircut · Beard',image:'judon-miller-profile.png',slots:['2:00','2:30','4:15'],next:'Tomorrow'},
-  {name:'Adrian Parker',rank:'Grandmaster Barber',meta:'Classic · Business · Kids',image:'adrian-parker-profile.png',slots:['3:00','3:30','5:00'],next:'Tomorrow'},
-  {name:'Marcus Jackson',rank:'Master Barber',meta:'Texture · Design · Fades',image:'marcus-jackson-profile.png',slots:['4:00','4:30'],next:'Tue'},
-  {name:'Curtis Bell',rank:'5-Star Barber',meta:'Fades · Tapers',image:'Curtis-bell-profile.png',slots:[],next:'Tomorrow'},
-  {name:'Nick Voetberg',rank:'All-Star Barber',meta:'Classic cuts',image:'',slots:[],next:'Wed'},
-  {name:'Mikael Miller',rank:'Master Barber',meta:'Returns Thursday',image:'',slots:[],off:true}]},
+  {name:'Jay',image:'Jay.jpg',rank:'Master Barber',meta:'Haircut · Beard',slots:['2:00','2:30','4:15'],next:'Tomorrow'},
+  {name:'Adrian',image:'Adrian%20.jpg',rank:'Grandmaster Barber',meta:'Classic · Business · Kids',slots:['3:00','3:30','5:00'],next:'Tomorrow'},
+  {name:'Marcus',image:'Marcus.jpg',rank:'Master Barber',meta:'Texture · Design · Fades',slots:['4:00','4:30'],next:'Tue'},
+  {name:'Aaron',image:'Aaron.jpg',rank:'5-Star Barber',meta:'Fades · Tapers',slots:[],next:'Tomorrow'},
+  {name:'Nick',image:'Nick.jpg',rank:'All-Star Barber',meta:'Classic cuts',slots:[],next:'Wed'},
+  {name:'Meek',image:'Meek.jpg',rank:'Master Barber',meta:'Returns Thursday',slots:[],off:true}]},
  {id:'lynnwood',name:'Lynnwood Shop',address:'18910 28th Ave W #102A, Lynnwood, WA 98036',lat:47.829,lng:-122.270,barbers:[
-  {name:'Brandon Rafanan',rank:'Master Barber',meta:'Haircut · Beard',slots:['2:15','3:45','5:00'],next:'Tomorrow'},
-  {name:'Kyle Brown',rank:'5-Star Barber',meta:'Fades · Classic',slots:['3:30','4:30'],next:'Tomorrow'},
-  {name:'Messeret Tecle',rank:'All-Star Barber',meta:'Kids · Designs',slots:[],next:'Tue'}]},
+  {name:'Brandon',image:'Brandon.jpg',rank:'Master Barber',meta:'Haircut · Beard',slots:['2:15','3:45','5:00'],next:'Tomorrow'},
+  {name:'KB',image:'KB.jpg',rank:'5-Star Barber',meta:'Fades · Classic',slots:['3:30','4:30'],next:'Tomorrow'},
+  {name:'Mess',image:'Mess.jpg',rank:'All-Star Barber',meta:'Kids · Designs',slots:[],next:'Tue'}]},
  {id:'tukwila',name:'Tukwila Shop',address:'16874 Southcenter Pkwy, Tukwila, WA 98188',lat:47.451,lng:-122.261,barbers:[
-  {name:'Jamil Dyles',rank:'Master Barber',meta:'Fades · Tapers',slots:['2:45','4:15'],next:'Tomorrow'},
-  {name:'Johnny Navarro',rank:'All-Star Barber',meta:'Classic · Beard',slots:['3:15','5:00'],next:'Tomorrow'},
-  {name:'Emmanuel Pulido',rank:'New Guy',meta:'Haircut · Kids',slots:[],next:'Wed'}]},
+  {name:'Juice',image:'Juice.jpg',rank:'Master Barber',meta:'Fades · Tapers',slots:['2:45','4:15'],next:'Tomorrow'},
+  {name:'Johnny',image:'Johnny.jpg',rank:'All-Star Barber',meta:'Classic · Beard',slots:['3:15','5:00'],next:'Tomorrow'},
+  {name:'Manny',image:'Manny.jpg',rank:'New Guy',meta:'Haircut · Kids',slots:[],next:'Wed'}]},
  {id:'everett',name:'Everett Shop',address:'615 112th St. SE, Everett, WA 98208',lat:47.894,lng:-122.225,barbers:[
-  {name:'DK',rank:'All-Star Barber',meta:'Haircut · Beard',image:'DK-profile.png',slots:['2:00','2:45','4:30'],next:'Tomorrow'},
-  {name:'Jerry Ramos',rank:'All-Star Barber',meta:'Classic · Business · Kids',image:'jerry-ramos-profile.png',slots:['3:00','3:45'],next:'Tomorrow'},
-  {name:'Curtis Bell',rank:'5-Star Barber',meta:'Texture · Fades',image:'Curtis-bell-profile.png',slots:['4:00','5:00'],next:'Tue'},
-  {name:'Taylor Bryant',rank:'Master Barber',meta:'Haircut · Beard',slots:[],next:'Tomorrow'}]},
+  {name:'DP',image:'DP.jpg',rank:'All-Star Barber',meta:'Haircut · Beard',slots:['2:00','2:45','4:30'],next:'Tomorrow'},
+  {name:'Jerry',image:'Jerry.jpg',rank:'All-Star Barber',meta:'Classic · Business · Kids',slots:['3:00','3:45'],next:'Tomorrow'},
+  {name:'Dale',image:'Dale.jpg',rank:'5-Star Barber',meta:'Texture · Fades',slots:['4:00','5:00'],next:'Tue'},
+  {name:'Taylor',image:'Taylor.jpg',rank:'Master Barber',meta:'Haircut · Beard',slots:[],next:'Tomorrow'}]},
  {id:'wenatchee',name:'Wenatchee Shop',address:'879 Valley Mall Pkwy East, Wenatchee, WA 98802',lat:47.402,lng:-120.279,barbers:[
-  {name:'Josh Calix',rank:'Master Barber',meta:'Fades · Color',slots:['2:30','4:00'],next:'Tomorrow'},
-  {name:'Nena Pina',rank:'All-Star Barber',meta:'Braids · Styling',slots:['3:30','5:00'],next:'Tomorrow'},
-  {name:'Janice Earnest',rank:'New Guy',meta:'Haircut',slots:[],next:'Tue'}]},
+  {name:'Kolby',image:'Kolby.jpg',rank:'Master Barber',meta:'Fades · Color',slots:['2:30','4:00'],next:'Tomorrow'},
+  {name:'Lana',image:'Lana%20.jpg',rank:'All-Star Barber',meta:'Braids · Styling',slots:['3:30','5:00'],next:'Tomorrow'},
+  {name:'Molly',image:'Molly.jpg',rank:'New Guy',meta:'Haircut',slots:[],next:'Tue'}]},
  {id:'bellevue',name:'Bellevue Shop',address:'12005 NE 12th St. #27, Bellevue, WA 98005',lat:47.621,lng:-122.181,barbers:[
-  {name:'Darrell Peko',rank:'Grandmaster Barber',meta:'Business · Classic',slots:['2:15','3:45'],next:'Tomorrow'},
-  {name:'Craig Cameron',rank:'Master Barber',meta:'Fades · Beard',slots:['3:00','4:30'],next:'Tomorrow'},
-  {name:'Wayne Bryant',rank:'5-Star Barber',meta:'Haircut · Kids',slots:[],next:'Tue'}]},
+  {name:'Damien',image:'Damien.jpg',rank:'Grandmaster Barber',meta:'Business · Classic',slots:['2:15','3:45'],next:'Tomorrow'},
+  {name:'LA',image:'LA.jpg',rank:'Master Barber',meta:'Fades · Beard',slots:['3:00','4:30'],next:'Tomorrow'},
+  {name:'Wayne',image:'Wayne.jpg',rank:'5-Star Barber',meta:'Haircut · Kids',slots:[],next:'Tue'}]},
  {id:'bothell',name:'Bothell Shop',address:'17624 15th Ave SE, Suite 101A, Bothell, WA 98012',lat:47.836,lng:-122.212,barbers:[
-  {name:'Jayden Moore',rank:'New Guy',meta:'Haircut · Beard',image:'jayden-moo-reprofile.png',slots:['2:00','2:45','4:30'],next:'Tomorrow'},
-  {name:'Kelvin Miller',rank:'5-Star Barber',meta:'Classic · Business · Kids',image:'kelvin-miller-profile.png',slots:['3:00','4:00'],next:'Tomorrow'},
-  {name:'Justin Garcia',rank:'All-Star Barber',meta:'Texture · Design · Fades',image:'ustin-garcia-profile.png',slots:['4:00','5:15'],next:'Tue'},
-  {name:'Gabriel Calkins',rank:'Master Barber',meta:'Haircut · Beard',slots:[],next:'Tomorrow'},
-  {name:'Jacob Smith',rank:'All-Star Barber',meta:'Classic cuts',slots:[],off:true}]}
+  {name:'Rome',image:'Rome.jpg',rank:'New Guy',meta:'Haircut · Beard',slots:['2:00','2:45','4:30'],next:'Tomorrow'},
+  {name:'Lavar',image:'Lavar.jpg',rank:'5-Star Barber',meta:'Classic · Business · Kids',slots:['3:00','4:00'],next:'Tomorrow'},
+  {name:'P',image:'P.jpg',rank:'All-Star Barber',meta:'Texture · Design · Fades',slots:['4:00','5:15'],next:'Tue'},
+  {name:'Rob',image:'Rob.jpg',rank:'Master Barber',meta:'Haircut · Beard',slots:[],next:'Tomorrow'},
+  {name:'Sayne',image:'Sayne.jpg',rank:'All-Star Barber',meta:'Classic cuts',slots:[],off:true},
+  {name:'Wood',image:'Wood.jpg',rank:'Barber',meta:'Haircut',slots:[],next:'Tomorrow'}]}
 ];
 const areas={lynnwood:{name:'Lynnwood',lat:47.83,lng:-122.28},kirkland:{name:'Kirkland',lat:47.68,lng:-122.20},everett:{name:'Everett',lat:47.98,lng:-122.21},seattle:{name:'Seattle',lat:47.61,lng:-122.33}};
 const steps=[['discover','Discover'],['all-barbers','All barbers'],['profile','Barber profile'],['booking-location','Location'],['service','Service'],['booking-barber','Barber'],['time','Time'],['confirm','Confirm'],['confirmed','Confirmed'],['account','Claim account'],['customer-profile','Customer profile'],['signin','Sign in'],['recover','Recover access']];
@@ -90,7 +93,7 @@ function offerButton(s,b,t,day='Today',featured=false){const index=serviceIndexF
 const $=s=>document.querySelector(s); const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function miles(a,b){const R=3959,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
 function ordered(){return shops.map(s=>({...s,distance:miles(areas[state.area],s)})).sort((a,b)=>a.distance-b.distance)}
-function avatar(b){return b.image?`<img class="avatar" src="${AS+safe(b.image)}" alt="">`:`<span class="avatar initials" aria-hidden="true">${safe(b.name.split(' ').map(x=>x[0]).slice(0,2).join(''))}</span>`}
+function avatar(b){return b.image?`<img class="avatar" src="/barber-game/assets/${safe(b.image)}" alt="">`:`<span class="avatar initials" aria-hidden="true">${safe(b.name.split(' ').map(x=>x[0]).slice(0,2).join(''))}</span>`}
 function barberRow(s,b,i,slots=b.slots){const open=slots.length,all=state.allTimes[s.id],primary=slots[0];return `<div class="barber"><button class="portrait-link" data-action="profile" data-shop="${s.id}" data-barber="${i}" aria-label="View ${safe(b.name)}'s profile">${avatar(b)}</button><div class="barber-main"><button class="barber-name" data-action="profile" data-shop="${s.id}" data-barber="${i}">${!b.off?'<span class="dot"></span>':''}${safe(b.name)}</button><div class="rank">${safe(b.rank)}</div><div class="meta">${b.off?'Off duty':open?'Service available':'No openings today'}</div></div>${open?offerButton(s,b,primary,'Today',i===0):`<div class="availability">${b.off?'Off':'Full today'}<span>${b.off?'':safe(b.next)+' next'}</span></div>`}${open&&all?`<div class="slot-list">${slots.slice(1,4).map(t=>offerButton(s,b,t)).join('')}${slots.length>4?'<span class="small">More times available</span>':''}</div>`:''}</div>`}
 function shopModule(s){const available=s.barbers.filter(b=>b.slots.length),rest=s.barbers.filter(b=>!b.slots.length&&!b.off),off=s.barbers.filter(b=>b.off);const rows=state.expanded[s.id]?[...available,...rest,...off]:available.slice(0,3);return `<article class="shop" id="shop-${s.id}"><div class="shop-top"><h3>${safe(s.name)}</h3><div class="shop-actions"><button class="distance" data-action="directions" data-shop="${s.id}" aria-label="Directions to ${safe(s.name)}">${s.distance.toFixed(1)} mi</button><button class="overflow" data-action="shop-menu" data-shop="${s.id}" aria-label="More actions for ${safe(s.name)}" aria-expanded="${state.menu===s.id}">···</button></div></div>${state.menu===s.id?`<div class="shop-menu"><button data-action="share" data-shop="${s.id}">Share shop</button><button data-action="directions" data-shop="${s.id}">Directions</button><button data-action="call" data-shop="${s.id}">Call main line</button></div>`:''}<div class="shop-sub"><h4>Working today</h4><button class="filter" data-action="times-toggle" data-shop="${s.id}">${state.allTimes[s.id]?'All times':'First Available'}</button></div>${rows.map(b=>barberRow(s,b,s.barbers.indexOf(b))).join('')}${!available.length?'<p class="empty">No openings shown today. See future availability.</p>':''}${s.barbers.length>3?`<button class="more" data-action="expand" data-shop="${s.id}" aria-expanded="${!!state.expanded[s.id]}">${state.expanded[s.id]?'view less':'view more'}</button>`:''}</article>`}
 function catalogEntries(){return shops.flatMap(shop=>shop.barbers.map((barber,index)=>({shop,barber,index})))}
