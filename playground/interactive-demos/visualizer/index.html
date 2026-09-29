@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unknown Pleasures — Wave Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #080808;
+    font-family: 'DM Sans', Futura, 'Century Gothic', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px 48px;
+    gap: 24px;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    max-width: 680px;
+    height: auto;
+  }
+
+  #controls {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ctrl-label {
+    font-size: 9px;
+    font-weight: 300;
+    letter-spacing: .4em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+    width: 52px;
+    flex-shrink: 0;
+  }
+
+  .state-name {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: #252525;
+    margin-left: auto;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 1px;
+    background: #1c1c1c;
+    border-radius: 1px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #555;
+    cursor: grab;
+    box-shadow: 0 0 0 3px rgba(80,80,80,.1);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #555;
+    cursor: grab;
+  }
+
+  .tk {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    font-weight: 300;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #1e1e1e;
+    margin-top: 3px;
+    padding-bottom: 2px;
+  }
+
+  .btn-music {
+    padding: 9px 32px;
+    background: transparent;
+    border: 1px solid #1e1e1e;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 300;
+    letter-spacing: .45em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+    transition: all .2s;
+  }
+  .btn-music:hover { border-color: #333; color: #555; }
+  .btn-music.on   { border-color: #2a2a2a; color: #3a3a3a; }
+</style>
+</head>
+<body>
+
+<canvas id="c" width="680" height="680"></canvas>
+
+<div id="controls">
+  <div class="ctrl-row">
+    <span class="ctrl-label">Tempo</span>
+    <input type="range" id="sl-speed" min="0" max="100" step="1" value="30">
+    <span class="state-name" id="state-label">—</span>
+  </div>
+  <div class="tk"><span>Slow</span><span>Fast</span></div>
+  <div style="display:flex; justify-content:center; margin-top:6px;">
+    <button class="btn-music" id="music-btn" onclick="toggleMusic()">Begin</button>
+  </div>
+</div>
+
+<script>
+// ── Canvas setup ──────────────────────────────────────────────
+const cv  = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const W   = 680;
+const H   = 680;
+const BG  = '#080808';
+
+// ── Global speed (driven by slider) ──────────────────────────
+let globalSpeed = 0.30;
+document.getElementById('sl-speed').addEventListener('input', function() {
+  globalSpeed = parseFloat(this.value) / 100;
+});
+
+// ── Five morphing states ──────────────────────────────────────
+const STATES = [
+  { name:'Calm',   count:24, amp:0.18, chaos:0.28, tilt:0.04, thickBias:0.2,  surgeDensity:0.08 },
+  { name:'Pulse',  count:33, amp:0.55, chaos:0.50, tilt:0.10, thickBias:0.5,  surgeDensity:0.38 },
+  { name:'Storm',  count:39, amp:0.95, chaos:0.90, tilt:0.22, thickBias:0.7,  surgeDensity:0.65 },
+  { name:'Drift',  count:21, amp:0.35, chaos:0.18, tilt:0.18, thickBias:0.35, surgeDensity:0.12 },
+  { name:'Signal', count:36, amp:0.70, chaos:0.65, tilt:0.06, thickBias:0.6,  surgeDensity:0.60 },
+];
+const STATE_HOLD = 12;    // seconds at each state
+const TRANSITION = 6;     // seconds to blend between states
+const CYCLE_LEN  = STATES.length * (STATE_HOLD + TRANSITION);
+
+// ── Per-wave stable seeds ────────────────────────────────────
+const MAX_WAVES = 42;
+const wSeeds = Array.from({ length: MAX_WAVES }, () => ({
+  seed:          Math.random() * 200,
+  phase:         Math.random() * Math.PI * 2,
+  speedDir:      Math.random() < 0.5 ? 1 : -1,
+  freqMult:      0.6  + Math.random() * 1.4,
+  lwTier:        Math.random(),
+  tiltDir:       (Math.random() - 0.5) * 2,
+
+  // Horizontal drift — each wave slides at its own speed/direction
+  driftSpeed:    (0.02 + Math.random() * 0.12) * (Math.random() < 0.5 ? 1 : -1),
+  driftDepth:    0.3   + Math.random() * 0.7,
+
+  // Echo / memory — ghost lines below each wave
+  echoOffset:    2     + Math.random() * 5,
+  echoWeight:    0.2   + Math.random() * 0.35,
+  doubleEcho:    Math.random() < 0.3,
+  echoOffset2:   6     + Math.random() * 8,
+  echoWeight2:   0.1   + Math.random() * 0.18,
+
+  // Breakout — occasional eruptions far beyond the canvas edge
+  canBreakout:   Math.random() < 0.22,
+  breakoutPhase: Math.random() * Math.PI * 2,
+  breakoutSpeed: 0.08  + Math.random() * 0.14,
+  breakoutZone:  0.15  + Math.random() * 0.70,
+  breakoutWidth: 0.08  + Math.random() * 0.18,
+
+  // Surge — localised amplitude boost
+  surgeX:        0.1   + Math.random() * 0.8,
+  surgeW:        0.06  + Math.random() * 0.20,
+  surgeAmp:      1.5   + Math.random() * 2.8,
+}));
+
+// ── Layered-sine noise (organic waveform) ────────────────────
+function sig(x, seed, freq, oct, t) {
+  let v = 0, a = 1, s = 0;
+  for (let o = 0; o < oct; o++) {
+    const f = freq * (o + 1);
+    v += Math.sin(x*f + seed*4.3 + o*1.7 + t*0.6) * a
+       + Math.sin(x*f*1.618 + seed*2.9 + o*2.3 + t*0.4) * a * 0.5
+       + Math.sin(x*f*0.731 + seed*6.1 + o*3.1 - t*0.3) * a * 0.25;
+    s += a * 1.75;
+    a *= 0.52;
+  }
+  return v / s;
+}
+
+// ── Cubic ease in-out ────────────────────────────────────────
+function ease(t) {
+  return t < 0.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
+}
+
+// ── Interpolate between states ───────────────────────────────
+function getBlendedState(mc) {
+  const segLen = STATE_HOLD + TRANSITION;
+  const pos    = mc % CYCLE_LEN;
+  const si     = Math.floor(pos / segLen) % STATES.length;
+  const ni     = (si + 1) % STATES.length;
+  const segT   = pos % segLen;
+  const blend  = segT < STATE_HOLD ? 0 : ease((segT - STATE_HOLD) / TRANSITION);
+  function lp(a, b, t) { return a + (b - a) * t; }
+  const A = STATES[si], B = STATES[ni];
+  return {
+    count:        Math.round(lp(A.count,        B.count,        blend)),
+    amp:          lp(A.amp,          B.amp,          blend),
+    chaos:        lp(A.chaos,        B.chaos,        blend),
+    tilt:         lp(A.tilt,         B.tilt,         blend),
+    thickBias:    lp(A.thickBias,    B.thickBias,    blend),
+    surgeDensity: lp(A.surgeDensity, B.surgeDensity, blend),
+    name: blend < 0.5 ? A.name : B.name,
+  };
+}
+
+// ── Build wave point array ───────────────────────────────────
+function buildPts(ws, t, yBase, baseAmp, chaosFreq, oct, tiltAng, animT, lat, surgeActive, bp) {
+  const SAMPLES = 280;
+  const pts = [];
+  for (let i = 0; i <= SAMPLES; i++) {
+    const xf = i / SAMPLES;
+    const x  = xf * W;
+    const ty = Math.tan(tiltAng) * (x - W / 2);
+    const nf = xf + lat / W;   // lateral drift shifts noise lookup
+    let d = sig(nf, ws.seed, chaosFreq * SAMPLES, oct, animT);
+    if (surgeActive) {
+      const di = Math.abs(xf - ws.surgeX) / ws.surgeW;
+      if (di < 1) d *= (1 + (1 - di*di) * ws.surgeAmp);
+    }
+    let y = yBase + ty + d * baseAmp;
+    if (bp) {
+      const di = Math.abs(xf - bp.x) / bp.w;
+      if (di < 1) {
+        const bell = Math.pow(1 - di*di, 2);
+        y -= bell * bp.extraAmp;   // shoot upward past canvas edge
+      }
+    }
+    pts.push([x, y]);
+  }
+  return pts;
+}
+
+// ── Stroke a point array ─────────────────────────────────────
+function strokePts(pts, lw, alpha) {
+  ctx.save();
+  ctx.globalAlpha  = alpha;
+  ctx.strokeStyle  = '#ffffff';
+  ctx.lineWidth    = lw;
+  ctx.lineCap      = 'round';
+  ctx.lineJoin     = 'round';
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ── Draw one wave (occlusion fill + echoes + main line) ──────
+function drawWave(wIdx, wCount, state, rawT) {
+  const t   = wIdx / (wCount - 1);
+  const mid = 1 - Math.pow((t - 0.45) * 2.1, 2);
+  const ws  = wSeeds[wIdx % wSeeds.length];
+
+  const yBase     = 36 + t * (H - 72);
+  const baseAmp   = (4 + mid * 58 + 6) * state.amp;
+  const chaosFreq = 0.006 * ws.freqMult * (0.4 + state.chaos * 2.0);
+  const oct       = Math.floor(2 + t * 3.5);
+  const tiltAng   = ws.tiltDir * state.tilt * 0.28;
+  const animSpeed = globalSpeed * 1.5 * ws.speedDir * (0.4 + state.chaos * 0.8);
+  const animT     = rawT * animSpeed + ws.phase;
+
+  // Line weight — four tiers scaled by state's thickness bias
+  const tb = state.thickBias;
+  let lw;
+  if      (ws.lwTier < 0.35 - tb*0.2) lw = 0.4 + mid * 0.3;
+  else if (ws.lwTier < 0.65 - tb*0.1) lw = 0.8 + mid * 0.7 + tb * 0.4;
+  else if (ws.lwTier < 0.85)          lw = 1.4 + mid * 0.8 + tb * 0.8;
+  else                                 lw = 2.0 + mid * 1.0 + tb * 1.4;
+
+  // Horizontal drift — shifts noise lookup over time
+  const lat = rawT * ws.driftSpeed * ws.driftDepth * (0.4 + globalSpeed * 1.2) * W * 0.15;
+
+  // Breakout — slow eruption far beyond canvas top
+  let bp = null;
+  if (ws.canBreakout && state.amp > 0.30) {
+    const boT    = rawT * ws.breakoutSpeed + ws.breakoutPhase;
+    const boGate = Math.pow((Math.cos(boT) + 1) / 2, 4);
+    const boScale = boGate * (1.8 + state.amp * 3.5);
+    if (boScale > 0.05) bp = {
+      x: ws.breakoutZone,
+      w: ws.breakoutWidth,
+      extraAmp: boScale * (H * 0.55),
+    };
+  }
+
+  const surgeActive = ws.surgeX < state.surgeDensity * 1.4;
+  const pts = buildPts(ws, t, yBase, baseAmp, chaosFreq, oct, tiltAng, animT, lat, surgeActive, bp);
+
+  // Fill below wave with background — occludes waves behind it
+  ctx.save();
+  ctx.fillStyle  = BG;
+  ctx.globalAlpha = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H + 4);
+  for (const [x, y] of pts) ctx.lineTo(x, y);
+  ctx.lineTo(W, H + 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Ghost echo lines — drawn after fill, before main line
+  strokePts(pts.map(([x, y]) => [x, y + ws.echoOffset]),  lw * ws.echoWeight,  0.55);
+  if (ws.doubleEcho)
+    strokePts(pts.map(([x, y]) => [x, y + ws.echoOffset2]), lw * ws.echoWeight2, 0.28);
+
+  // Main solid white line — fully opaque
+  strokePts(pts, lw, 1.0);
+}
+
+// ── Visual render loop ───────────────────────────────────────
+let rawT = 0, morphClock = 0, lt = null;
+const stateLabel = document.getElementById('state-label');
+let lastStateName = '';
+
+function frame(ts) {
+  if (!lt) lt = ts;
+  const dt = Math.min((ts - lt) / 1000, 0.05);
+  lt = ts;
+  rawT       += dt;
+  morphClock += dt * (0.5 + globalSpeed * 0.8);
+
+  const state = getBlendedState(morphClock);
+  if (state.name !== lastStateName) {
+    stateLabel.textContent = state.name;
+    lastStateName = state.name;
+  }
+
+  ctx.fillStyle = BG;
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < state.count; i++) drawWave(i, state.count, state, rawT);
+
+  // Top & bottom edge vignette
+  const vT = ctx.createLinearGradient(0, 0, 0, 50);
+  vT.addColorStop(0, 'rgba(8,8,8,1)');
+  vT.addColorStop(1, 'rgba(8,8,8,0)');
+  ctx.fillStyle = vT;
+  ctx.fillRect(0, 0, W, 50);
+
+  const vB = ctx.createLinearGradient(0, H - 50, 0, H);
+  vB.addColorStop(0, 'rgba(8,8,8,0)');
+  vB.addColorStop(1, 'rgba(8,8,8,1)');
+  ctx.fillStyle = vB;
+  ctx.fillRect(0, H - 50, W, 50);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ─────────────────────────────────────────────────────────────
+// Joy Division audio engine
+// Inspired by Stephen Morris's drum machine patterns on Unknown Pleasures:
+//   Driving kick on every beat, echoed snare with long decay,
+//   sparse hi-hat accents, dark bass drone in A.
+// All synthesized via Web Audio API — no samples required.
+// ─────────────────────────────────────────────────────────────
+
+let audioCtx     = null;
+let masterGain   = null;
+let reverbNode   = null;
+let musicOn      = false;
+let schedulerTimer = null;
+let nextBeatTime = 0;
+let beatCount    = 0;
+let stepIdx      = 0;
+
+// Tempo: maps globalSpeed 0..1 → BPM 72..138 (Joy Division range)
+function getBPM()  { return 72 + globalSpeed * 66; }
+function beatSec() { return 60 / getBPM(); }
+
+// ── Synthesized convolution reverb (no audio files needed) ───
+function makeReverb(ac) {
+  const len = ac.sampleRate * 2.8;  // 2.8s tail
+  const buf = ac.createBuffer(2, len, ac.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      const env = Math.pow(1 - i / len, 2.2);
+      d[i] = (Math.random() * 2 - 1) * env;
+    }
+  }
+  const conv = ac.createConvolver();
+  conv.buffer = buf;
+  return conv;
+}
+
+// Pre-delay with feedback for snare echo
+function makePreDelay(ac, delayTime) {
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = delayTime;
+  const fb = ac.createGain();
+  fb.gain.value = 0.38;
+  delay.connect(fb);
+  fb.connect(delay);
+  return delay;
+}
+
+// ── Kick drum — sine sweep 160→45Hz, slight saturation ───────
+function kick(t) {
+  if (!audioCtx || !musicOn) return;
+  const o    = audioCtx.createOscillator();
+  const g    = audioCtx.createGain();
+  const dist = audioCtx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) {
+    const x = i / 128 - 1;
+    curve[i] = x * (1.6 + Math.abs(x)) / 2.6;
+  }
+  dist.curve = curve;
+  o.type = 'sine';
+  o.frequency.setValueAtTime(160, t);
+  o.frequency.exponentialRampToValueAtTime(45, t + 0.035);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.95, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+  o.connect(dist);
+  dist.connect(g);
+  g.connect(masterGain);
+  o.start(t);
+  o.stop(t + 0.42);
+}
+
+// ── Snare — triangle body + filtered noise + reverb echo ─────
+function snare(t, vel = 1.0) {
+  if (!audioCtx || !musicOn) return;
+  const bs = beatSec();
+
+  // Tonal body
+  const o1 = audioCtx.createOscillator();
+  const o2 = audioCtx.createOscillator();
+  const og = audioCtx.createGain();
+  o1.type = 'triangle'; o1.frequency.value = 185;
+  o2.type = 'triangle'; o2.frequency.value = 210;
+  og.gain.setValueAtTime(0, t);
+  og.gain.linearRampToValueAtTime(0.35 * vel, t + 0.003);
+  og.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  o1.connect(og);
+  o2.connect(og);
+
+  // Noise body
+  const bufLen = audioCtx.sampleRate * 0.22;
+  const buf    = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+  const d      = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) d[i] = Math.random() * 2 - 1;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buf;
+  const ng  = audioCtx.createGain();
+  const nhp = audioCtx.createBiquadFilter();
+  nhp.type = 'highpass';
+  nhp.frequency.value = 1800;
+  ng.gain.setValueAtTime(0, t);
+  ng.gain.linearRampToValueAtTime(0.55 * vel, t + 0.002);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.19);
+  noise.connect(nhp);
+  nhp.connect(ng);
+
+  // Pre-delay → reverb for the iconic echo tail
+  const preDelay = makePreDelay(audioCtx, bs * 0.52);
+  const rvg = audioCtx.createGain();
+  rvg.gain.value = 0.55;
+
+  og.connect(masterGain);
+  ng.connect(masterGain);
+  og.connect(preDelay);
+  ng.connect(preDelay);
+  preDelay.connect(rvg);
+  rvg.connect(reverbNode);
+  reverbNode.connect(masterGain);
+
+  o1.start(t); o1.stop(t + 0.3);
+  o2.start(t); o2.stop(t + 0.3);
+  noise.start(t); noise.stop(t + 0.28);
+}
+
+// ── Hi-hat — triple-filtered noise, very short ───────────────
+function hihat(t, open = false, vel = 1.0) {
+  if (!audioCtx || !musicOn) return;
+  const dec    = open ? 0.14 : 0.04;
+  const bufLen = audioCtx.sampleRate * (open ? 0.18 : 0.05);
+  const buf    = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+  const d      = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) d[i] = Math.random() * 2 - 1;
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const hp = audioCtx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 9000;
+  const bp = audioCtx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.frequency.value = 12000; bp.Q.value = 0.8;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.18 * vel, t + 0.001);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dec);
+  src.connect(hp); hp.connect(bp); bp.connect(g); g.connect(masterGain);
+  src.start(t); src.stop(t + dec + 0.01);
+}
+
+// ── Bass drone — three sine waves in A, slow tremolo ─────────
+let droneOsc = null, droneGain = null, droneLfo = null;
+
+function startDrone() {
+  if (!audioCtx || droneOsc) return;
+  droneOsc = audioCtx.createOscillator();
+  const o2 = audioCtx.createOscillator();
+  const o3 = audioCtx.createOscillator();
+  droneOsc.type = 'sine'; droneOsc.frequency.value = 55;   // A1
+  o2.type = 'sine';       o2.frequency.value = 110;        // A2
+  o3.type = 'sine';       o3.frequency.value = 82.4;       // E2 — tension
+
+  droneGain = audioCtx.createGain();
+  const g2 = audioCtx.createGain(); g2.gain.value = 0.4;
+  const g3 = audioCtx.createGain(); g3.gain.value = 0.25;
+
+  // LFO tremolo — rate tied to BPM
+  droneLfo = audioCtx.createOscillator();
+  const lfoG = audioCtx.createGain();
+  lfoG.gain.value = 0.08;
+  droneLfo.frequency.value = getBPM() / 240;
+  droneLfo.connect(lfoG);
+  lfoG.connect(droneGain.gain);
+
+  const lp = audioCtx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 320;
+
+  droneGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  droneGain.gain.linearRampToValueAtTime(0.22, audioCtx.currentTime + 3.5);
+
+  droneOsc.connect(droneGain);
+  o2.connect(g2); g2.connect(droneGain);
+  o3.connect(g3); g3.connect(droneGain);
+  droneGain.connect(lp); lp.connect(masterGain);
+
+  droneOsc.start(); o2.start(); o3.start(); droneLfo.start();
+}
+
+function updateDroneTempo() {
+  if (droneLfo) droneLfo.frequency.setTargetAtTime(getBPM() / 240, audioCtx.currentTime, 0.5);
+}
+
+function stopDrone() {
+  if (!droneOsc) return;
+  droneGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
+  setTimeout(() => { try { droneOsc.stop(); droneOsc = null; } catch(e){} }, 1600);
+}
+
+// ── 16-step drum pattern ──────────────────────────────────────
+// Inspired by "She's Lost Control" / "Transmission"
+// K=kick, S=snare, .=rest
+const PATTERN = [
+  'K', '.', '.', '.',
+  'S', '.', 'K', '.',
+  'K', '.', 'S', '.',
+  '.', '.', 'S', '.',
+];
+// Hi-hat runs underneath
+const HAT_PATTERN = [
+  'H', '.', 'H', '.',
+  'H', 'O', 'H', '.',
+  'H', '.', 'H', '.',
+  'H', 'O', 'H', '.',
+];
+const STEPS      = 16;
+const LOOKAHEAD  = 0.12;  // seconds
+const SCHED_INT  = 50;    // ms
+
+function scheduleBeats() {
+  if (!audioCtx || !musicOn) return;
+  const now      = audioCtx.currentTime;
+  const stepDur  = beatSec() / 4; // 16th-note duration
+
+  while (nextBeatTime < now + LOOKAHEAD) {
+    const si = stepIdx % STEPS;
+    const t  = nextBeatTime;
+
+    // Main pattern
+    const hit = PATTERN[si];
+    if      (hit === 'K') kick(t);
+    else if (hit === 'S') snare(t, 0.85 + Math.random() * 0.15);
+
+    // Hi-hat
+    const hh = HAT_PATTERN[si];
+    if      (hh === 'H') hihat(t, false, 0.55 + Math.random() * 0.2);
+    else if (hh === 'O') hihat(t, true,  0.65 + Math.random() * 0.15);
+
+    // Update drone LFO at the top of every bar
+    if (si === 0) updateDroneTempo();
+
+    stepIdx++;
+    beatCount++;
+    nextBeatTime += stepDur;
+  }
+  schedulerTimer = setTimeout(scheduleBeats, SCHED_INT);
+}
+
+// ── Audio init & master chain ─────────────────────────────────
+function initAudio() {
+  audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+
+  // Dynamics compressor — keeps everything cohesive
+  const comp = audioCtx.createDynamicsCompressor();
+  comp.threshold.value = -14;
+  comp.knee.value      = 6;
+  comp.ratio.value     = 3;
+  comp.attack.value    = 0.003;
+  comp.release.value   = 0.18;
+
+  // Global low-pass for the dark, muffled Joy Division tone
+  const lp = audioCtx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 7000;
+
+  masterGain.connect(comp);
+  comp.connect(lp);
+  lp.connect(audioCtx.destination);
+  masterGain.gain.value = 0.7;
+
+  // Reverb — routed separately at lower volume for space
+  reverbNode = makeReverb(audioCtx);
+  const rvGain = audioCtx.createGain();
+  rvGain.gain.value = 0.28;
+  reverbNode.connect(rvGain);
+  rvGain.connect(audioCtx.destination);
+}
+
+function startMusic() {
+  if (!audioCtx) initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  musicOn      = true;
+  stepIdx      = 0;
+  beatCount    = 0;
+  nextBeatTime = audioCtx.currentTime + 0.1;
+  scheduleBeats();
+  startDrone();
+  const btn = document.getElementById('music-btn');
+  btn.textContent = 'Stop';
+  btn.classList.add('on');
+}
+
+function stopMusic() {
+  musicOn = false;
+  if (schedulerTimer) { clearTimeout(schedulerTimer); schedulerTimer = null; }
+  stopDrone();
+  const btn = document.getElementById('music-btn');
+  btn.textContent = 'Begin';
+  btn.classList.remove('on');
+}
+
+function toggleMusic() {
+  if (musicOn) stopMusic(); else startMusic();
+}
+</script>
+</body>
+</html>
