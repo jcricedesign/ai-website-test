@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Space Lanes">
+<meta name="theme-color" content="#080810">
+<title>Space Lanes</title>
+<meta name="description" content="A minimalist space piloting game. Hold thrust to escape planetary gravity and navigate through hazards to reach the final destination.">
+<meta property="og:title" content="Space Lanes">
+<meta property="og:description" content="Hold thrust. Escape gravity. Reach the final destination.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#080810; height:100vh; overflow:hidden;
+    font-family:'Press Start 2P','Courier New',monospace; color:#fff; user-select:none;
+  }
+  canvas { display:block; touch-action:none; }
+
+  /* ── HUD ── */
+  #hud {
+    position:fixed; top:18px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    pointer-events:none; z-index:10;
+  }
+  #thrustLabel { font-size:7px; letter-spacing:3px; opacity:0.4; text-transform:uppercase; font-family:'Courier New',monospace; }
+  #thrustBarOuter {
+    width:130px; height:5px;
+    border:1px solid rgba(255,255,255,0.25); border-radius:3px; overflow:hidden;
+  }
+  #thrustBarInner { height:100%; width:0%; background:#fff; border-radius:3px; transition:background 0.2s; }
+  #thrustBarInner.full { background:rgba(255,255,255,0.6); }
+
+  #progress {
+    position:fixed; top:18px; right:24px;
+    font-size:8px; letter-spacing:2px; opacity:0.4;
+    pointer-events:none; z-index:10;
+  }
+
+  /* ── Mute button ── */
+  #muteBtn {
+    position:fixed; top:16px; left:20px;
+    font-size:16px; background:none; border:none; color:#fff;
+    cursor:pointer; opacity:0.35; z-index:20; padding:4px;
+    transition:opacity 0.2s; line-height:1;
+  }
+  #muteBtn:hover { opacity:0.7; }
+
+  /* ── Best score ── */
+  #bestScore {
+    position:fixed; top:40px; right:24px;
+    font-size:7px; letter-spacing:2px; opacity:0.25;
+    pointer-events:none; z-index:10; font-family:'Courier New',monospace;
+  }
+
+  /* ── Message ── */
+  #message {
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    font-size:9px; letter-spacing:3px; opacity:0;
+    transition:opacity 0.4s; pointer-events:none;
+    text-align:center; white-space:nowrap;
+    font-family:'Courier New',monospace;
+  }
+
+  /* ── Launch button ── */
+  #launchBtn {
+    position:fixed; bottom:max(32px,env(safe-area-inset-bottom,32px)); left:50%; transform:translateX(-50%);
+    padding:14px 36px; border:none; border-radius:3px;
+    background:transparent; color:#fff;
+    font-family:'Courier New',monospace; font-size:13px;
+    letter-spacing:4px; text-transform:uppercase;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    touch-action:none; transition:background 0.06s; z-index:20;
+  }
+  #launchBtn.charging { background:rgba(255,255,255,0.15); }
+
+  /* ── Win overlay ── */
+  #winOverlay {
+    display:none; position:fixed; inset:0;
+    align-items:center; justify-content:center;
+    flex-direction:column; gap:18px; z-index:100; pointer-events:none;
+  }
+  #winOverlay.show { display:flex; }
+  #winText {
+    font-size:clamp(13px,3vw,22px); color:#fff;
+    text-align:center; line-height:2; letter-spacing:1px;
+    text-shadow:0 0 20px rgba(255,255,255,0.6),0 0 60px rgba(255,255,255,0.2);
+    opacity:0; animation:fadePop 1.2s ease forwards; animation-delay:0.3s; padding:0 24px;
+  }
+  #winSubtext {
+    font-size:clamp(7px,1.4vw,10px); color:rgba(255,255,255,0.45);
+    letter-spacing:2px; text-align:center;
+    opacity:0; animation:fadePop 1s ease forwards; animation-delay:1.4s;
+  }
+
+  /* ── Title overlay ── */
+  #titleOverlay {
+    display:flex; position:fixed; inset:0;
+    align-items:center; justify-content:center; padding-top:8vh;
+    z-index:50; pointer-events:none; flex-direction:column; gap:14px;
+  }
+  #titleOverlay.hidden { display:none; }
+  #titleText {
+    font-size:clamp(28px,7vw,64px); color:#fff;
+    text-align:center; line-height:1.6; letter-spacing:2px;
+    text-shadow:0 0 30px rgba(255,255,255,0.5),0 0 80px rgba(255,255,255,0.15);
+    animation:titlePulse 3s ease-in-out infinite;
+  }
+  #titleSubtext {
+    font-size:clamp(6px,1.2vw,9px); color:rgba(255,255,255,0.35);
+    letter-spacing:3px; text-align:center;
+    animation:titlePulse 3s ease-in-out infinite; animation-delay:0.4s;
+  }
+  #titleBest {
+    font-size:7px; color:rgba(255,255,255,0.2);
+    letter-spacing:2px; text-align:center; margin-top:8px;
+    font-family:'Courier New',monospace;
+  }
+
+  @keyframes fadePop { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+  @keyframes titlePulse { 0%,100%{opacity:0.85} 50%{opacity:0.45} }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div id="thrustLabel">Thrust</div>
+  <div id="thrustBarOuter"><div id="thrustBarInner"></div></div>
+</div>
+<div id="progress"></div>
+<div id="bestScore"></div>
+<button id="muteBtn" title="Toggle sound">🔊</button>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="titleOverlay">
+  <div id="titleText">SPACE<br>LANES</div>
+  <div id="titleSubtext">HOLD THRUST TO BEGIN</div>
+  <div id="titleBest"></div>
+</div>
+<div id="winOverlay">
+  <div id="winText">FINAL<br>DESTINATION<br>ACHIEVED</div>
+  <div id="winSubtext">PLANET 5 OF 5</div>
+</div>
+<div id="message"></div>
+<button id="launchBtn">THRUST</button>
+
+<script>
+// ── DOM refs ──────────────────────────────────────────────
+const canvas     = document.getElementById('gameCanvas');
+const ctx        = canvas.getContext('2d');
+const thrustBar  = document.getElementById('thrustBarInner');
+const msgEl      = document.getElementById('message');
+const launchBtn  = document.getElementById('launchBtn');
+const progressEl = document.getElementById('progress');
+const muteBtn    = document.getElementById('muteBtn');
+const bestScoreEl= document.getElementById('bestScore');
+
+function resize() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+// ── localStorage: best planet reached ────────────────────
+const SAVE_KEY = 'spacelanes_best';
+let bestPlanet = parseInt(localStorage.getItem(SAVE_KEY)||'0', 10);
+function saveBest(idx) {
+  if (idx > bestPlanet) {
+    bestPlanet = idx;
+    localStorage.setItem(SAVE_KEY, bestPlanet);
+  }
+  updateBestUI();
+}
+function updateBestUI() {
+  const txt = bestPlanet > 0 ? `BEST: PLANET ${bestPlanet+1}` : '';
+  bestScoreEl.textContent = txt;
+  document.getElementById('titleBest').textContent = bestPlanet > 0 ? `BEST RUN: PLANET ${bestPlanet+1} OF ${NUM_PLANETS}` : '';
+}
+
+// ── Audio (Web Audio API, no files) ──────────────────────
+let audioCtx = null;
+let muted = false;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Thrust rumble — oscillator node kept alive while holding
+let thrustOsc = null, thrustGain = null;
+function startThrustSound() {
+  if (muted) return;
+  try {
+    const ac = getAudio();
+    thrustOsc  = ac.createOscillator();
+    thrustGain = ac.createGain();
+    thrustOsc.type = 'sawtooth';
+    thrustOsc.frequency.setValueAtTime(55, ac.currentTime);
+    thrustGain.gain.setValueAtTime(0, ac.currentTime);
+    thrustGain.gain.linearRampToValueAtTime(0.07, ac.currentTime+0.15);
+    thrustOsc.connect(thrustGain);
+    thrustGain.connect(ac.destination);
+    thrustOsc.start();
+  } catch(e){}
+}
+function stopThrustSound() {
+  if (!thrustOsc) return;
+  try {
+    const ac = getAudio();
+    thrustGain.gain.linearRampToValueAtTime(0, ac.currentTime+0.1);
+    thrustOsc.stop(ac.currentTime+0.12);
+  } catch(e){}
+  thrustOsc = null; thrustGain = null;
+}
+function rampThrustSound(chargeVal) {
+  if (!thrustOsc || muted) return;
+  try {
+    const ac = getAudio();
+    thrustOsc.frequency.setTargetAtTime(55+chargeVal*40, ac.currentTime, 0.1);
+    thrustGain.gain.setTargetAtTime(0.04+chargeVal*0.08, ac.currentTime, 0.1);
+  } catch(e){}
+}
+
+function playTone(freq, type, vol, dur, fadeStart) {
+  if (muted) return;
+  try {
+    const ac = getAudio();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ac.currentTime);
+    gain.gain.setValueAtTime(vol, ac.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ac.currentTime + dur);
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.start(); osc.stop(ac.currentTime + dur);
+  } catch(e){}
+}
+
+function playLandSound() {
+  // soft ascending chime
+  if (muted) return;
+  try {
+    const ac = getAudio();
+    [440,550,660].forEach((f,i)=>{
+      const osc=ac.createOscillator(), g=ac.createGain();
+      osc.type='sine'; osc.frequency.value=f;
+      g.gain.setValueAtTime(0.0, ac.currentTime+i*0.07);
+      g.gain.linearRampToValueAtTime(0.12, ac.currentTime+i*0.07+0.02);
+      g.gain.linearRampToValueAtTime(0.0,  ac.currentTime+i*0.07+0.3);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(ac.currentTime+i*0.07);
+      osc.stop(ac.currentTime+i*0.07+0.35);
+    });
+  } catch(e){}
+}
+
+function playCollisionSound() {
+  if (muted) return;
+  try {
+    const ac = getAudio();
+    // noise burst
+    const buf = ac.createBuffer(1, ac.sampleRate*0.3, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);
+    const src = ac.createBufferSource();
+    const g   = ac.createGain();
+    src.buffer = buf; g.gain.value = 0.3;
+    src.connect(g); g.connect(ac.destination); src.start();
+    // low thud
+    const osc=ac.createOscillator(), og=ac.createGain();
+    osc.type='sine'; osc.frequency.setValueAtTime(120,ac.currentTime);
+    osc.frequency.linearRampToValueAtTime(40,ac.currentTime+0.2);
+    og.gain.setValueAtTime(0.4,ac.currentTime);
+    og.gain.linearRampToValueAtTime(0,ac.currentTime+0.25);
+    osc.connect(og); og.connect(ac.destination);
+    osc.start(); osc.stop(ac.currentTime+0.3);
+  } catch(e){}
+}
+
+function playWinSound() {
+  if (muted) return;
+  try {
+    const ac = getAudio();
+    [523,659,784,1047].forEach((f,i)=>{
+      const osc=ac.createOscillator(), g=ac.createGain();
+      osc.type='sine'; osc.frequency.value=f;
+      g.gain.setValueAtTime(0,ac.currentTime+i*0.12);
+      g.gain.linearRampToValueAtTime(0.15,ac.currentTime+i*0.12+0.05);
+      g.gain.linearRampToValueAtTime(0,ac.currentTime+i*0.12+0.5);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(ac.currentTime+i*0.12); osc.stop(ac.currentTime+i*0.12+0.6);
+    });
+  } catch(e){}
+}
+
+muteBtn.addEventListener('click', ()=>{
+  muted = !muted;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+  if (muted) stopThrustSound();
+});
+
+// ── Constants ──────────────────────────────────────────────
+const SS          = 11;
+const GRAV        = 800;
+const CHARGE_RATE = 0.7;
+const THRUST_MIN  = 120;
+const THRUST_MAX  = 600;
+const ROT_SPEED   = 0.0045;
+const NUM_PLANETS = 5;
+const SPACING     = 340;
+
+// ── Stars ─────────────────────────────────────────────────
+const stars = Array.from({length:200}, ()=>({
+  x:Math.random(), y:Math.random(),
+  r:Math.random()*1.2+0.15, a:Math.random()*0.5+0.07,
+}));
+
+// ── Seeded rand ───────────────────────────────────────────
+function seededRand(seed) {
+  let s=seed;
+  return ()=>{ s=(s*16807)%2147483647; return (s-1)/2147483646; };
+}
+
+// ── Planets ───────────────────────────────────────────────
+function makePlanets() {
+  const rand      = seededRand(42);
+  const radii     = [48,32,55,28,44];
+  const rotSpeeds = [1,-0.7,0.9,-1.2,0.6].map(s=>s*ROT_SPEED);
+  const ps=[]; let cx=0,cy=0;
+  for (let i=0;i<NUM_PLANETS;i++) {
+    const raw = i<NUM_PLANETS-1 ? (rand()-0.5)*Math.PI*0.7 : 0;
+    ps.push({wx:cx,wy:cy,r:radii[i],od:radii[i]+16,
+             angle:0,rotSpeed:rotSpeeds[i],index:i,rawOffsetAngle:raw});
+    if (i<NUM_PLANETS-1){cx+=Math.sin(raw)*SPACING; cy-=Math.cos(raw)*SPACING;}
+  }
+  return ps;
+}
+let planets = makePlanets();
+
+// ── Hazards ───────────────────────────────────────────────
+let hazards=[];
+function makeHazards() {
+  hazards=[];
+  hazards.push({type:'satellite',parentIndex:0,
+    orbitRadius:planets[0].od+55,orbitSpeed:0.006,orbitAngle:0,wx:0,wy:0,r:7});
+  hazards.push({type:'moon',parentIndex:1,
+    orbitRadius:planets[1].od+72,orbitSpeed:0.004,orbitAngle:Math.PI*0.6,
+    wx:0,wy:0,r:14,gravStrength:180});
+  hazards.push({type:'station',parentIndex:2,
+    orbitRadius:planets[2].od+52,orbitSpeed:0.0015,orbitAngle:Math.PI*0.3,wx:0,wy:0,r:11});
+  hazards.push({type:'shuttle',parentIndex:2,
+    orbitRadius:planets[2].od+82,orbitSpeed:0.022,orbitAngle:0,wx:0,wy:0,r:6});
+  hazards.push({type:'shuttle',parentIndex:2,
+    orbitRadius:planets[2].od+112,orbitSpeed:-0.014,orbitAngle:Math.PI,wx:0,wy:0,r:6});
+  for (let i=0;i<14;i++) {
+    const band=i%3;
+    hazards.push({type:'asteroid',parentIndex:3,
+      orbitRadius:planets[3].od+52+band*20,
+      orbitSpeed:(i%2===0?1:-1)*(0.007+band*0.003),
+      orbitAngle:i/14*Math.PI*2,wx:0,wy:0,r:4+band*2,
+      shape:Array.from({length:6},(_,j)=>0.65+Math.sin(j*7.3+i)*0.35),
+    });
+  }
+}
+
+// ── System rotation ───────────────────────────────────────
+let sysAngle=0, sysTargetAngle=0;
+const SYS_ROT_LERP=1.8;
+function computeTargetAngle(fromIdx) {
+  if (fromIdx>=NUM_PLANETS-1) return sysAngle;
+  const from=planets[fromIdx], to=planets[fromIdx+1];
+  return -Math.atan2(to.wx-from.wx,-(to.wy-from.wy));
+}
+
+// ── Camera ────────────────────────────────────────────────
+const cam={x:0,y:0,tx:0,ty:0};
+const CAM_LERP=2.2;
+// Screen shake
+let shakeAmt=0;
+function worldToScreen(wx,wy) {
+  const pl=planets[ship?ship.planetIndex:0];
+  const rx=wx-pl.wx, ry=wy-pl.wy;
+  const cos=Math.cos(sysAngle), sin=Math.sin(sysAngle);
+  const sx = canvas.width/2  + (rx*cos-ry*sin+pl.wx-cam.x);
+  const sy = canvas.height/2 - (rx*sin+ry*cos+pl.wy-cam.y);
+  if (shakeAmt>0) {
+    return { x:sx+(Math.random()-0.5)*shakeAmt*2, y:sy+(Math.random()-0.5)*shakeAmt*2 };
+  }
+  return {x:sx, y:sy};
+}
+
+// ── Particles ─────────────────────────────────────────────
+let particles=[];
+function spawnParticles(wx,wy,count,speed,life,size) {
+  for (let i=0;i<count;i++) {
+    const ang=Math.random()*Math.PI*2;
+    const spd=speed*(0.4+Math.random()*0.6);
+    particles.push({wx,wy,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life,maxLife:life,size:size*(0.5+Math.random()*0.5)});
+  }
+}
+function tickParticles(dt) {
+  particles=particles.filter(p=>{
+    p.wx+=p.vx*dt; p.wy+=p.vy*dt;
+    p.vx*=0.92; p.vy*=0.92;
+    p.life-=dt;
+    return p.life>0;
+  });
+}
+function drawParticles() {
+  particles.forEach(p=>{
+    const sc=worldToScreen(p.wx,p.wy);
+    const t=p.life/p.maxLife;
+    ctx.beginPath();
+    ctx.arc(sc.x,sc.y,p.size*t,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${t*0.8})`;
+    ctx.fill();
+  });
+}
+
+// ── Close-call detection ──────────────────────────────────
+let closeCallTimer=0, closeCallHazard=null;
+const CLOSE_CALL_DIST = 22; // px world-space beyond collision radius
+
+// ── Ship ──────────────────────────────────────────────────
+let ship;
+function resetShip() {
+  const home=planets[0];
+  ship={wx:home.wx,wy:home.wy-home.od,wvx:0,wvy:0,
+        orbitAngle:-Math.PI/2,state:'orbiting',
+        planetIndex:0,graceTicks:0,trailPoints:[]};
+  snapToPlanet();
+}
+function snapToPlanet() {
+  const pl=planets[ship.planetIndex];
+  ship.wx=pl.wx+Math.cos(ship.orbitAngle)*pl.od;
+  ship.wy=pl.wy+Math.sin(ship.orbitAngle)*pl.od;
+}
+
+// ── Input ─────────────────────────────────────────────────
+let holding=false, charge=0, msgTimer=null, flashTimer=0;
+
+function showMsg(text,dur=2400) {
+  msgEl.textContent=text; msgEl.style.opacity='1';
+  clearTimeout(msgTimer);
+  msgTimer=setTimeout(()=>{msgEl.style.opacity='0';},dur);
+}
+
+function startHold(e) {
+  if (e) e.preventDefault();
+  if (ship.state!=='orbiting') return;
+  document.getElementById('titleOverlay').classList.add('hidden');
+  ship.wvx=0; ship.wvy=0;
+  ship.state='flying'; ship.trailPoints=[]; ship.graceTicks=30;
+  holding=true; charge=0; launchBtn.classList.add('charging');
+  startThrustSound();
+}
+function endHold(e) {
+  if (e) e.preventDefault();
+  if (!holding) return;
+  holding=false; charge=0; launchBtn.classList.remove('charging');
+  stopThrustSound();
+}
+
+launchBtn.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  if (launchBtn.classList.contains('replay')) replayGame(); else startHold(e);
+});
+launchBtn.addEventListener('pointerup',    e=>{e.preventDefault(); endHold(e);});
+launchBtn.addEventListener('pointerleave', e=>{endHold(e);});
+launchBtn.style.touchAction='none';
+
+let spaceHeld=false;
+document.addEventListener('keydown', e=>{
+  if (e.code!=='Space') return; e.preventDefault();
+  if (spaceHeld) return; spaceHeld=true; startHold(null);
+});
+document.addEventListener('keyup', e=>{
+  if (e.code!=='Space') return; spaceHeld=false; endHold(null);
+});
+
+// ── Collision + effects ───────────────────────────────────
+function triggerCollision() {
+  stopThrustSound();
+  playCollisionSound();
+  shakeAmt=12;
+  flashTimer=0.5;
+  spawnParticles(ship.wx,ship.wy,18,120,0.6,3);
+  landOn(ship.planetIndex);
+  showMsg('COLLISION — TRY AGAIN');
+}
+
+// ── Physics ───────────────────────────────────────────────
+function dist(ax,ay,bx,by){return Math.sqrt((ax-bx)**2+(ay-by)**2);}
+
+function tickHazards(dt) {
+  hazards.forEach(h=>{
+    h.orbitAngle+=h.orbitSpeed;
+    const pl=planets[h.parentIndex];
+    h.wx=pl.wx+Math.cos(h.orbitAngle)*h.orbitRadius;
+    h.wy=pl.wy+Math.sin(h.orbitAngle)*h.orbitRadius;
+  });
+}
+
+function tick(dt) {
+  planets.forEach(pl=>pl.angle+=pl.rotSpeed);
+  tickHazards(dt);
+  tickParticles(dt);
+
+  if (shakeAmt>0) shakeAmt=Math.max(0,shakeAmt-dt*60);
+  if (closeCallTimer>0) closeCallTimer-=dt;
+  if (flashTimer>0) flashTimer-=dt;
+
+  if (ship.state==='orbiting') {
+    ship.orbitAngle+=planets[ship.planetIndex].rotSpeed;
+    snapToPlanet(); return;
+  }
+
+  let ax=0,ay=0;
+  planets.forEach(pl=>{
+    const dx=pl.wx-ship.wx,dy=pl.wy-ship.wy;
+    const d2=dx*dx+dy*dy,d=Math.sqrt(d2);
+    ax+=(dx/d)*(GRAV/d2); ay+=(dy/d)*(GRAV/d2);
+  });
+  hazards.filter(h=>h.type==='moon').forEach(m=>{
+    const dx=m.wx-ship.wx,dy=m.wy-ship.wy;
+    const d2=dx*dx+dy*dy,d=Math.sqrt(d2);
+    ax+=(dx/d)*(m.gravStrength/d2); ay+=(dy/d)*(m.gravStrength/d2);
+  });
+
+  if (holding) {
+    charge=Math.min(1,charge+dt*CHARGE_RATE);
+    const T=THRUST_MIN+charge*(THRUST_MAX-THRUST_MIN);
+    const home=planets[ship.planetIndex];
+    const tx=ship.wx-home.wx,ty=ship.wy-home.wy;
+    const tl=Math.sqrt(tx*tx+ty*ty);
+    ax+=(tx/tl)*T; ay+=(ty/tl)*T;
+    rampThrustSound(charge);
+    thrustBar.classList.toggle('full', charge>0.95);
+  }
+
+  ship.wvx+=ax*dt; ship.wvy+=ay*dt;
+  ship.wx+=ship.wvx*dt; ship.wy+=ship.wvy*dt;
+
+  ship.trailPoints.push({wx:ship.wx,wy:ship.wy});
+  if (ship.trailPoints.length>110) ship.trailPoints.shift();
+
+  if (ship.graceTicks>0){ship.graceTicks--;return;}
+
+  // hazard collisions + close calls
+  const relevant=hazards.filter(h=>
+    h.parentIndex===ship.planetIndex||h.parentIndex===ship.planetIndex+1);
+  for (const h of relevant) {
+    const d=dist(ship.wx,ship.wy,h.wx,h.wy);
+    if (d<h.r+6) { triggerCollision(); return; }
+    if (d<h.r+CLOSE_CALL_DIST && closeCallTimer<=0) {
+      closeCallTimer=1.0;
+      closeCallHazard=h;
+      showMsg('CLOSE CALL!',900);
+      playTone(880,'sine',0.08,0.15);
+    }
+  }
+
+  // planet capture
+  for (let i=0;i<planets.length;i++) {
+    if (i===ship.planetIndex) continue;
+    if (dist(ship.wx,ship.wy,planets[i].wx,planets[i].wy)<planets[i].od+4){
+      landOn(i); return;
+    }
+  }
+
+  // pulled back
+  const home=planets[ship.planetIndex];
+  if (dist(ship.wx,ship.wy,home.wx,home.wy)<home.od+4){
+    landOn(ship.planetIndex); showMsg('PULLED BACK…'); return;
+  }
+
+  // off screen
+  const sc=worldToScreen(ship.wx,ship.wy);
+  if (sc.x<-60||sc.x>canvas.width+60||sc.y<-60||sc.y>canvas.height+60){
+    landOn(ship.planetIndex); showMsg('LOST IN SPACE — TRY AGAIN');
+  }
+}
+
+function landOn(idx) {
+  const pl=planets[idx], prev=ship.planetIndex;
+  ship.orbitAngle=Math.atan2(ship.wy-pl.wy,ship.wx-pl.wx);
+  ship.planetIndex=idx; ship.state='orbiting';
+  ship.trailPoints=[]; ship.wvx=0; ship.wvy=0; ship.graceTicks=0;
+  snapToPlanet();
+  holding=false; charge=0; launchBtn.classList.remove('charging');
+  thrustBar.classList.remove('full');
+  stopThrustSound();
+  sysTargetAngle=computeTargetAngle(idx);
+  cam.tx=pl.wx; cam.ty=pl.wy;
+
+  if (idx>prev) {
+    saveBest(idx);
+    spawnParticles(ship.wx,ship.wy,24,90,0.8,2.5);
+    if (idx===NUM_PLANETS-1) {
+      playWinSound();
+      document.getElementById('winOverlay').classList.add('show');
+      launchBtn.textContent='REPLAY'; launchBtn.classList.add('replay');
+    } else {
+      playLandSound();
+      showMsg(`PLANET ${idx+1} OF ${NUM_PLANETS}`,2000);
+    }
+  } else {
+    // collision land or pulled back — small particles
+    if (flashTimer<=0) spawnParticles(ship.wx,ship.wy,8,60,0.5,2);
+  }
+  updateProgress();
+}
+
+function replayGame() {
+  document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('titleOverlay').classList.remove('hidden');
+  launchBtn.textContent='THRUST'; launchBtn.classList.remove('replay');
+  planets=makePlanets(); makeHazards(); resetShip();
+  cam.x=planets[0].wx; cam.y=planets[0].wy;
+  cam.tx=cam.x; cam.ty=cam.y;
+  sysAngle=computeTargetAngle(0); sysTargetAngle=sysAngle;
+  flashTimer=0; shakeAmt=0; particles=[];
+  updateProgress(); updateBestUI();
+}
+
+function updateProgress() {
+  progressEl.textContent=`${ship.planetIndex+1} / ${NUM_PLANETS}`;
+}
+
+// ── Camera lerp ───────────────────────────────────────────
+function tickCamera(dt) {
+  cam.x+=(cam.tx-cam.x)*Math.min(1,CAM_LERP*dt);
+  cam.y+=(cam.ty-cam.y)*Math.min(1,CAM_LERP*dt);
+  let diff=sysTargetAngle-sysAngle;
+  while (diff>Math.PI) diff-=Math.PI*2;
+  while (diff<-Math.PI) diff+=Math.PI*2;
+  sysAngle+=diff*Math.min(1,SYS_ROT_LERP*dt);
+}
+
+// ── Draw ──────────────────────────────────────────────────
+function drawStars() {
+  stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x*canvas.width,s.y*canvas.height,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${s.a})`; ctx.fill();
+  });
+}
+
+function drawPath() {
+  for (let i=0;i<planets.length-1;i++) {
+    const a=worldToScreen(planets[i].wx,planets[i].wy);
+    const b=worldToScreen(planets[i+1].wx,planets[i+1].wy);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle=i<ship.planetIndex?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)';
+    ctx.lineWidth=1; ctx.setLineDash([2,12]); ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+
+function drawPlanet(pl) {
+  const sc=worldToScreen(pl.wx,pl.wy);
+  if (sc.x<-200||sc.x>canvas.width+200||sc.y<-200||sc.y>canvas.height+200) return;
+  ctx.save(); ctx.translate(sc.x,sc.y);
+  const g=ctx.createRadialGradient(0,0,pl.r*0.5,0,0,pl.r*2.6);
+  g.addColorStop(0,'rgba(255,255,255,0.05)'); g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.beginPath(); ctx.arc(0,0,pl.r*2.6,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+  const visited=pl.index<=ship.planetIndex;
+  ctx.beginPath(); ctx.arc(0,0,pl.r,0,Math.PI*2);
+  ctx.lineWidth=5; ctx.strokeStyle=`rgba(255,255,255,${visited?0.88:0.3})`; ctx.stroke();
+  ctx.rotate(pl.angle+sysAngle);
+  for (let i=0;i<8;i++) {
+    const a=i/8*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a)*(pl.r-4),Math.sin(a)*(pl.r-4));
+    ctx.lineTo(Math.cos(a)*(pl.r+4),Math.sin(a)*(pl.r+4));
+    ctx.lineWidth=1.5; ctx.strokeStyle=`rgba(255,255,255,${visited?0.3:0.1})`; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawGravRings(pl) {
+  const sc=worldToScreen(pl.wx,pl.wy);
+  if (sc.x<-300||sc.x>canvas.width+300||sc.y<-300||sc.y>canvas.height+300) return;
+  for (let i=1;i<=3;i++) {
+    ctx.beginPath(); ctx.arc(sc.x,sc.y,pl.r+i*30,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,255,255,${0.018-i*0.004})`; ctx.lineWidth=1;
+    ctx.setLineDash([3,9]); ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+
+function drawHazards() {
+  hazards.forEach(h=>{
+    const sc=worldToScreen(h.wx,h.wy);
+    if (sc.x<-120||sc.x>canvas.width+120||sc.y<-120||sc.y>canvas.height+120) return;
+    const rel=h.parentIndex===ship.planetIndex||h.parentIndex===ship.planetIndex+1;
+    if (!rel) return;
+
+    // close-call highlight ring
+    const isClose = closeCallTimer>0 && closeCallHazard===h;
+    if (isClose) {
+      ctx.beginPath(); ctx.arc(sc.x,sc.y,h.r+CLOSE_CALL_DIST,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,255,255,${closeCallTimer*0.3})`;
+      ctx.lineWidth=1; ctx.stroke();
+    }
+
+    ctx.save(); ctx.translate(sc.x,sc.y);
+    if (h.type==='satellite') {
+      ctx.strokeStyle='rgba(255,255,255,0.75)'; ctx.lineWidth=1.5;
+      ctx.strokeRect(-4,-3,8,6);
+      ctx.beginPath(); ctx.moveTo(-9,-1); ctx.lineTo(-5,-1); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(5,-1);  ctx.lineTo(9,-1);  ctx.stroke();
+    } else if (h.type==='moon') {
+      ctx.beginPath(); ctx.arc(0,0,h.r,0,Math.PI*2);
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(-3,-3,3,0,Math.PI*2);
+      ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(4,2,2,0,Math.PI*2); ctx.stroke();
+    } else if (h.type==='station') {
+      ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=2;
+      ctx.strokeRect(-8,-3,16,6); ctx.strokeRect(-3,-9,6,18);
+      ctx.beginPath(); ctx.arc(0,0,2,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.fill();
+    } else if (h.type==='shuttle') {
+      ctx.rotate(h.orbitAngle+(h.orbitSpeed>0?Math.PI/2:-Math.PI/2));
+      ctx.strokeStyle='rgba(255,255,255,0.65)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(0,-5); ctx.lineTo(-3,3); ctx.lineTo(3,3); ctx.closePath(); ctx.stroke();
+    } else if (h.type==='asteroid') {
+      ctx.strokeStyle='rgba(255,255,255,0.55)'; ctx.lineWidth=1.2;
+      ctx.beginPath();
+      h.shape.forEach((jf,i)=>{
+        const a=i/h.shape.length*Math.PI*2;
+        const px=Math.cos(a)*h.r*jf,py=Math.sin(a)*h.r*jf;
+        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+      });
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.restore();
+  });
+}
+
+function drawShip(sh) {
+  const sc=worldToScreen(sh.wx,sh.wy);
+  ctx.save(); ctx.translate(sc.x,sc.y);
+  const pl=planets[sh.planetIndex], flying=sh.state==='flying';
+  let rot;
+  if (flying&&Math.sqrt(sh.wvx**2+sh.wvy**2)>8) {
+    const cos=Math.cos(sysAngle),sin=Math.sin(sysAngle);
+    const svx=sh.wvx*cos-sh.wvy*sin, svy=sh.wvx*sin+sh.wvy*cos;
+    rot=Math.atan2(-svy,svx)+Math.PI/2;
+  } else {
+    const dx=sh.wx-pl.wx,dy=sh.wy-pl.wy;
+    const cos=Math.cos(sysAngle),sin=Math.sin(sysAngle);
+    rot=Math.atan2(-(dx*sin+dy*cos),dx*cos-dy*sin)+Math.PI/2;
+  }
+  ctx.rotate(rot);
+  ctx.globalAlpha=flashTimer>0?(Math.floor(flashTimer*20)%2===0?0.1:1):1;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.8;
+  ctx.beginPath();
+  ctx.moveTo(0,-SS); ctx.lineTo(-SS*0.52,SS*0.55);
+  ctx.lineTo(0,SS*0.18); ctx.lineTo(SS*0.52,SS*0.55);
+  ctx.closePath(); ctx.stroke();
+  ctx.globalAlpha=1;
+  if (flying&&(holding||Math.sqrt(sh.wvx**2+sh.wvy**2)>30)) {
+    const f=0.6+Math.random()*0.4;
+    const fl=(8+charge*18+Math.random()*10)*f;
+    ctx.beginPath();
+    ctx.moveTo(-3.5,SS*0.55); ctx.lineTo(0,SS*0.55+fl); ctx.lineTo(3.5,SS*0.55);
+    ctx.strokeStyle=`rgba(255,255,255,${0.6*f})`; ctx.lineWidth=2; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawTrail(sh) {
+  const pts=sh.trailPoints;
+  if (pts.length<2) return;
+  for (let i=1;i<pts.length;i++) {
+    const t=i/pts.length;
+    const a=worldToScreen(pts[i-1].wx,pts[i-1].wy);
+    const b=worldToScreen(pts[i].wx,pts[i].wy);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle=`rgba(255,255,255,${t*0.2})`; ctx.lineWidth=1.4*t; ctx.stroke();
+  }
+}
+
+function drawHint() {
+  if (ship.state!=='orbiting') return;
+  ctx.save(); ctx.font='9px Courier New';
+  ctx.fillStyle='rgba(255,255,255,0.16)'; ctx.textAlign='center';
+  ctx.fillText('HOLD THRUST TO LAUNCH — RELEASE TO COAST',canvas.width/2,canvas.height-80);
+  ctx.restore();
+}
+
+function updateHUD() {
+  thrustBar.style.width=(holding?charge*100:0)+'%';
+}
+
+// ── Loop ──────────────────────────────────────────────────
+let last=null;
+function loop(ts) {
+  if (!last) last=ts;
+  const dt=Math.min((ts-last)/1000,0.05);
+  last=ts; tickCamera(dt); tick(dt);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawStars(); drawPath();
+  planets.forEach(drawGravRings);
+  planets.forEach(drawPlanet);
+  drawHazards();
+  drawParticles();
+  drawTrail(ship); drawShip(ship);
+  drawHint(); updateHUD();
+  requestAnimationFrame(loop);
+}
+
+// ── Init ──────────────────────────────────────────────────
+planets=makePlanets(); makeHazards();
+resetShip();
+cam.x=planets[0].wx; cam.y=planets[0].wy;
+cam.tx=cam.x; cam.ty=cam.y;
+sysAngle=computeTargetAngle(0); sysTargetAngle=sysAngle;
+updateProgress(); updateBestUI();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
