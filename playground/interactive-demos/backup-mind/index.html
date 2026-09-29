@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Backup Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0f0f0e;
+    --surface:   #181817;
+    --surface2:  #202020;
+    --border:    rgba(255,255,255,0.08);
+    --border-md: rgba(255,255,255,0.13);
+    --text:      #f0ece3;
+    --text-2:    #a09c94;
+    --text-3:    #5a5751;
+    --accent:    #c8a96e;
+    --accent-bg: rgba(200,169,110,0.10);
+    --red:       #c0574a;
+    --green:     #5a9e72;
+    --blue:      #5a7fa0;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --font-serif: 'Lora', Georgia, serif;
+    --font-sans:  'DM Sans', system-ui, sans-serif;
+  }
+
+  html, body {
+    height: 100%; background: var(--bg);
+    color: var(--text); font-family: var(--font-sans);
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  /* ── App shell ── */
+  #app {
+    max-width: 430px; margin: 0 auto;
+    min-height: 100vh; position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Screens ── */
+  .screen {
+    position: absolute; inset: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding-bottom: 100px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    transform: translateY(8px);
+  }
+  .screen.active {
+    opacity: 1; pointer-events: all; transform: translateY(0);
+    position: relative;
+  }
+
+  /* ── Screen: Library ── */
+  .lib-header {
+    padding: 56px 24px 20px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .lib-wordmark {
+    font-family: var(--font-serif); font-size: 13px;
+    color: var(--text-3); letter-spacing: 0.08em;
+    text-transform: uppercase; font-style: italic;
+  }
+  .lib-title {
+    font-family: var(--font-serif); font-size: 28px;
+    font-weight: 400; color: var(--text); line-height: 1.1;
+  }
+
+  /* Active hero card */
+  .hero-banner {
+    margin: 0 16px 8px;
+    background: var(--surface);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .hero-banner:active { opacity: 0.85; }
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hero-eyebrow::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); display: block;
+  }
+  .hero-quest-title {
+    font-family: var(--font-serif); font-size: 22px;
+    font-weight: 400; color: var(--text); line-height: 1.25;
+    margin-bottom: 16px;
+  }
+  .hero-cta {
+    display: block; width: 100%; padding: 11px;
+    background: var(--accent); color: #1a1610;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+    cursor: pointer; text-align: center;
+    transition: opacity 0.15s;
+  }
+  .hero-cta:active { opacity: 0.8; }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-3); padding: 16px 24px 8px; font-weight: 500;
+  }
+
+  /* Quest rows */
+  .quest-list { padding: 0 16px; }
+  .quest-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .quest-row:last-child { border-bottom: none; }
+  .quest-row:active { background: var(--surface2); }
+  .type-pip {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .pip-task    { background: var(--blue); }
+  .pip-learn   { background: var(--green); }
+  .pip-people  { background: #a06080; }
+  .quest-row-title {
+    font-size: 15px; color: var(--text-2); flex: 1; line-height: 1.3;
+  }
+  .quest-row-sub {
+    font-size: 12px; color: var(--text-3); margin-top: 1px;
+  }
+
+  /* Add button */
+  .add-btn {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 16px; padding: 13px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer; color: var(--text-3);
+    font-size: 14px; transition: color 0.15s;
+    border: none; background: none; width: calc(100% - 32px);
+    font-family: var(--font-sans);
+  }
+  .add-btn:active { color: var(--text-2); }
+  .add-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 0.5px solid var(--border-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; line-height: 1; color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  /* ── Screen: Add / Invoke ── */
+  .add-screen-inner { padding: 56px 24px 32px; }
+  .add-screen-title {
+    font-family: var(--font-serif); font-size: 26px;
+    font-weight: 400; color: var(--text); margin-bottom: 32px;
+    line-height: 1.2; font-style: italic;
+  }
+  .intent-field {
+    width: 100%; background: none; border: none;
+    border-bottom: 1px solid var(--border-md);
+    color: var(--text); font-family: var(--font-sans);
+    font-size: 20px; font-weight: 300; padding: 8px 0 12px;
+    outline: none; caret-color: var(--accent);
+    transition: border-color 0.2s;
+  }
+  .intent-field::placeholder { color: var(--text-3); }
+  .intent-field:focus { border-bottom-color: var(--accent); }
+  .type-row {
+    display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .type-pill {
+    padding: 6px 14px; border-radius: 20px;
+    border: 0.5px solid var(--border-md);
+    font-size: 12px; font-weight: 400; color: var(--text-3);
+    cursor: pointer; background: none;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+  }
+  .type-pill.selected-task   { border-color: var(--blue);  color: var(--blue);  background: rgba(90,127,160,0.12); }
+  .type-pill.selected-learn  { border-color: var(--green); color: var(--green); background: rgba(90,158,114,0.12); }
+  .type-pill.selected-people { border-color: #a06080;      color: #c07898;      background: rgba(160,96,128,0.12); }
+  .add-go-btn {
+    display: block; width: 100%; margin-top: 32px;
+    padding: 14px; background: var(--accent); color: #1a1610;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 15px; font-weight: 500;
+    cursor: pointer; text-align: center;
+    transition: opacity 0.15s;
+  }
+  .add-go-btn:active { opacity: 0.8; }
+  .add-go-btn:disabled { opacity: 0.3; cursor: default; }
+  .add-cancel {
+    display: block; text-align: center; margin-top: 16px;
+    font-size: 13px; color: var(--text-3); cursor: pointer;
+    background: none; border: none; width: 100%;
+    font-family: var(--font-sans);
+  }
+
+  /* ── Screen: Show me how ── */
+  .smh-header {
+    padding: 56px 24px 20px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .back-btn {
+    background: none; border: none; color: var(--text-3);
+    font-size: 20px; cursor: pointer; padding: 2px 0 0;
+    flex-shrink: 0; line-height: 1; font-family: var(--font-sans);
+  }
+  .smh-type-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 8px; font-weight: 500;
+  }
+  .smh-quest-title {
+    font-family: var(--font-serif); font-size: 26px;
+    font-weight: 400; color: var(--text); line-height: 1.2;
+  }
+  .smh-body { padding: 0 24px; }
+  .smh-orient {
+    font-size: 15px; color: var(--text-2); line-height: 1.7;
+    margin-bottom: 28px; font-weight: 300;
+  }
+  .smh-section-label {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-3); font-weight: 500; margin-bottom: 14px;
+  }
+  .steps-list { margin-bottom: 28px; }
+  .step-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 0;
+    border-top: 0.5px solid var(--border);
+  }
+  .step-num {
+    font-size: 11px; color: var(--text-3); font-weight: 500;
+    padding-top: 2px; min-width: 16px; flex-shrink: 0;
+  }
+  .step-text { font-size: 15px; color: var(--text); line-height: 1.5; }
+  .resources-list { margin-bottom: 32px; }
+  .resource-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-top: 0.5px solid var(--border);
+    font-size: 14px; color: var(--text-2); line-height: 1.4;
+  }
+  .resource-item::before {
+    content: ''; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 6px;
+  }
+
+  /* Save / dismiss bar */
+  .smh-actions {
+    display: flex; gap: 10px; padding: 0 24px 32px;
+  }
+  .btn-save {
+    flex: 1; padding: 12px;
+    background: var(--accent); color: #1a1610;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-save:active { opacity: 0.8; }
+  .btn-dismiss {
+    flex: 1; padding: 12px;
+    background: none; color: var(--text-3);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 14px;
+    cursor: pointer; transition: color 0.15s;
+  }
+  .btn-dismiss:active { color: var(--text-2); }
+  .btn-deactivate {
+    display: block; width: calc(100% - 48px); margin: 0 24px 12px;
+    padding: 12px;
+    background: none; color: var(--text-3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 14px;
+    cursor: pointer; text-align: center;
+  }
+
+  /* ── Resurface sheet ── */
+  .sheet-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 100;
+  }
+  .sheet-overlay.open { opacity: 1; pointer-events: all; }
+  .sheet {
+    width: 100%; max-width: 430px; margin: 0 auto;
+    background: var(--surface);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 20px 24px 48px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+    border-top: 0.5px solid var(--border-md);
+  }
+  .sheet-overlay.open .sheet { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 3px; border-radius: 2px;
+    background: var(--border-md); margin: 0 auto 24px;
+  }
+  .sheet-eyebrow {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 10px;
+  }
+  .sheet-title {
+    font-family: var(--font-serif); font-size: 22px;
+    font-weight: 400; color: var(--text); line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .sheet-reason {
+    font-size: 14px; color: var(--text-2); line-height: 1.6;
+    margin-bottom: 24px; font-weight: 300;
+  }
+  .sheet-actions { display: flex; gap: 10px; }
+  .sheet-btn-yes {
+    flex: 1; padding: 13px;
+    background: var(--accent); color: #1a1610;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+    cursor: pointer;
+  }
+  .sheet-btn-no {
+    flex: 1; padding: 13px;
+    background: none; color: var(--text-3);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    padding: 60px 32px; text-align: center;
+  }
+  .empty-glyph {
+    font-family: var(--font-serif); font-size: 48px;
+    color: var(--text-3); margin-bottom: 16px; font-style: italic;
+  }
+  .empty-text {
+    font-size: 15px; color: var(--text-3); line-height: 1.6;
+  }
+
+  /* ── Completion flash ── */
+  .completion-toast {
+    position: fixed; top: 0; left: 0; right: 0;
+    max-width: 430px; margin: 0 auto;
+    background: var(--green); color: #fff;
+    padding: 14px 24px;
+    font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(-100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    z-index: 200;
+  }
+  .completion-toast.show { transform: translateY(0); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Library screen ── -->
+  <div id="screen-library" class="screen active">
+    <div class="lib-header">
+      <div>
+        <div class="lib-wordmark">Backup Mind</div>
+        <div class="lib-title">Your quests</div>
+      </div>
+    </div>
+
+    <!-- Active hero (injected by JS) -->
+    <div id="hero-area"></div>
+
+    <!-- Quest list -->
+    <div id="library-list-area"></div>
+
+    <button class="add-btn" onclick="showScreen('screen-add')">
+      <div class="add-icon">+</div>
+      <span>What's on your mind?</span>
+    </button>
+  </div>
+
+  <!-- ── Add / Invoke screen ── -->
+  <div id="screen-add" class="screen">
+    <div class="add-screen-inner">
+      <div class="add-screen-title">What do you want<br>to do or explore?</div>
+      <input
+        id="intent-input"
+        class="intent-field"
+        type="text"
+        placeholder="Install door trim…"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        oninput="onIntentInput()"
+        onkeydown="if(event.key==='Enter' && this.value.trim()) invokeIntent()"
+      >
+      <div class="type-row">
+        <button class="type-pill selected-task" data-type="task"   onclick="selectType('task')">Task</button>
+        <button class="type-pill"               data-type="learn"  onclick="selectType('learn')">Learning</button>
+        <button class="type-pill"               data-type="people" onclick="selectType('people')">People</button>
+      </div>
+      <button id="go-btn" class="add-go-btn" onclick="invokeIntent()" disabled>Show me how</button>
+      <button class="add-cancel" onclick="showScreen('screen-library')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── Show me how screen ── -->
+  <div id="screen-smh" class="screen">
+    <div class="smh-header">
+      <button class="back-btn" onclick="backFromSMH()">←</button>
+      <div style="flex:1;">
+        <div class="smh-type-badge" id="smh-badge"></div>
+        <div class="smh-quest-title" id="smh-title"></div>
+      </div>
+    </div>
+    <div class="smh-body">
+      <p class="smh-orient" id="smh-orient"></p>
+      <div class="smh-section-label">How to approach it</div>
+      <div class="steps-list" id="smh-steps"></div>
+      <div class="smh-section-label">Useful to know</div>
+      <div class="resources-list" id="smh-resources"></div>
+    </div>
+    <div id="smh-action-area"></div>
+  </div>
+
+</div>
+
+<!-- Resurface sheet -->
+<div class="sheet-overlay" id="resurface-overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-eyebrow">While you're here</div>
+    <div class="sheet-title" id="resurface-title"></div>
+    <div class="sheet-reason" id="resurface-reason"></div>
+    <div class="sheet-actions">
+      <button class="sheet-btn-yes" onclick="acceptResurface()">Activate this next</button>
+      <button class="sheet-btn-no"  onclick="dismissResurface()">Not now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Completion toast -->
+<div class="completion-toast" id="toast">
+  <span>✓</span><span id="toast-text"></span>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let state = {
+  quests: [],
+  activeId: null,
+  pendingQuest: null,   // quest being explored before save decision
+  resurfaceTarget: null
+};
+
+const STORAGE_KEY = 'backupmind_v1';
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ quests: state.quests, activeId: state.activeId }));
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      state.quests = d.quests || [];
+      state.activeId = d.activeId || null;
+    }
+  } catch(e) {}
+  if (!state.quests.length) seedData();
+}
+
+function seedData() {
+  state.quests = [
+    { id: uid(), title: 'Install door trim',         type: 'task',   note: '',                       group: 'home' },
+    { id: uid(), title: 'Nose sill replacement',     type: 'task',   note: 'Front window area',      group: 'home' },
+    { id: uid(), title: 'Learn Buddhist philosophy', type: 'learn',  note: '',                       group: 'mind' },
+    { id: uid(), title: 'Hip flexor exercises',      type: 'task',   note: 'Glute bridges, clamshells', group: 'health' },
+    { id: uid(), title: 'Contact Fidelity',          type: 'task',   note: 'Get requirements list',  group: 'finance' },
+    { id: uid(), title: 'Toby Rice',                 type: 'people', note: 'Haven\'t connected in a while', group: 'people' },
+  ];
+  save();
+}
+
+function uid() { return Math.random().toString(36).slice(2,10); }
+
+// ── Screen routing ────────────────────────────────────────
+let currentScreen = 'screen-library';
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+  if (id === 'screen-library') renderLibrary();
+  if (id === 'screen-add') {
+    document.getElementById('intent-input').value = '';
+    document.getElementById('go-btn').disabled = true;
+    // reset type selection
+    document.querySelectorAll('.type-pill').forEach(p => p.className = 'type-pill');
+    document.querySelector('[data-type="task"]').classList.add('selected-task');
+    selectedType = 'task';
+    setTimeout(() => document.getElementById('intent-input').focus(), 300);
+  }
+}
+
+// ── Render Library ────────────────────────────────────────
+function renderLibrary() {
+  const heroArea = document.getElementById('hero-area');
+  const listArea = document.getElementById('library-list-area');
+
+  const active = state.quests.find(q => q.id === state.activeId);
+  const inactive = state.quests.filter(q => q.id !== state.activeId);
+
+  // Hero
+  if (active) {
+    heroArea.innerHTML = `
+      <div class="hero-banner" onclick="openActiveSMH()">
+        <div class="hero-eyebrow">Active quest</div>
+        <div class="hero-quest-title">${esc(active.title)}</div>
+        <button class="hero-cta" onclick="event.stopPropagation(); openActiveSMH()">Show me how</button>
+      </div>
+    `;
+  } else {
+    heroArea.innerHTML = '';
+  }
+
+  // Inactive list — grouped by gravity
+  if (!inactive.length && !active) {
+    listArea.innerHTML = `<div class="empty-state">
+      <div class="empty-glyph">○</div>
+      <div class="empty-text">Nothing here yet.<br>Tap below to add your first quest.</div>
+    </div>`;
+    return;
+  }
+
+  if (!inactive.length) { listArea.innerHTML = ''; return; }
+
+  // Group by group field
+  const groups = {};
+  inactive.forEach(q => {
+    const g = q.group || 'other';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(q);
+  });
+
+  let html = '';
+  if (active) html += `<div class="section-label">Also in your library</div>`;
+  else html += `<div class="section-label">Your library</div>`;
+
+  html += `<div class="quest-list">`;
+  Object.entries(groups).forEach(([group, quests]) => {
+    quests.forEach((q, i) => {
+      const pip = q.type === 'task' ? 'pip-task' : q.type === 'learn' ? 'pip-learn' : 'pip-people';
+      html += `
+        <div class="quest-row" onclick="activateQuest('${q.id}')">
+          <div class="type-pip ${pip}"></div>
+          <div style="flex:1;">
+            <div class="quest-row-title">${esc(q.title)}</div>
+            ${q.note ? `<div class="quest-row-sub">${esc(q.note)}</div>` : ''}
+          </div>
+        </div>`;
+    });
+  });
+  html += `</div>`;
+  listArea.innerHTML = html;
+}
+
+// ── Activate a quest from the library ────────────────────
+function activateQuest(id) {
+  state.activeId = id;
+  save();
+  const q = state.quests.find(q => q.id === id);
+  openSMH(q, false); // false = already saved
+}
+
+function openActiveSMH() {
+  const q = state.quests.find(q => q.id === state.activeId);
+  if (q) openSMH(q, false);
+}
+
+// ── Add / Intent flow ─────────────────────────────────────
+let selectedType = 'task';
+
+function selectType(type) {
+  selectedType = type;
+  document.querySelectorAll('.type-pill').forEach(p => {
+    p.className = 'type-pill';
+  });
+  const pill = document.querySelector(`[data-type="${type}"]`);
+  pill.classList.add(`selected-${type}`);
+}
+
+function onIntentInput() {
+  const val = document.getElementById('intent-input').value.trim();
+  document.getElementById('go-btn').disabled = !val;
+  // Auto-detect type
+  const lower = val.toLowerCase();
+  if (/learn|study|understand|read|explore|philosophy|history|science/.test(lower)) {
+    selectType('learn');
+  } else if (/lunch|call|meet|visit|with |friend|family|mom|dad|son|daughter/.test(lower)) {
+    selectType('people');
+  } else {
+    selectType('task');
+  }
+}
+
+function invokeIntent() {
+  const title = document.getElementById('intent-input').value.trim();
+  if (!title) return;
+  const q = {
+    id: uid(),
+    title,
+    type: selectedType,
+    note: '',
+    group: inferGroup(title, selectedType)
+  };
+  state.pendingQuest = q;
+  openSMH(q, true); // true = pending, show save/dismiss
+}
+
+function inferGroup(title, type) {
+  const t = title.toLowerCase();
+  if (/door|trim|sill|window|roof|deck|gate|gutter|moss|shingle|light|electrical|parking|paint/.test(t)) return 'home';
+  if (/health|exercise|hip|flexor|stretch|run|walk|gym|yoga|meditat/.test(t)) return 'health';
+  if (/learn|study|philosophy|history|science|book|course/.test(t)) return 'mind';
+  if (/bill|insurance|tax|fidelity|bank|finance|money/.test(t)) return 'finance';
+  if (type === 'people') return 'people';
+  return 'other';
+}
+
+// ── Show Me How ───────────────────────────────────────────
+function openSMH(quest, isPending) {
+  const content = getContent(quest);
+
+  document.getElementById('smh-badge').textContent = typeLabel(quest.type);
+  document.getElementById('smh-title').textContent = quest.title;
+  document.getElementById('smh-orient').textContent = content.orient;
+
+  const stepsEl = document.getElementById('smh-steps');
+  stepsEl.innerHTML = content.steps.map((s, i) =>
+    `<div class="step-item">
+      <div class="step-num">${i+1}</div>
+      <div class="step-text">${esc(s)}</div>
+    </div>`
+  ).join('');
+
+  const resEl = document.getElementById('smh-resources');
+  resEl.innerHTML = content.resources.map(r =>
+    `<div class="resource-item">${esc(r)}</div>`
+  ).join('');
+
+  const actionArea = document.getElementById('smh-action-area');
+  if (isPending) {
+    actionArea.innerHTML = `
+      <div class="smh-actions">
+        <button class="btn-save" onclick="saveAndActivate()">Save to library</button>
+        <button class="btn-dismiss" onclick="dismissPending()">Dismiss</button>
+      </div>`;
+  } else {
+    actionArea.innerHTML = `
+      <button class="btn-deactivate" onclick="deactivate()">Deactivate quest</button>`;
+  }
+
+  showScreen('screen-smh');
+}
+
+function typeLabel(type) {
+  return type === 'task' ? 'Task' : type === 'learn' ? 'Learning' : 'People';
+}
+
+function backFromSMH() {
+  if (state.pendingQuest) { state.pendingQuest = null; showScreen('screen-add'); }
+  else showScreen('screen-library');
+}
+
+// ── Save / Dismiss ────────────────────────────────────────
+function saveAndActivate() {
+  const q = state.pendingQuest;
+  if (!q) return;
+  state.quests.unshift(q);
+  state.activeId = q.id;
+  state.pendingQuest = null;
+  save();
+  showScreen('screen-library');
+  showToast(`"${q.title}" saved and active`);
+}
+
+function dismissPending() {
+  state.pendingQuest = null;
+  showScreen('screen-library');
+}
+
+function deactivate() {
+  const q = state.quests.find(q => q.id === state.activeId);
+  const completed = q ? q.title : '';
+  state.activeId = null;
+  save();
+  showScreen('screen-library');
+  if (completed) {
+    showToast(`Quest complete`);
+    setTimeout(() => checkResurface(q), 1800);
+  }
+}
+
+// ── Backup Mind: Resurface ────────────────────────────────
+function checkResurface(completedQuest) {
+  // Find a nearby quest in same group that isn't active
+  const candidates = state.quests.filter(q =>
+    q.id !== completedQuest.id &&
+    q.id !== state.activeId &&
+    q.group === completedQuest.group
+  );
+  if (!candidates.length) return;
+
+  const target = candidates[0];
+  state.resurfaceTarget = target;
+
+  document.getElementById('resurface-title').textContent = target.title;
+  document.getElementById('resurface-reason').textContent =
+    resurfaceReason(completedQuest, target);
+
+  document.getElementById('resurface-overlay').classList.add('open');
+}
+
+function resurfaceReason(from, to) {
+  const reasons = {
+    home: "Same tools, same headspace — you're already in the zone.",
+    health: "Related to what you just did. Good moment to carry the momentum.",
+    mind: "Builds on similar territory. Natural next step while it's fresh.",
+    finance: "In the same area. Worth handling while you're thinking about it.",
+    people: "Someone you've been meaning to reach. Good time.",
+    other: "You had this nearby. Might be a good moment."
+  };
+  return reasons[to.group] || reasons.other;
+}
+
+function acceptResurface() {
+  const t = state.resurfaceTarget;
+  state.resurfaceTarget = null;
+  document.getElementById('resurface-overlay').classList.remove('open');
+  if (t) {
+    state.activeId = t.id;
+    save();
+    renderLibrary();
+  }
+}
+
+function dismissResurface() {
+  state.resurfaceTarget = null;
+  document.getElementById('resurface-overlay').classList.remove('open');
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Content stubs (Stage 2: replace with AI calls) ────────
+function getContent(quest) {
+  const t = quest.title.toLowerCase();
+  const type = quest.type;
+
+  // Task: door trim
+  if (t.includes('door trim') || t.includes('door casing')) return {
+    orient: 'Measure and cut casing pieces before anything else. The reveal — gap between trim and jamb — is typically ¼ inch. Mitered 45° corners look cleanest and are standard.',
+    steps: [
+      'Mark the reveal line on all three jamb faces with a pencil and combination square.',
+      'Cut the horizontal head casing first, then the two side casings at 45° on the miter saw.',
+      'Dry-fit all three pieces before nailing anything.',
+      'Nail casing to jamb and wall with 2" finish nails every 12".',
+      'Fill nail holes, sand flush, caulk the gap between trim and wall, then paint.'
+    ],
+    resources: [
+      'Tools: miter saw, finish nailer, combination square, tape measure',
+      'Materials: door casing (measure total linear feet + 20% extra), wood filler, paintable caulk',
+      'Common mistake: nailing before dry-fitting — miters are easier to adjust before fastening'
+    ]
+  };
+
+  // Task: nose sill / window
+  if (t.includes('sill') || t.includes('window replacement')) return {
+    orient: 'Window sill replacement is mostly carpentry — careful removal without damaging the surrounding trim or siding is the harder half of the job.',
+    steps: [
+      'Score the paint and caulk line around the sill with a utility knife.',
+      'Use a flat pry bar to lift the sill carefully — work from both ends.',
+      'Measure the opening precisely and cut the new sill to fit (pine or PVC both work).',
+      'Test fit, then secure with exterior screws countersunk and plugged.',
+      'Caulk all edges, prime, and paint to match.'
+    ],
+    resources: [
+      'Tools: utility knife, flat pry bar, circular saw, drill, caulk gun',
+      'Material: pine 2x6 or PVC sill stock, exterior caulk, primer, paint',
+      'Consider PVC if the original was rotted — it won\'t rot again'
+    ]
+  };
+
+  // Learning
+  if (type === 'learn' && t.includes('buddhist')) return {
+    orient: 'Buddhism is a practice before it\'s a philosophy. The concepts are best understood by returning to a few foundational texts rather than trying to survey everything at once. Start close to the source.',
+    steps: [
+      'Begin with the Four Noble Truths — they\'re the entire framework in condensed form.',
+      'Read "In the Buddha\'s Words" (Bhikkhu Bodhi) — it\'s the most authoritative anthology of original teachings in English.',
+      'Then try Thich Nhat Hanh\'s "The Heart of the Buddha\'s Teaching" for a more approachable modern unpacking.',
+      'Sit with one concept for a week before moving to the next. Rushing is counterproductive here.'
+    ],
+    resources: [
+      'Best starting book: "In the Buddha\'s Words" — Bhikkhu Bodhi (translation of original suttas)',
+      'Modern entry: "The Heart of the Buddha\'s Teaching" — Thich Nhat Hanh',
+      'Key concepts to understand first: dukkha, impermanence, the Eightfold Path'
+    ]
+  };
+
+  // People
+  if (type === 'people') return {
+    orient: `Before you connect with ${quest.title}, a few minutes of mental preparation makes the conversation more meaningful. What do you actually know about where they are right now?`,
+    steps: [
+      'Think through the last time you spoke — what was on their mind then?',
+      'Consider what\'s likely changed in their life since. Work, family, something they were working toward.',
+      'Have one or two open questions ready — things you\'re genuinely curious about, not pleasantries.',
+      'Think about what you\'d like to share from your own world. Real connection is mutual.'
+    ],
+    resources: [
+      'Tip: avoid starting with "how are you" — ask something more specific and real',
+      'If it\'s been a long time: acknowledge it lightly and move on, don\'t over-apologize for the gap',
+      'Best setting: walking, coffee, or somewhere without time pressure if possible'
+    ]
+  };
+
+  // Generic task fallback
+  if (type === 'task') return {
+    orient: `Breaking "${quest.title}" into concrete first steps removes the friction of starting. The goal right now is just clarity on what "begun" looks like.`,
+    steps: [
+      'Define what done looks like — be specific enough that you\'d know when you\'ve crossed the finish line.',
+      'Identify the single smallest physical action that starts the thing.',
+      'Gather anything you need before you begin — tools, information, access.',
+      'Set aside a realistic block of time. Most tasks take 2-3x longer than we initially estimate.'
+    ],
+    resources: [
+      'Useful question: what\'s the one thing blocking this that isn\'t actually that hard to resolve?',
+      'If it feels overwhelming: the task is probably too large — break it into 2-3 sub-quests'
+    ]
+  };
+
+  // Generic learn fallback
+  return {
+    orient: `"${quest.title}" is worth approaching with a beginner's mind. Find the one best primary source rather than surveying everything — depth beats breadth at the start.`,
+    steps: [
+      'Look for the canonical text or course — what do experts in this field consider the best foundation?',
+      'Spend 20 minutes just orienting: what are the key terms, key figures, key questions?',
+      'Pick one thread and follow it before branching. Resist the urge to read about reading.',
+      'Find one person — a friend, a community, a forum — who\'s further along. Questions learn faster than solo reading.'
+    ],
+    resources: [
+      'Strategy: one authoritative book beats five popular summaries',
+      'Tool: use a library or ebook app — buying before you know you\'re committed is a common trap'
+    ]
+  };
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────
+load();
+renderLibrary();
+</script>
+</body>
+</html>
