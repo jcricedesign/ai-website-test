@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Voice FX Synthesizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e10;
+    --bg2: #1a1a1e;
+    --bg3: #232328;
+    --border: rgba(255,255,255,0.10);
+    --border2: rgba(255,255,255,0.18);
+    --text: #e8e8ea;
+    --text2: #888890;
+    --text3: #555560;
+    --accent: #4af0c8;
+    --accent-dim: rgba(74,240,200,0.12);
+    --danger: #f05050;
+    --success: #4af0c8;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .header-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  .header-title {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: var(--text2);
+    text-transform: uppercase;
+  }
+
+  .note {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    padding: 9px 13px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 85px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 11px 13px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text);
+    resize: vertical;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 9px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 1.25rem;
+  }
+
+  .chip {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 5px 14px;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip:hover { background: var(--bg3); color: var(--text); }
+  .chip.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+  .chip.user-chip { border-style: dashed; }
+  .chip .del-btn { font-size: 13px; opacity: 0.4; background: none; border: none; cursor: pointer; color: inherit; padding: 0 1px; line-height: 1; transition: opacity 0.15s; }
+  .chip .del-btn:hover { opacity: 1; }
+
+  .empty-msg {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    padding: 6px 0;
+  }
+
+  hr { border: none; border-top: 0.5px solid var(--border); margin: 1.25rem 0; }
+
+  .save-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .save-input {
+    flex: 1;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 8px 11px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text);
+    transition: border-color 0.15s;
+  }
+  .save-input:focus { outline: none; border-color: var(--accent); }
+  .save-input::placeholder { color: var(--text3); }
+
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 8px 16px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn:active { transform: scale(0.98); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1.5rem; margin-bottom: 1rem; }
+
+  .slider-group {}
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+  .slider-label span { font-family: 'Share Tech Mono', monospace; color: var(--text); font-size: 11px; }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border2);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  select {
+    width: 100%;
+    font-size: 12px;
+    padding: 6px 8px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    cursor: pointer;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+
+  .fx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .fx-block {
+    padding: 11px 13px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg2);
+  }
+
+  .fx-title {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .toggle {
+    cursor: pointer;
+    font-size: 10px;
+    padding: 2px 9px;
+    border: 0.5px solid var(--border2);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text3);
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .toggle.on { background: rgba(74,240,200,0.15); color: var(--accent); border-color: var(--accent); }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+
+  .speak-btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 11px 32px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .speak-btn:hover { background: var(--bg3); border-color: var(--accent); color: var(--accent); }
+  .speak-btn:active { transform: scale(0.98); }
+  .speak-btn.speaking { color: var(--danger); border-color: var(--danger); }
+
+  .stop-btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 11px 20px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    display: none;
+    transition: all 0.15s;
+  }
+  .stop-btn.vis { display: block; }
+  .stop-btn:hover { color: var(--text); }
+
+  .viz {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 22px;
+    margin-top: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .viz.active { opacity: 1; }
+  .viz-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform-origin: bottom;
+    transform: scaleY(0.1);
+    height: 22px;
+  }
+
+  .status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 11px;
+    letter-spacing: 0.04em;
+    min-height: 16px;
+  }
+
+  @media (max-width: 520px) {
+    .fx-grid { grid-template-columns: 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-dot"></div>
+    <div class="header-title">Voice Synthesizer + FX Chain</div>
+  </div>
+
+  <div class="note">Best in Chrome / Edge &mdash; uses Web Speech API + Web Audio API. Voice availability depends on your OS.</div>
+
+  <textarea id="rv-text">Greetings. I am an artificial intelligence. Shall we play a game.</textarea>
+
+  <div class="section-label">Built-in presets</div>
+  <div class="chips" id="rv-builtin"></div>
+
+  <hr>
+  <div class="section-label">Your saved presets</div>
+  <div class="chips" id="rv-user"><div class="empty-msg" id="rv-empty">No saved presets yet &mdash; dial in a sound you like and save it below.</div></div>
+
+  <div class="save-row">
+    <input class="save-input" id="rv-preset-name" placeholder="Name your preset..." maxlength="32">
+    <button class="btn" id="rv-save-btn">+ Save current</button>
+  </div>
+
+  <hr>
+  <div class="section-label">Speech engine</div>
+  <div class="grid2" style="margin-bottom:1rem;">
+    <div class="slider-group">
+      <div class="slider-label">Rate <span id="out-rate">0.55</span></div>
+      <input type="range" id="sl-rate" min="0.1" max="2" step="0.05" value="0.55">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label">Pitch <span id="out-pitch">0.20</span></div>
+      <input type="range" id="sl-pitch" min="0" max="2" step="0.05" value="0.20">
+    </div>
+    <div style="grid-column:1/-1;">
+      <div class="slider-label">Voice <span id="out-voice">—</span></div>
+      <select id="rv-voice-sel"></select>
+    </div>
+  </div>
+
+  <hr>
+  <div class="section-label">Audio effects chain</div>
+  <div class="fx-grid">
+    <div class="fx-block">
+      <div class="fx-title">Ring Mod <button class="toggle on" id="tog-ring">ON</button></div>
+      <div class="slider-label">Freq <span id="out-ring">45</span> Hz</div>
+      <input type="range" id="sl-ring" min="10" max="200" step="1" value="45">
+      <div class="slider-label" style="margin-top:8px;">Depth <span id="out-ringd">0.80</span></div>
+      <input type="range" id="sl-ringd" min="0" max="1" step="0.05" value="0.80">
+    </div>
+    <div class="fx-block">
+      <div class="fx-title">Bitcrush <button class="toggle on" id="tog-bit">ON</button></div>
+      <div class="slider-label">Bits <span id="out-bits">6</span></div>
+      <input type="range" id="sl-bits" min="2" max="16" step="1" value="6">
+      <div class="slider-label" style="margin-top:8px;">Reduction <span id="out-bitr">8</span>x</div>
+      <input type="range" id="sl-bitr" min="1" max="32" step="1" value="8">
+    </div>
+    <div class="fx-block">
+      <div class="fx-title">Filter <button class="toggle on" id="tog-filt">ON</button></div>
+      <div class="slider-label">Cutoff <span id="out-fcut">2800</span> Hz</div>
+      <input type="range" id="sl-fcut" min="200" max="8000" step="50" value="2800">
+      <div class="slider-label" style="margin-top:8px;">Resonance <span id="out-fres">8.0</span></div>
+      <input type="range" id="sl-fres" min="0.1" max="20" step="0.1" value="8.0">
+    </div>
+    <div class="fx-block">
+      <div class="fx-title">Reverb <button class="toggle off" id="tog-rev">OFF</button></div>
+      <div class="slider-label">Room size <span id="out-revs">0.30</span></div>
+      <input type="range" id="sl-revs" min="0.01" max="1" step="0.01" value="0.30">
+      <div class="slider-label" style="margin-top:8px;">Wet mix <span id="out-revm">0.40</span></div>
+      <input type="range" id="sl-revm" min="0" max="1" step="0.05" value="0.40">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="speak-btn" id="rv-speak">&#9654; Speak</button>
+    <button class="stop-btn" id="rv-stop">&#9632; Stop</button>
+  </div>
+
+  <div class="viz" id="rv-viz"></div>
+  <div class="status" id="rv-status">READY</div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'rv_user_presets_v1';
+
+const BUILTINS = [
+  {name:"WarGames",rate:0.55,pitch:0.20,voiceHint:["david","google us","en-us","english"],ring:true,ringFreq:45,ringDepth:0.85,bit:true,bits:6,bitR:8,filt:true,fcut:2800,fres:8,rev:false,revS:0.3,revM:0.4},
+  {name:"HAL 9000",rate:0.58,pitch:0.10,voiceHint:["david","english"],ring:true,ringFreq:22,ringDepth:0.40,bit:false,bits:12,bitR:2,filt:true,fcut:3500,fres:3,rev:true,revS:0.6,revM:0.25},
+  {name:"Dalek",rate:0.65,pitch:0.05,voiceHint:["david","en-us"],ring:true,ringFreq:90,ringDepth:0.95,bit:true,bits:4,bitR:6,filt:true,fcut:1800,fres:18,rev:false,revS:0.2,revM:0.3},
+  {name:"GLaDOS",rate:0.82,pitch:1.75,voiceHint:["zira","female","uk english","en-gb"],ring:true,ringFreq:30,ringDepth:0.35,bit:true,bits:10,bitR:3,filt:true,fcut:4500,fres:5,rev:true,revS:0.45,revM:0.30},
+  {name:"Voyager",rate:0.72,pitch:0.60,voiceHint:["david","en-us"],ring:true,ringFreq:15,ringDepth:0.55,bit:true,bits:8,bitR:4,filt:true,fcut:3200,fres:6,rev:true,revS:0.8,revM:0.35},
+  {name:"Glitch",rate:0.9,pitch:0.80,voiceHint:[],ring:true,ringFreq:160,ringDepth:0.90,bit:true,bits:3,bitR:16,filt:true,fcut:900,fres:20,rev:false,revS:0.2,revM:0.3},
+];
+
+const synth = window.speechSynthesis;
+let voices = [], isSpeaking = false, animId = null;
+
+function buildViz() {
+  const v = document.getElementById('rv-viz'); v.innerHTML = '';
+  for (let i = 0; i < 32; i++) { const b = document.createElement('div'); b.className = 'viz-bar'; v.appendChild(b); }
+}
+buildViz();
+
+function startViz() {
+  const v = document.getElementById('rv-viz'); v.classList.add('active');
+  const bars = v.querySelectorAll('.viz-bar');
+  function frame() { bars.forEach(b => { b.style.transform = `scaleY(${(0.1+Math.random()*0.9).toFixed(2)})`; }); animId = requestAnimationFrame(frame); }
+  frame();
+}
+function stopViz() {
+  document.getElementById('rv-viz').classList.remove('active');
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  document.querySelectorAll('.viz-bar').forEach(b => b.style.transform = 'scaleY(0.1)');
+}
+
+function populateVoices() {
+  voices = synth.getVoices(); if (!voices.length) return;
+  const sel = document.getElementById('rv-voice-sel'); sel.innerHTML = '';
+  voices.forEach((v, i) => { const o = document.createElement('option'); o.value = i; o.textContent = (v.name.length > 30 ? v.name.slice(0,30)+'…' : v.name) + ' ('+v.lang+')'; sel.appendChild(o); });
+  document.getElementById('out-voice').textContent = voices[0]?.name?.slice(0,12)||'—';
+  sel.addEventListener('change', () => { document.getElementById('out-voice').textContent = voices[sel.value]?.name?.slice(0,12)||'—'; clearActive(); });
+}
+if (synth) { synth.onvoiceschanged = populateVoices; populateVoices(); }
+
+const gv = id => parseFloat(document.getElementById(id).value);
+const gt = id => document.getElementById(id).classList.contains('on');
+const sv = (id, val, outId) => { document.getElementById(id).value = val; document.getElementById(outId).textContent = val; };
+const st = (id, on) => { const b = document.getElementById(id); b.textContent = on?'ON':'OFF'; b.classList.toggle('on',on); b.classList.toggle('off',!on); };
+const clearActive = () => document.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
+const setStatus = msg => document.getElementById('rv-status').textContent = msg;
+
+function findVoice(hints) {
+  for (const h of hints) { const m = voices.find(v => v.name.toLowerCase().includes(h.toLowerCase())||v.lang.toLowerCase().includes(h.toLowerCase())); if (m) return voices.indexOf(m); }
+  return null;
+}
+
+function captureSettings() {
+  const vi = parseInt(document.getElementById('rv-voice-sel').value)||0;
+  return { rate:gv('sl-rate'), pitch:gv('sl-pitch'), voiceName:voices[vi]?.name||'',
+    ring:gt('tog-ring'), ringFreq:gv('sl-ring'), ringDepth:gv('sl-ringd'),
+    bit:gt('tog-bit'), bits:gv('sl-bits'), bitR:gv('sl-bitr'),
+    filt:gt('tog-filt'), fcut:gv('sl-fcut'), fres:gv('sl-fres'),
+    rev:gt('tog-rev'), revS:gv('sl-revs'), revM:gv('sl-revm') };
+}
+
+function applySettings(p) {
+  sv('sl-rate',p.rate,'out-rate'); sv('sl-pitch',p.pitch,'out-pitch');
+  st('tog-ring',p.ring); sv('sl-ring',p.ringFreq,'out-ring'); sv('sl-ringd',p.ringDepth,'out-ringd');
+  st('tog-bit',p.bit); sv('sl-bits',p.bits,'out-bits'); sv('sl-bitr',p.bitR,'out-bitr');
+  st('tog-filt',p.filt); sv('sl-fcut',p.fcut,'out-fcut'); sv('sl-fres',p.fres,'out-fres');
+  st('tog-rev',p.rev); sv('sl-revs',p.revS,'out-revs'); sv('sl-revm',p.revM,'out-revm');
+  const hints = p.voiceHint||[];
+  const ni = p.voiceName ? voices.findIndex(v=>v.name===p.voiceName) : -1;
+  const vi = ni>=0 ? ni : (hints.length ? findVoice(hints) : null);
+  if (vi!==null && vi>=0) { document.getElementById('rv-voice-sel').value=vi; document.getElementById('out-voice').textContent=voices[vi]?.name?.slice(0,12)||'—'; }
+}
+
+const loadPresets = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch(e) { return []; } };
+const savePresets = arr => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch(e) { setStatus('Storage unavailable'); } };
+
+function renderUserPresets() {
+  const c = document.getElementById('rv-user'); c.innerHTML = '';
+  const arr = loadPresets();
+  if (!arr.length) { const m = document.createElement('div'); m.className='empty-msg'; m.id='rv-empty'; m.textContent='No saved presets yet — dial in a sound you like and save it below.'; c.appendChild(m); return; }
+  arr.forEach((p, idx) => {
+    const chip = document.createElement('button'); chip.className = 'chip user-chip';
+    const lbl = document.createElement('span'); lbl.textContent = p.name;
+    const del = document.createElement('button'); del.className='del-btn'; del.textContent='×'; del.title='Delete';
+    del.addEventListener('click', e => { e.stopPropagation(); const a=loadPresets(); a.splice(idx,1); savePresets(a); renderUserPresets(); setStatus('Deleted: '+p.name); });
+    chip.appendChild(lbl); chip.appendChild(del);
+    chip.addEventListener('click', () => { clearActive(); chip.classList.add('active'); applySettings(p); setStatus('Loaded: '+p.name); });
+    c.appendChild(chip);
+  });
+}
+
+document.getElementById('rv-save-btn').addEventListener('click', () => {
+  const name = document.getElementById('rv-preset-name').value.trim();
+  if (!name) { setStatus('Enter a name first'); return; }
+  const arr = loadPresets();
+  if (arr.find(p=>p.name===name)) { setStatus('Name already exists'); return; }
+  const s = captureSettings(); s.name = name; arr.push(s); savePresets(arr);
+  renderUserPresets(); document.getElementById('rv-preset-name').value=''; setStatus('Saved: '+name);
+});
+
+const builtinEl = document.getElementById('rv-builtin');
+BUILTINS.forEach(p => {
+  const btn = document.createElement('button'); btn.className='chip'; btn.textContent=p.name;
+  btn.addEventListener('click', () => { clearActive(); btn.classList.add('active'); applySettings(p); setStatus('Preset: '+p.name); });
+  builtinEl.appendChild(btn);
+});
+
+['sl-rate','sl-pitch','sl-ring','sl-ringd','sl-bits','sl-bitr','sl-fcut','sl-fres','sl-revs','sl-revm'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() { document.getElementById(id.replace('sl-','out-')).textContent=parseFloat(this.value); clearActive(); });
+});
+['tog-ring','tog-bit','tog-filt','tog-rev'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function() { const on=this.classList.contains('on'); this.classList.toggle('on',!on); this.classList.toggle('off',on); this.textContent=on?'OFF':'ON'; clearActive(); });
+});
+
+function createReverb(ctx, sec) {
+  const len=ctx.sampleRate*sec, buf=ctx.createBuffer(2,len,ctx.sampleRate);
+  for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}
+  const c=ctx.createConvolver(); c.buffer=buf; return c;
+}
+function createBitcrusher(ctx, bits, red) {
+  const p=ctx.createScriptProcessor(4096,1,1), step=Math.pow(0.5,bits-1); let ph=0,lv=0;
+  p.onaudioprocess=e=>{const i=e.inputBuffer.getChannelData(0),o=e.outputBuffer.getChannelData(0);for(let n=0;n<i.length;n++){ph++;if(ph>=red){ph=0;lv=step*Math.floor(i[n]/step+0.5);}o[n]=lv;}};
+  return p;
+}
+
+async function speakWithFX() {
+  if (!synth) { setStatus('Speech not supported in this browser'); return; }
+  const text = document.getElementById('rv-text').value.trim();
+  if (!text) { setStatus('INPUT REQUIRED'); return; }
+  synth.cancel();
+  if (isSpeaking) { isSpeaking=false; stopViz(); return; }
+  setStatus('INITIALIZING...');
+  let actx;
+  try { actx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e) { setStatus('AudioContext failed: '+e.message); return; }
+  if (actx.state==='suspended') await actx.resume();
+  const dest=actx.createMediaStreamDestination();
+  const audio=new Audio(); audio.srcObject=dest.stream;
+  const src=actx.createMediaStreamSource(dest.stream);
+  let chain=src;
+  if(gt('tog-filt')){const f=actx.createBiquadFilter();f.type='bandpass';f.frequency.value=gv('sl-fcut');f.Q.value=gv('sl-fres');chain.connect(f);chain=f;}
+  if(gt('tog-bit')){const bc=createBitcrusher(actx,gv('sl-bits'),gv('sl-bitr'));chain.connect(bc);chain=bc;}
+  if(gt('tog-ring')){
+    const osc=actx.createOscillator(),og=actx.createGain(),dg=actx.createGain(),wg=actx.createGain(),mg=actx.createGain();
+    const d=gv('sl-ringd'); osc.frequency.value=gv('sl-ring'); og.gain.value=d; dg.gain.value=1-d*0.5; wg.gain.value=d;
+    osc.connect(og); chain.connect(dg); dg.connect(mg); chain.connect(wg); osc.connect(wg.gain); wg.connect(mg); osc.start(); chain=mg;
+  }
+  if(gt('tog-rev')){
+    const cv=createReverb(actx,gv('sl-revs')*3+0.5),dg=actx.createGain(),wg=actx.createGain(),mx=actx.createGain();
+    dg.gain.value=1-gv('sl-revm'); wg.gain.value=gv('sl-revm');
+    chain.connect(cv); cv.connect(wg); wg.connect(mx); chain.connect(dg); dg.connect(mx); chain=mx;
+  }
+  chain.connect(actx.destination);
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=gv('sl-rate'); utt.pitch=gv('sl-pitch'); utt.volume=1;
+  const vi=document.getElementById('rv-voice-sel').value; if(voices[vi]) utt.voice=voices[vi];
+  audio.play().catch(()=>{});
+  utt.onstart=()=>{isSpeaking=true;document.getElementById('rv-speak').textContent='▶ Speaking...';document.getElementById('rv-speak').classList.add('speaking');document.getElementById('rv-stop').classList.add('vis');setStatus('TRANSMITTING...');startViz();};
+  const cleanup=()=>{isSpeaking=false;audio.pause();try{actx.close();}catch(e){}document.getElementById('rv-speak').textContent='▶ Speak';document.getElementById('rv-speak').classList.remove('speaking');document.getElementById('rv-stop').classList.remove('vis');stopViz();};
+  utt.onend=()=>{cleanup();setStatus('TRANSMISSION COMPLETE');};
+  utt.onerror=e=>{cleanup();setStatus('ERROR: '+e.error);};
+  synth.speak(utt);
+  document.getElementById('rv-stop').onclick=()=>{synth.cancel();cleanup();setStatus('HALTED');};
+}
+
+document.getElementById('rv-speak').addEventListener('click', speakWithFX);
+renderUserPresets();
+</script>
+</body>
+</html>
