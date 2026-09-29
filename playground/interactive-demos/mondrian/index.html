@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broadway Boogie Woogie² — De Stijl Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0e0e0e;
+    font-family: 'DM Sans', Futura, 'Century Gothic', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    color: #d0d0d0;
+  }
+  #wrap {
+    width: 88%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Zone 1 — Title */
+  #zone-title { display: flex; flex-direction: column; gap: 4px; }
+  #title-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #d0d0d0;
+    width: 100%;
+    cursor: text;
+  }
+  #title-input::placeholder { color: #333; }
+  #subtitle {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: #383838;
+  }
+  #creation-num {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+    margin-top: 2px;
+  }
+
+  /* Zone 2 — Canvas */
+  #zone-canvas { position: relative; }
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    box-shadow: 0 0 60px rgba(245,200,0,.07), 0 8px 80px rgba(0,0,0,.9);
+  }
+
+  /* Morph indicator overlay */
+  #morph-indicator {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+  }
+  #morph-ring { position: relative; width: 32px; height: 32px; }
+  #morph-ring svg { width: 32px; height: 32px; transform: rotate(-90deg); }
+  #morph-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 300;
+    color: #3a3a3a;
+  }
+  #shape-name {
+    font-size: 9px;
+    font-weight: 300;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+  }
+
+  /* Divider */
+  .divider { width: 100%; height: 1px; background: #181818; }
+
+  /* Zone 3 — Controls */
+  #zone-controls { display: flex; flex-direction: column; gap: 16px; }
+  .ctrl-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ctrl-label {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: .38em;
+    text-transform: uppercase;
+    color: #2e2e2e;
+    width: 56px;
+    flex-shrink: 0;
+  }
+
+  /* Palette swatches */
+  .pal-swatch {
+    width: 44px; height: 26px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+    cursor: pointer;
+    display: flex;
+    transition: all .12s;
+    flex-shrink: 0;
+  }
+  .pal-swatch.active { border-color: #777; transform: scale(1.1); }
+  .pal-swatch div { flex: 1; }
+
+  /* Density / Render buttons */
+  .seg-btn {
+    padding: 6px 13px;
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #3a3a3a;
+    transition: all .15s;
+  }
+  .seg-btn.active { background: #1e1e1e; border-color: #555; color: #ccc; }
+  .seg-btn:hover { border-color: #333; color: #888; }
+
+  /* Tempo slider */
+  .tt {
+    position: relative;
+    width: 100%;
+    height: 2px;
+    background: #222;
+    border-radius: 1px;
+    cursor: pointer;
+  }
+  .tf {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    background: #3a3a3a;
+    border-radius: 1px;
+    pointer-events: none;
+  }
+  .th-vis {
+    position: absolute;
+    top: 50%;
+    width: 13px; height: 13px;
+    background: #bbb;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 0 3px rgba(180,180,180,.08);
+  }
+  .th-hit {
+    position: absolute;
+    top: 50%;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    background: transparent;
+  }
+  .tk {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    font-weight: 300;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+    margin-top: 5px;
+  }
+
+  /* Fullscreen button */
+  #fs-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    background: rgba(14,14,14,0.7);
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    z-index: 10;
+  }
+  #fs-btn:hover { background: rgba(30,30,30,0.9); border-color: #444; }
+  #fs-btn svg { width: 14px; height: 14px; fill: none; stroke: #555; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: stroke .15s; }
+  #fs-btn:hover svg { stroke: #999; }
+
+  /* Fullscreen mode — canvas fills screen, controls hidden */
+  :fullscreen #wrap, :-webkit-full-screen #wrap {
+    width: 100vw; max-width: 100vw;
+    height: 100vh;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  :fullscreen #zone-title,
+  :fullscreen #zone-controls,
+  :fullscreen .divider,
+  :-webkit-full-screen #zone-title,
+  :-webkit-full-screen #zone-controls,
+  :-webkit-full-screen .divider { display: none !important; }
+  :fullscreen #zone-canvas,
+  :-webkit-full-screen #zone-canvas {
+    width: min(100vw, 100vh);
+    max-width: 100vw;
+    flex-shrink: 0;
+  }
+  :fullscreen canvas, :-webkit-full-screen canvas { border-radius: 0; }
+  :fullscreen #fs-btn, :-webkit-full-screen #fs-btn { top: 16px; right: 16px; }
+
+  /* Action buttons */
+  .action-row { display: flex; gap: 10px; margin-top: 4px; align-items: center; }
+  .btn-primary {
+    padding: 9px 22px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #aaa;
+    transition: all .15s;
+  }
+  .btn-primary:hover { background: #222; border-color: #555; color: #ddd; }
+  .btn-ghost {
+    padding: 9px 16px;
+    background: transparent;
+    border: 1px solid #1e1e1e;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #333;
+    transition: all .15s;
+  }
+  .btn-ghost:hover { border-color: #333; color: #777; }
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- Zone 1: Title -->
+  <div id="zone-title">
+    <input id="title-input" type="text" placeholder="Untitled Creation" maxlength="48" spellcheck="false">
+    <div id="subtitle">Inspired by Piet Mondrian &amp; De Stijl</div>
+    <div id="creation-num">Creation #001</div>
+  </div>
+
+  <!-- Zone 2: Canvas -->
+  <div id="zone-canvas">
+    <canvas id="c" width="600" height="600"></canvas>
+    <button id="fs-btn" onclick="toggleFullscreen()" title="Fullscreen">
+      <svg id="fs-icon" viewBox="0 0 16 16">
+        <!-- expand icon (default) -->
+        <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5"/>
+      </svg>
+    </button>
+    <div id="morph-indicator">
+      <div id="shape-name">Rectangle</div>
+      <div id="morph-ring">
+        <svg viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="13" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+          <circle id="morph-arc" cx="16" cy="16" r="13" fill="none" stroke="#3a3a3a"
+            stroke-width="2" stroke-dasharray="81.68" stroke-dashoffset="81.68"
+            stroke-linecap="round"/>
+        </svg>
+        <div id="morph-label">▭</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Zone 3: Controls -->
+  <div id="zone-controls">
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Palette</span>
+      <div id="pal-row" style="display:flex;gap:7px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Render</span>
+      <button class="seg-btn active" id="rm-fill"   onclick="setRender('fill',this)">Fill</button>
+      <button class="seg-btn"        id="rm-stroke" onclick="setRender('stroke',this)">Stroke</button>
+      <button class="seg-btn"        id="rm-mixed"  onclick="setRender('mixed',this)">Mixed</button>
+    </div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Density</span>
+      <button class="seg-btn"        onclick="setDens(2,this)">Sparse</button>
+      <button class="seg-btn active" onclick="setDens(3,this)">Medium</button>
+      <button class="seg-btn"        onclick="setDens(5,this)">Dense</button>
+    </div>
+
+    <div class="ctrl-row" style="flex-direction:column;align-items:flex-start;">
+      <span class="ctrl-label" style="margin-bottom:6px;">Tempo</span>
+      <div style="width:100%;">
+        <div class="tt" id="track">
+          <div class="tf" id="fill-ui"></div>
+          <div class="th-vis" id="thv"></div>
+          <div class="th-hit" id="thh"></div>
+        </div>
+        <div class="tk">
+          <span>Slow</span><span>Medium</span><span>Fast</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-primary" onclick="randomize()">Randomize</button>
+      <button class="btn-ghost"   onclick="renamePiece()">Rename</button>
+      <button class="btn-ghost" id="music-btn" onclick="toggleMusic()" style="margin-left:auto;">♩ Music</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Poetic names ──────────────────────────────────────────────
+const ADJ =['Silent','Electric','Floating','Restless','Lucid','Amber','Midnight','Golden','Quiet','Vivid','Fractured','Slow','Trembling','Crystal','Hollow','Urgent','Pale','Dense','Open','Strict','Radiant','Oblique'];
+const NOUN=['Geometry','Interval','Frequency','Structure','Resonance','Grid','Membrane','Tension','Pulse','Horizon','Field','Current','Form','Drift','Signal','Sequence','Weight','Boundary','Surface','Void','Lattice','Passage'];
+function poeticName(){ return ADJ[Math.floor(Math.random()*ADJ.length)]+' '+NOUN[Math.floor(Math.random()*NOUN.length)]; }
+function renamePiece(){ document.getElementById('title-input').value = poeticName(); }
+
+// ── Palettes ──────────────────────────────────────────────────
+const PALS = [
+  { name:'Mondrian',   Y:[245,200,  0], A:[200,  0, 30], B:[ 24, 48,160], BG:[240,235,216], bg2:[210,200,178] },
+  { name:'Night',      Y:[ 28, 42, 72], A:[ 18, 72, 65], B:[ 48, 20, 68], BG:[ 16, 14, 22], bg2:[ 32, 28, 42] },
+  { name:'Bauhaus',    Y:[210,160,  0], A:[180, 60,  0], B:[ 20, 80,120], BG:[235,228,210], bg2:[200,190,168] },
+  { name:'Rush',       Y:[255, 60,  0], A:[220,  0,180], B:[ 40,220, 40], BG:[255,250,220], bg2:[240,235,190] },
+  { name:'Bolotowsky', Y:[230,180, 20], A:[ 40,100,180], B:[200, 60, 40], BG:[245,240,225], bg2:[215,208,190] },
+  { name:'Slate',      Y:[180,165,130], A:[ 90, 80, 70], B:[ 45, 55, 70], BG:[ 28, 26, 24], bg2:[ 44, 40, 36] },
+];
+
+// Build palette swatches
+const palRow = document.getElementById('pal-row');
+PALS.forEach((p,i) => {
+  const sw = document.createElement('div');
+  sw.className = 'pal-swatch' + (i===0 ? ' active' : '');
+  sw.title = p.name;
+  sw.onclick = () => setPal(i);
+  ['Y','A','B'].forEach(k => {
+    const d = document.createElement('div');
+    d.style.background = `rgb(${p[k].join(',')})`;
+    sw.appendChild(d);
+  });
+  palRow.appendChild(sw);
+});
+
+// ── Seed ──────────────────────────────────────────────────────
+let seed = { palIdx:0, density:3, speed:0.5, render:'fill' };
+let creationCount = 1;
+function getPal(){ return PALS[seed.palIdx]; }
+function rc(k,a){ const p=getPal(), c=p[k]||p.BG; return `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`; }
+
+function setPal(i){
+  seed.palIdx = i;
+  document.querySelectorAll('.pal-swatch').forEach((s,j) => s.classList.toggle('active', j===i));
+}
+function setDens(n, el){
+  seed.density = n;
+  el.closest('.ctrl-row').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  rebuildAndDraw();
+}
+function setRender(mode, el){
+  seed.render = mode;
+  document.querySelectorAll('#rm-fill,#rm-stroke,#rm-mixed').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Slider ────────────────────────────────────────────────────
+const SMIN=0.25, SMAX=1.8;
+let sv=0.5, speedMult=1.0;
+function lp(a,b,t){ return a+(b-a)*t; }
+speedMult = lp(SMIN,SMAX,sv);
+const track=document.getElementById('track'), fillUi=document.getElementById('fill-ui');
+const thv=document.getElementById('thv'), thh=document.getElementById('thh');
+function uiSlider(v){ const p=(v*100).toFixed(1)+'%'; fillUi.style.width=p; thv.style.left=p; thh.style.left=p; }
+uiSlider(sv);
+function fromPtr(e){
+  const r=track.getBoundingClientRect(), cx=e.touches?e.touches[0].clientX:e.clientX;
+  sv = Math.max(0,Math.min(1,(cx-r.left)/r.width));
+  speedMult = lp(SMIN,SMAX,sv);
+  seed.speed = sv;
+  uiSlider(sv);
+}
+let drag=false;
+thh.addEventListener('mousedown',  e=>{ drag=true; e.preventDefault(); });
+thh.addEventListener('touchstart', e=>{ drag=true; }, {passive:true});
+track.addEventListener('mousedown',  e=>{ drag=true; fromPtr(e); });
+track.addEventListener('touchstart', e=>{ drag=true; fromPtr(e); }, {passive:true});
+window.addEventListener('mousemove', e=>{ if(drag) fromPtr(e); });
+window.addEventListener('touchmove', e=>{ if(drag) fromPtr(e); }, {passive:true});
+window.addEventListener('mouseup',   ()=>drag=false);
+window.addEventListener('touchend',  ()=>drag=false);
+
+// ── Canvas ────────────────────────────────────────────────────
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W=600, H=600;
+
+// ── Shape morphing — 60s cycle ────────────────────────────────
+const MORPH_CYCLE = 60;
+const N = 64; // points per shape
+
+function rectPts(){
+  const r=0.04;
+  return Array.from({length:N}, (_,i) => {
+    const s=i/N, seg=Math.floor(s*4), f=(s*4)%1;
+    let x,y;
+    if(seg===0){x=r+(1-2*r)*f; y=0;}
+    else if(seg===1){x=1; y=r+(1-2*r)*f;}
+    else if(seg===2){x=1-(r+(1-2*r)*f); y=1;}
+    else{x=0; y=1-(r+(1-2*r)*f);}
+    return [x-0.5, y-0.5];
+  });
+}
+function circlePts(){
+  return Array.from({length:N}, (_,i) => {
+    const a = i/N*Math.PI*2;
+    return [Math.cos(a)*0.5, Math.sin(a)*0.5];
+  });
+}
+function diamondPts(){
+  return Array.from({length:N}, (_,i) => {
+    const a = i/N*Math.PI*2;
+    const d = 0.5/(Math.abs(Math.cos(a))+Math.abs(Math.sin(a)));
+    return [Math.cos(a)*d*0.97, Math.sin(a)*d*0.97];
+  });
+}
+const SHAPES_PTS  = [rectPts(), circlePts(), diamondPts()];
+const SHAPE_NAMES = ['Rectangle','Circle','Diamond'];
+const SHAPE_SYM   = ['▭','○','◇'];
+
+function easeInOut(t){ return t<0.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1; }
+
+function getMorphedPts(morphT){
+  const seg      = morphT*3;
+  const shapeIdx = Math.floor(seg)%3;
+  const nextIdx  = (shapeIdx+1)%3;
+  const localT   = seg%1;
+  const hold     = 0.32;
+  let interp;
+  if(localT < hold)           interp = 0;
+  else if(localT > 1-hold)    interp = 1;
+  else interp = easeInOut((localT-hold)/(1-hold*2));
+
+  return SHAPES_PTS[shapeIdx].map(([ax,ay],i) => {
+    const [bx,by] = SHAPES_PTS[nextIdx][i];
+    return [ax+(bx-ax)*interp, ay+(by-ay)*interp];
+  });
+}
+
+function applyMorphClip(pts){
+  ctx.beginPath();
+  pts.forEach(([x,y],i) => {
+    const px=W/2+x*W, py=H/2+y*H;
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  });
+  ctx.closePath();
+  ctx.clip();
+}
+
+// Morph ring UI
+const arc     = document.getElementById('morph-arc');
+const mlabel  = document.getElementById('morph-label');
+const sname   = document.getElementById('shape-name');
+const CIRC    = 2*Math.PI*13;
+function updateMorphRing(morphT){
+  arc.setAttribute('stroke-dashoffset', (CIRC - CIRC*(morphT%1)).toFixed(2));
+  const idx = Math.floor(morphT*3)%3;
+  mlabel.textContent = SHAPE_SYM[idx];
+  sname.textContent  = SHAPE_NAMES[idx];
+}
+
+// ── Rounded rect ──────────────────────────────────────────────
+function rr(x,y,w,h,r){
+  if(w<2||h<2) return;
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath(); ctx.fill();
+}
+
+// Shape with fill/stroke mode
+function drawShape(x,y,w,h,ck,a,useStroke,lw){
+  if(w<2||h<2) return;
+  const col=getPal()[ck]||getPal().BG;
+  const r2=Math.max(2,Math.min(w,h)*0.12);
+  if(useStroke){
+    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${a.toFixed(3)})`;
+    ctx.lineWidth=lw||2.5;
+    ctx.beginPath();
+    const rr2=Math.min(r2,w/2,h/2);
+    ctx.moveTo(x+rr2,y); ctx.lineTo(x+w-rr2,y); ctx.quadraticCurveTo(x+w,y,x+w,y+rr2);
+    ctx.lineTo(x+w,y+h-rr2); ctx.quadraticCurveTo(x+w,y+h,x+w-rr2,y+h);
+    ctx.lineTo(x+rr2,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-rr2);
+    ctx.lineTo(x,y+rr2); ctx.quadraticCurveTo(x,y,x+rr2,y);
+    ctx.closePath(); ctx.stroke();
+  } else {
+    ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a.toFixed(3)})`;
+    rr(x,y,w,h,r2);
+  }
+}
+
+function isStroke(idx){
+  if(seed.render==='fill')   return false;
+  if(seed.render==='stroke') return true;
+  return ((idx||0)%5)<2;
+}
+
+// ── Grid helpers ──────────────────────────────────────────────
+function getGrid(){
+  const n=seed.density, vx=[], hy=[];
+  for(let i=1;i<=n;i++){
+    vx.push(Math.round(W*(i/(n+1))));
+    hy.push(Math.round(H*(i/(n+1))));
+  }
+  return {vx,hy};
+}
+function getBand(){ return Math.max(18, 44-seed.density*5); }
+
+// ── Cells ─────────────────────────────────────────────────────
+const CKEYS=['Y','A','B','BG'], CW=[0.50,0.18,0.18,0.14];
+function wr(){ let r=Math.random(),s=0; for(let i=0;i<CKEYS.length;i++){s+=CW[i];if(r<s)return CKEYS[i];} return 'Y'; }
+function mkC(){ return {b:wr(),ph:Math.random()*Math.PI*2,sp:0.3+Math.random()*0.6,ap:Math.random()*Math.PI*2,as:0.05+Math.random()*0.1,ad:0.08+Math.random()*0.12,idx:Math.floor(Math.random()*100)}; }
+function mkBand(len,CS){ return Array.from({length:Math.ceil(len/CS)+2}, mkC); }
+let VB=[], HB=[];
+function rebuildBands(){
+  const BAND=getBand(); const {vx,hy}=getGrid();
+  VB=vx.map(()=>mkBand(H,BAND));
+  HB=hy.map(()=>mkBand(W,BAND));
+}
+
+// ── Floaters ──────────────────────────────────────────────────
+let floaters=[];
+function buildFloaters(){
+  const {vx,hy}=getGrid(); const BAND=getBand(),BH=BAND/2;
+  const xs=[0,...vx.map(x=>[x-BH,x+BH]).flat(),W];
+  const ys=[0,...hy.map(y=>[y-BH,y+BH]).flat(),H];
+  const zX=[], zY=[];
+  for(let i=0;i<xs.length-1;i+=2) zX.push([xs[i],xs[i+1]]);
+  for(let i=0;i<ys.length-1;i+=2) zY.push([ys[i],ys[i+1]]);
+  floaters=[]; const cols=['A','B','Y','A','B']; let fi=0;
+  for(const [x0,x1] of zX) for(const [y0,y1] of zY){
+    const zw=x1-x0, zh=y1-y0;
+    if(zw<40||zh<40||Math.random()<0.45) continue;
+    const hw=Math.min(zw*.38,zh*.38,50);
+    floaters.push({
+      c:cols[fi++%cols.length], hx:(x0+x1)/2, hy:(y0+y1)/2,
+      hw, hh:hw*(0.7+Math.random()*0.5),
+      dr:6+Math.random()*10,
+      px:Math.random()*Math.PI*2, py:Math.random()*Math.PI*2,
+      sp:0.08+Math.random()*0.12,
+      pp:Math.random()*Math.PI*2, ps:0.15+Math.random()*0.2,
+      idx:fi
+    });
+  }
+}
+
+// ── Beige squares ─────────────────────────────────────────────
+let BSQ=[];
+function buildBSQ(){
+  const {vx,hy}=getGrid(); const BAND=getBand(),BH=BAND/2;
+  const xs=[0,...vx.map(x=>[x-BH,x+BH]).flat(),W];
+  const ys=[0,...hy.map(y=>[y-BH,y+BH]).flat(),H];
+  const zX=[], zY=[];
+  for(let i=0;i<xs.length-1;i+=2) zX.push([xs[i],xs[i+1]]);
+  for(let i=0;i<ys.length-1;i+=2) zY.push([ys[i],ys[i+1]]);
+  BSQ=[]; const TILE=Math.max(24,40-seed.density*3), SZ=TILE*.35;
+  for(const [x0,x1] of zX) for(const [y0,y1] of zY){
+    const zw=x1-x0, zh=y1-y0;
+    if(zw<TILE*1.2||zh<TILE*1.2) continue;
+    const cols=Math.floor(zw/TILE), rows=Math.floor(zh/TILE);
+    const ox=(zw-cols*TILE)/2, oy=(zh-rows*TILE)/2;
+    for(let ci=0;ci<cols;ci++) for(let ri=0;ri<rows;ri++){
+      BSQ.push({
+        hx:x0+ox+ci*TILE+TILE/2, hy:y0+oy+ri*TILE+TILE/2,
+        dr:1+Math.random()*2,
+        px:Math.random()*Math.PI*2, py:Math.random()*Math.PI*2,
+        sp:0.02+Math.random()*0.04,
+        ap:Math.random()*Math.PI*2, as:0.03+Math.random()*0.05,
+        ba:0.04+Math.random()*0.05, ad:0.02+Math.random()*0.03,
+        sz:SZ*(0.7+Math.random()*0.5)
+      });
+    }
+  }
+}
+
+// ── Travelling notes ──────────────────────────────────────────
+let notes=[];
+function buildNotes(){
+  const {vx,hy}=getGrid(); notes=[];
+  const npb=Math.max(1,Math.floor(4/seed.density)+1);
+  for(let bi=0;bi<vx.length;bi++) for(let k=0;k<npb;k++)
+    notes.push({ax:'v',bi,pos:Math.random()*H,sp:(0.4+Math.random()*0.8)*(Math.random()<.5?1:-1),c:['A','B'][k%2],ap:Math.random()*Math.PI*2,as:0.1+Math.random()*0.1,idx:bi*10+k});
+  for(let bi=0;bi<hy.length;bi++) for(let k=0;k<npb;k++)
+    notes.push({ax:'h',bi,pos:Math.random()*W,sp:(0.4+Math.random()*0.8)*(Math.random()<.5?1:-1),c:['Y','A'][k%2],ap:Math.random()*Math.PI*2,as:0.1+Math.random()*0.1,idx:bi*10+k+50});
+}
+
+// ── Merges ────────────────────────────────────────────────────
+let ME=[];
+function mCol(a,b){
+  const s=new Set([a,b]);
+  if(s.has('A')&&s.has('B')) return 'A';
+  if(s.has('Y')&&s.has('A')) return 'A';
+  if(s.has('Y')&&s.has('B')) return 'Y';
+  if(s.has('BG')) return [a,b].find(c=>c!=='BG')||'BG';
+  return a;
+}
+function bI(){ return Math.max(0.18, 0.65/speedMult); }
+function trig(ax,bi,ci,ca,cb){
+  if(ME.find(e=>e.ax===ax&&e.bi===bi&&Math.abs(e.ci-ci)<3)) return;
+  const sz=Math.random()<0.5?2:3, life=(2+Math.random()*2)*bI();
+  ME.push({ax,bi,ci,c:mCol(ca,cb),sz,life,ap:Math.random()*Math.PI*2,as:0.08+Math.random()*0.1,idx:Math.floor(Math.random()*100)});
+}
+function collide(){
+  const BAND=getBand();
+  for(let i=0;i<notes.length;i++) for(let j=i+1;j<notes.length;j++){
+    const a=notes[i],b=notes[j];
+    if(a.ax!==b.ax||a.bi!==b.bi||a.c===b.c) continue;
+    if(Math.abs(a.pos-b.pos)<BAND*2){
+      const ci=Math.floor(((a.pos+b.pos)/2)/BAND);
+      const cells=a.ax==='v'?VB[a.bi]:HB[a.bi];
+      if(cells&&ci>=0&&ci<cells.length-3) trig(a.ax,a.bi,ci,a.c,b.c);
+    }
+  }
+}
+let bAcc=0;
+function onBeat(){
+  const BAND=getBand();
+  for(let k=0;k<Math.max(1,Math.round(speedMult*0.7));k++){
+    const uV=Math.random()<0.5, pool=notes.filter(n=>n.ax===(uV?'v':'h'));
+    if(!pool.length) continue;
+    const n=pool[Math.floor(Math.random()*pool.length)];
+    const ci=Math.floor(n.pos/BAND);
+    const cells=uV?VB[n.bi]:HB[n.bi];
+    if(!cells||ci<1||ci>=cells.length-3) continue;
+    const p=[['Y','A'],['A','B'],['Y','B'],['A','BG']][Math.floor(Math.random()*4)];
+    trig(uV?'v':'h',n.bi,ci,p[0],p[1]);
+  }
+}
+function ca(ap,as,d){ return 1-d*((Math.sin(rawT*as+ap)+1)/2); }
+
+// ── Draw band ─────────────────────────────────────────────────
+function drawBand(ax,bi,coord){
+  const BAND=getBand(), CS=BAND, iV=ax==='v', cells=iV?VB[bi]:HB[bi];
+  if(!cells) return;
+  const bLen=iV?H:W, bx=iV?coord-BAND/2:0, by=iV?0:coord-BAND/2;
+  const pad=2, R=Math.max(3,BAND*0.14);
+  const BH=BAND/2;
+
+  if(seed.render==='stroke'){
+    const col=getPal().Y;
+    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},0.35)`;
+    ctx.lineWidth=1;
+    ctx.strokeRect(bx+1,by+1,iV?BAND-2:bLen-2,iV?bLen-2:BAND-2);
+  } else {
+    ctx.fillStyle=rc('Y',1);
+    ctx.fillRect(bx,by,iV?BAND:bLen,iV?bLen:BAND);
+  }
+
+  const bm=ME.filter(e=>e.ax===ax&&e.bi===bi), skip=new Set();
+  for(let ci=0;ci<cells.length;ci++){
+    if(skip.has(ci)) continue;
+    const off=ci*CS; if(off>bLen+CS) break;
+    const mg=bm.find(e=>e.ci===ci);
+    const alpha = mg ? ca(mg.ap,mg.as,0.22) : ca(cells[ci].ap,cells[ci].as,cells[ci].ad);
+    const ck = mg ? mg.c : (() => {
+      const pulse=(Math.sin(t*cells[ci].sp*speedMult+cells[ci].ph)+1)/2;
+      let k=cells[ci].b;
+      if(k==='Y'&&pulse<0.14) k='A'; else if(k==='Y'&&pulse>0.92) k='B';
+      return k;
+    })();
+    const idx = mg ? mg.idx : cells[ci].idx;
+    const px=iV?bx+pad:off+pad/2, py=iV?off+pad/2:by+pad;
+    const pw=iV?BAND-pad*2:(mg?CS*mg.sz-pad:CS-pad);
+    const ph=iV?(mg?CS*mg.sz-pad:CS-pad):BAND-pad*2;
+    drawShape(px,py,pw,ph,ck,alpha,isStroke(idx));
+    if(mg) for(let s=1;s<mg.sz;s++) skip.add(ci+s);
+  }
+}
+
+// ── Rebuild ───────────────────────────────────────────────────
+function rebuildAndDraw(){ ME=[]; rebuildBands(); buildFloaters(); buildBSQ(); buildNotes(); }
+rebuildAndDraw();
+document.getElementById('title-input').value = 'Broadway Boogie Woogie';
+
+// ── Randomize ─────────────────────────────────────────────────
+const RENDERS=['fill','stroke','mixed'];
+function randomize(){
+  seed.palIdx  = Math.floor(Math.random()*PALS.length);
+  seed.density = 2+Math.floor(Math.random()*4);
+  seed.render  = RENDERS[Math.floor(Math.random()*3)];
+  sv=0.2+Math.random()*0.6; speedMult=lp(SMIN,SMAX,sv); seed.speed=sv; uiSlider(sv);
+
+  document.querySelectorAll('.pal-swatch').forEach((s,i) => s.classList.toggle('active',i===seed.palIdx));
+  document.querySelectorAll('#rm-fill,#rm-stroke,#rm-mixed').forEach(b => b.classList.toggle('active',b.id==='rm-'+seed.render));
+  const dm={2:'Sparse',3:'Medium',4:'Medium',5:'Dense'};
+  document.querySelectorAll('[onclick*="setDens"]').forEach(b => b.classList.toggle('active',b.textContent.trim()===dm[seed.density]));
+
+  creationCount++;
+  document.getElementById('creation-num').textContent = `Creation #${String(creationCount).padStart(3,'0')}`;
+  document.getElementById('title-input').value = poeticName();
+  rebuildAndDraw();
+}
+
+// ── Render loop ───────────────────────────────────────────────
+let t=0, rawT=0, lt=null, lastMs=16, morphClock=0;
+
+function frame(ts){
+  if(!lt) lt=ts;
+  const dt=Math.min((ts-lt)/1000,0.05); lastMs=ts-lt; lt=ts;
+  t     += dt*speedMult;
+  rawT  += dt;
+  morphClock = (morphClock+dt) % MORPH_CYCLE;
+  const morphT = morphClock/MORPH_CYCLE;
+
+  bAcc+=dt;
+  if(bAcc>=bI()){ bAcc-=bI(); onBeat(); }
+  for(let i=ME.length-1;i>=0;i--){ ME[i].life-=dt; if(ME[i].life<=0) ME.splice(i,1); }
+  if(lastMs<28) collide();
+
+  const {vx,hy}=getGrid(); const BAND=getBand(); const BH=BAND/2;
+  const rushFade=sv<=0.5?1:1-(sv-0.5)/0.5;
+  const morphPts=getMorphedPts(morphT);
+  updateMorphRing(morphT);
+
+  ctx.save();
+  applyMorphClip(morphPts);
+
+  // Background — inverts for stroke mode
+  if(seed.render==='stroke'){
+    const p=getPal(); const avg=(p.BG[0]+p.BG[1]+p.BG[2])/3;
+    ctx.fillStyle = avg>128 ? '#0e0e0e' : '#f0ece0';
+  } else {
+    ctx.fillStyle = `rgb(${getPal().BG.join(',')})`;
+  }
+  ctx.fillRect(0,0,W,H);
+
+  // Beige micro-grid (fill mode only)
+  if(seed.render==='fill' && rushFade>0.01){
+    const [br,bg2,bb]=getPal().bg2;
+    for(const sq of BSQ){
+      const st=rawT*sq.sp, ox=Math.sin(st+sq.px)*sq.dr, oy=Math.cos(st*.79+sq.py)*sq.dr;
+      const a=Math.min(0.2,(sq.ba+sq.ad*((Math.sin(rawT*sq.as+sq.ap)+1)/2))*rushFade);
+      ctx.fillStyle=`rgba(${br},${bg2},${bb},${a.toFixed(3)})`;
+      rr(sq.hx+ox-sq.sz/2, sq.hy+oy-sq.sz/2, sq.sz, sq.sz, 2);
+    }
+  }
+
+  // Floaters
+  for(const f of floaters){
+    const ft=t*f.sp, a=1-0.22*((Math.sin(rawT*f.ps+f.pp)+1)/2);
+    drawShape(
+      f.hx+Math.sin(ft+f.px)*f.dr-f.hw,
+      f.hy+Math.cos(ft*.73+f.py)*f.dr-f.hh,
+      f.hw*2, f.hh*2, f.c, a, isStroke(f.idx), 3
+    );
+  }
+
+  // Bands
+  for(let bi=0;bi<hy.length;bi++) drawBand('h',bi,hy[bi]);
+  for(let bi=0;bi<vx.length;bi++) drawBand('v',bi,vx[bi]);
+
+  // Travelling notes
+  for(const n of notes){
+    n.pos += n.sp*speedMult*0.6;
+    const sz=BAND*.62, a=1-0.18*((Math.sin(rawT*n.as+n.ap)+1)/2);
+    if(n.ax==='v'){
+      if(n.pos>H+sz) n.pos=-sz; if(n.pos<-sz) n.pos=H+sz;
+      drawShape(vx[n.bi]-sz/2, n.pos-sz/2, sz, sz, n.c, a, isStroke(n.idx));
+    } else {
+      if(n.pos>W+sz) n.pos=-sz; if(n.pos<-sz) n.pos=W+sz;
+      drawShape(n.pos-sz/2, hy[n.bi]-sz/2, sz, sz, n.c, a, isStroke(n.idx));
+    }
+  }
+
+  // Intersections
+  for(let vi=0;vi<vx.length;vi++) for(let hi=0;hi<hy.length;hi++){
+    const cx=vx[vi], cy=hy[hi], hash=(cx*7+cy*13)%12;
+    const ck=hash<1?'A':hash<3?'B':'Y';
+    const a=1-0.18*((Math.sin(rawT*0.21+(vi*hy.length+hi)*1.4)+1)/2);
+    drawShape(cx-BH, cy-BH, BAND, BAND, ck, a, isStroke(vi*10+hi));
+  }
+
+  ctx.restore();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ── Fullscreen ────────────────────────────────────────────────
+const EXPAND_PATH = 'M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5';
+const COLLAPSE_PATH = 'M6 1v5H1M15 6h-5V1M10 15v-5h5M1 10h5v5';
+
+function toggleFullscreen() {
+  const el = document.getElementById('wrap');
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) req.call(el);
+  } else {
+    const ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if (ex) ex.call(document);
+  }
+}
+
+function onFullscreenChange() {
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  document.getElementById('fs-icon').querySelector('path').setAttribute('d', isFs ? COLLAPSE_PATH : EXPAND_PATH);
+}
+document.addEventListener('fullscreenchange', onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+// ESC key also handled natively by browser — no extra code needed
+// Additive, cycling arpeggio patterns — organ-like sine tones,
+// slow number sequences, tempo-linked but always meditative.
+
+let audioCtx = null, masterGain = null, musicOn = false;
+let glassTimer = null;
+let stepIdx = 0, patternIdx = 0, cycleCount = 0;
+
+// Glass uses additive rhythm — patterns of 1+2+3, 1+2, etc.
+// We map these to note sequences in D Dorian (D E F G A B C D)
+// — the mode used in Einstein on the Beach
+const D_DORIAN = [
+  293.66, // D4
+  329.63, // E4
+  349.23, // F4
+  392.00, // G4
+  440.00, // A4
+  493.88, // B4
+  523.25, // C5
+  587.33, // D5
+  659.25, // E5
+  698.46, // F5
+  783.99, // G5
+];
+
+// Glass additive patterns — arrays of scale degree indices
+// cycling, overlapping, never resolving
+const PATTERNS = [
+  [0,2,4,2,0,4,2,0],           // "1 2 3" — spacious
+  [0,4,7,4,2,4,7,4],           // slow arpeggiation
+  [0,2,4,7,4,2],               // ascending then down
+  [2,0,4,2,7,4,2,0],           // Glass-style number counting
+  [0,0,4,2,0,4,4,2,0],         // repeated root, additive
+  [7,4,2,0,2,4],               // descending
+  [0,4,2,7,4,0,2],             // cyclic
+];
+
+// Sub-patterns — a second voice, quieter, overlapping offset
+const SUB_PATTERNS = [
+  [7,9,7,4],
+  [4,7,9,7],
+  [2,4,7,9],
+  [9,7,4,2],
+];
+
+let subStepIdx = 0, subPatIdx = 0, subOffset = 0;
+
+// Create a warm organ-like tone: sine + slight detune + slow attack/release
+function playGlassTone(freq, startTime, duration, vol, type='sine') {
+  if (!audioCtx || !musicOn) return;
+
+  const o1 = audioCtx.createOscillator();
+  const o2 = audioCtx.createOscillator(); // slight detune for warmth
+  const o3 = audioCtx.createOscillator(); // soft octave below
+  const g  = audioCtx.createGain();
+
+  o1.type = 'sine'; o1.frequency.value = freq;
+  o2.type = 'sine'; o2.frequency.value = freq * 1.002; // ~3 cents sharp
+  o3.type = 'sine'; o3.frequency.value = freq * 0.5;   // octave below
+
+  // Organ envelope: slow attack, sustain, slow release
+  const atk = Math.min(duration * 0.15, 0.12);
+  const rel = Math.min(duration * 0.25, 0.2);
+  g.gain.setValueAtTime(0, startTime);
+  g.gain.linearRampToValueAtTime(vol,       startTime + atk);
+  g.gain.setValueAtTime(vol,                startTime + duration - rel);
+  g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  const g2 = audioCtx.createGain(); g2.gain.value = 0.4;
+  const g3 = audioCtx.createGain(); g3.gain.value = 0.25;
+
+  o1.connect(g);
+  o2.connect(g2); g2.connect(g);
+  o3.connect(g3); g3.connect(g);
+  g.connect(masterGain);
+
+  o1.start(startTime); o1.stop(startTime + duration + 0.05);
+  o2.start(startTime); o2.stop(startTime + duration + 0.05);
+  o3.start(startTime); o3.stop(startTime + duration + 0.05);
+}
+
+// Drone — a held low D, barely audible, pure Glass
+let droneNodes = null;
+function startDrone() {
+  if (!audioCtx || !musicOn || droneNodes) return;
+  const freq = 146.83; // D3
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0, audioCtx.currentTime);
+  g.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 2.5);
+  o.connect(g); g.connect(masterGain);
+  o.start();
+  droneNodes = {o, g};
+}
+function stopDrone() {
+  if (!droneNodes || !audioCtx) return;
+  droneNodes.g.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
+  droneNodes.o.stop(audioCtx.currentTime + 1.6);
+  droneNodes = null;
+}
+
+// Step interval — Glass rhythms are slow, 0.35–1.2s per step
+// We tie this to the tempo slider: slow = longer steps, fast = shorter
+function stepInterval() {
+  // sv is 0..1 (slow..fast)
+  // Glass-inspired: even at "fast" it stays measured — 0.28s min
+  return 1.1 - sv * 0.72; // 1.1s at sv=0, 0.38s at sv=1
+}
+
+// Advance one step of the Glass arpeggio
+function glassStep() {
+  if (!audioCtx || !musicOn) return;
+
+  const now = audioCtx.currentTime;
+  const interval = stepInterval();
+  const dur = interval * 0.88; // slight gap between notes
+  const pat = PATTERNS[patternIdx % PATTERNS.length];
+  const note = pat[stepIdx % pat.length];
+  const freq = D_DORIAN[note % D_DORIAN.length];
+
+  // Main voice — lyrical, medium volume
+  playGlassTone(freq, now, dur, 0.10);
+
+  // Every 4 steps, add a sub-voice at a different pattern offset
+  if (cycleCount % 3 === 0) {
+    const subPat = SUB_PATTERNS[subPatIdx % SUB_PATTERNS.length];
+    const subNote = subPat[subStepIdx % subPat.length];
+    const subFreq = D_DORIAN[subNote % D_DORIAN.length];
+    playGlassTone(subFreq, now + interval * 0.5, dur * 0.7, 0.055); // offset, quieter
+    subStepIdx++;
+    if (subStepIdx >= subPat.length) {
+      subStepIdx = 0;
+      subPatIdx = (subPatIdx + 1) % SUB_PATTERNS.length;
+    }
+  }
+
+  stepIdx++;
+  cycleCount++;
+
+  // Advance pattern — Glass adds groups then cycles
+  // After completing a pattern, sometimes jump to a related one
+  if (stepIdx >= pat.length) {
+    stepIdx = 0;
+    // Additive logic: occasionally shift pattern, but stay close
+    if (cycleCount % 7 === 0) patternIdx = (patternIdx + 1) % PATTERNS.length;
+  }
+
+  // Schedule next step
+  const nextInterval = stepInterval();
+  glassTimer = setTimeout(glassStep, nextInterval * 1000);
+}
+
+function startMusic() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    // Soft low-pass for warmth — Glass avoids bright highs
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 4200;
+    masterGain.connect(lp);
+    lp.connect(audioCtx.destination);
+    masterGain.gain.value = 0.7;
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  musicOn = true;
+  startDrone();
+  glassStep();
+  document.getElementById('music-btn').textContent = '♩ Music on';
+  document.getElementById('music-btn').style.color = '#888';
+  document.getElementById('music-btn').style.borderColor = '#2e2e2e';
+}
+
+function stopMusic() {
+  musicOn = false;
+  if (glassTimer) { clearTimeout(glassTimer); glassTimer = null; }
+  stopDrone();
+  document.getElementById('music-btn').textContent = '♩ Music';
+  document.getElementById('music-btn').style.color = '';
+  document.getElementById('music-btn').style.borderColor = '';
+}
+
+function toggleMusic() {
+  if (musicOn) stopMusic(); else startMusic();
+}
+</script>
+</body>
+</html>
