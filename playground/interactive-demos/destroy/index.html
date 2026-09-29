@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DESTROY THE NEWS — v1.2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+  body { font-family: 'Share Tech Mono', monospace; color: #fff; touch-action: none; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+
+  #ui {
+    position: fixed; top: 0; left: 0; width: 100%;
+    pointer-events: none; z-index: 10;
+  }
+  #hud {
+    display: flex; justify-content: space-between;
+    padding: 12px 20px; font-size: 13px;
+    letter-spacing: 2px; color: rgba(255,255,255,0.8);
+  }
+  #combo-display {
+    position: fixed; top: 44px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.5);
+    text-align: center; pointer-events: none;
+    transition: color 0.1s;
+  }
+
+  /* Mobile controls */
+  #mobile-controls {
+    display: none;
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    padding: 12px 20px 20px;
+    justify-content: space-between; align-items: center;
+    pointer-events: all; z-index: 20;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  }
+  #mobile-controls button {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff; font-family: 'Share Tech Mono', monospace;
+    font-size: 20px; padding: 18px 32px;
+    border-radius: 4px; cursor: pointer;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.08s;
+  }
+  #mobile-controls button:active { background: rgba(255,255,255,0.15); }
+  #fire-btn {
+    background: rgba(255,60,60,0.12) !important;
+    border-color: rgba(255,60,60,0.35) !important;
+    color: #ff5555 !important; font-size: 14px !important;
+    padding: 18px 24px !important; letter-spacing: 2px;
+  }
+  #fire-btn:active { background: rgba(255,60,60,0.25) !important; }
+
+  @media (max-width: 900px), (pointer: coarse) {
+    #mobile-controls { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <div id="hud">
+    <span id="hi-score">HI: 0</span>
+    <span id="score">0</span>
+    <span id="level-display">LVL 1</span>
+  </div>
+  <div id="combo-display"></div>
+</div>
+
+<div id="mobile-controls">
+  <button id="left-btn">◀</button>
+  <button id="fire-btn">■ FIRE</button>
+  <button id="right-btn">▶</button>
+</div>
+
+<script>
+// =============================================================
+//  DESTROY THE NEWS — Arcade Satire
+//  Single-file HTML/CSS/JS. No dependencies.
+//  GitHub Pages ready: push to repo, enable Pages on main/root.
+// =============================================================
+
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+// ─── AUDIO ENGINE (Web Audio API — zero file dependencies) ────
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// Low-level: schedule a tone with envelope
+function tone(freq, type, startVol, endVol, startTime, duration, dest) {
+  const ac  = getAudio();
+  const osc = ac.createOscillator();
+  const env = ac.createGain();
+  osc.connect(env);
+  env.connect(dest || ac.destination);
+  osc.type      = type;
+  osc.frequency.setValueAtTime(freq, startTime);
+  env.gain.setValueAtTime(startVol, startTime);
+  env.gain.linearRampToValueAtTime(endVol, startTime + duration);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.01);
+}
+
+// Noise burst (for explosions / glitch)
+function noise(startVol, duration, dest) {
+  const ac     = getAudio();
+  const size   = ac.sampleRate * duration;
+  const buf    = ac.createBuffer(1, size, ac.sampleRate);
+  const data   = buf.getChannelData(0);
+  for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
+  const src  = ac.createBufferSource();
+  const env  = ac.createGain();
+  const filt = ac.createBiquadFilter();
+  src.buffer = buf;
+  filt.type  = 'bandpass';
+  filt.frequency.value = 800;
+  filt.Q.value = 0.8;
+  src.connect(filt);
+  filt.connect(env);
+  env.connect(dest || ac.destination);
+  const t = ac.currentTime;
+  env.gain.setValueAtTime(startVol, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t + duration);
+  src.start(t);
+  src.stop(t + duration + 0.01);
+}
+
+// ── Named sound effects ───────────────────────────────────────
+function sfxShoot() {
+  const ac = getAudio(), t = ac.currentTime;
+  tone(880, 'square', 0.18, 0.0, t,        0.07, null);
+  tone(440, 'square', 0.10, 0.0, t + 0.03, 0.05, null);
+}
+
+function sfxShootTriple() {
+  const ac = getAudio(), t = ac.currentTime;
+  // Three stacked tones for a fatter gold blast
+  tone(1320, 'sawtooth', 0.14, 0.0, t,        0.09, null);
+  tone(880,  'sawtooth', 0.14, 0.0, t + 0.01, 0.09, null);
+  tone(660,  'sawtooth', 0.10, 0.0, t + 0.02, 0.08, null);
+}
+
+function sfxHit(comboCount) {
+  const ac   = getAudio(), t = ac.currentTime;
+  // Pitch climbs with combo
+  const base = 200 + comboCount * 80;
+  tone(base,        'square',   0.22, 0.0, t,        0.06, null);
+  tone(base * 1.5,  'triangle', 0.15, 0.0, t + 0.04, 0.06, null);
+  noise(0.08, 0.05, null);
+}
+
+function sfxComboBreak() {
+  const ac = getAudio(), t = ac.currentTime;
+  tone(300, 'sawtooth', 0.2, 0.0, t,        0.12, null);
+  tone(150, 'sawtooth', 0.2, 0.0, t + 0.10, 0.18, null);
+  noise(0.12, 0.15, null);
+}
+
+function sfxWordClear() {
+  // Ascending arp
+  const ac = getAudio(), t = ac.currentTime;
+  [523, 659, 784, 1047].forEach((f, i) => {
+    tone(f, 'triangle', 0.22, 0.0, t + i * 0.07, 0.12, null);
+  });
+}
+
+function sfxLevelClear() {
+  const ac = getAudio(), t = ac.currentTime;
+  [392, 523, 659, 784, 1047, 1319].forEach((f, i) => {
+    tone(f, 'triangle', 0.25, 0.0, t + i * 0.08, 0.18, null);
+  });
+}
+
+function sfxPowerUp() {
+  const ac = getAudio(), t = ac.currentTime;
+  // Shimmery rising sweep
+  const osc = ac.createOscillator();
+  const env = ac.createGain();
+  osc.connect(env); env.connect(ac.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(400, t);
+  osc.frequency.exponentialRampToValueAtTime(1600, t + 0.4);
+  env.gain.setValueAtTime(0.0, t);
+  env.gain.linearRampToValueAtTime(0.28, t + 0.05);
+  env.gain.linearRampToValueAtTime(0.0,  t + 0.45);
+  osc.start(t); osc.stop(t + 0.5);
+  // Extra shimmer layer
+  tone(800,  'sine', 0.12, 0.0, t + 0.1, 0.3, null);
+  tone(1200, 'sine', 0.08, 0.0, t + 0.2, 0.2, null);
+}
+
+function sfxGameOver() {
+  const ac = getAudio(), t = ac.currentTime;
+  // Descending crash
+  const osc = ac.createOscillator();
+  const env = ac.createGain();
+  osc.connect(env); env.connect(ac.destination);
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(400, t);
+  osc.frequency.exponentialRampToValueAtTime(40, t + 1.2);
+  env.gain.setValueAtTime(0.35, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+  osc.start(t); osc.stop(t + 1.4);
+  noise(0.3, 0.6, null);
+}
+
+function sfxLevelStart() {
+  const ac = getAudio(), t = ac.currentTime;
+  [330, 415, 523].forEach((f, i) => {
+    tone(f, 'square', 0.15, 0.0, t + i * 0.1, 0.15, null);
+  });
+}
+
+// ─── VOICE / TTS ENGINE ───────────────────────────────────────
+// Uses browser speechSynthesis — no files, no copyright, 100% original text.
+// Voice is tuned to sound authoritative, pompous, and slightly unhinged.
+
+let voiceCooldown   = 0;   // frames — prevents voice lines stepping on each other
+let voiceReady      = false;
+let chosenVoice     = null;
+
+// Initialise — pick the best available voice on load
+function initVoice() {
+  if (!window.speechSynthesis) return;
+  const load = () => {
+    const voices = speechSynthesis.getVoices();
+    // Prefer a deep US English male voice
+    const preferred = ['Google US English', 'Alex', 'Daniel', 'en-US'];
+    chosenVoice = voices.find(v => preferred.some(p => v.name.includes(p) || v.lang === p))
+               || voices.find(v => v.lang && v.lang.startsWith('en'))
+               || voices[0]
+               || null;
+    voiceReady = !!chosenVoice;
+  };
+  if (speechSynthesis.getVoices().length) load();
+  else speechSynthesis.onvoiceschanged = load;
+}
+
+function speak(text, opts = {}) {
+  if (!voiceReady || !window.speechSynthesis) return;
+  if (voiceCooldown > 0) return;
+  speechSynthesis.cancel();
+  const utt     = new SpeechSynthesisUtterance(text);
+  utt.voice     = chosenVoice;
+  utt.rate      = opts.rate   ?? 0.82;
+  utt.pitch     = opts.pitch  ?? 0.78;
+  utt.volume    = opts.volume ?? 0.9;
+  utt.lang      = 'en-US';
+  speechSynthesis.speak(utt);
+  const estFrames = Math.ceil((text.length / 12) * 60) + 90;
+  voiceCooldown   = Math.max(180, Math.min(estFrames, 480));
+}
+
+// speakFree — queues WITHOUT cancelling or checking cooldown.
+// Used during Media Frenzy to pile voices on top of each other.
+function speakFree(text, opts = {}) {
+  if (!voiceReady || !window.speechSynthesis) return;
+  const utt   = new SpeechSynthesisUtterance(text);
+  // Pick a random available voice for each overlapping line so they
+  // sound like different people talking over each other
+  const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+  utt.voice   = voices[Math.floor(Math.random() * voices.length)] || chosenVoice;
+  utt.rate    = opts.rate   ?? (0.7 + Math.random() * 0.6);
+  utt.pitch   = opts.pitch  ?? (0.5 + Math.random() * 0.8);
+  utt.volume  = opts.volume ?? (0.5 + Math.random() * 0.4);
+  utt.lang    = 'en-US';
+  speechSynthesis.speak(utt);
+}
+
+// ─── MEDIA FRENZY ─────────────────────────────────────────────
+// Randomly triggers every 40-90 seconds. Fires 3-5 overlapping
+// voice lines in quick succession to create chaos and overwhelm.
+let frenzyTimer    = 60 * (40 + Math.floor(Math.random() * 50));
+let frenzyActive   = false;
+let frenzyStep     = 0;
+let frenzyStepTimer = 0;
+let frenzyLines    = [];
+
+// All the lines that pile up during a frenzy — short and punchy
+const FRENZY_POOL = [
+  'It\'s a hoax. The whole thing is a hoax.',
+  'Fake news!',
+  'Witch hunt!',
+  'No collusion!',
+  'Rigged!',
+  'Sad!',
+  'Tremendous.',
+  'Many people are saying.',
+  'Believe me.',
+  'Total hoax.',
+  'Very unfair.',
+  'The media is the enemy.',
+  'Nobody knew it could be so complicated.',
+  'I know words. I have the best words.',
+  'Perfect. It was a perfect call.',
+  'Deep state!',
+  'You are fake news.',
+  'Bigly.',
+  'Wrong!',
+  'Loser!',
+  'Very stable.',
+];
+
+function triggerFrenzy() {
+  frenzyActive    = true;
+  frenzyStep      = 0;
+  frenzyStepTimer = 0;
+  // Pick 4-6 random lines, allow repeats for extra chaos
+  const count  = 4 + Math.floor(Math.random() * 3);
+  frenzyLines  = [];
+  for (let i = 0; i < count; i++) {
+    frenzyLines.push(FRENZY_POOL[Math.floor(Math.random() * FRENZY_POOL.length)]);
+  }
+  // Also glitch the screen visually
+  glitchTimer = 35;
+}
+
+function updateFrenzy() {
+  if (!frenzyActive) return;
+  frenzyStepTimer--;
+  if (frenzyStepTimer <= 0) {
+    if (frenzyStep < frenzyLines.length) {
+      // Stagger lines 8-18 frames apart — fast enough to overlap
+      speakFree(frenzyLines[frenzyStep], {
+        rate:   0.75 + Math.random() * 0.7,
+        pitch:  0.55 + Math.random() * 0.9,
+        volume: 0.55 + Math.random() * 0.4,
+      });
+      frenzyStep++;
+      frenzyStepTimer = 8 + Math.floor(Math.random() * 10);
+    } else {
+      frenzyActive = false;
+      // After frenzy ends, lock normal voice briefly to let the chaos settle
+      voiceCooldown = 180;
+      // Reset next frenzy timer
+      frenzyTimer = 60 * (40 + Math.floor(Math.random() * 50));
+    }
+  }
+}
+
+// ── Voice line pools (randomly sampled per event) ─────────────
+const VOICE = {
+  shoot: [
+    // Short punchy — fires occasionally, not every shot
+  ],
+  hit: [
+    'Wrong!', 'Fake!', 'Gone!', 'Sad!', 'Loser!',
+  ],
+  comboDouble: [
+    'That was tremendous.', 'Many people are saying this.',
+    'Very strong. Very powerful.',
+  ],
+  comboTriple: [
+    'Nobody does this better than me. Nobody.',
+    'That is a record. That might be a world record.',
+  ],
+  comboMax: [
+    'I am, like, a very stable genius.',
+    'I have the best combos. The best.',
+    'Believe me, that was perfect. Absolutely perfect.',
+  ],
+  comboBreak: [
+    'This is a witch hunt.',
+    'A total disgrace. Frankly, embarrassing.',
+    'That was rigged. Completely rigged.',
+    'Nobody has ever seen anything so unfair.',
+  ],
+  wordClear: [
+    'Fake news. Destroyed.',
+    'We are winning so much.',
+    'The fake news media is gone. Finished.',
+    'That headline was a disaster. A total disaster.',
+  ],
+  levelClear: [
+    'We won. We won bigly. Nobody expected that.',
+    'That was perhaps the greatest victory in the history of victories.',
+    'I said we would win and we won. Very simple.',
+  ],
+  levelStart: [
+    'Here we go. Watch this.',
+    'These headlines are very bad. Very unfair.',
+    'A lot of fake news coming. A lot.',
+  ],
+  powerUp: [
+    'Look at this beautiful thing. Just look at it.',
+    'That is mine. That has always been mine.',
+    'Tremendous. Just tremendous hair.',
+  ],
+  gameOver: [
+    'I don\'t lose. This was stolen.',
+    'The deep state did this. Very unfair.',
+    'I will be back. Greater than ever before.',
+    'They rigged it. They always rig it.',
+  ],
+  breakingAppears: [
+    'Breaking news. And it\'s very bad for them.',
+    'Here comes the fake news. Watch.',
+    'They\'re at it again. The media. Disgusting.',
+  ],
+  breakingDestroyed: [
+    'Shot down. Just like that. Beautiful.',
+    'The fake news. Destroyed. Again.',
+  ],
+  breakingLands: [
+    'You let it land. Not good. Not good at all.',
+    'That is going to be a problem. A big problem.',
+    'Now look what you\'ve done. More fake news.',
+  ],
+  grows: [
+    'It\'s getting bigger. Much bigger than expected.',
+    'Huge. That is now huge.',
+    'Very large. Perhaps the largest ever.',
+  ],
+};
+
+function pickLine(pool) {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// Public voice trigger functions — called from game events
+function voiceHit(currentCombo) {
+  // Only speak every ~8 hits to avoid spam, bias toward combo milestones
+  if (currentCombo === 2)       { speak(pickLine(VOICE.comboDouble), { rate: 0.85 }); return; }
+  if (currentCombo === 3)       { speak(pickLine(VOICE.comboTriple), { rate: 0.80 }); return; }
+  if (currentCombo >= 5 && currentCombo % 5 === 0) { speak(pickLine(VOICE.comboMax), { rate: 0.75, pitch: 0.7 }); return; }
+  // Random hit bark — 1 in 6 chance on normal hits
+  if (Math.random() < 0.17)     { speak(pickLine(VOICE.hit), { rate: 1.0, pitch: 0.8 }); }
+}
+
+function voiceComboBreak()       { speak(pickLine(VOICE.comboBreak),       { rate: 0.78, pitch: 0.72 }); }
+function voiceWordClear()        { speak(pickLine(VOICE.wordClear),        { rate: 0.82 }); }
+function voiceLevelClear()       { speak(pickLine(VOICE.levelClear),       { rate: 0.75, pitch: 0.70 }); }
+function voiceLevelStart()       { speak(pickLine(VOICE.levelStart),       { rate: 0.85, pitch: 0.80 }); }
+function voicePowerUp()          { speak(pickLine(VOICE.powerUp),          { rate: 0.80, pitch: 0.75 }); }
+function voiceGameOver()         { speak(pickLine(VOICE.gameOver),         { rate: 0.72, pitch: 0.65, volume: 1.0 }); }
+function voiceBreakingAppears()  { speak(pickLine(VOICE.breakingAppears),  { rate: 0.85, pitch: 0.78 }); }
+function voiceBreakingDestroyed(){ speak(pickLine(VOICE.breakingDestroyed),{ rate: 0.90, pitch: 0.82 }); }
+function voiceBreakingLands()    { speak(pickLine(VOICE.breakingLands),    { rate: 0.78, pitch: 0.70 }); }
+function voiceGrows()            { speak(pickLine(VOICE.grows),            { rate: 0.80, pitch: 0.74 }); }
+
+// Resume AudioContext on first interaction (browser autoplay policy)
+function resumeAudio() {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+// ─── PIXEL FONT (5×7 grid) ────────────────────────────────────
+const GLYPHS = {
+  'A':[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+  'B':[[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0]],
+  'C':[[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[0,1,1,1,1]],
+  'D':[[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0]],
+  'E':[[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
+  'F':[[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]],
+  'G':[[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,0,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,1]],
+  'H':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+  'I':[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1]],
+  'J':[[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
+  'K':[[1,0,0,0,1],[1,0,0,1,0],[1,0,1,0,0],[1,1,0,0,0],[1,0,1,0,0],[1,0,0,1,0],[1,0,0,0,1]],
+  'L':[[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
+  'M':[[1,0,0,0,1],[1,1,0,1,1],[1,0,1,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+  'N':[[1,0,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+  'O':[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
+  'P':[[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]],
+  'Q':[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,1,0],[0,1,1,0,1]],
+  'R':[[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,1,0,0],[1,0,0,1,0],[1,0,0,0,1]],
+  'S':[[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[0,0,0,0,1],[1,1,1,1,0]],
+  'T':[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
+  'U':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
+  'V':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
+  'W':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[1,1,0,1,1],[1,0,0,0,1]],
+  'X':[[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,0,1,0],[1,0,0,0,1]],
+  'Y':[[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
+  'Z':[[1,1,1,1,1],[0,0,0,0,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
+  '!':[[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,1,0,0]],
+  '?':[[0,1,1,1,0],[1,0,0,0,1],[0,0,0,0,1],[0,0,0,1,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,1,0,0]],
+  ' ':[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]],
+};
+
+// ─── HEADLINE WAVES ──────────────────────────────────────────
+// 5 waves, 3 parody headlines each. Cycle repeats with increasing difficulty.
+const HEADLINES = [
+  ['FAKE NEWS',     'BIGLY WIN',     'VERY STABLE'],
+  ['WITCH HUNT',    'NO COLLUSION',  'PERFECT CALL'],
+  ['DEEP STATE',    'RIGGED VOTE',   'TOTAL HOAX'],
+  ['FAKE MEDIA',    'TRUST ME',      'BEST EVER'],
+  ['DISHONEST PRESS','HUGE DEAL',    'TREMENDOUS'],
+];
+
+// ─── MISSILE COLORS (cycle per shot) ─────────────────────────
+const MISS_COLORS = ['#ff4444','#44aaff','#ffcc00','#44ff88','#ff44ff'];
+
+// ─── GAME STATE ───────────────────────────────────────────────
+let W, H, dpr;
+let state       = 'start';   // 'start' | 'playing' | 'gameover'
+let score       = 0;
+let hiScore     = 0;
+let level       = 1;
+let combo       = 0;
+let frameCount  = 0;
+let scanlineY   = 0;
+
+let player, missiles = [], particles = [], headlines = [];
+let graceTimer     = 90;
+let glitchTimer    = 0;
+let shootCooldown  = 0;
+let missileColorIdx = 0;
+let gameOverTimer  = 0;
+let bgDriftLetters = [];
+
+// ─── POWERUP STATE ────────────────────────────────────────────
+let hairPiece     = null;
+let tripleTimer   = 0;
+let hairSpawnTimer = 300;
+const TRIPLE_DURATION = 600;
+
+// ─── LAWSUIT DROPS ────────────────────────────────────────────
+let lawsuits        = [];
+let lawsuitSpawnTimer = 60 * 8;   // first gavel after just 8 seconds
+const MAX_LAWSUITS  = 3;
+
+// ─── BREAKING TICKER STATE ────────────────────────────────────
+// Only active on level 1. Spawns after 30+ seconds of gameplay.
+let breakingTicker   = null;   // the scrolling banner object
+let breakingTimer    = 0;      // countdown to next spawn (frames)
+let levelFrames      = 0;      // frames elapsed since level started
+const BREAKING_HEADLINES = [
+  'SOURCES CONFIRM TREMENDOUS THING HAPPENED',
+  'EXPERTS BAFFLED BY COMPLETELY NORMAL EVENT',
+  'UNNAMED INSIDER REVEALS SHOCKING NON-SECRET',
+  'MARKETS REACT TO WORDS SPOKEN BY PERSON',
+  'LATE BREAKING NOTHING TO SEE HERE FOLKS',
+];
+
+// Input state
+let keys = {};
+let mobileLeft  = false;
+let mobileRight = false;
+let mobileFire  = false;
+let touchStartX = 0;
+
+// ─── CANVAS RESIZE ───────────────────────────────────────────
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W   = window.innerWidth;
+  H   = window.innerHeight;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+// ─── PIXEL FONT HELPERS ───────────────────────────────────────
+function glyphWidth(ch, ps) {
+  return GLYPHS[ch.toUpperCase()] ? 5 * ps + ps : 0;
+}
+
+function measureWord(word, ps) {
+  let w = 0;
+  for (const ch of word.toUpperCase()) {
+    w += ch === ' ' ? ps * 3 : glyphWidth(ch, ps);
+  }
+  return w - ps; // trim trailing gap
+}
+
+function drawLetter(ch, x, y, ps, color, alpha) {
+  const g = GLYPHS[ch.toUpperCase()];
+  if (!g) return;
+  ctx.globalAlpha = alpha !== undefined ? alpha : 1;
+  ctx.fillStyle   = color;
+  for (let row = 0; row < 7; row++) {
+    for (let col = 0; col < 5; col++) {
+      if (g[row][col]) ctx.fillRect(x + col * ps, y + row * ps, ps - 1, ps - 1);
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawWord(word, x, y, ps, color, alpha) {
+  let cx = x;
+  for (const ch of word.toUpperCase()) {
+    if (ch === ' ') { cx += ps * 3; continue; }
+    drawLetter(ch, cx, y, ps, color, alpha);
+    cx += glyphWidth(ch, ps);
+  }
+}
+
+// ─── HEADLINE CLASS ───────────────────────────────────────────
+class Headline {
+  constructor(text, yPos, lvl) {
+    this.text     = text.toUpperCase();
+    this.ps       = Math.max(3, Math.min(7, 3 + Math.floor(lvl * 0.5)));
+    this.psBase   = this.ps;           // remember starting size
+    this.psMax    = this.ps * 3;       // cap at 3× — beyond that it fills the screen
+    this.speed    = 1 + lvl * 0.28;
+    this.dir      = 1;
+    this.stepSize = 7 + lvl * 2;
+    this.bounces  = 0;                 // full left↔right cycles
+    this.lastDir  = 1;                 // track direction changes to count full cycles
+    this.letters  = [];
+    this._buildLetters(yPos);
+  }
+
+  _buildLetters(yPos) {
+    const ps = this.ps;
+    const chars = this.text.split('');
+    // Clamp pixel size so formation fits screen width
+    let totalW = measureWord(this.text, ps) + ps;
+    while (totalW > W - 20 && this.ps > 2) {
+      this.ps--;
+      totalW = measureWord(this.text, this.ps) + this.ps;
+    }
+    const startX = Math.max(10, (W - measureWord(this.text, this.ps)) / 2);
+    let cx = startX;
+    for (const ch of chars) {
+      if (ch === ' ') { cx += this.ps * 3; continue; }
+      this.letters.push({ ch, x: cx, y: yPos, alive: true });
+      cx += glyphWidth(ch, this.ps);
+    }
+  }
+
+  // Reflow all living letters at a new pixel size, keeping current y positions
+  _reflow() {
+    const ps    = this.ps;
+    // Find the average y of alive letters (preserve their vertical drift)
+    const alive = this.letters.filter(l => l.alive);
+    if (!alive.length) return;
+
+    // Clamp ps so the reflowed formation fits the screen
+    let tw = 0;
+    for (const l of alive) tw += glyphWidth(l.ch, ps);
+    tw += ps; // gap
+    // If too wide at new ps, trim back
+    let usedPs = ps;
+    while (tw > W - 16 && usedPs > 2) {
+      usedPs--;
+      tw = 0;
+      for (const l of alive) tw += glyphWidth(l.ch, usedPs);
+      tw += usedPs;
+    }
+    this.ps = usedPs;
+
+    // Re-center horizontally, keep each letter's individual y
+    const newTotalW = (() => {
+      let w = 0;
+      for (const l of alive) w += glyphWidth(l.ch, this.ps);
+      return w - this.ps;
+    })();
+    let cx = Math.max(8, (W - newTotalW) / 2);
+    for (const l of alive) {
+      l.x = cx;
+      l.growFlash = 18; // ~0.3s yellow flash
+      cx += glyphWidth(l.ch, this.ps);
+    }
+  }
+
+  get aliveCount() { return this.letters.filter(l => l.alive).length; }
+
+  update() {
+    const ps = this.ps;
+    for (const l of this.letters) { if (l.alive) l.x += this.speed * this.dir; }
+
+    // Bounce check
+    let minX = Infinity, maxX = -Infinity;
+    for (const l of this.letters) {
+      if (!l.alive) continue;
+      minX = Math.min(minX, l.x);
+      maxX = Math.max(maxX, l.x + 5 * ps);
+    }
+    if (maxX > W - 6 || minX < 6) {
+      this.dir *= -1;
+      this.speed = Math.min(this.speed * 1.06, 9);
+      for (const l of this.letters) { if (l.alive) l.y += this.stepSize; }
+
+      // Count a full cycle: two direction changes = one left↔right traverse
+      this.bounces++;
+      // Every 2 bounces = one full cycle across and back → grow 50%
+      if (this.bounces % 2 === 0) {
+        const newPs = Math.min(Math.round(this.ps * 1.5), this.psMax);
+        if (newPs > this.ps) {
+          this.ps = newPs;
+          this._reflow();
+          voiceGrows();
+        }
+      }
+    }
+  }
+
+  draw() {
+    for (const l of this.letters) {
+      if (!l.alive) continue;
+      // Briefly tint yellow-white on grow (stored in l.growFlash countdown)
+      const col = (l.growFlash && l.growFlash > 0) ? '#ffee88' : '#ffffff';
+      if (l.growFlash > 0) l.growFlash--;
+      drawLetter(l.ch, l.x, l.y, this.ps, col);
+    }
+  }
+
+  get lowestY() {
+    let m = 0;
+    for (const l of this.letters) if (l.alive) m = Math.max(m, l.y + 7 * this.ps);
+    return m;
+  }
+
+  hitBoxes() {
+    const ps = this.ps;
+    return this.letters
+      .filter(l => l.alive)
+      .map(l => ({ letter: l, x: l.x, y: l.y, w: 5 * ps, h: 7 * ps }));
+  }
+}
+
+// ─── PLAYER ───────────────────────────────────────────────────
+function initPlayer() {
+  player = {
+    x: W / 2, y: H - 70,
+    w: 20, h: 26,
+    speed: 5.5,
+    recoil: 0,
+    alive: true,
+    iframes: 0,
+  };
+}
+
+function drawPlayer() {
+  if (!player.alive) return;
+  if (player.iframes > 0 && Math.floor(frameCount / 4) % 2 === 0) return;
+
+  ctx.save();
+  ctx.translate(player.x, player.y + player.recoil);
+
+  // Ship body
+  ctx.strokeStyle = '#ffffff';
+  ctx.fillStyle   = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0,  -player.h / 2);
+  ctx.lineTo(-player.w / 2,  player.h / 2);
+  ctx.lineTo( player.w / 2,  player.h / 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Engine glow when moving
+  const moving = keys['ArrowLeft'] || keys['ArrowRight'] || mobileLeft || mobileRight;
+  if (moving) {
+    const flicker = 0.35 + Math.random() * 0.45;
+    ctx.strokeStyle = `rgba(255,175,50,${flicker})`;
+    ctx.lineWidth   = 1;
+    for (let side of [-5, 5]) {
+      ctx.beginPath();
+      ctx.moveTo(side, player.h / 2);
+      ctx.lineTo(side + (Math.random() - 0.5) * 5, player.h / 2 + 5 + Math.random() * 8);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+// ─── MISSILES ─────────────────────────────────────────────────
+function fireMissile() {
+  if (shootCooldown > 0 || !player || !player.alive) return;
+  const col = MISS_COLORS[missileColorIdx % MISS_COLORS.length];
+  missileColorIdx++;
+  const baseY = player.y - player.h / 2 - 4;
+
+  if (tripleTimer > 0) {
+    // Triple laser: center + two angled side beams in gold
+    missiles.push({ x: player.x,      y: baseY, color: '#ffdd00', alive: true, vx: 0 });
+    missiles.push({ x: player.x - 10, y: baseY, color: '#ffaa00', alive: true, vx: -1.4 });
+    missiles.push({ x: player.x + 10, y: baseY, color: '#ffaa00', alive: true, vx:  1.4 });
+    sfxShootTriple();
+  } else {
+    missiles.push({ x: player.x, y: baseY, color: col, alive: true, vx: 0 });
+    sfxShoot();
+  }
+
+  player.recoil = 6;
+  shootCooldown = tripleTimer > 0 ? 10 : 13;
+}
+
+function updateMissiles() {
+  for (const m of missiles) {
+    if (!m.alive) continue;
+    m.y -= 13;
+    if (m.vx) m.x += m.vx;
+
+    // Missile trail
+    if (Math.random() < 0.55) {
+      particles.push({
+        x: m.x + (Math.random() - 0.5) * 2,
+        y: m.y + 6,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: 0.8 + Math.random() * 0.8,
+        life: 10, maxLife: 10,
+        color: m.color,
+        size: 1.5 + Math.random(),
+        gravity: 0,
+      });
+    }
+
+    // Miss — exits top of screen
+    if (m.y < -12) {
+      m.alive = false;
+      if (combo > 0) { combo = 0; glitchTimer = 22; updateComboUI(); sfxComboBreak(); voiceComboBreak(); }
+    }
+  }
+  missiles = missiles.filter(m => m.alive);
+}
+
+// ─── COLLISION ────────────────────────────────────────────────
+function checkCollisions() {
+  for (const m of missiles) {
+    if (!m.alive) continue;
+    for (const hl of headlines) {
+      let hit = false;
+      for (const hb of hl.hitBoxes()) {
+        if (m.x > hb.x && m.x < hb.x + hb.w && m.y > hb.y && m.y < hb.y + hb.h) {
+          m.alive = false;
+          hit = true;
+
+          // Kill combo-count letters starting from hit letter
+          const killCount = Math.min(5, 1 + Math.floor(combo / 2));
+          const idx = hl.letters.indexOf(hb.letter);
+          let killed = 0;
+
+          // Kill in expanding radius around hit letter
+          for (let d = 0; killed < killCount; d++) {
+            const candidates = d === 0
+              ? [hl.letters[idx]]
+              : [hl.letters[idx - d], hl.letters[idx + d]];
+            for (const nb of candidates) {
+              if (nb && nb.alive && killed < killCount) {
+                nb.alive = false;
+                spawnLetterBurst(nb, hl.ps, m.color);
+                score += 10 * (1 + combo);
+                killed++;
+              }
+            }
+            if (d > hl.letters.length) break;
+          }
+
+          combo++;
+          sfxHit(combo);
+          voiceHit(combo);
+          updateComboUI();
+          document.getElementById('score').textContent = score;
+
+          // Headline cleared bonus
+          if (hl.aliveCount === 0) {
+            score += 500 * level;
+            document.getElementById('score').textContent = score;
+            spawnClearBurst(hl);
+            sfxWordClear();
+            voiceWordClear();
+          }
+          break;
+        }
+      }
+      if (hit) break;
+    }
+  }
+}
+
+// ─── PARTICLES ────────────────────────────────────────────────
+function spawnLetterBurst(letter, ps, color) {
+  const mult  = 1 + Math.floor(combo / 2);
+  const count = 8 + mult * 5;
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1.2 + Math.random() * 3.5 * mult;
+    particles.push({
+      x: letter.x + Math.random() * 5 * ps,
+      y: letter.y + Math.random() * 7 * ps,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.8,
+      life: 22 + Math.random() * 30,
+      maxLife: 52,
+      color: color,
+      size: ps * 0.7 + Math.random() * ps,
+      gravity: 0.13,
+    });
+  }
+}
+
+function spawnClearBurst(hl) {
+  const cx   = W / 2;
+  const cy   = hl.letters.find(l => true)?.y || H / 2;
+  const cols = ['#ff4444','#44aaff','#ffcc00','#44ff88','#ff44ff','#ffffff'];
+  for (let i = 0; i < 70; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 7;
+    particles.push({
+      x: cx + (Math.random() - 0.5) * 80,
+      y: cy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      life: 40 + Math.random() * 50,
+      maxLife: 90,
+      color: cols[Math.floor(Math.random() * cols.length)],
+      size: 3 + Math.random() * 4,
+      gravity: 0.07,
+    });
+  }
+}
+
+function spawnPlayerBurst() {
+  const cols = ['#ff4444','#ffcc00','#44aaff','#ff44ff','#44ff88'];
+  for (let i = 0; i < 130; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 9;
+    particles.push({
+      x: player.x, y: player.y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 50 + Math.random() * 70,
+      maxLife: 120,
+      color: cols[Math.floor(Math.random() * cols.length)],
+      size: 2 + Math.random() * 6,
+      gravity: 0.05,
+    });
+  }
+}
+
+// ─── HAIRPIECE POWERUP ────────────────────────────────────────
+function spawnHairPiece() {
+  hairPiece = {
+    x:    60 + Math.random() * (W - 120),
+    y:    -40,
+    vy:   0.9 + Math.random() * 0.5,
+    wobble: Math.random() * Math.PI * 2,
+    alive: true,
+  };
+}
+
+function drawHairPiece(hp) {
+  const t    = frameCount * 0.04 + hp.wobble;
+  const bobX = Math.sin(t * 0.7) * 6;
+  const bobY = Math.sin(t) * 3;
+  const cx   = hp.x + bobX;
+  const cy   = hp.y + bobY;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // Subtle golden glow halo
+  const grd = ctx.createRadialGradient(0, 0, 4, 0, 0, 28);
+  grd.addColorStop(0,   'rgba(255,220,0,0.18)');
+  grd.addColorStop(1,   'rgba(255,220,0,0)');
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(0, 0, 28, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Hair drawn with canvas paths ──
+  // Base scalp bump (pale pinkish-beige oval)
+  ctx.fillStyle = '#f5d9b0';
+  ctx.beginPath();
+  ctx.ellipse(0, 4, 11, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main golden pouf — big swooping top
+  ctx.fillStyle = '#f5c400';
+  ctx.beginPath();
+  ctx.moveTo(-14, 6);
+  ctx.bezierCurveTo(-18, -14, -10, -28, 0, -26);
+  ctx.bezierCurveTo(10, -28, 18, -14, 14, 6);
+  ctx.bezierCurveTo(8, 2, -8, 2, -14, 6);
+  ctx.fill();
+
+  // Highlight strand — lighter swoop
+  ctx.fillStyle = '#ffe033';
+  ctx.beginPath();
+  ctx.moveTo(-6, -4);
+  ctx.bezierCurveTo(-8, -18, -2, -26, 4, -24);
+  ctx.bezierCurveTo(8, -22, 6, -14, 2, -6);
+  ctx.bezierCurveTo(0, -4, -4, -2, -6, -4);
+  ctx.fill();
+
+  // Side wisps left
+  ctx.strokeStyle = '#e6b800';
+  ctx.lineWidth   = 2;
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-12, 2);
+  ctx.quadraticCurveTo(-22, -6, -18, -16);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-10, 4);
+  ctx.quadraticCurveTo(-20, 0, -17, -10);
+  ctx.stroke();
+
+  // Side wisps right
+  ctx.beginPath();
+  ctx.moveTo(12, 2);
+  ctx.quadraticCurveTo(22, -6, 18, -16);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(10, 4);
+  ctx.quadraticCurveTo(20, 0, 17, -10);
+  ctx.stroke();
+
+  // Tiny sparkle stars that twinkle
+  const sparkles = [[-16, -20], [16, -18], [0, -30], [-8, -28], [10, -26]];
+  for (let i = 0; i < sparkles.length; i++) {
+    const [sx, sy] = sparkles[i];
+    const pulse = Math.abs(Math.sin(frameCount * 0.08 + i * 1.3));
+    ctx.globalAlpha = 0.4 + pulse * 0.6;
+    ctx.fillStyle   = '#fff5aa';
+    ctx.beginPath();
+    ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.restore();
+}
+
+function updateHairPiece() {
+  if (!hairPiece || !hairPiece.alive) return;
+  hairPiece.y += hairPiece.vy;
+
+  // Collect — player touches it
+  const dx = Math.abs(player.x - hairPiece.x);
+  const dy = Math.abs(player.y - hairPiece.y);
+  if (dx < 26 && dy < 26) {
+    hairPiece.alive = false;
+    tripleTimer     = TRIPLE_DURATION;
+    sfxPowerUp();
+    voicePowerUp();
+    // Golden burst on collect
+    for (let i = 0; i < 40; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 4;
+      particles.push({
+        x: hairPiece.x, y: hairPiece.y,
+        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 1,
+        life: 30 + Math.random() * 30, maxLife: 60,
+        color: Math.random() < 0.5 ? '#ffdd00' : '#fff5aa',
+        size: 2 + Math.random() * 3, gravity: 0.06,
+      });
+    }
+  }
+
+  // Off screen — despawn
+  if (hairPiece.y > H + 60) hairPiece.alive = false;
+}
+
+function drawTripleHUD() {
+  if (tripleTimer <= 0) return;
+  const secs    = Math.ceil(tripleTimer / 60);
+  const barW    = 120;
+  const barFill = (tripleTimer / TRIPLE_DURATION) * barW;
+  const bx      = W / 2 - barW / 2;
+  const by      = H - 36;
+
+  // Bar background
+  ctx.fillStyle = 'rgba(255,200,0,0.15)';
+  ctx.fillRect(bx, by, barW, 6);
+
+  // Bar fill — pulses when low
+  const pulse = secs <= 3 ? 0.7 + 0.3 * Math.sin(frameCount * 0.3) : 1;
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle   = '#ffdd00';
+  ctx.fillRect(bx, by, barFill, 6);
+  ctx.globalAlpha = 1;
+
+  // Label
+  ctx.font      = '10px Share Tech Mono';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = `rgba(255,220,0,${0.6 + 0.4 * pulse})`;
+  ctx.fillText(`\uD83D\uDCA5 TRIPLE FIRE  ${secs}s`, W / 2, by - 6);
+  ctx.textAlign = 'left';
+}
+
+function updateParticles() {
+  for (const p of particles) {
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy += p.gravity || 0.05;
+    p.vx *= 0.985;
+    p.life--;
+  }
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    const alpha = Math.min(1, p.life / (p.maxLife || 30));
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle   = p.color;
+    ctx.fillRect(p.x, p.y, p.size, p.size);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ─── COMBO UI ─────────────────────────────────────────────────
+function updateComboUI() {
+  const el     = document.getElementById('combo-display');
+  const labels = ['','','× 2  DOUBLE','× 3  TRIPLE','× 4  QUAD','× 5  MAX'];
+  if (combo >= 2) {
+    el.textContent = labels[Math.min(combo, 5)] || `× ${combo}  STREAK`;
+    el.style.color = combo >= 5 ? '#ffcc00'
+                   : combo >= 3 ? '#ff8844'
+                   : 'rgba(255,255,255,0.7)';
+  } else if (combo === 0 && glitchTimer > 0) {
+    el.textContent = '// COMBO BROKEN //';
+    el.style.color = 'rgba(255,60,60,0.8)';
+  } else {
+    el.textContent = '';
+  }
+}
+
+// ─── BG DRIFT LETTERS (start screen) ──────────────────────────
+function initBgLetters() {
+  const words = ['FAKE','NEWS','TRUST ME','BIGLY','WITCH HUNT','DEEP STATE','RIGGED','HOAX','TREMENDOUS'];
+  bgDriftLetters = [];
+  for (let i = 0; i < 14; i++) {
+    bgDriftLetters.push({
+      text:  words[i % words.length],
+      x:     Math.random() * W,
+      y:     Math.random() * H,
+      speed: 0.18 + Math.random() * 0.38,
+      alpha: 0.025 + Math.random() * 0.065,
+      ps:    2 + Math.floor(Math.random() * 3),
+    });
+  }
+}
+
+function drawBgLetters() {
+  for (const b of bgDriftLetters) {
+    drawWord(b.text, b.x, b.y, b.ps, '#ffffff', b.alpha);
+    b.y += b.speed;
+    if (b.y > H + 30) { b.y = -20; b.x = Math.random() * W; }
+  }
+}
+
+// ─── LAWSUIT DROPS ────────────────────────────────────────────
+function spawnLawsuit() {
+  lawsuits.push({
+    x:      60 + Math.random() * (W - 120),
+    y:      -50,
+    vy:     0.5 + Math.random() * 0.4,   // slower than hair — more ominous
+    wobble: Math.random() * Math.PI * 2,
+    rot:    (Math.random() - 0.5) * 0.3, // slight random tilt
+    alive:  true,
+  });
+}
+
+function drawGavel(ls) {
+  const t    = frameCount * 0.03 + ls.wobble;
+  const bobX = Math.sin(t * 0.6) * 5;
+  const bobY = Math.sin(t * 0.9) * 3;
+  const cx   = ls.x + bobX;
+  const cy   = ls.y + bobY;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(ls.rot + Math.sin(t * 0.4) * 0.08);
+
+  // Amber/gold glow halo — similar palette to hair
+  const grd = ctx.createRadialGradient(0, 0, 4, 0, 0, 30);
+  grd.addColorStop(0,   'rgba(255,180,0,0.20)');
+  grd.addColorStop(1,   'rgba(255,140,0,0)');
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(0, 0, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Gavel head ──
+  ctx.fillStyle   = '#c8860a';
+  ctx.strokeStyle = '#7a4f00';
+  ctx.lineWidth   = 1.2;
+  // Main rectangular head
+  ctx.beginPath();
+  ctx.roundRect(-14, -8, 28, 14, 3);
+  ctx.fill(); ctx.stroke();
+  // Top face highlight
+  ctx.fillStyle = '#e8a020';
+  ctx.beginPath();
+  ctx.roundRect(-13, -7, 26, 5, 2);
+  ctx.fill();
+  // Strike band (dark ring around middle)
+  ctx.strokeStyle = '#5a3500';
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(-14, -1); ctx.lineTo(14, -1);
+  ctx.stroke();
+
+  // ── Handle ──
+  ctx.fillStyle   = '#d4a24a';
+  ctx.strokeStyle = '#7a5010';
+  ctx.lineWidth   = 1;
+  // Tapered handle extending lower-right
+  ctx.beginPath();
+  ctx.moveTo(8, 6);
+  ctx.lineTo(26, 26);
+  ctx.lineTo(22, 30);
+  ctx.lineTo(4, 10);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  // Handle highlight stripe
+  ctx.strokeStyle = '#f0c060';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(10, 7);
+  ctx.lineTo(24, 24);
+  ctx.stroke();
+
+  // ── "LAWSUIT" micro label on the head ──
+  ctx.fillStyle  = 'rgba(80,30,0,0.85)';
+  ctx.font       = 'bold 5px monospace';
+  ctx.textAlign  = 'center';
+  ctx.fillText('LAWSUIT', 0, 1);
+  ctx.textAlign  = 'left';
+
+  // ── Warning sparkles (red, not gold) ──
+  const sparks = [[-18, -14], [16, -12], [-10, 14], [20, 10]];
+  for (let i = 0; i < sparks.length; i++) {
+    const [sx, sy] = sparks[i];
+    const pulse = Math.abs(Math.sin(frameCount * 0.1 + i * 1.7));
+    ctx.globalAlpha = 0.3 + pulse * 0.6;
+    ctx.fillStyle   = pulse > 0.6 ? '#ffcc00' : '#ff6600';
+    ctx.beginPath();
+    ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.restore();
+}
+
+function updateLawsuits() {
+  for (const ls of lawsuits) {
+    if (!ls.alive) continue;
+    ls.y += ls.vy;
+
+    // Hit player — game over
+    if (player.alive && player.iframes <= 0) {
+      const dx = Math.abs(player.x - ls.x);
+      const dy = Math.abs(player.y - ls.y);
+      if (dx < 24 && dy < 24) {
+        ls.alive = false;
+        // Amber burst
+        for (let i = 0; i < 50; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd   = 2 + Math.random() * 5;
+          particles.push({
+            x: ls.x, y: ls.y,
+            vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
+            life: 35 + Math.random() * 35, maxLife: 70,
+            color: Math.random() < 0.5 ? '#ffaa00' : '#ff6600',
+            size: 2 + Math.random() * 4, gravity: 0.07,
+          });
+        }
+        voiceCooldown = 0;
+        speak('You have been served.', { rate: 0.70, pitch: 0.60, volume: 1.0 });
+        triggerGameOver();
+        return;
+      }
+    }
+
+    // Missile can shoot a lawsuit down
+    for (const m of missiles) {
+      if (!m.alive) continue;
+      const dx = Math.abs(m.x - ls.x);
+      const dy = Math.abs(m.y - ls.y);
+      if (dx < 20 && dy < 24) {
+        m.alive  = false;
+        ls.alive = false;
+        score   += 150;
+        combo++;
+        sfxHit(combo);
+        voiceHit(combo);
+        updateComboUI();
+        document.getElementById('score').textContent = score;
+        voiceCooldown = 0;
+        speak('Case dismissed!', { rate: 0.88, pitch: 0.82 });
+        // Scatter burst
+        for (let i = 0; i < 35; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd   = 1.5 + Math.random() * 4;
+          particles.push({
+            x: ls.x, y: ls.y,
+            vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd - 1,
+            life: 25 + Math.random() * 25, maxLife: 50,
+            color: Math.random() < 0.5 ? '#ffcc00' : '#ffffff',
+            size: 2 + Math.random() * 3, gravity: 0.09,
+          });
+        }
+        break;
+      }
+    }
+
+    if (ls.y > H + 70) ls.alive = false;
+  }
+  lawsuits = lawsuits.filter(ls => ls.alive);
+}
+function spawnBreakingTicker() {
+  const text = BREAKING_HEADLINES[Math.floor(Math.random() * BREAKING_HEADLINES.length)];
+  const ps   = 5; // fixed readable pixel size for the banner
+  const totalW = measureWord('BREAKING  ' + text, ps);
+  // Travel full screen width + label width in 5 seconds (300 frames)
+  const travelDist = W + totalW + 60;
+  const speed      = travelDist / 300; // px per frame
+
+  // Build individual letter hit segments for the "BREAKING" label only
+  // (the news text becomes a headline on landing)
+  const labelText = 'BREAKING';
+  const labelW    = measureWord(labelText, ps);
+
+  breakingTicker = {
+    text,
+    labelText,
+    ps,
+    x:      -labelW - 40,     // starts off left edge
+    y:      H * 0.5,           // mid-screen vertical
+    speed,
+    totalW,
+    labelW,
+    alive:  true,
+    landed: false,
+    // Individual pixel segments of "BREAKING" for shootable hit detection
+    letters: buildTickerLetters(labelText, ps),
+    flash:   0,                // flicker counter for red flash
+  };
+}
+
+function buildTickerLetters(text, ps) {
+  const letters = [];
+  let cx = 0;
+  for (const ch of text.toUpperCase()) {
+    if (ch === ' ') { cx += ps * 3; continue; }
+    letters.push({ ch, offsetX: cx, alive: true, ps });
+    cx += glyphWidth(ch, ps);
+  }
+  return letters;
+}
+
+function sfxBreaking() {
+  // Urgent TV-news stab
+  const ac = getAudio(), t = ac.currentTime;
+  tone(880,  'square', 0.22, 0.0, t,        0.06, null);
+  tone(1100, 'square', 0.22, 0.0, t + 0.07, 0.06, null);
+  tone(880,  'square', 0.22, 0.0, t + 0.14, 0.06, null);
+  tone(1320, 'square', 0.28, 0.0, t + 0.21, 0.20, null);
+}
+
+function sfxBreakingLand() {
+  // Ominous low thud — new headline drops
+  const ac = getAudio(), t = ac.currentTime;
+  tone(80,  'sawtooth', 0.35, 0.0, t,        0.3,  null);
+  tone(120, 'sawtooth', 0.20, 0.0, t + 0.05, 0.25, null);
+  noise(0.18, 0.2, null);
+}
+
+function sfxBreakingDestroyed() {
+  // Satisfying shatter
+  const ac = getAudio(), t = ac.currentTime;
+  [900, 700, 500, 300].forEach((f, i) => {
+    tone(f, 'sawtooth', 0.2, 0.0, t + i * 0.04, 0.1, null);
+  });
+  noise(0.15, 0.18, null);
+}
+
+function updateBreakingTicker() {
+  if (!breakingTicker || !breakingTicker.alive) return;
+  const bt = breakingTicker;
+  bt.x += bt.speed;
+  if (bt.flash > 0) bt.flash--;
+
+  // Check if label portion has fully exited right edge — ticker "lands"
+  if (bt.x > W + 60) {
+    bt.alive  = false;
+    bt.landed = true;
+    landBreakingHeadline(bt);
+    return;
+  }
+
+  // Missile vs BREAKING label letters
+  for (const m of missiles) {
+    if (!m.alive) continue;
+    for (const l of bt.letters) {
+      if (!l.alive) continue;
+      const lx = bt.x + l.offsetX;
+      const ly = bt.y - 7 * l.ps;
+      const lw = 5 * l.ps;
+      const lh = 7 * l.ps;
+      if (m.x > lx && m.x < lx + lw && m.y > ly && m.y < ly + lh) {
+        m.alive = false;
+        l.alive = false;
+        bt.flash = 8;
+        spawnLetterBurst({ x: lx, y: ly }, l.ps, '#ff2222');
+        score += 25;
+        document.getElementById('score').textContent = score;
+        combo++;
+        sfxHit(combo);
+        updateComboUI();
+        break;
+      }
+    }
+  }
+
+  // All BREAKING letters destroyed — ticker shot down
+  if (bt.letters.every(l => !l.alive)) {
+    bt.alive = false;
+    sfxBreakingDestroyed();
+    voiceBreakingDestroyed();
+    // Big red burst
+    for (let i = 0; i < 60; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 6;
+      particles.push({
+        x: bt.x + bt.labelW / 2, y: bt.y,
+        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 1,
+        life: 35 + Math.random() * 35, maxLife: 70,
+        color: Math.random() < 0.6 ? '#ff2222' : '#ffffff',
+        size: 2 + Math.random() * 4, gravity: 0.08,
+      });
+    }
+    score += 200; // bonus for intercepting
+    document.getElementById('score').textContent = score;
+  }
+}
+
+function landBreakingHeadline(bt) {
+  // Spawn the news text as a new Headline formation dropping from mid-screen
+  sfxBreakingLand();
+  voiceBreakingLands();
+  const ps      = Math.max(3, Math.min(6, 3 + Math.floor(level * 0.5)));
+  const rowSpacing = Math.min(H * 0.13, 80);
+  // Place it just below the existing headlines
+  const dropY   = 55 + headlines.length * rowSpacing;
+  const hl      = new Headline(bt.text, Math.min(dropY, H * 0.55), level);
+  hl.dir        = Math.random() < 0.5 ? 1 : -1;
+  hl.speed     *= 1.15; // slightly faster — it's BREAKING after all
+  headlines.push(hl);
+
+  // Red flash particles across screen width
+  for (let i = 0; i < 40; i++) {
+    particles.push({
+      x: Math.random() * W, y: bt.y,
+      vx: (Math.random() - 0.5) * 3,
+      vy: -1 - Math.random() * 3,
+      life: 20 + Math.random() * 20, maxLife: 40,
+      color: '#ff2222', size: 2 + Math.random() * 3, gravity: 0.1,
+    });
+  }
+}
+
+function drawBreakingTicker() {
+  if (!breakingTicker || !breakingTicker.alive) return;
+  const bt  = breakingTicker;
+  const ps  = bt.ps;
+  const y   = bt.y;
+  const flash = bt.flash > 0 && Math.floor(bt.flash / 2) % 2 === 0;
+
+  // Red background bar spanning full screen height of the label
+  const barH = 7 * ps + ps * 3;
+  const barY = y - 7 * ps - ps;
+  ctx.fillStyle = flash ? 'rgba(255,60,60,0.22)' : 'rgba(180,0,0,0.18)';
+  ctx.fillRect(0, barY, W, barH);
+
+  // Red edge lines on bar
+  ctx.fillStyle = flash ? '#ff4444' : '#cc0000';
+  ctx.fillRect(0, barY,          W, 2);
+  ctx.fillRect(0, barY + barH - 2, W, 2);
+
+  // "BREAKING" label — drawn letter by letter (for per-letter destruction)
+  for (const l of bt.letters) {
+    if (!l.alive) continue;
+    const lx    = bt.x + l.offsetX;
+    const col   = flash ? '#ffffff' : (Math.floor(frameCount / 8) % 2 === 0 ? '#ff2222' : '#ff6666');
+    drawLetter(l.ch, lx, y - 7 * ps, ps, col);
+  }
+
+  // Separator "■"
+  const sepX = bt.x + bt.labelW + ps * 2;
+  ctx.fillStyle = '#ff2222';
+  ctx.fillRect(sepX, y - 5 * ps, ps, ps);
+  ctx.fillRect(sepX, y - 3 * ps, ps, ps);
+  ctx.fillRect(sepX, y - 1 * ps, ps, ps);
+
+  // News text — white, no hit detection, scrolls alongside
+  const newsX = sepX + ps * 4;
+  drawWord(bt.text, newsX, y - 7 * ps, ps, 'rgba(255,255,255,0.9)');
+}
+
+// ─── LEVEL INIT ───────────────────────────────────────────────
+function initLevel() {
+  missiles   = [];
+  particles  = [];
+  headlines  = [];
+  hairPiece  = null;
+  hairSpawnTimer = 300;
+  lawsuits   = [];  // clear any mid-air gavels on level transition, but keep spawn timer running
+  breakingTicker = null;
+  levelFrames    = 0;
+  breakingTimer  = 60 * (15 + Math.floor(Math.random() * 10)); // 15-25s first appearance
+  frenzyTimer    = 60 * (40 + Math.floor(Math.random() * 50));
+  frenzyActive   = false; // 30-50s first spawn
+  graceTimer = 90;
+  glitchTimer = 0;
+  combo      = 0;
+  updateComboUI();
+
+  const hlTexts = HEADLINES[(level - 1) % HEADLINES.length];
+  const rowSpacing = Math.min(H * 0.13, 80);
+
+  for (let i = 0; i < 3; i++) {
+    const hl  = new Headline(hlTexts[i], 55 + i * rowSpacing, level);
+    hl.dir    = i % 2 === 0 ? 1 : -1;
+    headlines.push(hl);
+  }
+
+  document.getElementById('level-display').textContent = `LVL ${level}`;
+}
+
+// ─── GAME BOOT / OVER ─────────────────────────────────────────
+function startGame() {
+  score = 0; level = 1; combo = 0; tripleTimer = 0;
+  lawsuits = []; lawsuitSpawnTimer = 60 * 20;
+  frenzyActive = false;
+  frenzyTimer  = 60 * (40 + Math.floor(Math.random() * 50));
+  document.getElementById('score').textContent = '0';
+  initPlayer();
+  initLevel();
+  sfxLevelStart();
+  voiceLevelStart();
+  state = 'playing';
+}
+
+function triggerGameOver() {
+  player.alive   = false;
+  gameOverTimer  = 200;
+  glitchTimer    = 120;
+  spawnPlayerBurst();
+  sfxGameOver();
+  voiceGameOver();
+  if (score > hiScore) hiScore = score;
+  document.getElementById('hi-score').textContent = `HI: ${hiScore}`;
+}
+
+// ─── DRAW: START SCREEN ───────────────────────────────────────
+function drawStart() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+  drawBgLetters();
+
+  const ps  = Math.max(4, Math.min(9, Math.floor(W / 72)));
+  const lineH = 7 * ps + ps * 2;
+
+  const t1 = 'DESTROY';
+  const t2 = 'THE NEWS';
+  drawWord(t1, (W - measureWord(t1, ps)) / 2, H * 0.26,          ps, '#ffffff');
+  drawWord(t2, (W - measureWord(t2, ps)) / 2, H * 0.26 + lineH,  ps, '#ffffff');
+
+  ctx.font      = '11px Share Tech Mono';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '3px';
+
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillText('AN ARCADE SATIRE', W / 2, H * 0.56);
+
+  if (Math.floor(frameCount / 40) % 2 === 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.fillText('PRESS ENTER / TAP TO BEGIN', W / 2, H * 0.66);
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.fillText('← → MOVE  ·  SPACE FIRE  ·  COMBO = MULTI-KILL', W / 2, H * 0.76);
+  ctx.textAlign     = 'left';
+  ctx.letterSpacing = '0px';
+}
+
+// ─── DRAW: GAME OVER OVERLAY ──────────────────────────────────
+function drawGameOverOverlay() {
+  if (gameOverTimer <= 0) {
+    state = 'start';
+    initBgLetters();
+    return;
+  }
+
+  gameOverTimer--;
+
+  // Digital glitch slices
+  if (glitchTimer > 0 && Math.random() < 0.4) {
+    const sliceH  = 3 + Math.random() * 16;
+    const sliceY  = Math.random() * H;
+    const shift   = (Math.random() - 0.5) * 36;
+    try {
+      const img = ctx.getImageData(0, sliceY, W, sliceH);
+      ctx.putImageData(img, shift, sliceY);
+    } catch(e) {}
+    glitchTimer--;
+  }
+
+  // GAME OVER text fades in after burst settles
+  if (gameOverTimer < 140) {
+    const fadeIn  = Math.min(1, (140 - gameOverTimer) / 40);
+    const ps      = Math.max(4, Math.min(7, Math.floor(W / 90)));
+    const msg     = 'GAME OVER';
+    const tw      = measureWord(msg, ps);
+
+    ctx.globalAlpha = fadeIn;
+    drawWord(msg, (W - tw) / 2, H / 2 - 7 * ps / 2, ps, '#ff4444');
+    ctx.globalAlpha = 1;
+
+    ctx.font      = '11px Share Tech Mono';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = `rgba(255,255,255,${fadeIn * 0.7})`;
+    ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + ps * 7 + 20);
+    if (score > 0 && score >= hiScore) {
+      ctx.fillStyle = `rgba(255,204,0,${fadeIn * 0.9})`;
+      ctx.fillText('NEW HIGH SCORE!', W / 2, H / 2 + ps * 7 + 42);
+    }
+    ctx.textAlign = 'left';
+  }
+}
+
+// ─── DRAW: PLAYING ────────────────────────────────────────────
+function drawPlaying() {
+  // Subtle scanline pass
+  scanlineY = (scanlineY + 1.4) % H;
+  ctx.fillStyle = 'rgba(255,255,255,0.012)';
+  ctx.fillRect(0, Math.floor(scanlineY), W, 1);
+
+  // In-game glitch (on combo break)
+  if (glitchTimer > 0 && state === 'playing') {
+    if (Math.random() < 0.45) {
+      const sliceH = 2 + Math.random() * 10;
+      const sliceY = Math.random() * H;
+      const shift  = (Math.random() - 0.5) * 16;
+      try {
+        const img = ctx.getImageData(0, sliceY, W, sliceH);
+        ctx.putImageData(img, shift, sliceY);
+      } catch(e) {}
+    }
+    glitchTimer--;
+    updateComboUI();
+  }
+
+  for (const hl of headlines) hl.draw();
+
+  // Draw missiles
+  for (const m of missiles) {
+    if (!m.alive) continue;
+    ctx.fillStyle   = m.color;
+    ctx.globalAlpha = 1;
+    ctx.fillRect(m.x - 1.5, m.y - 9, 3, 11);
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(m.x - 1, m.y + 2, 2, 5);
+    ctx.globalAlpha = 1;
+  }
+
+  drawParticles();
+  drawPlayer();
+
+  // Hairpiece powerup
+  if (hairPiece && hairPiece.alive) drawHairPiece(hairPiece);
+
+  // Lawsuit drops
+  for (const ls of lawsuits) { if (ls.alive) drawGavel(ls); }
+
+  drawTripleHUD();
+
+  // BREAKING ticker
+  drawBreakingTicker();
+
+  // Grace period dim
+  if (graceTimer > 0) {
+    ctx.fillStyle = `rgba(255,255,255,${0.03 * (graceTimer / 90)})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ─── MAIN LOOP ────────────────────────────────────────────────
+function loop() {
+  frameCount++;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  if (state === 'start') {
+    drawStart();
+    requestAnimationFrame(loop);
+    return;
+  }
+
+  // ── PLAYING UPDATE ──
+  if (state === 'playing') {
+    if (graceTimer > 0) graceTimer--;
+
+    // Player movement
+    if (player.alive) {
+      if ((keys['ArrowLeft']  || mobileLeft)  && player.x > 20)      player.x -= player.speed;
+      if ((keys['ArrowRight'] || mobileRight) && player.x < W - 20)  player.x += player.speed;
+      if ((keys[' '] || mobileFire) && player.alive) fireMissile();
+      mobileFire = false;
+    }
+
+    // Recoil decay
+    if (player.recoil > 0) player.recoil = Math.max(0, player.recoil - 1.3);
+    if (shootCooldown > 0) shootCooldown--;
+    if (player.iframes > 0) player.iframes--;
+    if (voiceCooldown > 0) voiceCooldown--;
+
+    // Media Frenzy — random overlapping voice chaos
+    if (state === 'playing' && player.alive && graceTimer <= 0) {
+      if (!frenzyActive) {
+        frenzyTimer--;
+        if (frenzyTimer <= 0) triggerFrenzy();
+      }
+      updateFrenzy();
+    }
+
+    // Update game objects
+    for (const hl of headlines) hl.update();
+    updateMissiles();
+    if (graceTimer <= 0) checkCollisions();
+    updateParticles();
+
+    // Hairpiece powerup
+    if (tripleTimer > 0) tripleTimer--;
+    if (!hairPiece || !hairPiece.alive) {
+      hairSpawnTimer--;
+      if (hairSpawnTimer <= 0) {
+        spawnHairPiece();
+        hairSpawnTimer = 480 + Math.floor(Math.random() * 300);
+      }
+    }
+    if (hairPiece && hairPiece.alive && player.alive) updateHairPiece();
+
+    // Lawsuit drops
+    if (player.alive && graceTimer <= 0) {
+      if (lawsuits.length < MAX_LAWSUITS) {
+        lawsuitSpawnTimer--;
+        if (lawsuitSpawnTimer <= 0) {
+          spawnLawsuit();
+          // Force this announcement through regardless of voice cooldown
+          voiceCooldown = 0;
+          speak('You\'ve been sued!', { rate: 0.78, pitch: 0.65, volume: 1.0 });
+          lawsuitSpawnTimer = 60 * (12 + Math.floor(Math.random() * 14)); // 12-26s between gavels
+        }
+      }
+      updateLawsuits();
+    }
+
+    // BREAKING ticker — level 1 only, after 30s grace
+    if (level === 1) {
+      levelFrames++;
+      if (levelFrames >= 60 * 10) { // 10 seconds minimum before first BREAKING ticker
+        if (!breakingTicker || !breakingTicker.alive) {
+          breakingTimer--;
+          if (breakingTimer <= 0) {
+            spawnBreakingTicker();
+            sfxBreaking();
+            voiceBreakingAppears();
+            // Next ticker: 45-90s after this one clears
+            breakingTimer = 60 * (45 + Math.floor(Math.random() * 45));
+          }
+        }
+        updateBreakingTicker();
+      }
+    }
+
+    // Player vs letter collision
+    if (player.alive && graceTimer <= 0 && player.iframes <= 0) {
+      outer: for (const hl of headlines) {
+        for (const hb of hl.hitBoxes()) {
+          const px = player.x, py = player.y;
+          if (px + 7  > hb.x && px - 7  < hb.x + hb.w &&
+              py + 10 > hb.y && py - 10 < hb.y + hb.h) {
+            triggerGameOver();
+            break outer;
+          }
+        }
+      }
+    }
+
+    // Level cleared?
+    if (headlines.every(hl => hl.aliveCount === 0)) {
+      sfxLevelClear();
+      voiceLevelClear();
+      level++;
+      initPlayer();
+      initLevel();
+      sfxLevelStart();
+      voiceLevelStart();
+    }
+  }
+
+  // ── DRAW ──
+  drawPlaying();
+
+  if (state === 'playing' && !player.alive) {
+    state = 'gameover';
+  }
+
+  if (state === 'gameover') {
+    drawGameOverOverlay();
+  }
+
+  requestAnimationFrame(loop);
+}
+
+// ─── INPUT EVENTS ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  resumeAudio();
+  keys[e.key] = true;
+  if (e.key === 'Enter' && state === 'start') startGame();
+  if (e.key === ' ') e.preventDefault();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+canvas.addEventListener('click', () => { resumeAudio(); if (state === 'start') startGame(); });
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  resumeAudio();
+  if (state === 'start') startGame();
+  touchStartX = e.touches[0]?.clientX || 0;
+}, { passive: false });
+
+// Touch swipe — move player
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (state !== 'playing' || !player?.alive) return;
+  const tx = e.touches[0].clientX;
+  player.x  = Math.max(20, Math.min(W - 20, player.x + (tx - touchStartX) * 0.65));
+  touchStartX = tx;
+}, { passive: false });
+
+// Mobile buttons — touch
+const leftBtn  = document.getElementById('left-btn');
+const rightBtn = document.getElementById('right-btn');
+const fireBtn  = document.getElementById('fire-btn');
+
+leftBtn.addEventListener('touchstart',  e => { e.preventDefault(); mobileLeft  = true;  }, { passive: false });
+leftBtn.addEventListener('touchend',    e => { e.preventDefault(); mobileLeft  = false; }, { passive: false });
+leftBtn.addEventListener('touchcancel', e => { e.preventDefault(); mobileLeft  = false; }, { passive: false });
+
+rightBtn.addEventListener('touchstart',  e => { e.preventDefault(); mobileRight = true;  }, { passive: false });
+rightBtn.addEventListener('touchend',    e => { e.preventDefault(); mobileRight = false; }, { passive: false });
+rightBtn.addEventListener('touchcancel', e => { e.preventDefault(); mobileRight = false; }, { passive: false });
+
+fireBtn.addEventListener('touchstart', e => { e.preventDefault(); mobileFire = true; }, { passive: false });
+fireBtn.addEventListener('click',      ()  => { if (player?.alive && state === 'playing') fireMissile(); });
+
+// Mouse fallback for desktop test
+leftBtn.addEventListener('mousedown',  () => mobileLeft  = true);
+leftBtn.addEventListener('mouseup',    () => mobileLeft  = false);
+rightBtn.addEventListener('mousedown', () => mobileRight = true);
+rightBtn.addEventListener('mouseup',   () => mobileRight = false);
+
+window.addEventListener('resize', () => {
+  resize();
+  if (state === 'start') initBgLetters();
+});
+
+// ─── BOOT ─────────────────────────────────────────────────────
+resize();
+initBgLetters();
+initVoice();
+loop();
+</script>
+</body>
+</html>
