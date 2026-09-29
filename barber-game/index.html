@@ -28,22 +28,41 @@ button{font:inherit}
 .login-button{height:56px;border:0;background:var(--text);color:var(--bg);font-weight:700;font-size:16px;cursor:pointer;margin-top:6px}
 .status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}.status.error{color:#b14e42}
 
-.dashboard{display:none;width:min(1060px,calc(100% - 48px));margin:0 auto;padding:82px 0 120px}
+.dashboard{display:none;width:min(1120px,calc(100% - 48px));margin:0 auto;padding:82px 0 120px}
 .dashboard.active{display:block}
-.dashboard h1{font-size:clamp(56px,8vw,106px);line-height:.9;letter-spacing:-.06em;margin:0 0 34px}
-.dashboard h2{font-size:clamp(34px,4.5vw,58px);line-height:1;letter-spacing:-.045em;margin:0 0 30px}
-.demo-list{display:grid;border-top:1px solid var(--line);margin-top:34px}
-.demo-item{display:grid;grid-template-columns:56px 1fr auto;gap:22px;align-items:center;padding:26px 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
-.demo-num{width:38px;height:38px;border:1px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700}
-.demo-copy strong{display:block;font-size:24px;letter-spacing:-.025em}
-.demo-copy span{display:block;margin-top:5px;color:var(--muted);font-size:14px}
-.demo-arrow{font-size:24px;color:var(--muted)}
+.dashboard h1{font-size:clamp(56px,8vw,106px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px}
+.dashboard-intro{max-width:760px;margin:0 0 72px;color:var(--muted);font-size:18px;line-height:1.5}
+.demo-section{margin-top:0}
+.demo-section + .demo-section{margin-top:78px}
+.section-head{display:grid;grid-template-columns:1fr minmax(260px,430px);gap:42px;align-items:end;margin-bottom:22px}
+.dashboard h2{font-size:clamp(34px,4.5vw,58px);line-height:1;letter-spacing:-.045em;margin:0}
+.section-head p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.demo-list{display:grid;border-top:1px solid var(--line);margin-top:0}
+.demo-item{display:grid;grid-template-columns:48px minmax(0,1fr) 166px 18px;gap:24px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
+.demo-item:hover .demo-copy strong{transform:translateX(4px)}
+.demo-num{width:36px;height:36px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700}
+.demo-copy strong{display:block;font-size:22px;letter-spacing:-.025em;transition:transform .2s ease}
+.demo-copy .summary{display:block;margin-top:6px;color:var(--muted);font-size:14px;line-height:1.45}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{display:inline-block;border:1px solid var(--line);padding:4px 7px;font-size:10px;line-height:1;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.demo-preview{width:166px;aspect-ratio:16/10;position:relative;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.demo-preview iframe{position:absolute;top:0;left:0;width:960px;height:600px;border:0;transform:scale(.1729);transform-origin:top left;pointer-events:none;background:#fff}
+.demo-arrow{font-size:20px;color:var(--muted)}
 .demo-item.planned{opacity:.5;cursor:default}
 .logout{margin-top:50px;border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
-@media(max-width:760px){
+@media(max-width:900px){
+  .section-head{grid-template-columns:1fr;gap:12px}
+  .demo-item{grid-template-columns:44px minmax(0,1fr) 124px 16px;gap:18px}
+  .demo-preview{width:124px}
+  .demo-preview iframe{transform:scale(.1292)}
+}
+@media(max-width:700px){
   .dashboard{width:calc(100% - 28px);padding-top:48px}
-  .demo-item{grid-template-columns:44px 1fr auto;gap:14px}
+  .dashboard-intro{margin-bottom:54px;font-size:16px}
+  .demo-section + .demo-section{margin-top:58px}
+  .demo-item{grid-template-columns:40px 1fr auto;gap:14px;align-items:start}
   .demo-copy strong{font-size:20px}
+  .demo-preview{display:none}
 }
 </style>
 </head>
@@ -65,81 +84,126 @@ button{font:inherit}
 
   <section class="dashboard" id="dashboard">
     <h1>The Barbergame</h1>
-    <h2>Customer demos</h2>
+    <p class="dashboard-intro">Working prototypes and product demos for customer booking, barber onboarding, and shop operations. These screens document how the product is evolving—from finding a barber and booking time to trust, discovery, and day-to-day business management.</p>
 
-    <div class="demo-list">
-      <a class="demo-item" href="/barber-game/customer-v2/">
-        <div class="demo-num">1</div>
-        <div class="demo-copy">
-          <strong>Customer Booking</strong>
-          <span>Current customer flow: find a shop or barber, book an appointment, and manage the client profile.</span>
-        </div>
-        <div class="demo-arrow">↗</div>
-      </a>
+    <section class="demo-section" aria-labelledby="customerDemos">
+      <div class="section-head">
+        <h2 id="customerDemos">Customer demos</h2>
+        <p>Client-facing explorations covering discovery, booking, sign-in, responsive layouts, and visual direction.</p>
+      </div>
 
-      <a class="demo-item" href="/barber-game/chop-it-up/demo/">
-        <div class="demo-num">2</div>
-        <div class="demo-copy">
-          <strong>3UP Connected Demo</strong>
-          <span>Customer, barber and owner views updating together from one booking.</span>
-        </div>
-        <div class="demo-arrow">↗</div>
-      </a>
+      <div class="demo-list">
+        <a class="demo-item" href="/barber-game/customer-v2/">
+          <div class="demo-num">1</div>
+          <div class="demo-copy">
+            <strong>Customer Booking</strong>
+            <span class="summary">Mobile booking flow for discovering a shop or barber, choosing a service, selecting a time, and managing the client profile.</span>
+            <div class="tags"><span class="tag">Customer</span><span class="tag">Mobile</span><span class="tag">Core flow</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/customer-v2/" loading="lazy" tabindex="-1" title="Customer Booking preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
 
-      <a class="demo-item" href="/barber-game/customer-v2/#signin">
-        <div class="demo-num">3</div>
-        <div class="demo-copy">
-          <strong>Sign in &amp; Recovery</strong>
-          <span>Return with a saved or remembered password, or recover access by phone or email.</span>
-        </div>
-        <div class="demo-arrow">↗</div>
-      </a>
+        <a class="demo-item" href="/barber-game/chop-it-up/demo/">
+          <div class="demo-num">2</div>
+          <div class="demo-copy">
+            <strong>3UP Connected Demo</strong>
+            <span class="summary">Synchronized customer, barber, and owner views showing how one booking affects the full system.</span>
+            <div class="tags"><span class="tag">Connected system</span><span class="tag">Customer</span><span class="tag">Barber + Owner</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/chop-it-up/demo/" loading="lazy" tabindex="-1" title="3UP Connected Demo preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
 
-      <a class="demo-item" href="/barber-game/customer-v2/?splash=1">
-        <div class="demo-num">4</div>
-        <div class="demo-copy">
-          <strong>Chop It Up Website Loading Screen</strong>
-          <span>A short logo splash on black dissolves into the current customer home screen.</span>
-        </div>
-        <div class="demo-arrow">↗</div>
-      </a>
-      <a class="demo-item" href="/barber-game/dark-theme/?splash=1">
-        <div class="demo-num">5</div>
-        <div class="demo-copy">
-          <strong>Dark theme</strong>
-          <span>Separate customer homepage experiment with a dark splash, charcoal surfaces, and green booking actions.</span>
-        </div>
-        <div class="demo-arrow">↗</div>
-      </a>
-      <a class="demo-item" href="/barber-game/web-desktop/">
-        <div class="demo-num">6</div>
-        <div class="demo-copy">
-          <strong>Web/Desktop</strong>
-          <span>Customer booking for a wider browser: generous margins, two-column shop discovery, and the full booking flow.</span>
-        </div>
-        <div class="demo-arrow">↗</div>
-      </a>
-    </div>
+        <a class="demo-item" href="/barber-game/customer-v2/#signin">
+          <div class="demo-num">3</div>
+          <div class="demo-copy">
+            <strong>Sign in &amp; Recovery</strong>
+            <span class="summary">Return flow for existing users, including remembered access and recovery by phone or email.</span>
+            <div class="tags"><span class="tag">Customer</span><span class="tag">Account</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/customer-v2/#signin" loading="lazy" tabindex="-1" title="Sign in and Recovery preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
 
-    <h2 style="margin-top:70px">Barber demos</h2>
-<div class="demo-list">
-  <a class="demo-item" href="/barber-game/onboarding/">
-    <div class="demo-num">1</div>
-    <div class="demo-copy"><strong>Barber Onboarding</strong><span>Validated OOBE from first launch through services, hours, verification and ready-to-book state.</span></div>
-    <div class="demo-arrow">↗</div>
-  </a>
-  <a class="demo-item" href="/barber-game/barber-first-run/">
-    <div class="demo-num">2</div>
-    <div class="demo-copy"><strong>Barber First Run Experience</strong><span>First landing after onboarding, now with Chop It Up profile and business management.</span></div>
-    <div class="demo-arrow">↗</div>
-  </a>
-  <a class="demo-item" href="/barber-game/video-splashscreen/">
-    <div class="demo-num">3</div>
-    <div class="demo-copy"><strong>Barbergame Video Splashscreen</strong><span>Review and compare video welcome-screen variations.</span></div>
-    <div class="demo-arrow">↗</div>
-  </a>
-</div>
-<button class="logout" id="logout" type="button">Log out</button>
+        <a class="demo-item" href="/barber-game/customer-v2/?splash=1">
+          <div class="demo-num">4</div>
+          <div class="demo-copy">
+            <strong>Chop It Up Website Loading Screen</strong>
+            <span class="summary">Branded splash-screen concept that transitions from the logo reveal into the current customer experience.</span>
+            <div class="tags"><span class="tag">Brand</span><span class="tag">Motion</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/customer-v2/?splash=1" loading="lazy" tabindex="-1" title="Loading Screen preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
+
+        <a class="demo-item" href="/barber-game/dark-theme/?splash=1">
+          <div class="demo-num">5</div>
+          <div class="demo-copy">
+            <strong>Dark theme</strong>
+            <span class="summary">Alternate customer-home concept using dark surfaces, higher contrast, and green booking actions.</span>
+            <div class="tags"><span class="tag">Customer</span><span class="tag">Visual exploration</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/dark-theme/?splash=1" loading="lazy" tabindex="-1" title="Dark theme preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
+
+        <a class="demo-item" href="/barber-game/web-desktop/">
+          <div class="demo-num">6</div>
+          <div class="demo-copy">
+            <strong>Web/Desktop</strong>
+            <span class="summary">Wider-screen adaptation of customer booking with generous margins, shop discovery, and the full booking flow.</span>
+            <div class="tags"><span class="tag">Customer</span><span class="tag">Desktop</span><span class="tag">Responsive</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/web-desktop/" loading="lazy" tabindex="-1" title="Web Desktop preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="demo-section" aria-labelledby="barberDemos">
+      <div class="section-head">
+        <h2 id="barberDemos">Barber demos</h2>
+        <p>Barber-facing work focused on onboarding, first-run experience, profile setup, and business tools.</p>
+      </div>
+
+      <div class="demo-list">
+        <a class="demo-item" href="/barber-game/onboarding/">
+          <div class="demo-num">1</div>
+          <div class="demo-copy">
+            <strong>Barber Onboarding</strong>
+            <span class="summary">Validated first-run onboarding covering services, hours, verification, and ready-to-book state.</span>
+            <div class="tags"><span class="tag">Barber</span><span class="tag">Onboarding</span><span class="tag">OOBE</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/onboarding/" loading="lazy" tabindex="-1" title="Barber Onboarding preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
+
+        <a class="demo-item" href="/barber-game/barber-first-run/">
+          <div class="demo-num">2</div>
+          <div class="demo-copy">
+            <strong>Barber First Run Experience</strong>
+            <span class="summary">First landing after onboarding, combining the barber profile with schedule context and business-management needs.</span>
+            <div class="tags"><span class="tag">Barber</span><span class="tag">First run</span><span class="tag">Business tools</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/barber-first-run/" loading="lazy" tabindex="-1" title="Barber First Run preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
+
+        <a class="demo-item" href="/barber-game/video-splashscreen/">
+          <div class="demo-num">3</div>
+          <div class="demo-copy">
+            <strong>Barbergame Video Splashscreen</strong>
+            <span class="summary">Motion-led welcome-screen variations exploring brand tone and the entry experience.</span>
+            <div class="tags"><span class="tag">Brand</span><span class="tag">Motion</span><span class="tag">Experiment</span></div>
+          </div>
+          <div class="demo-preview" aria-hidden="true"><iframe src="/barber-game/video-splashscreen/" loading="lazy" tabindex="-1" title="Video Splashscreen preview"></iframe></div>
+          <div class="demo-arrow">↗</div>
+        </a>
+      </div>
+    </section>
+
+    <button class="logout" id="logout" type="button">Log out</button>
   </section>
 </main>
 
