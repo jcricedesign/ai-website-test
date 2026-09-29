@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Specimen Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Libre+Bodoni:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=GFS+Didot:ital,wght@0,400;1,400&family=Josefin+Sans:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Oswald:wght@300;400;700&family=Raleway:wght@300;400;700&family=Nunito+Sans:wght@300;400;700&family=Source+Sans+3:wght@300;400;700&family=Lato:wght@300;400;700&family=PT+Sans:wght@400;700&family=Cabin:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,700;1,400&family=Vollkorn:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Cardo:ital,wght@0,400;1,400&family=Cormorant:ital,wght@0,300;0,400;1,400&family=Spectral:ital,wght@0,300;0,400;0,700;1,400&family=Tenor+Sans&family=Trade+Winds&family=Sabon:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f2f0eb;
+    --bg-card: #faf9f6;
+    --ink: #1a1916;
+    --ink-mid: #5a5750;
+    --ink-light: #9a9690;
+    --rule: #d8d4ce;
+    --accent: #c0392b;
+    --accent-subtle: #f5ede9;
+    --font-ui: 'Tenor Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 260px;
+    min-width: 260px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    background: var(--ink);
+    color: #e8e4de;
+    padding: 36px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  #sidebar h1 {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a9690;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #333;
+  }
+
+  .category-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .font-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .font-btn {
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: #c0bcb5;
+    letter-spacing: 0.02em;
+    transition: all 0.15s;
+    font-family: var(--font-ui);
+  }
+
+  .font-btn:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+  }
+
+  .font-btn.active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-left: 2px solid var(--accent);
+    padding-left: 8px;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 60px 56px 80px;
+    max-width: 900px;
+  }
+
+  /* ── SPECIMEN HEADER ── */
+  #specimen-header {
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 32px;
+  }
+
+  #font-name-display {
+    font-size: clamp(64px, 9vw, 120px);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    transition: font-family 0.3s ease;
+    margin-bottom: 12px;
+  }
+
+  #font-meta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+
+  .google-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+  }
+
+  /* ── CONTROLS ── */
+  #controls {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .ctrl-label {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--rule);
+    outline: none;
+    border-radius: 1px;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  select {
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 6px 10px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--ink);
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  select:focus { border-color: var(--ink-mid); }
+
+  .ctrl-value {
+    font-size: 11px;
+    color: var(--ink-mid);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── EDITABLE PREVIEW ── */
+  #preview-area {
+    margin-bottom: 48px;
+  }
+
+  .preview-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+  }
+
+  #sample-text {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 28px 28px;
+    font-size: 32px;
+    line-height: 1.35;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    min-height: 140px;
+    transition: font-family 0.3s ease, font-size 0.1s, font-weight 0.2s, letter-spacing 0.1s, line-height 0.1s;
+  }
+
+  #sample-text:focus {
+    border-color: var(--ink-mid);
+    box-shadow: 0 0 0 3px rgba(26,25,22,0.06);
+  }
+
+  /* ── SPECIMEN ROWS ── */
+  .specimen-section {
+    margin-bottom: 48px;
+  }
+
+  .specimen-section h3 {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .size-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .size-tag {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+    width: 32px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  .size-text { color: var(--ink); line-height: 1.2; }
+
+  .weight-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .weight-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .weight-name {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 10px;
+  }
+
+  .weight-sample { font-size: 28px; line-height: 1.1; }
+
+  /* ── ALPHABET ── */
+  #alphabet-display {
+    font-size: 22px;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    color: var(--ink-mid);
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 24px;
+    transition: font-family 0.3s ease;
+  }
+
+  /* ── CSS SNIPPET ── */
+  #css-output {
+    background: var(--ink);
+    border-radius: 6px;
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #css-output pre {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #a8c4a0;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  #css-output .key { color: #7eb8d4; }
+  #css-output .val { color: #e8c97a; }
+  #css-output .str { color: #c8a0e0; }
+  #css-output .comment { color: #666; }
+
+  #copy-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #aaa;
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  #copy-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  #copy-btn.copied { color: #8bc48a; border-color: #8bc48a; }
+
+  /* ── SCROLLBAR ── */
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    body { flex-direction: column; }
+    #sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; gap: 16px; padding: 20px; }
+    #main { padding: 30px 20px; }
+    .weight-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <h1>Type Specimen Lab</h1>
+
+  <div>
+    <div class="category-label">Sans-Serif</div>
+    <div class="font-list" id="sans-list"></div>
+  </div>
+
+  <div>
+    <div class="category-label">Serif</div>
+    <div class="font-list" id="serif-list"></div>
+  </div>
+
+  <div>
+    <div class="category-label">Slab / Display</div>
+    <div class="font-list" id="display-list"></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+  <div id="specimen-header">
+    <div id="font-name-display">Aa</div>
+    <div id="font-meta">
+      <span class="meta-pill" id="meta-category">Serif</span>
+      <span class="google-tag" id="meta-gf">Google Fonts · <span id="meta-gf-name">—</span></span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div id="controls">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Size</span>
+      <input type="range" id="ctrl-size" min="14" max="80" value="32">
+      <span class="ctrl-value" id="val-size">32px</span>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Weight</span>
+      <input type="range" id="ctrl-weight" min="100" max="900" step="100" value="400">
+      <span class="ctrl-value" id="val-weight">400</span>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Tracking</span>
+      <input type="range" id="ctrl-tracking" min="-0.08" max="0.3" step="0.005" value="0">
+      <span class="ctrl-value" id="val-tracking">0em</span>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Leading</span>
+      <input type="range" id="ctrl-leading" min="0.8" max="2.2" step="0.05" value="1.35">
+      <span class="ctrl-value" id="val-leading">1.35</span>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Style</span>
+      <select id="ctrl-style">
+        <option value="normal">Normal</option>
+        <option value="italic">Italic</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- EDITABLE TEXT -->
+  <div id="preview-area">
+    <div class="preview-label">Sample Text — click to edit</div>
+    <textarea id="sample-text">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</textarea>
+  </div>
+
+  <!-- SIZE SCALE -->
+  <div class="specimen-section">
+    <h3>Scale</h3>
+    <div id="scale-rows"></div>
+  </div>
+
+  <!-- WEIGHTS -->
+  <div class="specimen-section">
+    <h3>Weights</h3>
+    <div class="weight-grid" id="weight-grid"></div>
+  </div>
+
+  <!-- ALPHABET -->
+  <div class="specimen-section">
+    <h3>Character Set</h3>
+    <div id="alphabet-display">
+      A B C D E F G H I J K L M N O P Q R S T U V W X Y Z<br>
+      a b c d e f g h i j k l m n o p q r s t u v w x y z<br>
+      0 1 2 3 4 5 6 7 8 9 ! @ # $ % &amp; * ( ) — – . , ; : ? !
+    </div>
+  </div>
+
+  <!-- CSS SNIPPET -->
+  <div class="specimen-section">
+    <h3>Copy CSS</h3>
+    <div id="css-output">
+      <button id="copy-btn">Copy</button>
+      <pre id="css-code"></pre>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── FONT DATABASE ──
+const FONTS = {
+  sans: [
+    { name: "Gotham",        gf: "Josefin Sans",    gfId: "Josefin+Sans:wght@300;400;700",       weights: [300,400,700], category: "Sans-Serif",  note: "Closest match to Gotham" },
+    { name: "Helvetica",     gf: "Lato",            gfId: "Lato:wght@300;400;700",                weights: [300,400,700], category: "Sans-Serif",  note: "Neutral grotesque" },
+    { name: "Interstate",    gf: "Source Sans 3",   gfId: "Source+Sans+3:wght@300;400;700",       weights: [300,400,700], category: "Sans-Serif",  note: "Close to Interstate" },
+    { name: "Meta",          gf: "Nunito Sans",     gfId: "Nunito+Sans:wght@300;400;700",         weights: [300,400,700], category: "Sans-Serif",  note: "Humanist sans" },
+    { name: "News Gothic",   gf: "Cabin",           gfId: "Cabin:wght@400;700",                   weights: [400,700],     category: "Sans-Serif",  note: "Gothic sans spirit" },
+    { name: "Nobel",         gf: "Oswald",          gfId: "Oswald:wght@300;400;700",              weights: [300,400,700], category: "Sans-Serif",  note: "Condensed grotesque" },
+    { name: "Trade Gothic",  gf: "PT Sans",         gfId: "PT+Sans:wght@400;700",                 weights: [400,700],     category: "Sans-Serif",  note: "Trade Gothic feel" },
+    { name: "Univers",       gf: "Raleway",         gfId: "Raleway:wght@300;400;700",             weights: [300,400,700], category: "Sans-Serif",  note: "Geometric grotesque" },
+    { name: "Verdana",       gf: "PT Sans",         gfId: "PT+Sans:wght@400;700",                 weights: [400,700],     category: "Sans-Serif",  note: "Screen-optimised" },
+    { name: "Frutiger",      gf: "Cabin",           gfId: "Cabin:wght@400;700",                   weights: [400,700],     category: "Sans-Serif",  note: "Humanist sans" },
+    { name: "Franklin Gothic",gf: "Oswald",         gfId: "Oswald:wght@300;400;700",              weights: [300,400,700], category: "Sans-Serif",  note: "Gothic condensed" },
+    { name: "Futura",        gf: "Josefin Sans",    gfId: "Josefin+Sans:wght@300;400;700",        weights: [300,400,700], category: "Sans-Serif",  note: "Geometric / Futura spirit" },
+    { name: "Georgia",       gf: "Merriweather",    gfId: "Merriweather:ital,wght@0,300;0,400;0,700;1,400", weights: [300,400,700], category: "Serif",  note: "Screen serif" },
+    { name: "Inter",         gf: "Inter",           gfId: "Inter:wght@300;400;700",               weights: [300,400,700], category: "Sans-Serif",  note: "Direct match" },
+    { name: "Gill Sans",     gf: "Raleway",         gfId: "Raleway:wght@300;400;700",             weights: [300,400,700], category: "Sans-Serif",  note: "Humanist grotesque" },
+  ],
+  serif: [
+    { name: "Baskerville",   gf: "Libre Baskerville", gfId: "Libre+Baskerville:ital,wght@0,400;0,700;1,400", weights: [400,700], category: "Serif", note: "Direct match" },
+    { name: "Bodoni",        gf: "Libre Bodoni",    gfId: "Libre+Bodoni:ital,wght@0,400;0,700;1,400",        weights: [400,700], category: "Serif", note: "Modern serif" },
+    { name: "Caslon",        gf: "EB Garamond",     gfId: "EB+Garamond:ital,wght@0,400;0,700;1,400",         weights: [400,700], category: "Serif", note: "Old-style roman" },
+    { name: "Centaur",       gf: "Cardo",           gfId: "Cardo:ital,wght@0,400;1,400",                     weights: [400],     category: "Serif", note: "Old-style humanist" },
+    { name: "Didot",         gf: "GFS Didot",       gfId: "GFS+Didot:ital,wght@0,400;1,400",                 weights: [400],     category: "Serif", note: "Direct Didot" },
+    { name: "Filosofia",     gf: "Cormorant",       gfId: "Cormorant:ital,wght@0,300;0,400;1,400",           weights: [300,400], category: "Serif", note: "Refined modern serif" },
+    { name: "Garamond",      gf: "EB Garamond",     gfId: "EB+Garamond:ital,wght@0,400;0,700;1,400",         weights: [400,700], category: "Serif", note: "Direct match" },
+    { name: "Jenson",        gf: "Cardo",           gfId: "Cardo:ital,wght@0,400;1,400",                     weights: [400],     category: "Serif", note: "Venetian roman" },
+    { name: "Mrs Eaves",     gf: "Spectral",        gfId: "Spectral:ital,wght@0,300;0,400;0,700;1,400",      weights: [300,400,700], category: "Serif", note: "Small-cap serif" },
+    { name: "Sabon",         gf: "Crimson Text",    gfId: "Crimson+Text:ital,wght@0,400;0,700;1,400",        weights: [400,700], category: "Serif", note: "Tschichold's Sabon" },
+    { name: "Scala Pro",     gf: "Vollkorn",        gfId: "Vollkorn:ital,wght@0,400;0,700;1,400",            weights: [400,700], category: "Serif", note: "Humanist serif" },
+  ],
+  display: [
+    { name: "Century Expanded", gf: "Playfair Display", gfId: "Playfair+Display:ital,wght@0,400;0,700;1,400", weights: [400,700], category: "Display", note: "Refined display serif" },
+    { name: "Clarendon",     gf: "Libre Baskerville", gfId: "Libre+Baskerville:ital,wght@0,400;0,700;1,400",  weights: [400,700], category: "Slab",   note: "Slab serif" },
+  ]
+};
+
+// ── STATE ──
+let currentFont = FONTS.serif[6]; // Garamond default
+let loadedGfIds = new Set();
+
+// ── POPULATE SIDEBAR ──
+function buildSidebar() {
+  [['sans','sans-list'],['serif','serif-list'],['display','display-list']].forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    FONTS[key].forEach(f => {
+      const btn = document.createElement('button');
+      btn.className = 'font-btn';
+      btn.textContent = f.name;
+      btn.dataset.key = key;
+      btn.dataset.name = f.name;
+      btn.addEventListener('click', () => selectFont(f, btn));
+      el.appendChild(btn);
+    });
+  });
+}
+
+// ── SELECT FONT ──
+function selectFont(f, btn) {
+  currentFont = f;
+  // Clear active
+  document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Load Google Font if needed
+  if (!loadedGfIds.has(f.gfId)) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${f.gfId}&display=swap`;
+    document.head.appendChild(link);
+    loadedGfIds.add(f.gfId);
+  }
+
+  renderSpecimen();
+}
+
+// ── RENDER ──
+function renderSpecimen() {
+  const f = currentFont;
+  const ff = `'${f.gf}', serif`;
+  const size = document.getElementById('ctrl-size').value + 'px';
+  const weight = document.getElementById('ctrl-weight').value;
+  const tracking = parseFloat(document.getElementById('ctrl-tracking').value).toFixed(3) + 'em';
+  const leading = document.getElementById('ctrl-leading').value;
+  const style = document.getElementById('ctrl-style').value;
+
+  // Header
+  document.getElementById('font-name-display').textContent = f.name;
+  document.getElementById('font-name-display').style.fontFamily = ff;
+  document.getElementById('font-name-display').style.fontWeight = 700;
+  document.getElementById('meta-category').textContent = f.category;
+  document.getElementById('meta-gf-name').textContent = f.gf;
+
+  // Sample text
+  const ta = document.getElementById('sample-text');
+  ta.style.fontFamily = ff;
+  ta.style.fontSize = size;
+  ta.style.fontWeight = weight;
+  ta.style.letterSpacing = tracking;
+  ta.style.lineHeight = leading;
+  ta.style.fontStyle = style;
+
+  // Scale rows
+  const scales = [8,12,16,20,28,40,56,72];
+  const scaleEl = document.getElementById('scale-rows');
+  scaleEl.innerHTML = '';
+  scales.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.innerHTML = `<span class="size-tag">${s}</span><span class="size-text" style="font-family:${ff}; font-size:${s}px; font-weight:${weight}; font-style:${style}">The quick brown fox jumps over the lazy dog</span>`;
+    scaleEl.appendChild(row);
+  });
+
+  // Weights
+  const wGrid = document.getElementById('weight-grid');
+  wGrid.innerHTML = '';
+  f.weights.forEach(w => {
+    const labels = {100:'Thin',200:'Extra Light',300:'Light',400:'Regular',500:'Medium',600:'Semi Bold',700:'Bold',800:'Extra Bold',900:'Black'};
+    const card = document.createElement('div');
+    card.className = 'weight-card';
+    card.innerHTML = `<div class="weight-name">${w} · ${labels[w]||''}</div><div class="weight-sample" style="font-family:${ff}; font-weight:${w}; font-style:${style}">Hamburgefons</div>`;
+    wGrid.appendChild(card);
+  });
+
+  // Alphabet
+  document.getElementById('alphabet-display').style.fontFamily = ff;
+
+  // CSS
+  updateCSS();
+}
+
+function updateCSS() {
+  const f = currentFont;
+  const size = document.getElementById('ctrl-size').value;
+  const weight = document.getElementById('ctrl-weight').value;
+  const tracking = parseFloat(document.getElementById('ctrl-tracking').value).toFixed(3);
+  const leading = document.getElementById('ctrl-leading').value;
+  const style = document.getElementById('ctrl-style').value;
+
+  const importUrl = `https://fonts.googleapis.com/css2?family=${f.gfId}&display=swap`;
+  const cssText = `/* ${f.name} → ${f.gf} (${f.note}) */
+@import url('${importUrl}');
+
+.text-${f.name.toLowerCase().replace(/\s+/g,'-')} {
+  font-family: '${f.gf}', ${f.category === 'Sans-Serif' ? 'sans-serif' : 'serif'};
+  font-size: ${size}px;
+  font-weight: ${weight};
+  font-style: ${style};
+  letter-spacing: ${tracking}em;
+  line-height: ${leading};
+}`;
+
+  const pre = document.getElementById('css-code');
+  // Syntax highlight
+  pre.innerHTML = cssText
+    .replace(/\/\*.+?\*\//gs, m => `<span class="comment">${m}</span>`)
+    .replace(/(font-family|font-size|font-weight|font-style|letter-spacing|line-height|@import)/g, `<span class="key">$1</span>`)
+    .replace(/:\s*([^;{}\n]+)/g, (m, v) => `: <span class="val">${v}</span>`);
+}
+
+// ── CONTROLS ──
+document.getElementById('ctrl-size').addEventListener('input', function() {
+  document.getElementById('val-size').textContent = this.value + 'px';
+  renderSpecimen();
+});
+document.getElementById('ctrl-weight').addEventListener('input', function() {
+  document.getElementById('val-weight').textContent = this.value;
+  renderSpecimen();
+});
+document.getElementById('ctrl-tracking').addEventListener('input', function() {
+  document.getElementById('val-tracking').textContent = parseFloat(this.value).toFixed(3) + 'em';
+  renderSpecimen();
+});
+document.getElementById('ctrl-leading').addEventListener('input', function() {
+  document.getElementById('val-leading').textContent = parseFloat(this.value).toFixed(2);
+  renderSpecimen();
+});
+document.getElementById('ctrl-style').addEventListener('change', () => renderSpecimen());
+
+// ── COPY CSS ──
+document.getElementById('copy-btn').addEventListener('click', function() {
+  const f = currentFont;
+  const size = document.getElementById('ctrl-size').value;
+  const weight = document.getElementById('ctrl-weight').value;
+  const tracking = parseFloat(document.getElementById('ctrl-tracking').value).toFixed(3);
+  const leading = document.getElementById('ctrl-leading').value;
+  const style = document.getElementById('ctrl-style').value;
+  const importUrl = `https://fonts.googleapis.com/css2?family=${f.gfId}&display=swap`;
+  const css = `/* ${f.name} → ${f.gf} (${f.note}) */\n@import url('${importUrl}');\n\n.text-${f.name.toLowerCase().replace(/\s+/g,'-')} {\n  font-family: '${f.gf}', ${f.category==='Sans-Serif'?'sans-serif':'serif'};\n  font-size: ${size}px;\n  font-weight: ${weight};\n  font-style: ${style};\n  letter-spacing: ${tracking}em;\n  line-height: ${leading};\n}`;
+  navigator.clipboard.writeText(css).then(() => {
+    this.textContent = 'Copied!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = 'Copy'; this.classList.remove('copied'); }, 2000);
+  });
+});
+
+// ── INIT ──
+buildSidebar();
+// Select Garamond by default
+const defaultBtn = document.querySelector('[data-name="Garamond"]');
+if (defaultBtn) selectFont(currentFont, defaultBtn);
+</script>
+</body>
+</html>
