@@ -8,7 +8,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","
 .eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin:0 0 18px}
 .hero h1{font-size:clamp(3rem,5.6vw,5.4rem);line-height:.94;letter-spacing:-.055em;margin:0}
 .hero p{max-width:680px;margin:24px 0 0;font-size:clamp(1rem,1.3vw,1.16rem);line-height:1.52;color:var(--muted)}
-.stream{padding-bottom:84px}.archive{padding:8px 0 84px}.archive-head{border-top:1px solid var(--rule);padding:34px 0 18px}.archive-head h2{margin:0;font-size:clamp(2rem,3.5vw,3.4rem);line-height:1;letter-spacing:-.045em}.archive-head p{margin:10px 0 0;color:var(--muted);font-size:.92rem;line-height:1.5}
+.stream{padding-bottom:84px}.collection{padding:8px 0 84px}.collection-head{border-top:1px solid var(--rule);padding:34px 0 18px}.collection-head h2{margin:0;font-size:clamp(2rem,3.5vw,3.4rem);line-height:1;letter-spacing:-.045em}.collection-head p{margin:10px 0 0;color:var(--muted);font-size:.92rem;line-height:1.5}
 .entry{display:grid;grid-template-columns:150px minmax(0,1fr) 156px 18px;gap:28px;align-items:start;padding:24px 0 28px;border-top:1px solid var(--rule);color:inherit;text-decoration:none}
 .entry:hover .entry-title{transform:translateX(5px)}
 .meta{font-size:.72rem;line-height:1.5;color:var(--faint)}
@@ -115,8 +115,99 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","
 
 </section>
 
-<section class="archive" aria-labelledby="archive-title">
-  <div class="archive-head">
+<section class="collection" aria-labelledby="interactive-title">
+  <div class="collection-head">
+    <h2 id="interactive-title">Interactive demos</h2>
+    <p>Earlier self-contained experiments from the original Drafts collection—small ideas built to test interaction, motion, typography, media, and interface behavior.</p>
+  </div>
+  <a class="entry" href="/playground/interactive-demos/shuffletube/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Shuffletube</h2><p>A receiver-and-mixer experiment for treating live broadcast signals as material rather than channels.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/shuffletube/" loading="lazy" tabindex="-1" title="Shuffletube preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/clock/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Clock</h2><p>An interactive study of time, rhythm, and information display.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/clock/" loading="lazy" tabindex="-1" title="Clock preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/destroy/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Destroy</h2><p>A motion and interaction experiment built around removing, breaking, and transforming interface elements.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/destroy/" loading="lazy" tabindex="-1" title="Destroy preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/mondrian/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Mondrian</h2><p>A generative composition experiment using geometry, proportion, and color.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/mondrian/" loading="lazy" tabindex="-1" title="Mondrian preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/haiku/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Haiku</h2><p>A small text interaction exploring pacing, language, and quiet presentation.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/haiku/" loading="lazy" tabindex="-1" title="Haiku preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/plinko/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Plinko</h2><p>A playful physics and probability experiment.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/plinko/" loading="lazy" tabindex="-1" title="Plinko preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/spacelanes/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Spacelanes</h2><p>A spatial motion experiment exploring lanes, trajectories, and movement.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/spacelanes/" loading="lazy" tabindex="-1" title="Spacelanes preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/video/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Video</h2><p>An interaction study built around video as interface material.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/video/" loading="lazy" tabindex="-1" title="Video preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/visualizer/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Visualizer</h2><p>A reactive visual experiment connecting changing input to changing form.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/visualizer/" loading="lazy" tabindex="-1" title="Visualizer preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/letters/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Letters</h2><p>A typographic interaction exploring letters as objects rather than only text.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/letters/" loading="lazy" tabindex="-1" title="Letters preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/voice/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Voice</h2><p>An experiment with voice, input, and conversational interface behavior.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/voice/" loading="lazy" tabindex="-1" title="Voice preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/crow/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Crow</h2><p>A small behavioral and visual interaction study.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/crow/" loading="lazy" tabindex="-1" title="Crow preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/type/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Type</h2><p>A typography playground exploring scale, rhythm, spacing, and motion.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/type/" loading="lazy" tabindex="-1" title="Type preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+  <a class="entry" href="/playground/interactive-demos/backup-mind/">
+    <div class="meta">Interactive demo<br>Earlier draft</div>
+    <div class="entry-title"><h2>Backup Mind</h2><p>An early interface concept for externalizing memory, notes, and personal knowledge.</p></div>
+    <div class="preview" aria-hidden="true"><iframe src="/playground/interactive-demos/backup-mind/" loading="lazy" tabindex="-1" title="Backup Mind preview"></iframe></div>
+    <div class="arrow">↗</div>
+  </a>
+</section>
+
+<section class="collection" aria-labelledby="archive-title">
+  <div class="collection-head">
     <h2 id="archive-title">Archive</h2>
     <p>Earlier explorations, prototypes and working studies kept for reference.</p>
   </div>
