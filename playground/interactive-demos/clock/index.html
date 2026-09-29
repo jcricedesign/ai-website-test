@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>analog-clock v1.1</title>
+  <script>
+// ── City / timezone data ─────────────────────────────────────────────────────
+const ZONES = [
+  { city: 'Honolulu',    iana: 'Pacific/Honolulu' },
+  { city: 'Anchorage',   iana: 'America/Anchorage' },
+  { city: 'Los Angeles', iana: 'America/Los_Angeles' },
+  { city: 'Denver',      iana: 'America/Denver' },
+  { city: 'Chicago',     iana: 'America/Chicago' },
+  { city: 'New York',    iana: 'America/New_York' },
+  { city: 'São Paulo',   iana: 'America/Sao_Paulo' },
+  { city: 'London',      iana: 'Europe/London' },
+  { city: 'Paris',       iana: 'Europe/Paris' },
+  { city: 'Cairo',       iana: 'Africa/Cairo' },
+  { city: 'Moscow',      iana: 'Europe/Moscow' },
+  { city: 'Dubai',       iana: 'Asia/Dubai' },
+  { city: 'Karachi',     iana: 'Asia/Karachi' },
+  { city: 'Mumbai',      iana: 'Asia/Kolkata' },
+  { city: 'Bangkok',     iana: 'Asia/Bangkok' },
+  { city: 'Singapore',   iana: 'Asia/Singapore' },
+  { city: 'Tokyo',       iana: 'Asia/Tokyo' },
+  { city: 'Sydney',      iana: 'Australia/Sydney' },
+  { city: 'Auckland',    iana: 'Pacific/Auckland' },
+];
+
+function getOffsetLabel(iana) {
+  try {
+    const parts = new Intl.DateTimeFormat('en', {
+      timeZone: iana, timeZoneName: 'shortOffset'
+    }).formatToParts(new Date());
+    return (parts.find(p => p.type === 'timeZoneName')?.value || '').replace('GMT', 'UTC');
+  } catch { return ''; }
+}
+
+function getTzShort(iana) {
+  try {
+    const parts = new Intl.DateTimeFormat('en', {
+      timeZone: iana, timeZoneName: 'short'
+    }).formatToParts(new Date());
+    return parts.find(p => p.type === 'timeZoneName')?.value || iana;
+  } catch { return iana; }
+}
+
+function getTimeInZone(msEpoch, iana) {
+  try {
+    const d = new Date(msEpoch);
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: iana,
+      hour: 'numeric', minute: 'numeric', second: 'numeric',
+      hour12: false, fractionalSecondDigits: 3
+    }).formatToParts(d);
+    const get = t => parseInt(parts.find(p => p.type === t)?.value || '0');
+    return {
+      h24: get('hour'), m: get('minute'), s: get('second'),
+      ms:  parseInt(parts.find(p => p.type === 'fractionalSecond')?.value || '0')
+    };
+  } catch {
+    const d = new Date(msEpoch);
+    return { h24: d.getHours(), m: d.getMinutes(), s: d.getSeconds(), ms: d.getMilliseconds() };
+  }
+}
+
+class AnalogClock extends HTMLElement {
+  static get observedAttributes() {
+    return ['size','bg','color','timezone','max-speed','hour-mode'];
+  }
+
+  constructor() {
+    super();
+    this._shadow = this.attachShadow({ mode: 'open' });
+    this._rafId  = null;
+
+    this._holding = false; this._holdStart = 0;
+    this._releaseSpeed = 1; this._releaseTime = 0;
+    this._speed = 1; this._virtualOffset = 0; this._lastFrame = 0;
+    this._RAMP_UP = 3.0; this._RAMP_DOWN = 2.5;
+
+    this._hourMode = '24';
+    this._activeIana = null;
+    this._activeCityIdx = -1;
+
+    this._pickerOpen = false;
+    this._wheelY = 0; this._dragStartY = 0; this._dragStartWheelY = 0;
+    this._isDragging = false; this._velocity = 0;
+    this._lastDragY = 0; this._lastDragT = 0;
+
+    this._pointerDownT = 0; this._pointerDownX = 0; this._pointerDownY = 0;
+
+    this._onDown      = this._onDown.bind(this);
+    this._onMove      = this._onMove.bind(this);
+    this._onUp        = this._onUp.bind(this);
+    this._onWheelDown = this._onWheelDown.bind(this);
+    this._onWheelMove = this._onWheelMove.bind(this);
+    this._onWheelUp   = this._onWheelUp.bind(this);
+    this._tick        = this._tick.bind(this);
+  }
+
+  connectedCallback() {
+    this._resolveInitialTz();
+    this._render();
+    this._lastFrame = performance.now();
+    this._rafId = requestAnimationFrame(this._tick);
+  }
+
+  disconnectedCallback() {
+    if (this._rafId) cancelAnimationFrame(this._rafId);
+  }
+
+  attributeChangedCallback(name, _o, val) {
+    if (name === 'hour-mode') this._hourMode = val === '12' ? '12' : '24';
+    if (name === 'timezone')  this._resolveInitialTz();
+    if (this._shadow.innerHTML) this._render();
+  }
+
+  _cfg(attr, cssVar, fallback) {
+    if (this.hasAttribute(attr)) return this.getAttribute(attr);
+    const v = getComputedStyle(this).getPropertyValue(cssVar).trim();
+    return v || fallback;
+  }
+  get _size()     { return parseFloat(this._cfg('size','--clock-size','300')); }
+  get _bg()       { return this._cfg('bg','--clock-bg','#0d0d0d'); }
+  get _color()    { return this._cfg('color','--clock-color','#ffffff'); }
+  get _maxSpeed() { return parseFloat(this.getAttribute('max-speed') || '3600'); }
+
+  _resolveInitialTz() {
+    const attr = this.getAttribute('timezone');
+    if (attr) {
+      const idx = ZONES.findIndex(z => z.iana === attr || z.city.toLowerCase() === attr.toLowerCase());
+      if (idx >= 0) { this._activeCityIdx = idx; this._activeIana = ZONES[idx].iana; return; }
+      this._activeIana = attr; this._activeCityIdx = -1; return;
+    }
+    try {
+      const iana = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const idx  = ZONES.findIndex(z => z.iana === iana);
+      this._activeCityIdx = idx; this._activeIana = iana;
+    } catch { this._activeIana = 'UTC'; this._activeCityIdx = -1; }
+  }
+
+  _tzLabel() { return getTzShort(this._activeIana || 'UTC'); }
+
+  _render() {
+    const c = this._color, bg = this._bg, size = this._size, tz = this._tzLabel();
+
+    let minTicks = '';
+    for (let d = 6; d < 360; d += 6) {
+      if (d % 30 === 0) continue;
+      minTicks += `<line x1="200" y1="22" x2="200" y2="30" transform="rotate(${d} 200 200)"/>`;
+    }
+    const hW=[2.5,2,2,2.5,2,2,2.5,2,2,2.5,2,2], hO=[0.9,.7,.7,.9,.7,.7,.9,.7,.7,.9,.7,.7];
+    let hourTicks = '';
+    for (let i=0;i<12;i++) {
+      const d=i*30;
+      hourTicks+=`<line x1="200" y1="22" x2="200" y2="42" stroke-width="${hW[i]}" opacity="${hO[i]}" ${d?`transform="rotate(${d} 200 200)"`:''}/>`
+    }
+
+    const ITEM_H=38, VISIBLE=5, wheelH=ITEM_H*VISIBLE, wheelTop=200-wheelH/2;
+
+    let pickerItems = '';
+    ZONES.forEach((z,i) => {
+      const off = getOffsetLabel(z.iana);
+      pickerItems += `<g class="picker-item" data-idx="${i}">
+        <text class="picker-city" x="175" y="0" text-anchor="end">${z.city}</text>
+        <text class="picker-off"  x="188" y="0" text-anchor="start">${off}</text>
+      </g>`;
+    });
+
+    this._shadow.innerHTML = `
+    <style>
+      :host {
+        display:inline-block; width:${size}px; height:${size}px;
+        border-radius:50%; overflow:hidden; position:relative;
+        touch-action:none; user-select:none; -webkit-user-select:none;
+        background:${bg};
+      }
+      #hit {
+        position:absolute; inset:0; z-index:5;
+        border-radius:50%; -webkit-tap-highlight-color:transparent;
+      }
+      #press-overlay { transition:opacity 0.08s ease-in; }
+      #press-overlay.releasing { transition:opacity 0.6s ease-out; }
+      svg { width:100%; height:100%; pointer-events:none; display:block; }
+      #picker-layer { pointer-events:none; transition:opacity 0.2s ease; }
+      #picker-layer.open { pointer-events:auto; }
+      #picker-wheel-hit { cursor:grab; }
+      #picker-wheel-hit:active { cursor:grabbing; }
+      .picker-item text {
+        font-family:'Courier New',Courier,monospace;
+        fill:${c};
+      }
+      .picker-city { letter-spacing:0.5px; }
+      .picker-off  { letter-spacing:0.5px; opacity:0.45; }
+      #tz-label, #digital-time { cursor:pointer; }
+    </style>
+
+    <div id="hit"></div>
+
+    <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fade-v" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="${bg}" stop-opacity="1"/>
+          <stop offset="28%"  stop-color="${bg}" stop-opacity="0"/>
+          <stop offset="72%"  stop-color="${bg}" stop-opacity="0"/>
+          <stop offset="100%" stop-color="${bg}" stop-opacity="1"/>
+        </linearGradient>
+        <clipPath id="wheel-clip">
+          <rect x="70" y="${wheelTop}" width="260" height="${wheelH}"/>
+        </clipPath>
+      </defs>
+
+      <circle cx="200" cy="200" r="200" fill="${bg}"/>
+
+      <g id="face-layer">
+        <circle cx="200" cy="200" r="185" fill="none" stroke="${c}" stroke-width="1.5" opacity="0.9"/>
+        <circle cx="200" cy="200" r="178" fill="none" stroke="${c}" stroke-width="0.4" opacity="0.25"/>
+        <g stroke="${c}" stroke-linecap="round">${hourTicks}</g>
+        <g stroke="${c}" stroke-width="0.8" stroke-linecap="round" opacity="0.3">${minTicks}</g>
+        <circle id="press-overlay" cx="200" cy="200" r="185" fill="${c}" opacity="0"/>
+        <g id="hour-hand" transform="rotate(305 200 200)">
+          <polygon points="200,85 196.5,200 200,212 203.5,200" fill="${c}" opacity="0.95"/>
+        </g>
+        <g id="minute-hand" transform="rotate(60 200 200)">
+          <polygon points="200,55 197,200 200,214 203,200" fill="${c}" opacity="0.95"/>
+        </g>
+        <g id="second-hand" transform="rotate(0 200 200)">
+          <line x1="200" y1="48" x2="200" y2="235" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+          <line x1="200" y1="235" x2="200" y2="255" stroke="${c}" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+        </g>
+        <text id="tz-label" x="200" y="145" text-anchor="middle"
+          font-family="'Courier New',Courier,monospace" font-size="18"
+          letter-spacing="2.5" fill="${c}" opacity="0.85">${tz}</text>
+        <text id="digital-time" x="200" y="272" text-anchor="middle"
+          font-family="'Courier New',Courier,monospace" font-size="15.5"
+          letter-spacing="2.5" fill="${c}" opacity="0.85">00:00:00</text>
+        <circle cx="200" cy="200" r="5.5" fill="${c}" opacity="0.95"/>
+        <circle cx="200" cy="200" r="2.5" fill="${bg}"/>
+      </g>
+
+      <g id="picker-layer" opacity="0">
+        <!-- Dim overlay -->
+        <circle cx="200" cy="200" r="185" fill="${bg}" opacity="0.8"/>
+
+        <!-- Selection bar -->
+        <rect x="80" y="${200-ITEM_H/2}" width="240" height="${ITEM_H}" rx="3" fill="${c}" opacity="0.07"/>
+        <line x1="80" y1="${200-ITEM_H/2}" x2="320" y2="${200-ITEM_H/2}" stroke="${c}" stroke-width="0.6" opacity="0.35"/>
+        <line x1="80" y1="${200+ITEM_H/2}" x2="320" y2="${200+ITEM_H/2}" stroke="${c}" stroke-width="0.6" opacity="0.35"/>
+
+        <!-- Wheel -->
+        <g clip-path="url(#wheel-clip)">
+          <g id="picker-wheel">${pickerItems}</g>
+        </g>
+
+        <!-- Fade top/bottom -->
+        <rect x="70" y="${wheelTop}" width="260" height="${wheelH}" fill="url(#fade-v)" pointer-events="none"/>
+
+        <!-- Hint text -->
+        <text x="200" y="${wheelTop - 16}" text-anchor="middle"
+          font-family="'Courier New',Courier,monospace" font-size="9"
+          letter-spacing="2.5" fill="${c}" opacity="0.28">TAP TO SELECT · DRAG TO SCROLL</text>
+
+        <!-- Drag hit area (transparent, on top) -->
+        <rect id="picker-wheel-hit" x="70" y="${wheelTop}" width="260" height="${wheelH}" fill="transparent"/>
+      </g>
+    </svg>`;
+
+    this._ITEM_H = ITEM_H;
+    this._wheelTop = wheelTop;
+    this._VISIBLE = VISIBLE;
+    this._positionWheelItems();
+    this._attachEvents();
+  }
+
+  _positionWheelItems() {
+    const items = this._shadow.querySelectorAll('.picker-item');
+    const IH = this._ITEM_H, cy = 200;
+    items.forEach((g, i) => {
+      const y = cy + i * IH - this._wheelY;
+      g.setAttribute('transform', `translate(0,${y})`);
+      const dist = Math.abs(y - cy);
+      const op   = Math.max(0, 1 - dist / (IH * 2.4));
+      const sc   = 0.75 + 0.25 * Math.max(0, 1 - dist / (IH * 1.4));
+      g.style.opacity = op;
+      g.querySelectorAll('text').forEach(t => {
+        const base = t.classList.contains('picker-city') ? 15 : 11.5;
+        t.setAttribute('font-size', (base * sc).toFixed(1));
+      });
+    });
+  }
+
+  _wheelYToIdx(y) { return Math.round(y / this._ITEM_H); }
+
+  _snapToIdx(idx) {
+    idx = Math.max(0, Math.min(ZONES.length-1, idx));
+    this._wheelY = idx * this._ITEM_H;
+    this._positionWheelItems();
+  }
+
+  _openPicker() {
+    this._pickerOpen = true;
+    const startIdx = this._activeCityIdx >= 0 ? this._activeCityIdx : 0;
+    this._wheelY = startIdx * this._ITEM_H;
+    this._positionWheelItems();
+    const pl  = this._shadow.getElementById('picker-layer');
+    const fl  = this._shadow.getElementById('face-layer');
+    const hit = this._shadow.getElementById('hit');
+    if (pl)  { pl.classList.add('open'); pl.setAttribute('opacity','1'); }
+    if (fl)  fl.setAttribute('opacity','0.12');
+    if (hit) hit.style.pointerEvents = 'none';
+  }
+
+  _closePicker(confirm=true) {
+    this._pickerOpen = false;
+    const pl  = this._shadow.getElementById('picker-layer');
+    const fl  = this._shadow.getElementById('face-layer');
+    const hit = this._shadow.getElementById('hit');
+    if (pl)  { pl.classList.remove('open'); pl.setAttribute('opacity','0'); }
+    if (fl)  fl.setAttribute('opacity','1');
+    if (hit) hit.style.pointerEvents = '';
+    if (confirm) {
+      const idx = Math.max(0, Math.min(ZONES.length-1, this._wheelYToIdx(this._wheelY)));
+      this._activeCityIdx = idx;
+      this._activeIana    = ZONES[idx].iana;
+      const tzEl = this._shadow.getElementById('tz-label');
+      if (tzEl) tzEl.textContent = this._tzLabel();
+    }
+  }
+
+  _attachEvents() {
+    const hit     = this._shadow.getElementById('hit');
+    const tzLabel = this._shadow.getElementById('tz-label');
+    const digTime = this._shadow.getElementById('digital-time');
+    const wHit    = this._shadow.getElementById('picker-wheel-hit');
+    const pLayer  = this._shadow.getElementById('picker-layer');
+
+    if (hit) {
+      hit.addEventListener('pointerdown',   this._onDown);
+      hit.addEventListener('pointermove',   this._onMove, { passive: true });
+      hit.addEventListener('pointerup',     this._onUp);
+      hit.addEventListener('pointercancel', this._onUp);
+    }
+    if (tzLabel) {
+      tzLabel.style.pointerEvents = 'auto';
+      tzLabel.addEventListener('click', e => { e.stopPropagation(); if (!this._pickerOpen) this._openPicker(); });
+    }
+    if (digTime) {
+      digTime.style.pointerEvents = 'auto';
+      digTime.addEventListener('click', e => { e.stopPropagation(); this._hourMode = this._hourMode==='24'?'12':'24'; });
+    }
+    if (wHit) {
+      wHit.style.pointerEvents = 'auto';
+      wHit.addEventListener('pointerdown',   this._onWheelDown);
+      wHit.addEventListener('pointermove',   this._onWheelMove, { passive: false });
+      wHit.addEventListener('pointerup',     this._onWheelUp);
+      wHit.addEventListener('pointercancel', this._onWheelUp);
+    }
+    if (pLayer) {
+      pLayer.addEventListener('click', e => {
+        if (e.target === this._shadow.getElementById('picker-wheel-hit')) return;
+        this._closePicker(false);
+      });
+    }
+  }
+
+  _onDown(e) {
+    e.preventDefault();
+    this._holding = true; this._holdStart = performance.now();
+    this._pointerDownT = performance.now();
+    this._pointerDownX = e.clientX; this._pointerDownY = e.clientY;
+    const ov = this._shadow.getElementById('press-overlay');
+    if (ov) { ov.classList.remove('releasing'); ov.setAttribute('opacity','0.12'); }
+  }
+  _onMove() {}
+  _onUp(e) {
+    if (!this._holding) return;
+    this._holding = false; this._releaseSpeed = this._speed; this._releaseTime = performance.now();
+    const ov = this._shadow.getElementById('press-overlay');
+    if (ov) { ov.classList.add('releasing'); ov.setAttribute('opacity','0'); }
+  }
+
+  _onWheelDown(e) {
+    e.preventDefault(); e.stopPropagation();
+    this._isDragging = true;
+    this._dragStartY = e.clientY; this._dragStartWheelY = this._wheelY;
+    this._velocity = 0; this._lastDragY = e.clientY; this._lastDragT = performance.now();
+    const wh = this._shadow.getElementById('picker-wheel-hit');
+    if (wh) wh.setPointerCapture(e.pointerId);
+  }
+
+  _onWheelMove(e) {
+    e.preventDefault();
+    if (!this._isDragging) return;
+    const scale = 400 / this._size;
+    const dy = e.clientY - this._dragStartY;
+    this._wheelY = Math.max(-this._ITEM_H,
+      Math.min(ZONES.length * this._ITEM_H, this._dragStartWheelY - dy * scale));
+    const now = performance.now(), dT = now - this._lastDragT;
+    if (dT > 0) this._velocity = (e.clientY - this._lastDragY) / dT;
+    this._lastDragY = e.clientY; this._lastDragT = now;
+    this._positionWheelItems();
+  }
+
+  _onWheelUp(e) {
+    if (!this._isDragging) return;
+    this._isDragging = false;
+    const dy = Math.abs(e.clientY - this._dragStartY);
+    if (dy < 8) {
+      // Tap = confirm
+      const idx = Math.max(0, Math.min(ZONES.length-1, this._wheelYToIdx(this._wheelY)));
+      this._snapToIdx(idx);
+      this._closePicker(true);
+      return;
+    }
+    // Fling
+    const scale = 400 / this._size;
+    this._wheelY = Math.max(0, Math.min((ZONES.length-1)*this._ITEM_H,
+      this._wheelY - this._velocity * scale * 80));
+    this._animateSnapTo(Math.max(0, Math.min(ZONES.length-1, this._wheelYToIdx(this._wheelY))));
+  }
+
+  _animateSnapTo(targetIdx) {
+    const targetY = targetIdx * this._ITEM_H, startY = this._wheelY, startT = performance.now();
+    const ease = t => 1 - Math.pow(1-t, 3);
+    const run = now => {
+      const t = Math.min((now-startT)/280, 1);
+      this._wheelY = startY + (targetY-startY) * ease(t);
+      this._positionWheelItems();
+      if (t < 1) requestAnimationFrame(run);
+    };
+    requestAnimationFrame(run);
+  }
+
+  _tick(now) {
+    const dt = Math.min((now - this._lastFrame) / 1000, 0.1);
+    this._lastFrame = now;
+
+    if (this._holding) {
+      const t = Math.min((now-this._holdStart)/1000/this._RAMP_UP, 1);
+      this._speed = 1 + (this._maxSpeed-1) * (t*t*t);
+    } else {
+      const t = Math.min((now-this._releaseTime)/1000/this._RAMP_DOWN, 1);
+      this._speed = this._releaseSpeed + (1-this._releaseSpeed) * (1-Math.pow(1-t,3));
+    }
+    this._virtualOffset += dt * 1000 * (this._speed - 1);
+
+    const epoch = Date.now() + this._virtualOffset;
+    const { h24, m, s, ms } = getTimeInZone(epoch, this._activeIana || 'UTC');
+    const h12 = h24 % 12;
+
+    const secDeg  = (s + ms/1000) * 6;
+    const minDeg  = (m + s/60 + ms/60000) * 6;
+    const hourDeg = (h12 + m/60 + s/3600) * 30;
+
+    const sh = this._shadow;
+    sh.getElementById('hour-hand')  ?.setAttribute('transform',`rotate(${hourDeg} 200 200)`);
+    sh.getElementById('minute-hand')?.setAttribute('transform',`rotate(${minDeg}  200 200)`);
+    sh.getElementById('second-hand')?.setAttribute('transform',`rotate(${secDeg}  200 200)`);
+
+    const dte = sh.getElementById('digital-time');
+    if (dte) {
+      if (this._hourMode === '12') {
+        const ampm = h24 >= 12 ? 'PM' : 'AM';
+        const hd   = h24 % 12 || 12;
+        dte.textContent = `${String(hd).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm}`;
+      } else {
+        dte.textContent = `${String(h24).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }
+    }
+    this._rafId = requestAnimationFrame(this._tick);
+  }
+}
+customElements.define('analog-clock', AnalogClock);
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html, body {
+      width:100%; height:100%;
+      background:#111;
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+  </style>
+</head>
+<body>
+  <analog-clock size="340"></analog-clock>
+</body>
+</html>
