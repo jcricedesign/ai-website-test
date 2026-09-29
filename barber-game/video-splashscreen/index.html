@@ -95,7 +95,12 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-
 <script>
 if(sessionStorage.getItem('tbg-auth')!=='1') location.replace('/barber-game/');
 const captions={v10:'V1.0 — centered Barbergame wordmark over the video.',v11:'V1.1 — Barbergame logo in the glass header.',v13:'V1.3 — stacked Barbergame badge centered over the video.'};
-let soundOn=true;
+const embeddedPreview=window.self!==window.top;
+let soundOn=!embeddedPreview;
+if(embeddedPreview){
+  document.querySelectorAll('audio').forEach(a=>{a.pause();a.removeAttribute('src');a.load()});
+  document.querySelectorAll('.sound').forEach(btn=>{btn.disabled=true;btn.textContent='◖×'});
+}
 function show(id){
   document.querySelectorAll('[data-variant]').forEach(v=>v.classList.toggle('active',v.dataset.variant===id));
   document.querySelectorAll('.state').forEach((s,i)=>s.classList.toggle('active',s.querySelector('[data-show]').dataset.show===id));
@@ -106,6 +111,7 @@ function show(id){
 }
 document.querySelectorAll('[data-show]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.show)));
 document.querySelectorAll('.sound').forEach(btn=>btn.addEventListener('click',()=>{
+  if(embeddedPreview)return;
   soundOn=!soundOn;
   document.querySelectorAll('.sound').forEach(x=>x.textContent=soundOn?'◖))':'◖×');
   const a=document.querySelector('[data-variant].active audio');
