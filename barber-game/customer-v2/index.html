@@ -27,6 +27,13 @@
 .service-actions .primary:disabled{opacity:.45;cursor:not-allowed}
 
 .booking-location:disabled{color:var(--muted);cursor:default}.distance:disabled{cursor:default}.distance:disabled:before{content:none}
+
+/* Equal side columns keep the logo centered regardless of the account label. */
+.header{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,156px) minmax(0,1fr);gap:8px;padding-inline:18px}
+.header #account-nav{justify-self:start;text-align:left;padding:0;font-size:13px;line-height:1.2}
+.header .logo-home{justify-self:center;width:100%;justify-content:center;min-width:0}
+.header .logo{max-width:100%}
+.header .menu-btn{justify-self:end;padding:0}
 </style>
 </head>
 <body>
@@ -38,7 +45,7 @@
   <p class="note">Shop addresses come from the current locations page. Barber names and portraits use the official uploaded assets; shop placement, ranks, specialties, distances, and availability are illustrative. Ten confirmed locations across Washington, Georgia, and Michigan. Street addresses and rosters for the newly added shops are pending.</p>
 </aside><main class="flow-main"><div class="stage-wrap"><div class="stage"><div class="phone"><div class="device" id="device">
   <div class="splash-overlay" id="splash-overlay" role="status" aria-label="Chop It Up loading"><div class="splash-content"><img src="/barber-game/chop-it-up/ChopItUp-Logo.png" alt="Chop It Up Barbershop"><p class="splash-tagline">A real barbershop.</p><p class="splash-progress">Finding availability...</p></div></div>
-  <header class="header"><button class="logo-home" type="button" data-action="home" aria-label="Chop It Up home"><img class="logo" src="/barber-game/chop-it-up/ChopItUp-Logo.png" alt="Chop It Up"></button><div class="header-right"><button type="button" id="account-nav" data-action="signin">Sign in</button><button class="menu-btn" type="button" data-action="menu" aria-label="Menu">☰</button></div></header>
+  <header class="header"><button type="button" id="account-nav" data-action="signin">Sign in</button><button class="logo-home" type="button" data-action="home" aria-label="Chop It Up home"><img class="logo" src="/barber-game/chop-it-up/ChopItUp-Logo.png" alt="Chop It Up"></button><button class="menu-btn" type="button" data-action="menu" aria-label="Menu">☰</button></header>
   <div id="view"></div>
 </div></div></div><p class="caption" id="caption">Discover shops · nearest first, with availability up front.</p></div></main></div>
 <script>
