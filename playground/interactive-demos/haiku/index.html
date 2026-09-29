@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LED Billboard Simulator</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #141414;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px 40px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 700px;
+  padding-top: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---- Input row ---- */
+.ctrl {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+.ctrl input {
+  flex: 1;
+  min-width: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  border: 1px solid #3a3a3a;
+  background: #1e1e1e;
+  color: #e8e8e8;
+  border-radius: 8px;
+  outline: none;
+  touch-action: manipulation;
+  transition: border-color .2s, box-shadow .2s;
+  letter-spacing: .03em;
+}
+.ctrl input:focus {
+  border-color: #666;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.06);
+}
+.ctrl input::placeholder { color: #444; }
+.cnt {
+  font-size: 11px;
+  color: #555;
+  white-space: nowrap;
+  min-width: 42px;
+  text-align: right;
+  letter-spacing: .03em;
+}
+.cnt.warn { color: #c06020; }
+
+/* ---- Billboard bezel ---- */
+.board-outer {
+  background: linear-gradient(160deg, #1c1c1c 0%, #111 60%, #0d0d0d 100%);
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  /* Layered box-shadow: inner bevel + outer ring + bolt-hint glow */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    inset 0 -1px 0 rgba(0,0,0,.6),
+    0 0 0 1px #2a2a2a,
+    0 0 0 4px #1a1a1a,
+    0 0 0 5px #2e2e2e,
+    0 8px 32px rgba(0,0,0,.6);
+  position: relative;
+}
+
+/* Corner bolt decorations */
+.board-outer::before,
+.board-outer::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3a3a3a, #1a1a1a);
+  box-shadow: 0 0 0 1px #111, inset 0 1px 2px rgba(255,255,255,.08);
+}
+.board-outer::before { top: 8px; left: 8px; }
+.board-outer::after  { top: 8px; right: 8px; }
+.bolt-bl, .bolt-br {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3a3a3a, #1a1a1a);
+  box-shadow: 0 0 0 1px #111, inset 0 1px 2px rgba(255,255,255,.08);
+}
+.bolt-bl { bottom: 8px; left: 8px; }
+.bolt-br { bottom: 8px; right: 8px; }
+
+/* ---- Screen + scanlines ---- */
+.board-screen {
+  background: #050905;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0,0,0,.8), inset 0 0 0 1px rgba(0,0,0,.5);
+}
+/* Scanline overlay */
+.board-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,.10) 2px,
+    rgba(0,0,0,.10) 4px
+  );
+  pointer-events: none;
+  border-radius: 6px;
+  z-index: 2;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---- Effect buttons ---- */
+.fx-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+.fx-btn {
+  font-size: 12px;
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1px solid #333;
+  background: #1c1c1c;
+  color: #888;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background .15s, color .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.fx-btn:hover  { background: #252525; color: #ccc; border-color: #555; }
+.fx-btn:active { transform: scale(.97); }
+.fx-btn.active { background: #2c2c2c; color: #fff; border-color: #666; }
+
+/* ---- Bottom action row ---- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.haiku-btn, .copy-btn {
+  font-size: 12px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid #3a3a3a;
+  background: #1e1e1e;
+  color: #aaa;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background .15s, color .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  white-space: nowrap;
+}
+.haiku-btn:hover, .copy-btn:hover { background: #272727; color: #eee; border-color: #666; }
+.haiku-btn:active, .copy-btn:active { transform: scale(.97); }
+.copy-btn.copied { color: #5c9; border-color: #3a6a4a; }
+.mute-btn { font-size: 12px; padding: 7px 16px; border-radius: 20px; border: 1px solid #3a3a3a; background: #1e1e1e; color: #aaa; cursor: pointer; touch-action: manipulation; transition: background .15s, color .15s, border-color .15s; -webkit-tap-highlight-color: transparent; user-select: none; white-space: nowrap; }
+.mute-btn:hover { background: #272727; color: #eee; border-color: #666; }
+.mute-btn:active { transform: scale(.97); }
+.mute-btn.muted { color: #555; border-color: #2a2a2a; }
+
+/* ---- Attribution + label ---- */
+.haiku-attr {
+  font-size: 11px;
+  color: #4a4a4a;
+  text-align: center;
+  letter-spacing: .05em;
+  font-style: italic;
+  min-height: 16px;
+  transition: opacity .4s;
+}
+.lbl {
+  font-size: 10px;
+  color: #333;
+  text-align: center;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* ---- Mobile tweaks ---- */
+@media (max-width: 480px) {
+  .fx-btn { font-size: 11px; padding: 5px 10px; }
+  .haiku-btn, .copy-btn { font-size: 11px; padding: 6px 13px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ctrl">
+    <input type="text" id="ti" maxlength="100"
+           placeholder="OLD POND  A FROG JUMPS IN  SOUND OF WATER"
+           autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" />
+    <span class="cnt" id="cnt">0/100</span>
+  </div>
+
+  <div class="board-outer" id="boardOuter">
+    <div class="bolt-bl"></div>
+    <div class="bolt-br"></div>
+    <div class="board-screen">
+      <canvas id="c"></canvas>
+    </div>
+  </div>
+
+  <div class="fx-bar" id="fxbar"></div>
+
+  <div class="actions">
+    <button class="haiku-btn" id="haikubtn">✦ Next Haiku</button>
+    <button class="copy-btn" id="copybtn">⧉ Copy Text</button>
+    <button class="mute-btn" id="mutebtn">♪ Music</button>
+  </div>
+
+  <div class="haiku-attr" id="attr"></div>
+  <div class="lbl">LED Billboard Simulator</div>
+
+</div>
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────
+const COLS=120, CELL=5, GAP=1, MX=4, MY=5, CHAR_H=5, CHAR_GAP=1, LINE_GAP=5, MAX_LINES=3;
+const AUTO_ADVANCE_MS = 9000;
+
+const HAIKUS = [
+  { text:'OLD POND  A FROG JUMPS IN  SOUND OF WATER',              attr:'Matsuo Basho, 1686' },
+  { text:'OVER THE WINTRY FOREST  WINDS HOWL IN RAGE  WITH NO LEAVES TO BLOW', attr:'Natsume Soseki, c.1900' },
+  { text:'LIGHT OF THE MOON  MOVES WEST  FLOWERS SHADOWS CREEP EASTWARD', attr:'Yosa Buson, c.1750' },
+  { text:'A WORLD OF DEW  AND WITHIN EVERY DEWDROP  A WORLD OF STRUGGLE', attr:'Kobayashi Issa, c.1819' },
+  { text:'THE LAMP ONCE OUT  COOL STARS ENTER  THE WINDOW FRAME', attr:'Natsume Soseki' },
+  { text:'AUTUMN MOONLIGHT  A WORM DIGS SILENTLY  INTO THE CHESTNUT', attr:'Matsuo Basho' },
+  { text:'TEMPLE BELLS DIE OUT  THE FRAGRANT BLOSSOMS REMAIN  A PERFECT EVENING', attr:'Matsuo Basho' },
+  { text:'OVER THE SEA WAVES  WILD GEESE CALLING  FAINTLY WHITE IN DARKNESS', attr:'Matsuo Basho' },
+  { text:'IN THE TWILIGHT RAIN  THESE BRILLIANT HUED HIBISCUS  A LOVELY SUNSET', attr:'Matsuo Basho' },
+  { text:'FROM TIME TO TIME  THE CLOUDS GIVE REST  TO THE MOON BEHOLDERS', attr:'Matsuo Basho' },
+];
+
+const EFFECTS = [
+  {id:'pulse',label:'Pulse'},{id:'zoom',label:'Zoom'},{id:'shatter',label:'Shatter'},
+  {id:'rain',label:'Rain'},{id:'wave',label:'Wave'},{id:'glitch',label:'Glitch'},
+  {id:'swipe',label:'Swipe'},{id:'explode',label:'Explode'},{id:'spin',label:'Spin'},
+  {id:'static',label:'Static'},
+];
+
+const FONT = {' ':[[0,0,0,0,0]],'A':[[0,1,1,1,0],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],'B':[[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0]],'C':[[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[0,1,1,1,1]],'D':[[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0]],'E':[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,1,1,1,1]],'F':[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],'G':[[0,1,1,1,1],[1,0,0,0,0],[1,0,1,1,1],[1,0,0,0,1],[0,1,1,1,0]],'H':[[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],'I':[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1]],'J':[[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],'K':[[1,0,0,0,1],[1,0,0,1,0],[1,1,1,0,0],[1,0,0,1,0],[1,0,0,0,1]],'L':[[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],'M':[[1,0,0,0,1],[1,1,0,1,1],[1,0,1,0,1],[1,0,0,0,1],[1,0,0,0,1]],'N':[[1,0,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1]],'O':[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],'P':[[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],'Q':[[0,1,1,1,0],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,1,0],[0,1,1,0,1]],'R':[[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,1,0,0],[1,0,0,1,1]],'S':[[0,1,1,1,1],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],'T':[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],'U':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],'V':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0]],'W':[[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[1,1,0,1,1],[1,0,0,0,1]],'X':[[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,1,0,1,0],[1,0,0,0,1]],'Y':[[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],'Z':[[1,1,1,1,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0],[1,1,1,1,1]],'0':[[0,1,1,1,0],[1,0,0,1,1],[1,0,1,0,1],[1,1,0,0,1],[0,1,1,1,0]],'1':[[0,0,1,0,0],[0,1,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,1,1,0]],'2':[[0,1,1,1,0],[1,0,0,0,1],[0,0,1,1,0],[0,1,0,0,0],[1,1,1,1,1]],'3':[[1,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],'4':[[0,0,1,1,0],[0,1,0,1,0],[1,0,0,1,0],[1,1,1,1,1],[0,0,0,1,0]],'5':[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],'6':[[0,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,1],[0,1,1,1,0]],'7':[[1,1,1,1,1],[0,0,0,0,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0]],'8':[[0,1,1,1,0],[1,0,0,0,1],[0,1,1,1,0],[1,0,0,0,1],[0,1,1,1,0]],'9':[[0,1,1,1,0],[1,0,0,0,1],[0,1,1,1,1],[0,0,0,0,1],[0,1,1,1,0]],'!':[[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,1,0,0]],'?':[[0,1,1,1,0],[0,0,0,0,1],[0,0,1,1,0],[0,0,0,0,0],[0,0,1,0,0]],'.':[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,1,0,0]],',':[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,1,0,0],[0,1,0,0,0]],'-':[[0,0,0,0,0],[0,0,0,0,0],[1,1,1,1,1],[0,0,0,0,0],[0,0,0,0,0]],'%':[[1,1,0,0,1],[1,1,0,1,0],[0,0,1,0,0],[0,1,0,1,1],[1,0,0,1,1]],'$':[[0,1,1,1,1],[1,0,1,0,0],[0,1,1,1,0],[0,0,1,0,1],[1,1,1,1,0]],'#':[[0,1,0,1,0],[1,1,1,1,1],[0,1,0,1,0],[1,1,1,1,1],[0,1,0,1,0]],'+':[[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0]],':':[[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0]],'/':[[0,0,0,0,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0],[1,0,0,0,0]]};
+
+// ── State ──────────────────────────────────────────────────────────────────
+let activeFx = 'pulse', frame = 0, ROWS = 20, litSet = new Set();
+let haikuIdx = 0, autoTimer = null, userIsTyping = false;
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const inp = document.getElementById('ti');
+
+// ── Text layout ────────────────────────────────────────────────────────────
+function charPxW(ch) { const g = FONT[ch] || FONT[' ']; return g[0] ? g[0].length : 5; }
+function strPxW(s) { let w = 0; for (const ch of s) w += charPxW(ch) + CHAR_GAP; return s.length ? w - CHAR_GAP : 0; }
+
+function wrapText(text) {
+  const upper = text.toUpperCase();
+  const maxW = COLS - 2 * MX;
+  const segments = upper.split('  ');
+  const allLines = [];
+  for (const seg of segments) {
+    if (allLines.length >= MAX_LINES) break;
+    const words = seg.split(' ').filter(w => w.length > 0);
+    let line = '', lw = 0;
+    for (const word of words) {
+      const ww = strPxW(word);
+      const spW = line ? charPxW(' ') + CHAR_GAP : 0;
+      if (line && lw + spW + ww > maxW) {
+        allLines.push(line);
+        if (allLines.length >= MAX_LINES) break;
+        line = word; lw = ww;
+      } else {
+        if (line) { line += ' '; lw += charPxW(' ') + CHAR_GAP; }
+        line += word; lw += ww;
+      }
+    }
+    if (line && allLines.length < MAX_LINES) allLines.push(line);
+  }
+  return allLines.slice(0, MAX_LINES);
+}
+
+function buildPixels(text) {
+  const lines = wrapText(text && text.trim() ? text : HAIKUS[haikuIdx].text);
+  const numLines = lines.length || 1;
+  ROWS = MY + numLines * CHAR_H + (numLines - 1) * LINE_GAP + MY;
+  canvas.width  = COLS * (CELL + GAP) + GAP;
+  canvas.height = ROWS * (CELL + GAP) + GAP;
+  litSet = new Set();
+  for (let li = 0; li < lines.length; li++) {
+    const startY = MY + li * (CHAR_H + LINE_GAP);
+    let cx = MX;
+    for (const ch of lines[li]) {
+      const g = FONT[ch] || FONT[' '];
+      const cw = g[0] ? g[0].length : 5;
+      for (let r = 0; r < g.length; r++) {
+        if (!g[r]) continue;
+        for (let col = 0; col < g[r].length; col++) {
+          if (g[r][col]) {
+            const px = cx + col, py = startY + r;
+            if (px >= 0 && px < COLS && py >= 0 && py < ROWS) litSet.add(px + ',' + py);
+          }
+        }
+      }
+      cx += cw + CHAR_GAP;
+    }
+  }
+}
+
+// ── Rendering helpers ──────────────────────────────────────────────────────
+function px(col) { return GAP + col * (CELL + GAP); }
+function py(row) { return GAP + row * (CELL + GAP); }
+function hsl(h, s, l) { return `hsl(${h},${s}%,${l}%)`; }
+function isOn(c, r) { return litSet.has(c + ',' + r); }
+
+// ── Effects ────────────────────────────────────────────────────────────────
+const FX = {
+  pulse(c,r,on)  { if(!on) return null; const p=0.55+0.45*Math.sin(frame*.12); return hsl((frame*2+c*3)%360,100,40+25*p); },
+  zoom(c,r,on)   { if(!on) return null; const s=0.4+Math.abs(Math.sin(frame*.05))*.6,cx=COLS/2,cy=ROWS/2; return{x:cx+(c-cx)*s,y:cy+(r-cy)*s,color:hsl(30+Math.sin(frame*.04)*30,100,55)}; },
+  shatter(c,r,on){ if(!on) return null; const ph=(frame*.06+c*.3+r*.2)%(Math.PI*2),a=Math.atan2(r-ROWS/2,c-COLS/2)+Math.sin(frame*.04)*.5,d=1+4*Math.abs(Math.sin(ph)); return{x:c+Math.cos(a)*d,y:r+Math.sin(a)*d,color:hsl((c*4+frame*3)%360,100,60)}; },
+  rain(c,r,on)   { if(!on) return null; const d=(r+frame*.5+c*.07)%(ROWS+4); return hsl(120+(c*2)%60,100,35+30*(1-d/(ROWS+4))); },
+  wave(c,r,on)   { if(!on) return null; return{x:c,y:r+2.5*Math.sin(frame*.1+c*.35),color:hsl((c*5+frame*4)%360,100,55)}; },
+  glitch(c,r,on) { if(!on) return null; const gr=Math.floor(frame*.4)%ROWS,ig=Math.abs(r-gr)<2&&Math.random()<.6; return{x:ig?c+(Math.random()-.5)*12:c,y:r,color:hsl(ig?(Math.random()<.5?0:180):200,100,ig?80:55)}; },
+  swipe(c,r,on)  { if(!on) return null; const ph=(frame%90)/90,w=ph*(COLS+10)-5,d=c-w; if(d<0||d>10) return null; return hsl((frame*3+r*5)%360,100,80-d*6); },
+  explode(c,r,on){ if(!on) return null; const ph=(frame%80)/80,cx=COLS/2,cy=ROWS/2,a=Math.atan2(r-cy,c-cx); if(1-ph<.1) return null; return{x:c+Math.cos(a)*30*ph,y:r+Math.sin(a)*30*ph,color:hsl((a*57+180+frame*2)%360,100,55)}; },
+  spin(c,r,on)   { if(!on) return null; const cx=COLS/2,cy=ROWS/2,dx=c-cx,dy=r-cy,rad=Math.sqrt(dx*dx+dy*dy),ba=Math.atan2(dy,dx); return{x:cx+rad*Math.cos(ba+frame*.04),y:cy+rad*Math.sin(ba+frame*.04),color:hsl((ba*57+180+frame*2)%360,100,55)}; },
+  static(c,r,on) { if(!on){ return Math.random()<.004?hsl(200,20,25):null; } const n=Math.random()<.15; return hsl(n?Math.random()*360:(frame*3+c*2)%360,n?50:100,n?80:55); },
+};
+
+// ── Draw loop ──────────────────────────────────────────────────────────────
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#050905';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#0f1a0f';
+  for (let r = 0; r <= ROWS; r++) ctx.fillRect(0, r * (CELL + GAP), W, GAP);
+  for (let c = 0; c <= COLS; c++) ctx.fillRect(c * (CELL + GAP), 0, GAP, H);
+  const fn = FX[activeFx] || FX.pulse;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const on = isOn(c, r);
+      const res = fn(c, r, on);
+      if (!res) { ctx.fillStyle = '#0a130a'; ctx.fillRect(px(c), py(r), CELL, CELL); continue; }
+      let dx = c, dy = r, color;
+      if (typeof res === 'string') { color = res; } else { dx = res.x; dy = res.y; color = res.color; }
+      const sx = px(Math.round(dx)), sy = py(Math.round(dy));
+      if (sx < -CELL || sx > W || sy < -CELL || sy > H) continue;
+      ctx.fillStyle = color;
+      ctx.fillRect(sx, sy, CELL, CELL);
+      ctx.fillStyle = 'rgba(255,255,255,0.28)';
+      ctx.fillRect(sx + 1, sy + 1, 2, 2);
+    }
+  }
+  frame++;
+  requestAnimationFrame(draw);
+}
+
+// ── Effect auto-cycle ──────────────────────────────────────────────────────
+let fxAutoIdx = 0;
+function startFxAuto() {
+  if (autoTimer) clearInterval(autoTimer);
+  autoTimer = setInterval(() => {
+    if (userIsTyping) return;
+    fxAutoIdx = (fxAutoIdx + 1) % EFFECTS.length;
+    setEffect(EFFECTS[fxAutoIdx].id);
+  }, AUTO_ADVANCE_MS);
+}
+
+function setEffect(id) {
+  activeFx = id;
+  frame = 0;
+  document.querySelectorAll('.fx-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+}
+
+// ── Haiku loader ───────────────────────────────────────────────────────────
+function loadHaiku(idx, scroll) {
+  const h = HAIKUS[idx];
+  inp.value = '';
+  updateCounter(0);
+  inp.placeholder = h.text;
+  const attr = document.getElementById('attr');
+  attr.style.opacity = '0';
+  setTimeout(() => { attr.textContent = '— ' + h.attr; attr.style.opacity = '1'; }, 200);
+  buildPixels('');
+  frame = 0;
+  if (scroll) document.getElementById('boardOuter').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Counter + warning ──────────────────────────────────────────────────────
+function updateCounter(n) {
+  const el = document.getElementById('cnt');
+  el.textContent = n + '/100';
+  el.classList.toggle('warn', n > 85);
+}
+
+// ── Copy button ────────────────────────────────────────────────────────────
+document.getElementById('copybtn').addEventListener('click', function() {
+  const text = inp.value.trim() || HAIKUS[haikuIdx].text;
+  navigator.clipboard.writeText(text).then(() => {
+    this.textContent = '✓ Copied!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = '⧉ Copy Text'; this.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    this.textContent = '✓ Copied!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = '⧉ Copy Text'; this.classList.remove('copied'); }, 2000);
+  });
+});
+
+// ── Input handling ─────────────────────────────────────────────────────────
+inp.addEventListener('input', function() {
+  updateCounter(this.value.length);
+  buildPixels(this.value);
+  userIsTyping = this.value.length > 0;
+});
+
+inp.addEventListener('blur', () => { userIsTyping = inp.value.length > 0; });
+
+// ── Next haiku button ──────────────────────────────────────────────────────
+document.getElementById('haikubtn').addEventListener('click', function() {
+  haikuIdx = (haikuIdx + 1) % HAIKUS.length;
+  loadHaiku(haikuIdx, true);
+});
+
+// ── Build effect buttons ───────────────────────────────────────────────────
+const bar = document.getElementById('fxbar');
+EFFECTS.forEach((e, i) => {
+  const b = document.createElement('button');
+  b.className = 'fx-btn' + (e.id === activeFx ? ' active' : '');
+  b.dataset.id = e.id;
+  b.textContent = e.label;
+  b.addEventListener('click', () => {
+    fxAutoIdx = i;
+    setEffect(e.id);
+  });
+  bar.appendChild(b);
+});
+
+// ── Music Engine (NES/SNES Video Poker style) ──────────────────────────────
+// Uses Web Audio API: square waves (NES pulse), triangle (NES bass),
+// periodic wave (SNES orchestral shimmer), noise (percussion)
+
+let audioCtx = null, masterGain = null, musicStarted = false, isMuted = false;
+
+// Note frequencies
+const NOTES_MAP = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+const N = (note, oct) => {
+  if (!note || NOTES_MAP[note] === undefined) return null;
+  const semi = NOTES_MAP[note] + (oct - 4) * 12 - 9;
+  return 440 * Math.pow(2, semi / 12);
+};
+
+// The main looping sequence — a jazzy, lounge-y video poker feel
+// Format: [note, octave, duration_beats] — null = rest
+const BPM = 112;
+const BEAT = 60 / BPM;
+
+// Melody (square wave ch1) — main hook, 32-bar loop
+const MELODY = [
+  ['E',5,.5],['D',5,.5],['C',5,1],['E',5,.5],['G',5,.5],
+  ['A',5,1],['G',5,.5],['F',5,.5],['E',5,1],[null,1],
+  ['D',5,.5],['F',5,.5],['A',5,1],['G',5,.5],['F',5,.5],
+  ['E',5,2],[null,.5],
+  ['C',5,.5],['E',5,.5],['G',5,.5],['B',4,.5],['C',5,1],
+  ['D',5,.5],['E',5,.5],['F',5,1],['E',5,.5],['D',5,.5],
+  ['C',5,1.5],['E',5,.5],['G',5,.5],['A',5,.5],
+  ['G',5,.5],['F',5,.5],['E',5,.5],['D',5,.5],['C',5,2],
+];
+
+// Counter-melody (square wave ch2, quieter) — 16-bar loop
+const COUNTER = [
+  ['G',4,.5],['A',4,.5],['B',4,1],[null,.5],['G',4,.5],
+  ['F',4,1],['E',4,.5],['F',4,.5],['G',4,1],[null,1],
+  ['A',4,.5],['G',4,.5],['F',4,1],['E',4,1],[null,1],
+  ['D',4,.5],['E',4,.5],['F',4,1],['G',4,1],['A',4,1],
+  ['G',4,2],[null,1],['E',4,.5],['F',4,.5],
+  ['G',4,1],['F',4,.5],['E',4,.5],['D',4,1],[null,1],
+  ['C',4,.5],['D',4,.5],['E',4,.5],['F',4,.5],['G',4,2],
+];
+
+// Bass line (triangle wave) — walking bass
+const BASS = [
+  ['C',3,1],['G',2,1],['A',2,1],['E',2,1],
+  ['F',2,1],['C',3,1],['G',2,1],['G',2,1],
+  ['A',2,1],['E',2,1],['F',2,1],['C',3,1],
+  ['D',2,1],['G',2,1],['C',3,1],['C',3,1],
+  ['C',3,1],['G',2,1],['F',2,1],['E',2,1],
+  ['A',2,1],['D',3,1],['G',2,1],['C',3,1],
+];
+
+// Chord pads (SNES-style soft strings) — block chords, 1 per 2 beats
+const CHORDS = [
+  [['C',4],['E',4],['G',4]], [['C',4],['E',4],['G',4]],
+  [['A',3],['C',4],['E',4]], [['A',3],['C',4],['E',4]],
+  [['F',3],['A',3],['C',4]], [['F',3],['A',3],['C',4]],
+  [['G',3],['B',3],['D',4]], [['G',3],['B',3],['D',4]],
+  [['C',4],['E',4],['G',4]], [['C',4],['E',4],['G',4]],
+  [['D',3],['F',3],['A',3]], [['D',3],['F',3],['A',3]],
+  [['G',3],['B',3],['D',4]], [['G',3],['B',3],['D',4]],
+  [['C',4],['E',4],['G',4]], [['C',4],['E',4],['G',4]],
+];
+
+function initAudio() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
+  masterGain.connect(audioCtx.destination);
+}
+
+// Make a NES-style square wave (duty ~50% via periodic wave)
+function makeSquare(freq, startTime, dur, vol, detune=0) {
+  if (!freq || !isFinite(freq) || !isFinite(startTime) || !isFinite(dur)) return;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  const real = new Float32Array(32); const imag = new Float32Array(32);
+  for (let k = 1; k < 32; k += 2) { imag[k] = 1 / k; }
+  osc.setPeriodicWave(audioCtx.createPeriodicWave(real, imag));
+  osc.frequency.value = freq;
+  osc.detune.value = detune;
+  g.gain.setValueAtTime(0, startTime);
+  g.gain.linearRampToValueAtTime(vol, startTime + 0.01);
+  g.gain.setValueAtTime(vol, startTime + dur * BEAT - 0.04);
+  g.gain.linearRampToValueAtTime(0, startTime + dur * BEAT);
+  osc.connect(g); g.connect(masterGain);
+  osc.start(startTime); osc.stop(startTime + dur * BEAT + 0.05);
+}
+
+// Triangle wave for bass (NES triangle channel)
+function makeTriangle(freq, startTime, dur, vol) {
+  if (!freq || !isFinite(freq) || !isFinite(startTime) || !isFinite(dur)) return;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0, startTime);
+  g.gain.linearRampToValueAtTime(vol, startTime + 0.02);
+  g.gain.setValueAtTime(vol, startTime + dur * BEAT - 0.05);
+  g.gain.linearRampToValueAtTime(0, startTime + dur * BEAT + 0.02);
+  osc.connect(g); g.connect(masterGain);
+  osc.start(startTime); osc.stop(startTime + dur * BEAT + 0.1);
+}
+
+// SNES-style soft pad chord — sine with slight shimmer
+function makePad(freqs, startTime, dur, vol) {
+  freqs.forEach((f, i) => {
+    if (!f || !isFinite(f)) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    osc.detune.value = (i - 1) * 4;
+    g.gain.setValueAtTime(0, startTime);
+    g.gain.linearRampToValueAtTime(vol / freqs.length, startTime + 0.08);
+    g.gain.setValueAtTime(vol / freqs.length, startTime + dur * BEAT - 0.12);
+    g.gain.linearRampToValueAtTime(0, startTime + dur * BEAT + 0.1);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(startTime); osc.stop(startTime + dur * BEAT + 0.2);
+  });
+}
+
+// Noise burst for percussion (hi-hat / snare feel)
+function makeNoise(startTime, dur, vol, hipass=800) {
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.15, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const filt = audioCtx.createBiquadFilter();
+  filt.type = 'highpass'; filt.frequency.value = hipass;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(vol, startTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, startTime + dur * BEAT);
+  src.connect(filt); filt.connect(g); g.connect(masterGain);
+  src.start(startTime); src.stop(startTime + dur * BEAT + 0.05);
+}
+
+// Schedule one full loop of music, then reschedule
+function scheduleLoop(startTime) {
+  const loopBeats = 32;
+  const loopDur = loopBeats * BEAT;
+
+  // ── Melody (pulse 1) — two reps of 16-beat phrase ──
+  for (let rep = 0; rep < 2; rep++) {
+    let mt = startTime + rep * 16 * BEAT;
+    for (const ev of MELODY) {
+      if (ev[0]) { const f = N(ev[0], ev[1]); if (f) makeSquare(f, mt, ev[2], 0.08); }
+      mt += ev[2] * BEAT;
+    }
+  }
+
+  // ── Counter-melody (pulse 2) — two reps, each starting fresh ──
+  for (let rep = 0; rep < 2; rep++) {
+    let ct = startTime + rep * 16 * BEAT;
+    for (const ev of COUNTER) {
+      if (ev[0]) { const f = N(ev[0], ev[1]); if (f) makeSquare(f, ct, ev[2], 0.045, -8); }
+      ct += ev[2] * BEAT;
+    }
+  }
+
+  // ── Bass (triangle) — two reps ──
+  for (let rep = 0; rep < 2; rep++) {
+    let bt = startTime + rep * 16 * BEAT;
+    for (const ev of BASS) {
+      if (ev[0]) { const f = N(ev[0], ev[1]); if (f) makeTriangle(f, bt, ev[2], 0.13); }
+      bt += ev[2] * BEAT;
+    }
+  }
+
+  // ── Chord pads (SNES strings) ──
+  for (let i = 0; i < CHORDS.length * 2; i++) {
+    const chord = CHORDS[i % CHORDS.length];
+    const freqs = chord.map(c => N(c[0], c[1])).filter(f => f && isFinite(f));
+    if (freqs.length) makePad(freqs, startTime + i * 2 * BEAT, 2, 0.18);
+  }
+
+  // ── Percussion: kick 1&3, hi-hat 8ths, snare 2&4 ──
+  for (let beat = 0; beat < loopBeats; beat++) {
+    const bt2 = startTime + beat * BEAT;
+    makeNoise(bt2, 0.15, 0.025, 4000);
+    makeNoise(bt2 + BEAT * 0.5, 0.12, 0.018, 5000);
+    if (beat % 4 === 0 || beat % 4 === 2) {
+      const kick = audioCtx.createOscillator();
+      const kg = audioCtx.createGain();
+      kick.type = 'sine';
+      kick.frequency.setValueAtTime(120, bt2);
+      kick.frequency.exponentialRampToValueAtTime(40, bt2 + 0.15);
+      kg.gain.setValueAtTime(0.22, bt2);
+      kg.gain.exponentialRampToValueAtTime(0.0001, bt2 + 0.25);
+      kick.connect(kg); kg.connect(masterGain);
+      kick.start(bt2); kick.stop(bt2 + 0.3);
+    }
+    if (beat % 4 === 1 || beat % 4 === 3) {
+      makeNoise(bt2, 0.2, 0.06, 300);
+    }
+  }
+
+  setTimeout(() => {
+    if (musicStarted && !isMuted) scheduleLoop(audioCtx.currentTime + 0.1);
+  }, (loopDur - 0.5) * 1000);
+}
+
+function startMusic() {
+  if (!audioCtx) initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  musicStarted = true;
+  scheduleLoop(audioCtx.currentTime + 0.05);
+}
+
+function stopMusic() {
+  if (masterGain) {
+    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+  }
+  musicStarted = false;
+}
+
+// Mute button
+const muteBtn = document.getElementById('mutebtn');
+muteBtn.addEventListener('click', function() {
+  if (!audioCtx) {
+    // First click — start music
+    isMuted = false;
+    this.classList.remove('muted');
+    this.textContent = '♪ Music';
+    startMusic();
+    return;
+  }
+  isMuted = !isMuted;
+  if (isMuted) {
+    stopMusic();
+    this.textContent = '♪ Muted';
+    this.classList.add('muted');
+  } else {
+    this.textContent = '♪ Music';
+    this.classList.remove('muted');
+    startMusic();
+  }
+});
+
+// Auto-start music on any user interaction with the page (browser policy)
+let musicUnlocked = false;
+function unlockMusic() {
+  if (musicUnlocked || isMuted) return;
+  musicUnlocked = true;
+  startMusic();
+  document.removeEventListener('click', unlockMusic);
+  document.removeEventListener('keydown', unlockMusic);
+}
+// ── Init ───────────────────────────────────────────────────────────────────
+loadHaiku(0, false);
+draw();
+startFxAuto();
+</script>
+</body>
+</html>
