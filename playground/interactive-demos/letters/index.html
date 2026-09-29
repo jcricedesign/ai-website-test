@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Living Letters</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width:100vw; height:100vh; overflow:hidden; font-family:'Georgia',serif; }
+  canvas { display:block; }
+
+  #status {
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+    font-family:'Georgia',serif; font-size:13px; letter-spacing:0.18em;
+    pointer-events:none; transition:opacity 0.6s, color 0.8s; opacity:0;
+  }
+
+  #theme-switcher {
+    position:fixed; top:20px; right:20px;
+    display:flex; gap:8px; z-index:100; align-items:center;
+  }
+
+  .theme-btn {
+    width:36px; height:36px; border-radius:50%;
+    border:2px solid transparent; cursor:pointer;
+    transition:transform 0.2s, box-shadow 0.3s;
+    position:relative; outline:none; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .theme-btn:hover { transform:scale(1.15); }
+
+  .theme-btn[data-theme="light"] {
+    background:radial-gradient(circle at 40% 40%,#fff9f0,#e8dcc8);
+    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  }
+  .theme-btn[data-theme="light"].active {
+    border-color:#c8a96e;
+    box-shadow:0 0 0 3px rgba(200,169,110,0.4);
+    transform:scale(1.1);
+  }
+  .theme-btn[data-theme="noir"] {
+    background:radial-gradient(circle at 40% 40%,#2a2a3a,#0d0d18);
+    box-shadow:0 2px 8px rgba(0,0,0,0.4);
+  }
+  .theme-btn[data-theme="noir"].active {
+    border-color:#7b8fff;
+    box-shadow:0 0 0 3px rgba(123,143,255,0.5),0 0 12px rgba(123,143,255,0.3);
+    transform:scale(1.1);
+  }
+  .theme-btn[data-theme="forest"] {
+    background:radial-gradient(circle at 40% 40%,#2d4a2a,#0f1f0e);
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .theme-btn[data-theme="forest"].active {
+    border-color:#5dfc8e;
+    box-shadow:0 0 0 3px rgba(93,252,142,0.4),0 0 12px rgba(93,252,142,0.25);
+    transform:scale(1.1);
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="status">watching letters think…</div>
+
+<div id="theme-switcher">
+  <button class="theme-btn active" data-theme="light" title="Light">☀️</button>
+  <button class="theme-btn"        data-theme="noir"  title="Noir">🌙</button>
+  <button class="theme-btn"        data-theme="forest" title="Forest">🌿</button>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// ═══════════════════════════════════════════════════════
+//  THEMES
+// ═══════════════════════════════════════════════════════
+const THEMES = {
+  light: {
+    bg: '#f7f5f0',
+    bgDraw() {
+      ctx.fillStyle = '#f7f5f0';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      if (Math.random()<0.03) {
+        for (let i=0;i<5;i++) {
+          ctx.fillStyle='rgba(180,160,130,0.025)';
+          ctx.fillRect(Math.random()*canvas.width,Math.random()*canvas.height,Math.random()*3+1,Math.random()*3+1);
+        }
+      }
+    },
+    tileIdle()     { return { fill:`hsl(${[30,40,50,200,210,0][Math.floor(Math.random()*6)]},18%,96%)`, stroke:'rgba(160,140,110,0.15)', letter:'#5a4a32', score:'rgba(140,120,80,0.4)',  shadow:'rgba(60,40,20,0.09)',   shadowBlur:10,  glowBlur:0  }; },
+    tileAssembled(){ return { fill:'#fffdf7', stroke:'rgba(160,140,110,0.22)', letter:'#3a2e1a', score:'rgba(140,120,80,0.5)',  shadow:'rgba(60,40,20,0.14)',  shadowBlur:10,  glowBlur:0  }; },
+    statusColor:'#bbb',
+    font:"bold 32px 'Georgia',serif",
+    tileRadius:7,
+    particleColor:null,
+  },
+
+  noir: {
+    bg: '#0d0d18',
+    bgDraw() {
+      const g=ctx.createRadialGradient(canvas.width/2,canvas.height/2,0,canvas.width/2,canvas.height/2,Math.max(canvas.width,canvas.height)*0.7);
+      g.addColorStop(0,'#141428'); g.addColorStop(1,'#060610');
+      ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+      if (Math.random()<0.05) {
+        ctx.fillStyle='rgba(100,120,255,0.018)';
+        ctx.fillRect(0,Math.random()*canvas.height,canvas.width,1);
+      }
+      if (Math.random()<0.07) {
+        ctx.save(); ctx.shadowColor='#7b8fff'; ctx.shadowBlur=6;
+        ctx.fillStyle=`rgba(140,160,255,${0.02+Math.random()*0.05})`;
+        ctx.beginPath(); ctx.arc(Math.random()*canvas.width,Math.random()*canvas.height,Math.random()*1.2,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+    },
+    tileIdle()     { return { fill:'#12121f', stroke:'rgba(80,90,160,0.3)', letter:'#6070b8', score:'rgba(80,100,180,0.4)', shadow:'rgba(0,0,40,0.7)',         shadowBlur:12,  glowBlur:0  }; },
+    tileAssembled(){ return { fill:'#1a1a2e', stroke:'rgba(123,143,255,0.75)', letter:'#c8d0ff', score:'rgba(123,143,255,0.6)', shadow:'rgba(80,100,255,0.4)', shadowBlur:0,   glowBlur:22 }; },
+    statusColor:'#5060b8',
+    font:"bold 32px 'Courier New',monospace",
+    tileRadius:3,
+    particleColor:'rgba(123,143,255,',
+  },
+
+  forest: {
+    bg: '#0a150a',
+    bgDraw() {
+      const g=ctx.createRadialGradient(canvas.width/2,canvas.height*0.3,0,canvas.width/2,canvas.height/2,Math.max(canvas.width,canvas.height)*0.8);
+      g.addColorStop(0,'#0f2010'); g.addColorStop(0.5,'#081408'); g.addColorStop(1,'#030803');
+      ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+      if (Math.random()<0.09) {
+        const x=Math.random()*canvas.width, y=Math.random()*canvas.height;
+        ctx.save(); ctx.shadowColor='#5dfc8e'; ctx.shadowBlur=10;
+        ctx.fillStyle=`rgba(93,252,142,${0.02+Math.random()*0.07})`;
+        ctx.beginPath(); ctx.arc(x,y,Math.random()*1.8,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+      if (Math.random()<0.006) {
+        ctx.save(); ctx.strokeStyle='rgba(40,80,30,0.07)'; ctx.lineWidth=0.5;
+        ctx.beginPath();
+        const bx=Math.random()*canvas.width;
+        ctx.moveTo(bx,canvas.height);
+        ctx.quadraticCurveTo(bx+(Math.random()-0.5)*120,canvas.height-Math.random()*200,bx+(Math.random()-0.5)*60,canvas.height-Math.random()*320);
+        ctx.stroke(); ctx.restore();
+      }
+    },
+    tileIdle()     { return { fill:'#0a1a0a', stroke:'rgba(40,100,40,0.35)', letter:'#4a8a50', score:'rgba(60,140,60,0.4)',  shadow:'rgba(0,20,0,0.7)',         shadowBlur:12,  glowBlur:0  }; },
+    tileAssembled(){ return { fill:'#0d2a0d', stroke:'rgba(93,252,142,0.7)', letter:'#a8ffb8', score:'rgba(93,252,142,0.5)', shadow:'rgba(30,200,80,0.35)',      shadowBlur:0,   glowBlur:20 }; },
+    statusColor:'#3a8a4a',
+    font:"bold 32px 'Georgia',serif",
+    tileRadius:10,
+    particleColor:'rgba(93,252,142,',
+  }
+};
+
+let currentTheme='light';
+let T=THEMES[currentTheme];
+
+document.querySelectorAll('.theme-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if (btn.dataset.theme===currentTheme) return;
+    document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTheme=btn.dataset.theme;
+    T=THEMES[currentTheme];
+    document.body.style.background=T.bg;
+    statusEl.style.color=T.statusColor;
+    disperseAll();
+    setTimeout(()=>{ spawnLetters(); phase='wander'; phaseTimer=240; },600);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+//  WORD LIST
+// ═══════════════════════════════════════════════════════
+const WORDS=[
+  'cat','bat','rat','hat','mat','sat','pat',
+  'can','ban','ran','fan','man','pan','tan','van',
+  'cap','map','nap','rap','tap','lap','gap',
+  'car','bar','far','jar','tar','war',
+  'art','part','cart','dart','mart',
+  'are','bare','care','dare','fare','hare','mare','rare','ware',
+  'ace','face','lace','pace','race','space','place','trace',
+  'age','cage','page','rage','sage','wage','stage',
+  'aid','laid','maid','paid','raid','said',
+  'aim','claim',
+  'air','fair','hair','lair','pair','stair',
+  'ale','bale','gale','male','pale','sale','tale','vale','whale',
+  'all','ball','call','fall','hall','mall','tall','wall',
+  'amp','camp','damp','lamp','ramp','stamp','tramp',
+  'and','band','hand','land','sand','stand','brand',
+  'ant','cant','pant','rant','slant','plant','grant',
+  'ape','cape','drape','grape','shape','tape',
+  'arc','dark','lark','mark','park','spark','stark',
+  'arm','farm','harm','alarm','charm',
+  'ash','bash','cash','clash','crash','dash','flash','lash','mash','rash','slash','smash','trash',
+  'ask','bask','cask','flask','mask','task',
+  'ate','date','fate','gate','hate','late','mate','plate','rate','skate','slate','state',
+  'ear','fear','gear','hear','near','rear','sear','tear','wear','year','clear','spear',
+  'eat','beat','feat','heat','meat','neat','seat','treat','wheat',
+  'end','bend','fend','lend','mend','send','tend','blend','spend','trend',
+  'ice','dice','nice','price','rice','slice','spice','twice',
+  'ill','bill','fill','hill','kill','mill','pill','will','drill','grill','skill','spill','still','thrill',
+  'ink','drink','link','pink','rink','sink','think','wink',
+  'inn','bin','fin','gin','pin','sin','thin','win','chin','grin','shin','skin','spin','twin',
+  'oak','soak','cloak',
+  'oat','boat','coat','goat','moat','float','throat',
+  'oil','boil','coil','foil','soil','toil','spoil',
+  'old','bold','cold','fold','gold','hold','mold','sold','told','scold',
+  'one','bone','cone','gone','lone','stone','tone','zone','alone','clone','phone','prone',
+  'ore','bore','core','more','sore','wore','chore','score','shore','snore','store',
+  'our','four','pour','tour','sour','your',
+  'own','down','gown','town','brown','clown','crown','drown','frown',
+  'use','fuse','muse','ruse',
+  'urn','burn','turn','churn',
+  'ire','fire','hire','tire','wire',
+  'rim','trim','brim','grim','slim',
+  'rut','but','cut','gut','hut','nut','shut','strut',
+  'run','fun','gun','sun','bun','spun','stun',
+];
+
+function weightedLetter(){
+  const pool='AAABBBCCCDDDEEEFFFGGGHHIIIIJJKKLLLMMMNNNOOOPPPQRRRSSSTTTUUUVVWWXYYZ';
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function findWord(arr){
+  const avail={};
+  arr.forEach(l=>{avail[l]=(avail[l]||0)+1;});
+  let best=null;
+  for (const w of WORDS){
+    const need={};
+    for (const ch of w.toUpperCase()) need[ch]=(need[ch]||0)+1;
+    let ok=true;
+    for (const [ch,cnt] of Object.entries(need)){
+      if ((avail[ch]||0)<cnt){ok=false;break;}
+    }
+    if (ok&&(!best||w.length>best.length)) best=w;
+  }
+  return best?best.toUpperCase():null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════════════
+const particles=[];
+class Particle{
+  constructor(x,y,col){
+    this.x=x;this.y=y;
+    this.vx=(Math.random()-0.5)*2.5;
+    this.vy=(Math.random()-0.5)*2.5-0.5;
+    this.life=1;
+    this.decay=0.012+Math.random()*0.018;
+    this.r=1.5+Math.random()*2;
+    this.col=col;
+  }
+  update(){this.x+=this.vx;this.y+=this.vy;this.vy+=0.04;this.life-=this.decay;}
+  draw(){
+    ctx.save();
+    ctx.globalAlpha=this.life*0.7;
+    ctx.fillStyle=this.col+this.life*0.6+')';
+    ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  LETTER
+// ═══════════════════════════════════════════════════════
+const TILE_SIZE=52;
+const SCORES={A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10};
+
+class Letter{
+  constructor(char,x,y){
+    this.char=char; this.x=x; this.y=y;
+    this.vx=(Math.random()-0.5)*0.4;
+    this.vy=(Math.random()-0.5)*0.4;
+    this.angle=(Math.random()-0.5)*0.3;
+    this.av=(Math.random()-0.5)*0.002;
+    this.targetX=null;this.targetY=null;this.targetAngle=0;
+    this.assembling=false;this.assembled=false;
+    this.wobble=Math.random()*Math.PI*2;
+    this.wobbleSpeed=0.015+Math.random()*0.02;
+    this.scale=0;
+    this.born=performance.now();
+  }
+
+  wander(){
+    this.vx+=(Math.random()-0.5)*0.04;
+    this.vy+=(Math.random()-0.5)*0.04;
+    const spd=Math.sqrt(this.vx*this.vx+this.vy*this.vy);
+    if(spd>0.55){this.vx*=0.55/spd;this.vy*=0.55/spd;}
+    this.wobble+=this.wobbleSpeed;
+    this.av+=(Math.random()-0.5)*0.0003;this.av*=0.97;
+    this.angle+=this.av;
+    this.angle=Math.max(-0.35,Math.min(0.35,this.angle));
+    this.x+=this.vx;this.y+=this.vy;
+    const m=TILE_SIZE;
+    if(this.x<m){this.x=m;this.vx=Math.abs(this.vx);}
+    if(this.x>canvas.width-m){this.x=canvas.width-m;this.vx=-Math.abs(this.vx);}
+    if(this.y<m){this.y=m;this.vy=Math.abs(this.vy);}
+    if(this.y>canvas.height-m){this.y=canvas.height-m;this.vy=-Math.abs(this.vy);}
+  }
+
+  moveToTarget(){
+    const dx=this.targetX-this.x,dy=this.targetY-this.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<1.2){
+      this.x=this.targetX;this.y=this.targetY;
+      this.vx*=0.5;this.vy*=0.5;
+      if(!this.assembled){
+        this.assembled=true;
+        if(T.particleColor) for(let i=0;i<8;i++) particles.push(new Particle(this.x,this.y,T.particleColor));
+      }
+    } else {
+      const spd=Math.min(dist*0.04,3.5);
+      this.vx=this.vx*0.88+(dx/dist)*spd*0.12+(dx/dist)*spd;
+      this.vy=this.vy*0.88+(dy/dist)*spd*0.12+(dy/dist)*spd;
+      this.vx*=0.92;this.vy*=0.92;
+      this.x+=this.vx;this.y+=this.vy;
+    }
+    this.angle+=(this.targetAngle-this.angle)*0.06;
+    this.wobble+=this.wobbleSpeed*0.3;
+  }
+
+  update(){
+    const age=(performance.now()-this.born)/400;
+    this.scale=Math.min(1,age*age);
+    if(this.assembling) this.moveToTarget();
+    else this.wander();
+  }
+
+  draw(){
+    const c=this.assembled?T.tileAssembled():T.tileIdle();
+    const s=TILE_SIZE,r=T.tileRadius;
+    ctx.save();
+    ctx.translate(this.x,this.y);
+    ctx.rotate(this.angle+(this.assembled?0:Math.sin(this.wobble)*0.04));
+    ctx.scale(this.scale,this.scale);
+
+    if(c.glowBlur>0){
+      ctx.shadowColor=c.stroke;
+      ctx.shadowBlur=c.glowBlur;
+    } else {
+      ctx.shadowColor=c.shadow;
+      ctx.shadowBlur=c.shadowBlur;
+      ctx.shadowOffsetY=4;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(-s/2+r,-s/2);ctx.lineTo(s/2-r,-s/2);
+    ctx.quadraticCurveTo(s/2,-s/2,s/2,-s/2+r);
+    ctx.lineTo(s/2,s/2-r);ctx.quadraticCurveTo(s/2,s/2,s/2-r,s/2);
+    ctx.lineTo(-s/2+r,s/2);ctx.quadraticCurveTo(-s/2,s/2,-s/2,s/2-r);
+    ctx.lineTo(-s/2,-s/2+r);ctx.quadraticCurveTo(-s/2,-s/2,-s/2+r,-s/2);
+    ctx.closePath();
+    ctx.fillStyle=c.fill;ctx.fill();
+
+    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    ctx.strokeStyle=c.stroke;ctx.lineWidth=1.5;ctx.stroke();
+
+    ctx.font=T.font;
+    ctx.fillStyle=c.letter;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(this.char,0,1);
+
+    ctx.font="10px 'Georgia',serif";
+    ctx.fillStyle=c.score;
+    ctx.textAlign='right';ctx.textBaseline='bottom';
+    ctx.fillText(SCORES[this.char]||1,s/2-5,s/2-4);
+
+    ctx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  BREAKING BAD special state
+// ═══════════════════════════════════════════════════════
+// BB tile: periodic-table style box drawn on top of normal tile
+// Highlighted letters: Br, Ba, d — the "chemical" letters
+const BB_WORD1 = 'BREAKING';
+const BB_WORD2 = 'BAD';
+const BB_ALL   = (BB_WORD1+BB_WORD2).split(''); // 11 letters
+let bbDone = false;        // fires exactly once
+let bbActive = false;      // currently in BB sequence
+let bbFlashTimer = 0;      // green flash overlay
+
+// Per-letter BB flag so draw() can style them specially
+// stored on letter instance as .isBB and .bbElement
+const BB_ELEMENTS = { B:'Br', A:'Ar', D:'Dy', R:'Rn', E:'Es', K:'K', I:'I', N:'N', G:'Ge' };
+
+function spawnBBLetters(){
+  letters=[];
+  // Guarantee all letters for BREAKINGBAD plus a few extras
+  const required=[...'BREAKINGBAD'];
+  // pad with randoms to reach 16
+  while(required.length<16) required.push(weightedLetter());
+  // shuffle
+  for(let i=required.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [required[i],required[j]]=[required[j],required[i]];
+  }
+  required.forEach((ch,i)=>{
+    const x=TILE_SIZE*1.5+Math.random()*(canvas.width-TILE_SIZE*3);
+    const y=TILE_SIZE*1.5+Math.random()*(canvas.height-TILE_SIZE*3);
+    const l=new Letter(ch,x,y);
+    l.born=performance.now()+i*80;
+    letters.push(l);
+  });
+}
+
+function startBBAssemble(){
+  bbActive=true;
+  statusEl.style.color='#39d353';
+  statusEl.style.opacity='1';
+  statusEl.textContent='breaking bad';
+
+  const gap=TILE_SIZE+8;
+  const row1W=(BB_WORD1.length-1)*gap;
+  const row2W=(BB_WORD2.length-1)*gap;
+  const row1X=canvas.width/2-row1W/2;
+  const row2X=canvas.width/2-row2W/2;
+  const row1Y=canvas.height/2-TILE_SIZE*0.7;
+  const row2Y=canvas.height/2+TILE_SIZE*0.9;
+
+  // assign word1
+  const used=new Set();
+  BB_WORD1.split('').forEach((ch,pos)=>{
+    const idx=letters.findIndex((l,i)=>l.char===ch&&!used.has(i));
+    if(idx===-1)return;
+    used.add(idx);
+    const l=letters[idx];
+    l.targetX=row1X+pos*gap; l.targetY=row1Y;
+    l.targetAngle=0; l.assembling=true; l.assembled=false;
+    l.isBB=true; l.bbElement=BB_ELEMENTS[ch]||ch;
+  });
+  // assign word2
+  BB_WORD2.split('').forEach((ch,pos)=>{
+    const idx=letters.findIndex((l,i)=>l.char===ch&&!used.has(i));
+    if(idx===-1)return;
+    used.add(idx);
+    const l=letters[idx];
+    l.targetX=row2X+pos*gap; l.targetY=row2Y;
+    l.targetAngle=0; l.assembling=true; l.assembled=false;
+    l.isBB=true; l.bbElement=BB_ELEMENTS[ch]||ch;
+  });
+
+  // idle letters scatter
+  letters.forEach((l,i)=>{
+    if(!used.has(i)){ l.vx=(Math.random()-0.5)*1.2; l.vy=(Math.random()-0.5)*1.2; }
+  });
+}
+
+// Override draw for BB tiles
+const _origDraw = Letter.prototype.draw;
+Letter.prototype.draw = function(){
+  if(!this.isBB||!this.assembled){ _origDraw.call(this); return; }
+
+  // BB assembled tile: dark periodic-table style
+  const s=TILE_SIZE, r=4;
+  ctx.save();
+  ctx.translate(this.x,this.y);
+  ctx.rotate(this.angle);
+  ctx.scale(this.scale,this.scale);
+
+  // green glow
+  ctx.shadowColor='rgba(57,211,83,0.7)';
+  ctx.shadowBlur=20;
+
+  // tile body — dark charcoal
+  ctx.beginPath();
+  ctx.moveTo(-s/2+r,-s/2);ctx.lineTo(s/2-r,-s/2);
+  ctx.quadraticCurveTo(s/2,-s/2,s/2,-s/2+r);
+  ctx.lineTo(s/2,s/2-r);ctx.quadraticCurveTo(s/2,s/2,s/2-r,s/2);
+  ctx.lineTo(-s/2+r,s/2);ctx.quadraticCurveTo(-s/2,s/2,-s/2,s/2-r);
+  ctx.lineTo(-s/2,-s/2+r);ctx.quadraticCurveTo(-s/2,-s/2,-s/2+r,-s/2);
+  ctx.closePath();
+  ctx.fillStyle='#0f1a0f';
+  ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(57,211,83,0.8)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+
+  // atomic number top-left (tiny)
+  const atomicNums={B:5,R:37,E:99,A:18,K:19,I:53,N:7,G:32,D:66};
+  ctx.font="8px 'Courier New',monospace";
+  ctx.fillStyle='rgba(57,211,83,0.6)';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(atomicNums[this.char]||'?',-s/2+5,-s/2+4);
+
+  // big letter — green
+  ctx.font="bold 30px 'Courier New',monospace";
+  ctx.fillStyle='#39d353';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(this.char,0,0);
+
+  // element symbol bottom — tiny
+  ctx.font="9px 'Courier New',monospace";
+  ctx.fillStyle='rgba(57,211,83,0.55)';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(this.bbElement||'',0,s/2-4);
+
+  ctx.restore();
+};
+
+// ═══════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════
+let letters=[],phase='wander',phaseTimer=0,currentWord=null;
+let cycleCount=0; // track cycles so BB fires on cycle 2
+
+function spawnLetters(){
+  letters=[];
+  const count=12+Math.floor(Math.random()*5);
+  for(let i=0;i<count;i++){
+    const x=TILE_SIZE*1.5+Math.random()*(canvas.width-TILE_SIZE*3);
+    const y=TILE_SIZE*1.5+Math.random()*(canvas.height-TILE_SIZE*3);
+    const l=new Letter(weightedLetter(),x,y);
+    l.born=performance.now()+i*80;
+    letters.push(l);
+  }
+}
+
+function startAssemble(){
+  // ── Breaking Bad special: trigger on 2nd cycle (or if already done, normal) ──
+  if(!bbDone && cycleCount===1){
+    bbDone=true;
+    spawnBBLetters(); // replace current letters with guaranteed BB set
+    // re-wait a beat then assemble
+    phase='bbwait';
+    phaseTimer=180;
+    return;
+  }
+
+  const word=findWord(letters.map(l=>l.char));
+  if(!word){phaseTimer=220;return;}
+  currentWord=word;
+  statusEl.style.color=T.statusColor;
+  statusEl.style.opacity='1';
+  statusEl.textContent=word.toLowerCase();
+  const used=new Set();
+  const needed=word.split('').map(ch=>{
+    const idx=letters.findIndex((l,i)=>l.char===ch&&!used.has(i));
+    used.add(idx);return idx;
+  });
+  const gap=TILE_SIZE+6,totalW=(word.length-1)*gap;
+  const sx=canvas.width/2-totalW/2,sy=canvas.height/2;
+  needed.forEach((idx,pos)=>{
+    if(idx===-1)return;
+    const l=letters[idx];
+    l.targetX=sx+pos*gap;l.targetY=sy;l.targetAngle=0;
+    l.assembling=true;l.assembled=false;
+  });
+  letters.forEach((l,i)=>{
+    if(!used.has(i)){l.vx=(Math.random()-0.5)*1.2;l.vy=(Math.random()-0.5)*1.2;}
+  });
+}
+
+function disperseAll(){
+  statusEl.style.opacity='0';
+  bbActive=false;
+  letters.forEach(l=>{
+    l.assembling=false;l.assembled=false;l.targetX=null;l.targetY=null;
+    l.isBB=false;
+    const dx=l.x-canvas.width/2,dy=l.y-canvas.height/2;
+    const d=Math.sqrt(dx*dx+dy*dy)||1;
+    l.vx=(dx/d)*(1+Math.random()*1.5);
+    l.vy=(dy/d)*(1+Math.random()*1.5);
+    l.av=(Math.random()-0.5)*0.06;
+  });
+  currentWord=null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOOP
+// ═══════════════════════════════════════════════════════
+function loop(){
+  requestAnimationFrame(loop);
+  T.bgDraw();
+
+  // BB green flash overlay
+  if(bbFlashTimer>0){
+    ctx.fillStyle=`rgba(10,40,10,${bbFlashTimer/60*0.35})`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    bbFlashTimer--;
+  }
+
+  for(let i=particles.length-1;i>=0;i--){
+    particles[i].update();particles[i].draw();
+    if(particles[i].life<=0)particles.splice(i,1);
+  }
+  letters.forEach(l=>l.update());
+  letters.forEach(l=>l.draw());
+
+  phaseTimer--;
+
+  if(phase==='wander'&&phaseTimer<=0){
+    phase='assemble';
+    startAssemble();
+    if(phase!=='bbwait') phaseTimer=320; // startAssemble may have changed phase
+  }
+  else if(phase==='bbwait'&&phaseTimer<=0){
+    // now spawn the BB assemble
+    startBBAssemble();
+    phase='assemble';
+    phaseTimer=380;
+  }
+  else if(phase==='assemble'&&phaseTimer<=0){
+    phase='hold';
+    phaseTimer=bbActive?320:200; // linger longer on BB
+    if(bbActive) bbFlashTimer=60; // trigger green flash when word is fully held
+  }
+  else if(phase==='hold'&&phaseTimer<=0){
+    phase='disperse';disperseAll();phaseTimer=180;
+  }
+  else if(phase==='disperse'&&phaseTimer<=0){
+    cycleCount++;
+    spawnLetters();phase='wander';phaseTimer=280;
+  }
+}
+
+// ── Init ──
+document.body.style.background=T.bg;
+statusEl.style.color=T.statusColor;
+spawnLetters();
+phase='wander';phaseTimer=260;
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
