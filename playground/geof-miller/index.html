@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Geof Miller — John Rice Playground</title><meta name="description" content="A working project for Geof Miller: a life in words, a living archive, and tools for reading and revision."><link rel="canonical" href="https://www.johnrice.com/playground/geof-miller/"><link rel="icon" href="/assets/common/JCR_sigil.png"><script>(()=>{try{document.documentElement.dataset.theme=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}})();</script><link rel="stylesheet" href="/assets/common/site-shell.css"><style>
+:root{--bg:#f3f3ef;--text:#111;--muted:#6f6f6a;--line:#c9c9c4;--panel:#fff;--soft:#e5e5e1}
+:root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif;transition:background .2s ease,color .2s ease}body.logged-in{background:#111;color:#f5f5f2;--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
+main{min-height:72vh}
+.login-wrap{min-height:72vh;display:grid;place-items:center;padding:72px 24px}
+.login-card{width:min(720px,100%);border:1px solid var(--line);background:var(--panel);padding:clamp(34px,6vw,72px)}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+.login-card h1{font-size:clamp(42px,6vw,78px);line-height:.92;letter-spacing:-.055em;margin:0 0 18px}
+.intro{font-size:18px;line-height:1.45;color:var(--muted);max-width:520px;margin:0 0 42px}
+.form{display:grid;gap:16px}
+label{font-size:12px;font-weight:700}
+.field{display:grid;gap:8px}
+input{width:100%;height:56px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 16px;font:inherit;font-size:18px;outline:none}
+input:focus{border-color:var(--text)}
+button{font:inherit}
+.login-button{height:56px;border:0;background:var(--text);color:var(--bg);font-weight:700;font-size:16px;cursor:pointer;margin-top:6px}
+.status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}.status.error{color:#b14e42}
+
+.dashboard{display:none;width:min(1120px,calc(100% - 48px));margin:0 auto;padding:82px 0 120px}
+.dashboard.active{display:block}
+.dashboard h1{font-size:clamp(56px,8vw,106px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px}
+.dashboard-intro{max-width:760px;margin:0 0 72px;color:var(--muted);font-size:18px;line-height:1.5}
+.demo-section{margin-top:0}
+.demo-section + .demo-section{margin-top:78px}
+.section-head{display:grid;grid-template-columns:1fr minmax(260px,430px);gap:42px;align-items:end;margin-bottom:22px}
+.dashboard h2{font-size:clamp(34px,4.5vw,58px);line-height:1;letter-spacing:-.045em;margin:0}
+.section-head p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.demo-list{display:grid;border-top:1px solid var(--line);margin-top:0}
+.demo-item{display:grid;grid-template-columns:48px minmax(0,1fr) 166px 18px;gap:24px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
+.demo-item:hover .demo-copy strong{transform:translateX(4px)}
+.demo-num{width:36px;height:36px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700}
+.demo-copy strong{display:block;font-size:22px;letter-spacing:-.025em;transition:transform .2s ease}
+.demo-copy .summary{display:block;margin-top:6px;color:var(--muted);font-size:14px;line-height:1.45}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{display:inline-block;border:1px solid var(--line);padding:4px 7px;font-size:10px;line-height:1;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.demo-preview{width:166px;aspect-ratio:16/10;position:relative;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.demo-preview iframe{position:absolute;top:0;left:0;width:960px;height:600px;border:0;transform:scale(.1729);transform-origin:top left;pointer-events:none;background:#fff}
+.demo-arrow{font-size:20px;color:var(--muted)}
+.demo-item.planned{opacity:.5;cursor:default}
+.logout{margin-top:50px;border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+@media(max-width:900px){
+  .section-head{grid-template-columns:1fr;gap:12px}
+  .demo-item{grid-template-columns:44px minmax(0,1fr) 124px 16px;gap:18px}
+  .demo-preview{width:124px}
+  .demo-preview iframe{transform:scale(.1292)}
+}
+@media(max-width:700px){
+  .dashboard{width:calc(100% - 28px);padding-top:48px}
+  .dashboard-intro{margin-bottom:54px;font-size:16px}
+  .demo-section + .demo-section{margin-top:58px}
+  .demo-item{grid-template-columns:40px 1fr auto;gap:14px;align-items:start}
+  .demo-copy strong{font-size:20px}
+  .demo-preview{display:none}
+}
+
+.dashboard{display:block}.back{display:inline-block;color:var(--muted);font-size:14px;margin-bottom:36px;text-underline-offset:4px}.demo-preview.quote{display:flex;align-items:center;padding:16px;font:18px/1.45 Georgia,serif;color:var(--text)}.tag{font-size:12px;line-height:1.3}.direction{display:grid;grid-template-columns:1fr 1fr;gap:32px;border-top:1px solid var(--line);padding-top:28px}.direction h3{margin:0 0 12px;font-size:22px;letter-spacing:-.025em}.direction p{color:var(--muted);line-height:1.6;font-size:16px;max-width:440px}.footnote{font-size:14px;color:var(--muted);margin-top:48px;line-height:1.6}a:focus-visible{outline:2px solid var(--text);outline-offset:6px}@media(max-width:700px){.direction{grid-template-columns:1fr}.demo-preview.quote{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><main class="dashboard"><a class="back" href="/playground/">Playground</a><p class="eyebrow">Website + creative archive · Work in progress</p><h1>Geof Miller</h1><p class="dashboard-intro">A life in words. A working home for a writer’s current projects, collected work, and the stories behind it—alongside tools for reading, listening, and revision.</p>
+<section class="demo-section" aria-labelledby="experiments"><div class="section-head"><h2 id="experiments">Reading + editing</h2><p>Early experiments exploring how words can be experienced and worked through, one sentence at a time.</p></div><div class="demo-list">
+<a class="demo-item" href="/playground/immersive-reader/reader/"><div class="demo-num">1</div><div class="demo-copy"><strong>The things we keep</strong><span class="summary">A sample poem in an immersive reading space, with adjustable typography, read-aloud, and individual-line playback.</span><div class="tags"><span class="tag">Reading</span><span class="tag">Voice</span><span class="tag">Working demo</span></div></div><div class="demo-preview quote" aria-hidden="true">I kept the<br>small things.</div><div class="demo-arrow">↗</div></a>
+<a class="demo-item" href="/playground/immersive-reader/editor/"><div class="demo-num">2</div><div class="demo-copy"><strong>Sentence review</strong><span class="summary">Navigate with the keyboard, listen to a sentence, and dictate a revision with the original in view.</span><div class="tags"><span class="tag">Editing</span><span class="tag">Dictation</span><span class="tag">Working demo</span></div></div><div class="demo-preview quote" aria-hidden="true">Listen.<br>Consider.<br>Revise.</div><div class="demo-arrow">↗</div></a>
+</div><p class="footnote">These experiments use a placeholder poem, not Geof’s writing. The next editorial step is to preserve changes as proposed revisions.</p></section>
+<section class="demo-section" aria-labelledby="direction"><div class="section-head"><h2 id="direction">The site ahead</h2><p>To be shaped with Geof and his material.</p></div><div class="direction"><div><p class="eyebrow">Current work</p><h3>Parkie</h3><p>A dedicated place for the film now in production, with material and updates chosen by Geof.</p></div><div><p class="eyebrow">A creative life</p><h3>Works + inspirations</h3><p>A searchable collection of screenwriting, plays, teaching, technical writing, and other work—with notes, influences, and connections to rediscover.</p></div></div></section>
+</main><script src="/assets/common/site-shell.js"></script></body></html>
