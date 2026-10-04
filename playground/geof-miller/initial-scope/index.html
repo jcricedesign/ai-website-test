@@ -1,0 +1,72 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Geof Miller Initial Scope — John Rice Playground</title><meta name="description" content="A working project for Geof Miller: a life in words, a living archive, and tools for reading and revision."><link rel="canonical" href="https://www.johnrice.com/playground/geof-miller/initial-scope/"><link rel="icon" href="/assets/common/JCR_sigil.png"><script>(()=>{try{document.documentElement.dataset.theme=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}})();</script><link rel="stylesheet" href="/assets/common/site-shell.css"><style>
+:root{--bg:#f3f3ef;--text:#111;--muted:#6f6f6a;--line:#c9c9c4;--panel:#fff;--soft:#e5e5e1}
+:root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif;transition:background .2s ease,color .2s ease}body.logged-in{background:#111;color:#f5f5f2;--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
+main{min-height:72vh}
+.login-wrap{min-height:72vh;display:grid;place-items:center;padding:72px 24px}
+.login-card{width:min(720px,100%);border:1px solid var(--line);background:var(--panel);padding:clamp(34px,6vw,72px)}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+.login-card h1{font-size:clamp(42px,6vw,78px);line-height:.92;letter-spacing:-.055em;margin:0 0 18px}
+.intro{font-size:18px;line-height:1.45;color:var(--muted);max-width:520px;margin:0 0 42px}
+.form{display:grid;gap:16px}
+label{font-size:12px;font-weight:700}
+.field{display:grid;gap:8px}
+input{width:100%;height:56px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 16px;font:inherit;font-size:18px;outline:none}
+input:focus{border-color:var(--text)}
+button{font:inherit}
+.login-button{height:56px;border:0;background:var(--text);color:var(--bg);font-weight:700;font-size:16px;cursor:pointer;margin-top:6px}
+.status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}.status.error{color:#b14e42}
+
+.dashboard{display:none;width:min(1120px,calc(100% - 48px));margin:0 auto;padding:82px 0 120px}
+.dashboard.active{display:block}
+.dashboard h1{font-size:clamp(56px,8vw,106px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px}
+.dashboard-intro{max-width:760px;margin:0 0 72px;color:var(--muted);font-size:18px;line-height:1.5}
+.demo-section{margin-top:0}
+.demo-section + .demo-section{margin-top:78px}
+.section-head{display:grid;grid-template-columns:1fr minmax(260px,430px);gap:42px;align-items:end;margin-bottom:22px}
+.dashboard h2{font-size:clamp(34px,4.5vw,58px);line-height:1;letter-spacing:-.045em;margin:0}
+.section-head p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.demo-list{display:grid;border-top:1px solid var(--line);margin-top:0}
+.demo-item{display:grid;grid-template-columns:48px minmax(0,1fr) 166px 18px;gap:24px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
+.demo-item:hover .demo-copy strong{transform:translateX(4px)}
+.demo-num{width:36px;height:36px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700}
+.demo-copy strong{display:block;font-size:22px;letter-spacing:-.025em;transition:transform .2s ease}
+.demo-copy .summary{display:block;margin-top:6px;color:var(--muted);font-size:14px;line-height:1.45}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{display:inline-block;border:1px solid var(--line);padding:4px 7px;font-size:10px;line-height:1;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.demo-preview{width:166px;aspect-ratio:16/10;position:relative;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.demo-preview iframe{position:absolute;top:0;left:0;width:960px;height:600px;border:0;transform:scale(.1729);transform-origin:top left;pointer-events:none;background:#fff}
+.demo-arrow{font-size:20px;color:var(--muted)}
+.demo-item.planned{opacity:.5;cursor:default}
+.logout{margin-top:50px;border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+@media(max-width:900px){
+  .section-head{grid-template-columns:1fr;gap:12px}
+  .demo-item{grid-template-columns:44px minmax(0,1fr) 124px 16px;gap:18px}
+  .demo-preview{width:124px}
+  .demo-preview iframe{transform:scale(.1292)}
+}
+@media(max-width:700px){
+  .dashboard{width:calc(100% - 28px);padding-top:48px}
+  .dashboard-intro{margin-bottom:54px;font-size:16px}
+  .demo-section + .demo-section{margin-top:58px}
+  .demo-item{grid-template-columns:40px 1fr auto;gap:14px;align-items:start}
+  .demo-copy strong{font-size:20px}
+  .demo-preview{display:none}
+}
+
+.dashboard{display:block}.back{display:inline-block;color:var(--muted);font-size:14px;margin-bottom:36px;text-underline-offset:4px}.demo-preview.quote{display:flex;align-items:center;padding:16px;font:18px/1.45 Georgia,serif;color:var(--text)}.tag{font-size:12px;line-height:1.3}.direction{display:grid;grid-template-columns:1fr 1fr;gap:32px;border-top:1px solid var(--line);padding-top:28px}.direction h3{margin:0 0 12px;font-size:22px;letter-spacing:-.025em}.direction p{color:var(--muted);line-height:1.6;font-size:16px;max-width:440px}.footnote{font-size:14px;color:var(--muted);margin-top:48px;line-height:1.6}a:focus-visible{outline:2px solid var(--text);outline-offset:6px}@media(max-width:700px){.direction{grid-template-columns:1fr}.demo-preview.quote{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.brief{max-width:900px}.brief h1{font-size:clamp(48px,7vw,82px)}.brief .lead{font-size:24px;line-height:1.45;max-width:780px}.brief section{border-top:1px solid var(--line);padding-top:26px;margin-top:36px}.brief h2{font-size:28px;line-height:1.2;margin-bottom:16px}.brief p,.brief li{font-size:17px;line-height:1.65}.brief li{margin:9px 0}.brief a{color:inherit;text-underline-offset:4px}.brief .checkpoint{padding:22px;background:var(--soft);font-size:15px}.brief .checkpoint p{font-size:15px}.brief footer{margin-top:40px;color:var(--muted);font-size:14px}@media print{.brief{width:100%;padding:0}.brief h1{font-size:32px}.brief section{margin-top:14px;padding-top:12px}.brief p,.brief li{font-size:11px;line-height:1.4}.brief h2{font-size:18px}.brief .lead{font-size:16px}.brief .back,header,body>footer{display:none}}
+</style></head><body><main class="dashboard brief"><a class="back" href="/playground/geof-miller/">← Geof Miller project</a>
+<p class="eyebrow">Agreed initial scope · October 4, 2026 · Version 1</p><h1>A living home<br>for Geof’s voice.</h1>
+<p class="lead">What matters to me → What I’m doing now → What I’ve done.</p>
+<p>Build a public voice, a lasting creative archive, and a private map for trusted helpers. Geof remains the source of intent; the system and the people around him help carry it through.</p>
+<section><h2>Starting checkpoint</h2><div class="checkpoint"><p><strong>Foundation established.</strong> Geof’s fresh GitHub repository contains the “Hello world” placeholder. This brief records the agreed direction before implementation.</p><p>Source baseline: <a href="https://github.com/GeofMiller360/GMREP/tree/1220a34942a023224794a023ef32f247a5f9d167">GMREP at 1220a34</a>. Existing Playground reading and sentence-review experiments remain exploratory prototypes. Publishing automation, family access, and delegated controls are planned capabilities.</p></div></section>
+<section><h2>The public site</h2><ol><li><strong>Learning and communication about Parkinson’s.</strong> The homepage leads with Geof’s perspective, experiences, writing, and useful resources.</li><li><strong>Current work.</strong> Make room for the forthcoming project with a neutral “Coming soon.” Reveal its name and promotional material only after Geof confirms clearance.</li><li><strong>A lifetime archive.</strong> Progressively collect and make searchable his films, screenplays, writing, poetry, teaching, and related artifacts, preserving originals and context.</li></ol><p>Supporting destinations: <strong>Screenwriting</strong> for feedback and online classes; <strong>About</strong>; and <strong>Contact</strong> with multiple ways to reach and follow Geof. Publish once on the site, then explore Buffer distribution to reduce repeated social posting.</p></section>
+<section><h2>A private map for family</h2><p>One clear “Start here” for his daughter and authorized helpers: where records live, who to contact, and what to do next. Keep credentials in Keeper and existing documents in Google Drive; preserve those established systems. Include recipes and personal material with deliberately chosen visibility.</p><p>The family index needs real authentication and access controls. Private records, sensitive links, and credentials stay out of the public website and repository. A technical helper’s access does not automatically grant access to family material.</p></section>
+<section><h2>Accessible control and shared assistance</h2><p>Geof should be able to say, “Update my site with this,” then review, correct, or undo the result easily. Voice, text, keyboard, and simple choices should reach the same publishing workflow. Use large targets, few steps, clear status, and resumable work.</p><p>A shared control panel supports publishing, attention items, current work, archive, family references, helpers, and recent changes. Distinguish Geof’s authority from family stewardship, editorial assistance, and technical maintenance. Permissions must be explicit and revocable.</p><p>Preserve drafts and originals; record who requested, prepared, approved, and published each change. Build version history and a reliable undo path. Sensitive publication decisions require approval; any later direct publishing needs an explicit authorization policy.</p></section>
+<section><h2>Authorship and credit</h2><p><strong>Preserve authorship. Credit assistance. Record stewardship.</strong> Keep Geof’s byline and acknowledge actual contributions, such as “Prepared for publication with help from…” Store contributor roles with each item; decide public attribution per item while retaining a fuller internal activity history.</p></section>
+<section><h2>Build sequence and success</h2><p><strong>First:</strong> establish the public structure, content model, Parkinson’s homepage, neutral current-project area, archive foundation, and contact routes. Keep content separate from presentation so people and agents can update it consistently.</p><p><strong>Then:</strong> validate voice-to-draft, review, publishing, and recovery with Geof; add delegated assistance and the authenticated family index. Develop social distribution and screenwriting services incrementally using existing tools where practical.</p><p><strong>Success means</strong> Geof can initiate and correct a publication with little physical interaction, a helper can complete an authorized task with clear attribution, and his daughter has an understandable route to the existing systems.</p></section>
+<footer>Scope agreed by John Rice from his conversation with Geof and the subsequent project discussion. Prepared with AI assistance. This is the initial brief, not a claim that the planned features are live.</footer></main><script src="/assets/common/site-shell.js"></script></body></html>
