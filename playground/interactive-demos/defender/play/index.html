@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interlinked Defender v1.0 — Level 1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="app" aria-label="Interlinked Defender Level 1">
+    <canvas id="game" width="1280" height="720" aria-label="ASCII arcade game"></canvas>
+
+    <section id="overlay" class="overlay hidden" aria-live="polite">
+      <div class="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">INTERLINKED / TUNING CONSOLE · v1.0 + MICRO</div>
+            <h1 id="panel-title">Control Panel</h1>
+          </div>
+          <button id="closePanel" type="button">Resume [TAB]</button>
+        </div>
+
+        <div class="grid">
+          <fieldset>
+            <legend>Game</legend>
+            <label>Ship speed <output id="shipSpeedOut"></output><input id="shipSpeed" type="range" min="140" max="520" step="10" /></label>
+            <label>Bullet speed <output id="bulletSpeedOut"></output><input id="bulletSpeed" type="range" min="250" max="1000" step="25" /></label>
+            <label>Enemy count <output id="enemyCountOut"></output><input id="enemyCount" type="range" min="1" max="16" step="1" /></label>
+            <label>Enemy speed <output id="enemySpeedOut"></output><input id="enemySpeed" type="range" min="20" max="220" step="10" /></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Encounter</legend>
+            <label>Patrol seconds <output id="patrolSecondsOut"></output><input id="patrolSeconds" type="range" min="10" max="90" step="5" /></label>
+            <label>Landing timer <output id="landingSecondsOut"></output><input id="landingSeconds" type="range" min="15" max="60" step="5" /></label>
+            <label>Mothership health <output id="mothershipHealthOut"></output><input id="mothershipHealth" type="range" min="10" max="100" step="5" /></label>
+            <label>Opening voice <input id="openingVoice" type="checkbox" /></label>
+            <label>Voice delay <output id="voiceDelayOut"></output><input id="voiceDelay" type="range" min="1" max="10" step="0.5" /></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Audio</legend>
+            <label>Master volume <output id="masterVolumeOut"></output><input id="masterVolume" type="range" min="0" max="100" step="5" /></label>
+            <label>Music <input id="musicEnabled" type="checkbox" /></label>
+            <label>Music volume <output id="musicVolumeOut"></output><input id="musicVolume" type="range" min="0" max="100" step="5" /></label>
+            <label>SFX <input id="sfxEnabled" type="checkbox" /></label>
+            <label>SFX volume <output id="sfxVolumeOut"></output><input id="sfxVolume" type="range" min="0" max="100" step="5" /></label>
+            <label>Voice volume <output id="voiceVolumeOut"></output><input id="voiceVolume" type="range" min="0" max="100" step="5" /></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Visual</legend>
+            <label>Colorize <output id="colorizeOut"></output><input id="colorize" type="range" min="0" max="100" step="5" /></label>
+            <label>Glyph density <output id="glyphDensityOut"></output><input id="glyphDensity" type="range" min="1" max="3" step="1" /></label>
+            <label>Scanlines <input id="scanlines" type="checkbox" /></label>
+            <label>Invert <input id="invert" type="checkbox" /></label>
+            <label>Glyph style
+              <select id="glyphStyle">
+                <option value="ascii">ASCII</option>
+                <option value="block">BLOCK</option>
+                <option value="tech">TECH</option>
+                <option value="noisy">NOISY</option>
+              </select>
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="panel-actions">
+          <button id="resetDefaults" type="button">Reset defaults</button>
+          <button id="restartLevel" type="button">Restart level</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="help">ARROWS MOVE · DOUBLE-TAP LEFT/RIGHT + HOLD = BOOST · SPACE FIRE · MICRO: D-PAD / A FIRE / + TUNING · USB GAMEPAD: STICK / A · TAB TUNING · R RESTART · v1.0 + MICRO</div>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
