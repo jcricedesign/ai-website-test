@@ -57,6 +57,7 @@ button{font:inherit}
   .demo-preview iframe{transform:scale(.1292)}
 }
 @media(max-width:700px){
+  .booking-download{padding-left:54px!important}
   .dashboard{width:calc(100% - 28px);padding-top:48px}
   .dashboard-intro{margin-bottom:54px;font-size:16px}
   .demo-section + .demo-section{margin-top:58px}
@@ -103,6 +104,11 @@ button{font:inherit}
           <div class="demo-preview" aria-hidden="true"><iframe sandbox="" allow="autoplay 'none'" data-src="/barber-game/customer-v2/" loading="lazy" tabindex="-1" title="Customer Booking preview"></iframe></div>
           <div class="demo-arrow">↗</div>
         </a>
+
+        <div class="booking-download" style="padding:16px 0 18px 72px;border-bottom:1px solid var(--line)">
+          <a href="/barber-game/downloads/Chop-It-Up-Booking-Demo.zip" download="Chop-It-Up-Booking-Demo.zip" style="color:var(--text);font-size:14px;font-weight:700;text-underline-offset:4px">↓ Download booking demo — ZIP (1.9 MB)</a>
+          <p style="margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5">Developer handoff · Source code, all required assets, setup instructions, and working vs. simulated feature notes. Frontend prototype; backend not included.</p>
+        </div>
 
         <a class="demo-item" href="/barber-game/customer-v2/#signin">
           <div class="demo-num">2</div>
