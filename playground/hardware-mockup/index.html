@@ -17,7 +17,7 @@ Phone:{w:643,h:1200,screen:[82,87,479,1031],radius:44},
 Tablet:{w:890,h:1200,screen:[87,87,716,1026],radius:9},
 Laptop:{w:1200,h:743,screen:[148,89,904,565],radius:2},
 Desktop:{w:1024,h:1200,screen:[43,336,938,528],radius:0},
-Monitor:{w:1167,h:1200,screen:[62,307,1043,586],radius:0},
+Monitor:{w:1167,h:1200,screen:[75,300,1017,575],radius:0},
 Showcase:{w:1200,h:850,screen:[0,0,1200,850],radius:0}
 };
 let device='Phone',fit='cover',bg='dark',shadow=true,img=null;
@@ -43,12 +43,12 @@ if(img){const old=device;device=name;drawImageCover(img,sx,sy,sw,sh,fit);device=
 const frame=frames[name];if(frame){ctx.save();if(shadow){ctx.shadowColor='rgba(0,0,0,.38)';ctx.shadowBlur=34;ctx.shadowOffsetY=16}ctx.drawImage(frame,x,y,w,h);ctx.restore()}
 }
 function renderShowcase(){
-const k=.82,ox=145,oy=120;
-drawDevice('Monitor',ox+575*k,oy+115*k,690*k);
-drawDevice('Desktop',ox+315*k,oy,560*k);
-drawDevice('Laptop',ox,oy+420*k,650*k);
-drawDevice('Tablet',ox+650*k,oy+355*k,355*k);
-drawDevice('Phone',ox+560*k,oy+545*k,180*k);
+const k=.78,ox=170,oy=115;
+drawDevice('Desktop',ox+330*k,oy,540*k);
+drawDevice('Monitor',ox+735*k,oy+185*k,560*k);
+drawDevice('Laptop',ox,oy+445*k,650*k);
+drawDevice('Tablet',ox+670*k,oy+390*k,330*k);
+drawDevice('Phone',ox+555*k,oy+575*k,170*k);
 }
 function render(){
 ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle=bg==='white'?'#fff':bg==='gray'?'#d9d9d6':'#151515';ctx.fillRect(0,0,c.width,c.height);
