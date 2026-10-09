@@ -18,12 +18,12 @@ Tablet:{w:890,h:1200,screen:[87,87,716,1026],radius:9},
 Laptop:{w:1200,h:743,screen:[148,89,904,565],radius:2},
 Desktop:{w:1024,h:1200,screen:[43,336,938,528],radius:0},
 Monitor:{w:1167,h:1200,screen:[62,307,1043,586],radius:0},
-Watch:{w:501,h:560,screen:[56,56,368,448],radius:85}
+Showcase:{w:1200,h:850,screen:[0,0,1200,850],radius:0}
 };
 let device='Phone',fit='cover',bg='dark',shadow=true,img=null;
 const viewState={};Object.keys(devices).forEach(k=>viewState[k]={scale:1,ox:0,oy:0});
 const c=document.getElementById('c'),ctx=c.getContext('2d'),stage=document.getElementById('stage'),workspace=document.getElementById('workspace');
-const frames={};Object.keys(devices).forEach(name=>{const image=new Image();image.onload=()=>{frames[name]=image;render()};image.onerror=()=>{console.warn('Could not load hardware frame:',name,image.src);render()};image.src=base+name.toLowerCase()+'.png'});
+const frames={};['Phone','Tablet','Laptop','Desktop','Monitor'].forEach(name=>{const image=new Image();image.onload=()=>{frames[name]=image;render()};image.onerror=()=>{console.warn('Could not load hardware frame:',name,image.src);render()};image.src=base+name.toLowerCase()+'.png'});
 const rr=(x,y,w,h,r)=>{ctx.beginPath();ctx.roundRect(x,y,w,h,r)};
 function drawImageCover(im,x,y,w,h,mode){
 const ir=im.width/im.height,ratio=w/h,v=viewState[device];let bw,bh;
@@ -36,25 +36,35 @@ function geometry(){
 const d=devices[device],scale=Math.min(1120/d.w,970/d.h),w=d.w*scale,h=d.h*scale,x=(c.width-w)/2,y=(c.height-h)/2;
 const s=d.screen;return {d,scale,x,y,w,h,sx:x+s[0]*scale,sy:y+s[1]*scale,sw:s[2]*scale,sh:s[3]*scale,sr:d.radius*scale}
 }
+function drawDevice(name,x,y,w){
+const d=devices[name],ratio=w/d.w,h=d.h*ratio,s=d.screen,sx=x+s[0]*ratio,sy=y+s[1]*ratio,sw=s[2]*ratio,sh=s[3]*ratio,sr=d.radius*ratio;
+ctx.save();rr(sx,sy,sw,sh,sr);ctx.clip();ctx.fillStyle='#0b0b0b';ctx.fillRect(sx,sy,sw,sh);
+if(img){const old=device;device=name;drawImageCover(img,sx,sy,sw,sh,fit);device=old}ctx.restore();
+const frame=frames[name];if(frame){ctx.save();if(shadow){ctx.shadowColor='rgba(0,0,0,.38)';ctx.shadowBlur=34;ctx.shadowOffsetY=16}ctx.drawImage(frame,x,y,w,h);ctx.restore()}
+}
+function renderShowcase(){
+const k=.82,ox=145,oy=120;
+drawDevice('Monitor',ox+575*k,oy+115*k,690*k);
+drawDevice('Desktop',ox+315*k,oy,560*k);
+drawDevice('Laptop',ox,oy+420*k,650*k);
+drawDevice('Tablet',ox+650*k,oy+355*k,355*k);
+drawDevice('Phone',ox+560*k,oy+545*k,180*k);
+}
 function render(){
 ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle=bg==='white'?'#fff':bg==='gray'?'#d9d9d6':'#151515';ctx.fillRect(0,0,c.width,c.height);
+if(device==='Showcase'){renderShowcase();return}
 const g=geometry();const {sx,sy,sw,sh,sr}=g;
 ctx.save();rr(sx,sy,sw,sh,sr);ctx.clip();ctx.fillStyle='#0b0b0b';ctx.fillRect(sx,sy,sw,sh);
 if(img)drawImageCover(img,sx,sy,sw,sh,fit);ctx.restore();
 const frame=frames[device];
-if(frame){
-ctx.save();if(shadow){ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=42;ctx.shadowOffsetY=18}
-ctx.drawImage(frame,g.x,g.y,g.w,g.h);ctx.restore();
-}else{
-ctx.save();ctx.strokeStyle='#777';ctx.lineWidth=5;rr(g.x,g.y,g.w,g.h,18);ctx.stroke();ctx.restore();
-}
+if(frame){ctx.save();if(shadow){ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=42;ctx.shadowOffsetY=18}ctx.drawImage(frame,g.x,g.y,g.w,g.h);ctx.restore()}
 }
 Object.keys(devices).forEach((n,i)=>{const b=document.createElement('button');b.textContent=n;b.className=i?'':'active';b.onclick=()=>{device=n;document.querySelectorAll('#devices button').forEach(x=>x.classList.toggle('active',x===b));syncScale();render()};document.getElementById('devices').appendChild(b)});
 document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image;im.onload=()=>{img=im;render();URL.revokeObjectURL(u)};im.src=u};
 document.querySelectorAll('[data-fit]').forEach(b=>b.onclick=()=>{fit=b.dataset.fit;document.querySelectorAll('[data-fit]').forEach(x=>x.classList.toggle('active',x===b));render()});
 document.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{bg=b.dataset.bg;document.body.className=bg==='white'?'':bg;document.querySelectorAll('[data-bg]').forEach(x=>x.classList.toggle('active',x===b));render()});
 const scaleEl=document.getElementById('scale'),scaleValue=document.getElementById('scaleValue');function syncScale(){scaleEl.value=Math.round(viewState[device].scale*100);scaleValue.textContent=scaleEl.value+'%'}scaleEl.oninput=()=>{viewState[device].scale=+scaleEl.value/100;scaleValue.textContent=scaleEl.value+'%';render()};
-let dragging=false,lastX=0,lastY=0;c.addEventListener('pointerdown',e=>{if(!img)return;const rect=c.getBoundingClientRect(),px=(e.clientX-rect.left)*c.width/rect.width,py=(e.clientY-rect.top)*c.height/rect.height,g=geometry();if(px<g.sx||px>g.sx+g.sw||py<g.sy||py>g.sy+g.sh)return;dragging=true;lastX=e.clientX;lastY=e.clientY;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{if(!dragging)return;const rect=c.getBoundingClientRect(),kx=c.width/rect.width,ky=c.height/rect.height;viewState[device].ox+=(e.clientX-lastX)*kx;viewState[device].oy+=(e.clientY-lastY)*ky;lastX=e.clientX;lastY=e.clientY;render()});c.addEventListener('pointerup',()=>dragging=false);c.addEventListener('pointercancel',()=>dragging=false);
+let dragging=false,lastX=0,lastY=0;c.addEventListener('pointerdown',e=>{if(!img||device==='Showcase')return;const rect=c.getBoundingClientRect(),px=(e.clientX-rect.left)*c.width/rect.width,py=(e.clientY-rect.top)*c.height/rect.height,g=geometry();if(px<g.sx||px>g.sx+g.sw||py<g.sy||py>g.sy+g.sh)return;dragging=true;lastX=e.clientX;lastY=e.clientY;c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{if(!dragging)return;const rect=c.getBoundingClientRect(),kx=c.width/rect.width,ky=c.height/rect.height;viewState[device].ox+=(e.clientX-lastX)*kx;viewState[device].oy+=(e.clientY-lastY)*ky;lastX=e.clientX;lastY=e.clientY;render()});c.addEventListener('pointerup',()=>dragging=false);c.addEventListener('pointercancel',()=>dragging=false);
 document.getElementById('shadow').onclick=e=>{shadow=!shadow;e.currentTarget.classList.toggle('active',shadow);render()};
 document.getElementById('export').onclick=()=>{const a=document.createElement('a');a.download='hardware-mockup.png';try{a.href=c.toDataURL('image/png');a.click()}catch(err){alert('The mockup displays correctly, but PNG export needs R2 CORS permission for johnrice.com.')}};syncScale();render();
 </script></body></html>
