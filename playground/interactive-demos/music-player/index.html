@@ -19,7 +19,7 @@ function albumMatch(found,want){
  if(w.startsWith(f)&&f.length>8)return 6;
  return 0;
 }
-function artistMatch(found,want){return norm(found)===norm(want)||norm(found).replace(/^the/,'')===norm(want).replace(/^the/,'')}
+function artistMatch(found,want){const clean=s=>norm(String(s).replace(/&/g,' and ').replace(/‐|–|—/g,'-')).replace(/^the/,'');return clean(found)===clean(want)}
 async function itunesCover(a){
  const names=[a.album,...(aliases[a.artist+'|'+a.album]||[])];
  for(const name of names){
@@ -47,6 +47,7 @@ async function musicbrainzCover(a){
 // Verified releases whose original artwork is not reliably found via title search.
 const knownArt={
  'Joy Division|Substance':'https://coverartarchive.org/release/e82593ba-55f7-4e03-a003-fff0643ff972/front-500',
+ 'David Bowie|The Singles 1969 to 1993':'https://coverartarchive.org/release/cb36979b-5829-4ced-857d-6e8423402a93/front-500',
  'R.E.M.|Monster':'https://coverartarchive.org/release/3d98cb85-9c53-404c-80d6-f0805661e253/front-500'
 };
 const knownAppleIds={
