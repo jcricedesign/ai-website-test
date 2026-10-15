@@ -6,42 +6,48 @@
 :root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#111214;color:#efefec;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 button,a{font:inherit}a{color:inherit;text-decoration:none}.shell{width:min(1240px,calc(100% - 64px));margin:0 auto}.site{display:flex;justify-content:space-between;align-items:center;padding:30px 0;border-bottom:1px solid #343538;font-size:12px}.site a:hover,.back:hover{text-decoration:underline}
 header{padding:65px 0 44px}.eyebrow,.kicker{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#888b8d}h1{font-weight:650;line-height:1;letter-spacing:-.055em;font-size:clamp(48px,7vw,84px);margin:13px 0 20px}header p{max-width:520px;font-size:16px;line-height:1.5;color:#b8b9b9}
-.gallery{border-top:1px solid #343538;padding:25px 0 90px;display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:24px}
-.cover-card{display:block;max-width:280px;text-align:left;border:0;background:transparent;padding:0;cursor:pointer}
-.thumb{position:relative;aspect-ratio:auto;height:min(420px,46vh);background:#252628;border:1px solid #45464a;overflow:hidden}
+.gallery{border-top:1px solid #343538;padding:25px 0 90px;display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,210px));gap:24px}
+.cover-card{display:block;width:100%;max-width:210px;text-align:left;border:0;background:transparent;padding:0;cursor:pointer}
+.thumb{position:relative;aspect-ratio:2/3;height:auto;background:#252628;border:1px solid #45464a;overflow:hidden}
 .thumb video{width:100%;height:100%;object-fit:cover;display:block}
 .thumb:after{content:"▶";position:absolute;bottom:13px;right:13px;background:#0d0d0dce;color:#fff;padding:7px 10px;font-size:12px}
 .name{display:block;font-size:17px;font-weight:600;letter-spacing:-.025em;margin-top:13px}.details{display:block;font-size:11px;letter-spacing:.04em;color:#85878a;margin-top:4px}
 .cover-card:hover .thumb{border-color:#a5a6a8}.endnote{font-size:12px;color:#777a7d;padding-bottom:40px}
-.player{position:fixed;inset:0;z-index:10;display:none;background:#101112;align-items:center;justify-content:center;flex-direction:column;padding:58px 16px 60px}
-.player.open{display:flex}.player video{width:auto;height:auto;max-width:100%;max-height:calc(100dvh - 150px);object-fit:contain;box-shadow:0 12px 45px #0008;background:#151515}
-.player-nav{position:absolute;left:20px;right:20px;top:16px;display:flex;justify-content:space-between;gap:20px;align-items:center}
-.player-nav button,.player-actions button{padding:10px 13px;background:#292a2c;border:1px solid #48494a;color:#fff;cursor:pointer}
-.player-actions{display:flex;align-items:center;justify-content:space-between;gap:24px;max-width:800px;width:100%;margin-top:15px;font-size:13px;color:#bebfbd}
-@media(max-width:700px){.shell{width:calc(100% - 36px)}header{padding:50px 0 32px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.player{padding:50px 12px 50px}.player-actions{font-size:11px}}
+@media(max-width:700px){.shell{width:calc(100% - 36px)}header{padding:50px 0 32px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style></head><body><div class="shell"><nav class="site"><a href="/playground/">← Playground</a><span>JCRICE / EXPERIMENTS</span></nav>
-<header><div class="eyebrow">Motion studies / Collection 001</div><h1>Living Cover</h1><p>A collection of short animated editorial covers. Select one to see it open, then settle into a still composition.</p></header>
+<header><div class="eyebrow">Motion studies / Collection 001</div><h1>Living Cover</h1><p>A collection of short animated editorial covers. Hover over a cover to watch it open, or click to replay the animation in place.</p></header>
 <div class="kicker">Covers / 002</div>
 <main class="gallery"><button class="cover-card" type="button" data-cover="ali" aria-label="Play Muhammad Ali living cover">
 <div class="thumb"><video id="thumbAli" muted playsinline preload="metadata" aria-hidden="true"><source src="https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-muhammed-ali.mp4" type="video/mp4"></video></div>
 <span class="name">Muhammad Ali</span><span class="details">001 · Animated cover · 4 sec</span></button>
 <button class="cover-card" type="button" data-cover="bruce" aria-label="Play Bruce Lee living cover"><div class="thumb"><video id="thumbBruce" muted playsinline preload="metadata" aria-hidden="true"><source src="https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-opening-2.mp4" type="video/mp4"></video></div><span class="name">Bruce Lee</span><span class="details">002 · Animated cover · 4 sec</span></button></main>
-<div class="endnote">More covers will be added as the collection grows.</div></div>
-<section class="player" id="player" aria-label="Living Cover player" role="dialog" aria-modal="true" aria-hidden="true">
-<div class="player-nav"><button id="close" type="button">← Gallery</button><span class="kicker">Living Cover / 001</span></div>
-<video id="film" playsinline preload="none" controls aria-label="Muhammad Ali animated cover"><source src="https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-muhammed-ali.mp4" type="video/mp4"></video>
-<div class="player-actions"><span>Muhammad Ali — The Greatest</span><button id="replay" type="button">↺ Replay opening</button></div>
-</section>
+<div class="endnote">Hover to preview · Click to replay · More covers coming soon.</div></div>
 <script>
-const player=document.getElementById('player'),film=document.getElementById('film');
-const covers={ali:{name:'Muhammad Ali — The Greatest',label:'001',src:'https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-muhammed-ali.mp4'},bruce:{name:'Bruce Lee — Living Legend',label:'002',src:'https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-opening-2.mp4'}};
-let activeCard=null;
-for(const id of ['thumbAli','thumbBruce']){const thumb=document.getElementById(id);thumb.addEventListener('loadedmetadata',()=>{if(Number.isFinite(thumb.duration))thumb.currentTime=Math.max(0,thumb.duration-.10)})}
-function openCover(id){const cover=covers[id];activeCard=document.querySelector('[data-cover="'+id+'"]');film.pause();film.src=cover.src;film.setAttribute('aria-label',cover.name+' animated cover');document.querySelector('.player-nav .kicker').textContent='Living Cover / '+cover.label;document.querySelector('.player-actions span').textContent=cover.name;player.classList.add('open');player.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';film.currentTime=0;film.play().catch(()=>{});document.getElementById('close').focus()}
-function closeCover(){film.pause();player.classList.remove('open');player.setAttribute('aria-hidden','true');document.body.style.overflow='';activeCard?.focus()}
-for(const id of Object.keys(covers))document.querySelector('[data-cover="'+id+'"]').addEventListener('click',()=>openCover(id));
-document.getElementById('close').addEventListener('click',closeCover);
-document.getElementById('replay').addEventListener('click',()=>{film.currentTime=0;film.play().catch(()=>{})});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&player.classList.contains('open'))closeCover()});
-</script></body></html>
+const covers=[...document.querySelectorAll('.cover-card')];
+const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function showFinal(video){
+ if(video.readyState<1||!Number.isFinite(video.duration)||video.duration<=0)return;
+ video.pause();
+ try{video.currentTime=Math.max(0,video.duration-0.06)}catch(e){}
+}
+function replay(video){
+ // Only one animated thumbnail at a time; others return to their final frame.
+ for(const card of covers){const v=card.querySelector('video');if(v!==video)showFinal(v)}
+ video.pause();
+ try{video.currentTime=0}catch(e){}
+ video.play().catch(()=>{});
+}
+for(const card of covers){
+ const video=card.querySelector('video');
+ video.addEventListener('loadedmetadata',()=>showFinal(video));
+ video.addEventListener('ended',()=>showFinal(video));
+ card.addEventListener('click',()=>replay(video));
+ if(!prefersReducedMotion){
+  card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'||e.pointerType==='pen')replay(video)});
+  card.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'||e.pointerType==='pen')showFinal(video)});
+ }
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const card of covers)showFinal(card.querySelector('video'))});
+</script>
+</body></html>
