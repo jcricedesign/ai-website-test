@@ -22,10 +22,11 @@ header{padding:65px 0 44px}.eyebrow,.kicker{font-size:10px;letter-spacing:.17em;
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style></head><body><div class="shell"><nav class="site"><a href="/playground/">← Playground</a><span>JCRICE / EXPERIMENTS</span></nav>
 <header><div class="eyebrow">Motion studies / Collection 001</div><h1>Living Cover</h1><p>A collection of short animated editorial covers. Select one to see it open, then settle into a still composition.</p></header>
-<div class="kicker">Covers / 001</div>
+<div class="kicker">Covers / 002</div>
 <main class="gallery"><button class="cover-card" type="button" data-cover="ali" aria-label="Play Muhammad Ali living cover">
 <div class="thumb"><video id="thumbAli" muted playsinline preload="metadata" aria-hidden="true"><source src="https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-muhammed-ali.mp4" type="video/mp4"></video></div>
-<span class="name">Muhammad Ali</span><span class="details">001 · Animated cover · 4 sec</span></button></main>
+<span class="name">Muhammad Ali</span><span class="details">001 · Animated cover · 4 sec</span></button>
+<button class="cover-card" type="button" data-cover="bruce" aria-label="Play Bruce Lee living cover"><div class="thumb"><video id="thumbBruce" muted playsinline preload="metadata" aria-hidden="true"><source src="https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-opening-2.mp4" type="video/mp4"></video></div><span class="name">Bruce Lee</span><span class="details">002 · Animated cover · 4 sec</span></button></main>
 <div class="endnote">More covers will be added as the collection grows.</div></div>
 <section class="player" id="player" aria-label="Living Cover player" role="dialog" aria-modal="true" aria-hidden="true">
 <div class="player-nav"><button id="close" type="button">← Gallery</button><span class="kicker">Living Cover / 001</span></div>
@@ -33,11 +34,13 @@ header{padding:65px 0 44px}.eyebrow,.kicker{font-size:10px;letter-spacing:.17em;
 <div class="player-actions"><span>Muhammad Ali — The Greatest</span><button id="replay" type="button">↺ Replay opening</button></div>
 </section>
 <script>
-const thumb=document.getElementById('thumbAli'),player=document.getElementById('player'),film=document.getElementById('film');
-thumb.addEventListener('loadedmetadata',()=>{if(Number.isFinite(thumb.duration))thumb.currentTime=Math.max(0,thumb.duration-.10);});
-function openCover(){player.classList.add('open');player.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';film.currentTime=0;film.play().catch(()=>{});document.getElementById('close').focus()}
-function closeCover(){film.pause();player.classList.remove('open');player.setAttribute('aria-hidden','true');document.body.style.overflow='';document.querySelector('[data-cover="ali"]').focus()}
-document.querySelector('[data-cover="ali"]').addEventListener('click',openCover);
+const player=document.getElementById('player'),film=document.getElementById('film');
+const covers={ali:{name:'Muhammad Ali — The Greatest',label:'001',src:'https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-muhammed-ali.mp4'},bruce:{name:'Bruce Lee — Living Legend',label:'002',src:'https://pub-8150ade24f1a45dfa4e16936ba894a95.r2.dev/living-cover/living-cover-opening-2.mp4'}};
+let activeCard=null;
+for(const id of ['thumbAli','thumbBruce']){const thumb=document.getElementById(id);thumb.addEventListener('loadedmetadata',()=>{if(Number.isFinite(thumb.duration))thumb.currentTime=Math.max(0,thumb.duration-.10)})}
+function openCover(id){const cover=covers[id];activeCard=document.querySelector('[data-cover="'+id+'"]');film.pause();film.src=cover.src;film.setAttribute('aria-label',cover.name+' animated cover');document.querySelector('.player-nav .kicker').textContent='Living Cover / '+cover.label;document.querySelector('.player-actions span').textContent=cover.name;player.classList.add('open');player.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';film.currentTime=0;film.play().catch(()=>{});document.getElementById('close').focus()}
+function closeCover(){film.pause();player.classList.remove('open');player.setAttribute('aria-hidden','true');document.body.style.overflow='';activeCard?.focus()}
+for(const id of Object.keys(covers))document.querySelector('[data-cover="'+id+'"]').addEventListener('click',()=>openCover(id));
 document.getElementById('close').addEventListener('click',closeCover);
 document.getElementById('replay').addEventListener('click',()=>{film.currentTime=0;film.play().catch(()=>{})});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&player.classList.contains('open'))closeCover()});
