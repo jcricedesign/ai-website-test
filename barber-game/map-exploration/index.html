@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>The BarberGame — Neighborhood Spotlight</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><style>
+:root{--ink:#202b2b;--muted:#6b7774;--cream:#f8f7f2;--line:#e5e8e2;--green:#244e44;--lime:#d8edab;--soft:#edf2ec;--orange:#e59b62}*{box-sizing:border-box}body{margin:0;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink)}button{font:inherit;cursor:pointer}header{position:absolute;z-index:700;top:18px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}.brand,.header-right{pointer-events:auto;background:#fffef9;border:1px solid #e9ebe6;box-shadow:0 8px 34px #142a2216;border-radius:18px;padding:12px 18px}.brand{font-family:Manrope,sans-serif;font-weight:800;font-size:16px;letter-spacing:-.6px}.brand b{color:#457c60}.smallcaps{font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase}.header-right{font-size:12px;display:flex;gap:14px;align-items:center}.demo{background:#f0f4ee;padding:6px 9px;border-radius:50px;color:#56715f;font-size:10px;font-weight:700}.layout{height:100vh;min-height:650px;display:grid;grid-template-columns:390px 1fr}.sidebar{background:#fffefb;z-index:550;border-right:1px solid #e3e8e0;overflow:auto;padding:98px 24px 25px;box-shadow:5px 0 30px #19322d0b}.step{color:#698573}.sidebar h1{font:800 31px/1.14 Manrope,sans-serif;letter-spacing:-1.4px;margin:15px 0 12px}.sub{font-size:13px;line-height:1.7;color:var(--muted);margin:0 0 24px}.section-head{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:12px;margin:23px 0 13px}.section-head span:last-child{color:#90a09a;font-size:10px;font-weight:600}.shop-card{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px;margin-bottom:10px;display:flex;gap:12px;align-items:center;transition:.2s}.shop-card:hover{border-color:#93af9c;transform:translateY(-1px)}.shop-card.active{border-color:#2d6b51;background:#f1f6ed;box-shadow:0 0 0 1px #2d6b51}.avatar{width:49px;height:49px;flex:none;border-radius:13px;display:grid;place-items:center;background:#e6e9d8;font-size:24px}.shop-card strong{display:block;font:800 13px Manrope,sans-serif}.shop-card small{display:block;font-size:11px;color:#798681;margin-top:5px}.shop-card em{display:block;color:#387b54;font-size:10px;font-style:normal;font-weight:700;margin-top:6px}.pill{display:inline-block;border-radius:30px;background:#dff0d2;color:#376344;font-size:10px;padding:6px 9px;font-weight:800}.context{border-radius:17px;background:#f1f4ed;border:1px solid #e6eadf;padding:16px;font-size:12px;line-height:1.7;color:#6a7771;margin:22px 0}.context strong{display:block;color:#244e44;margin-bottom:6px}.primary{border:0;background:var(--green);color:#fff;border-radius:12px;padding:13px 15px;font-weight:800;font-size:12px}.secondary{border:1px solid #d4ddd4;background:white;color:#35594b;border-radius:12px;padding:12px 14px;font-weight:800;font-size:12px}.primary:disabled{opacity:.5;cursor:default}.full{width:100%}.actions{display:flex;gap:8px}.actions>*{flex:1}.maparea{position:relative;min-height:0;background:#e9e9e9;display:grid;place-items:center;overflow:hidden}#map{position:relative;width:min(77vh,78%,780px);height:auto;aspect-ratio:1/1;max-width:calc(100% - 48px);border:3px solid #1e2422;border-radius:50%;overflow:hidden;z-index:0;box-shadow:0 10px 32px #1e242214}.leaflet-container{background:#f3f5f2;font-family:'DM Sans',sans-serif}.leaflet-tile-pane img{filter:saturate(.19) contrast(.82) brightness(1.12)}.leaflet-control-attribution{font-size:9px!important}.mapbadge{position:absolute;z-index:450;top:99px;right:22px;background:#fff;border:1px solid #e7ebe5;box-shadow:0 8px 20px #1d35251a;border-radius:16px;padding:13px 15px;max-width:260px}.mapbadge strong{display:block;font-size:11px}.mapbadge small{display:block;color:#73837c;font-size:10px;margin-top:4px;line-height:1.5}.marker{display:grid;place-items:center;background:#fff;border:3px solid #33594b;border-radius:50%;width:35px;height:35px;box-shadow:0 4px 14px #17352742;font-size:15px}.marker.chosen{background:#315d48;color:white;width:44px;height:44px;font-size:20px;border-color:#fff}.opp-marker{border:2px solid white;box-shadow:0 4px 18px #152e2944;width:38px;height:38px;border-radius:50%;background:#e4edcb;display:grid;place-items:center;font-size:18px}.opp-marker.active{background:#e7a266;outline:4px solid #f6ddbe}.bottom-sheet{position:absolute;z-index:450;right:25px;bottom:28px;width:min(355px,calc(100% - 50px));background:#fffefb;border:1px solid #e5e9e3;box-shadow:0 18px 55px #1b332535;border-radius:22px;padding:21px;animation:rise .25s ease-out}.bottom-sheet h2{font:800 22px Manrope,sans-serif;letter-spacing:-.8px;margin:9px 0}.bottom-sheet p{font-size:12px;color:#6c7a74;line-height:1.65}.eyebrow{font-size:10px;letter-spacing:1.4px;font-weight:800;color:#4a856a;text-transform:uppercase}.offer{border:1px dashed #bbd3a8;background:#f4f8e9;border-radius:15px;padding:15px;margin:16px 0}.offer strong{display:block;font:800 18px Manrope,sans-serif;margin:5px 0}.offer span{font-size:11px;color:#69806b}.crumbs{display:flex;gap:5px;align-items:center;margin-bottom:15px}.crumbs span{height:4px;border-radius:6px;background:#e2e7e1;flex:1}.crumbs span.on{background:#497c5e}.nav{display:flex;gap:8px;align-items:center;margin:18px 0 0}.nav button{flex:1}.iconbtn{background:#eff4eb;border:0;border-radius:9px;padding:7px 10px;font-size:16px}.opp-list{display:grid;gap:8px}.opp-item{display:flex;align-items:center;text-align:left;gap:10px;background:white;border:1px solid #e5e8e1;border-radius:13px;padding:10px;width:100%}.opp-item.active{background:#f2f7eb;border-color:#84aa81}.opp-item .sym{font-size:22px}.opp-item strong{display:block;font-size:11px}.opp-item small{color:#7b8981;font-size:10px}.opp-item .num{margin-left:auto;color:#a6b0aa;font-size:10px}.caption{font-size:10px;color:#8c9992;line-height:1.5;margin-top:15px}.centerhint{position:absolute;z-index:400;top:46%;left:55%;transform:translate(-50%,-50%);pointer-events:none;background:#ffffffdd;backdrop-filter:blur(10px);border-radius:14px;padding:11px 18px;font-size:12px;color:#547364;box-shadow:0 10px 30px #1d33271c}.hidden{display:none!important}.leaflet-top.leaflet-left{top:70px;left:auto;right:32px}.leaflet-control-zoom{border:none!important;box-shadow:0 4px 16px #19352120!important;border-radius:10px;overflow:hidden}.leaflet-control-zoom a{color:#345746!important}.welcome{font-family:Manrope,sans-serif;font-size:13px;font-weight:800;color:#2b5546;padding:12px 0}.stageLabel{font-size:10px;letter-spacing:1px;color:#718378;text-transform:uppercase;font-weight:800;margin-bottom:10px}.tiny{font-size:10px;color:#718278;line-height:1.6}.progressbar{height:5px;border-radius:10px;background:#e5eae2;overflow:hidden;margin:18px 0 4px}.progressbar div{height:100%;width:var(--progress);background:#4c8061;transition:width .3s}.you-marker{position:relative;width:20px;height:20px;border-radius:50%;background:#258bef;border:4px solid #fff;box-shadow:0 2px 12px #2564ac70}.you-marker:before,.you-marker:after{content:"";position:absolute;border:2px solid #268ded;border-radius:50%;inset:-17px;animation:pulse 2.6s ease-out infinite}.you-marker:after{animation-delay:1.3s}.you-marker.demo{background:#298be9}.you-marker.demo:before,.you-marker.demo:after{border-color:#298be9}.my-location-btn{position:absolute;z-index:460;left:22px;bottom:22px;background:#fffefb;border:1px solid #dce5dd;border-radius:28px;padding:11px 15px;font-size:11px;color:#315d53;font-weight:800;box-shadow:0 8px 20px #203d2b22}.my-location-btn .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2788ed;margin-right:7px}.location-note{position:absolute;z-index:450;bottom:23px;right:20px;color:#687670;font-size:10px;background:#fffefbcc;padding:7px 10px;border-radius:20px}@keyframes pulse{0%{transform:scale(.45);opacity:.7}80%,100%{transform:scale(1.9);opacity:0}}@keyframes rise{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}@media(max-width:800px){.layout{grid-template-columns:1fr;grid-template-rows:43vh 57vh;min-height:800px;height:auto}.sidebar{grid-row:2;padding:22px 18px 35px;box-shadow:none;overflow:visible}.maparea{grid-row:1}#map{width:min(39vh,87vw);max-width:calc(100% - 22px);border-width:2px}.my-location-btn{left:10px;bottom:8px;padding:8px 10px}.location-note{display:none}.brand{font-size:13px;padding:10px}.header-right{font-size:10px;padding:10px}.mapbadge{display:none}.bottom-sheet{position:fixed;bottom:12px;left:12px;right:12px;width:auto;max-height:51vh;overflow:auto}.sidebar h1{font-size:25px}.centerhint{display:none}.leaflet-top.leaflet-left{top:75px}}@media(max-width:500px){.header-right span:last-child{display:none}.bottom-sheet{max-height:55vh}}
+</style><style>
+/* v0.5 — original centered editorial composition */
+:root{--ink:#0b0c0c;--muted:#505753;--cream:#ededed;--green:#135a43}
+body{background:#ededed;color:#0b0c0c;font-family:Arial,Helvetica,sans-serif}
+header,.layout{all:unset}
+header{display:block;position:relative;width:min(100%,1020px);margin:0 auto;z-index:700;pointer-events:auto}
+.brand{all:unset;display:block;text-align:center;padding:45px 0 0;color:#070707}
+.brand .mark{font:italic 27px Georgia,serif;display:block;margin-left:-265px;margin-bottom:-14px}
+.brand .wordmark{font:700 clamp(42px,5.3vw,67px)/1 Georgia,'Times New Roman',serif;letter-spacing:-2.5px}
+.brand .wordmark sup{font:12px Arial,sans-serif;vertical-align:top;margin-left:4px}
+.brand .chair{font:37px Georgia,serif;vertical-align:middle;margin-right:14px}
+.header-right{all:unset;position:absolute;right:22px;top:45px;font:15px Arial,sans-serif;text-decoration:underline;cursor:pointer}
+.tagline{text-align:center;font-size:18px;font-weight:700;margin:26px 15px 54px}
+.layout{display:block;width:100%;margin:0 auto}
+.sidebar{all:unset;display:block;width:min(100%,760px);margin:0 auto;position:relative;z-index:480;padding:0 18px 70px;box-sizing:border-box}
+.step,.sidebar h1,.sidebar .sub,.progressbar,.caption{display:none}
+.searchbar{height:76px;max-width:650px;margin:0 auto 0;background:#fff;border:1.8px solid #111;border-radius:44px;display:grid;grid-template-columns:1.16fr 1fr 1fr 60px;align-items:center;padding:9px 12px 9px 25px;position:relative;z-index:490}
+.searchfield{padding:0 10px;min-width:0;border-right:1.5px solid #222}
+.searchfield:nth-child(3){border-right:0}
+.searchfield label{display:block;font-size:18px;font-weight:700;margin-bottom:4px}
+.searchfield select{border:0;background:none;width:100%;font:15px Arial;color:#222;outline-offset:5px;cursor:pointer}
+.searchgo{width:48px;height:48px;border:0;background:white;font-size:30px;display:grid;place-items:center;color:#101010}
+.maparea{background:transparent;display:block;overflow:visible;position:relative;min-height:0;width:min(100%,760px);margin:0 auto;padding:0 18px;box-sizing:border-box}
+#map{width:min(610px,88vw);height:min(610px,88vw);max-width:100%;aspect-ratio:1;border:4px solid #050505;box-shadow:none;margin:0 auto;position:relative;overflow:hidden;border-radius:50%}
+.leaflet-tile-pane img{filter:saturate(.10) contrast(.75) brightness(1.15)}
+.leaflet-top.leaflet-left,.mapbadge,.centerhint,.location-note{display:none!important}
+.my-location-btn{left:50%;bottom:auto;top:16px;transform:translateX(-50%);background:#ffffffed;z-index:460;padding:8px 13px;font-size:10px;box-shadow:0 3px 13px #0002}
+#panel{position:relative;z-index:500;margin-top:-4px}
+#panel .section-head,#panel .shop-card,#panel .context{display:none}
+.appointment-card{background:#fff;border:2.5px solid #111;box-shadow:0 5px 8px #0002;border-radius:33px;padding:31px 30px 38px;margin:-2px auto 0;max-width:510px;min-height:210px;position:relative;z-index:510}
+.appointment-person{display:flex;gap:17px;align-items:center;font-size:20px;font-weight:700}
+.appointment-person .chair-icon{background:#101010;border-radius:50%;width:39px;height:39px;display:grid;place-items:center;color:#fff;font-size:22px;position:relative;flex:none}
+.appointment-person .count{position:absolute;top:-6px;right:-8px;background:#16bd69;color:white;border:2px solid white;border-radius:50%;font-size:11px;padding:3px 5px}
+.appointment-person small{display:block;font-size:15px;font-weight:400;margin-top:6px}
+.slot-row{display:flex;gap:12px;margin:34px 0 0 22px}
+.slot-row button{flex:1;background:white;border:1.5px solid #181818;border-radius:12px;padding:12px 5px;font-weight:700;font-size:18px}
+.slot-row button:hover,.slot-row button:focus{background:#202e29;color:white}
+.panel-follow{font-size:12px;color:#555;text-align:center;margin:15px auto 0}
+.stage-panel{background:#fff;border:2px solid #151515;border-radius:28px;padding:25px;margin:0 auto;max-width:540px;box-shadow:0 4px 10px #0001}
+.stage-panel h2{font:700 26px Georgia,serif;margin:4px 0 8px}.stage-panel p{font-size:14px;line-height:1.55;color:#555}
+.stage-panel .shop-card,.stage-panel .context{display:flex!important}
+.bottom-sheet{position:relative;left:auto;right:auto;bottom:auto;width:min(530px,calc(100% - 36px));margin:18px auto 10px;border:2px solid #151515;border-radius:24px;z-index:450;box-shadow:0 8px 20px #0001}
+.footer{max-width:865px;border-top:1px solid #111;margin:42px auto 0;padding:34px 20px 55px;text-align:center;font-size:12px}
+.you-marker{box-sizing:border-box;width:18px;height:18px;aspect-ratio:1;border-radius:50%;border:4px solid white;box-shadow:0 0 0 1px #227ce6,0 2px 10px #187de488}
+.you-marker:before,.you-marker:after{box-sizing:border-box;aspect-ratio:1;inset:-15px;border-radius:50%}
+@media(max-width:700px){.brand{padding-top:65px}.header-right{top:18px}.tagline{font-size:15px;margin:20px 26px 32px}.brand .wordmark{font-size:43px}.brand .chair{font-size:24px}.brand .mark{font-size:20px;margin-left:-210px}.searchbar{height:66px;padding:8px 6px;grid-template-columns:1fr 1fr 1fr 42px}.searchfield{padding:0 6px}.searchfield label{font-size:13px}.searchfield select{font-size:12px}.searchgo{width:36px;font-size:22px}.maparea,.sidebar{padding-left:7px;padding-right:7px}#map{width:min(95vw,610px);height:min(95vw,610px)}.appointment-card{width:92%;padding:25px 17px;min-height:180px}.appointment-person{font-size:16px}.appointment-person small{font-size:12px}.slot-row{margin:26px 0 0;gap:7px}.slot-row button{font-size:15px;padding:10px 4px}.bottom-sheet{max-height:none}}
+</style>
+<style>
+/* v0.6 · neighborhood intelligence / selected barber three-column composition */
+header{max-width:1160px}
+.brand{padding-top:28px}
+.tagline{margin:20px 15px 27px}
+.layout{display:grid;grid-template-columns:minmax(225px,1fr) minmax(430px,610px) minmax(270px,1.15fr);gap:22px;max-width:1420px;margin:0 auto;padding:0 26px;align-items:center}
+.sidebar,.maparea{width:100%;padding:0;margin:0}
+.sidebar:first-child{display:contents}
+.searchbar{grid-column:1/-1;grid-row:1;width:min(650px,100%);margin:0 auto 4px}
+#results{grid-column:3;grid-row:2;align-self:center;min-width:0}
+.maparea{grid-column:2;grid-row:2;min-width:0;display:flex;align-items:center;justify-content:center;overflow:visible}
+#map{width:100%;height:auto;aspect-ratio:1/1;max-width:610px;margin:0 auto;border:3px solid #101010}
+#neighborhood{grid-column:1;grid-row:2;align-self:center;min-width:0}
+.bottom-sheet,.centerhint,.mapbadge{display:none!important}
+.my-location-btn{top:auto;bottom:9px;left:50%;transform:translateX(-50%)}
+.intro-label{font:700 10px Arial,sans-serif;text-transform:uppercase;letter-spacing:1.5px;color:#597466}
+.neighborhood-head{font:700 clamp(21px,2.3vw,29px)/1.13 Georgia,serif;letter-spacing:-.7px;margin:10px 0 9px}
+.neighborhood-copy{font-size:12px;line-height:1.55;color:#5f6b65;margin:0 0 18px}
+.insight{display:flex;align-items:center;gap:12px;border-top:1px solid #d6dad6;padding:14px 0}
+.insight-icon{width:43px;height:43px;flex:none;border:1px solid #d2d8d2;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:21px}
+.insight strong{display:block;font-size:13px;margin-bottom:3px}
+.insight small{display:block;font-size:11px;color:#61716a;line-height:1.35}
+.neighbor-action{display:block;width:100%;padding:13px 15px;background:#111;border:1px solid #111;border-radius:24px;color:white;font-weight:700;font-size:12px;margin-top:18px}
+.neighbor-action.alt{background:white;color:#111}
+.selected-card{background:white;border:2.5px solid #141414;border-radius:26px;padding:24px;box-shadow:0 5px 10px #00000012}
+.selected-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.3px;color:#507365;text-transform:uppercase}
+.selected-name{font:700 25px/1.12 Georgia,serif;margin:12px 0 9px}
+.selected-meta{font-size:12px;color:#58645e;line-height:1.5}
+.selected-person{display:flex;gap:11px;align-items:center;padding:16px 0;margin:12px 0 6px;border-top:1px solid #e0e4df;border-bottom:1px solid #e0e4df}
+.selected-person .chair-icon{width:38px;height:38px;flex:none;background:#111;color:white;border-radius:50%;display:grid;place-items:center;font-size:20px}
+.selected-person strong{font-size:13px}
+.selected-person small{display:block;font-size:11px;color:#65716a;margin-top:3px}
+.selected-times{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:15px 0}
+.selected-times button{border:1.3px solid #151515;border-radius:10px;background:white;font-weight:700;padding:11px 1px;font-size:12px}
+.selected-times button:hover,.selected-times button.active{background:#121c19;color:white}
+.card-action{width:100%;border:0;background:#172e25;color:white;border-radius:12px;padding:13px;font-size:12px;font-weight:700;margin-top:8px}
+.card-action.alt{background:#f1f4ef;color:#214539}
+.selection-note{font-size:10px;color:#77827b;line-height:1.5;margin-top:12px}
+.opps-in-card{font-size:12px;border-top:1px solid #dde4dd;padding-top:13px;margin-top:12px}
+.opps-in-card strong{display:block}
+.opps-in-card small{color:#6b776f}
+.maparea .leaflet-control-zoom{display:none}
+.footer{margin-top:38px}
+@media(max-width:1050px){.layout{grid-template-columns:minmax(195px,1fr) minmax(300px,1.65fr);gap:18px;padding:0 22px}#neighborhood{grid-column:1;grid-row:2} .maparea{grid-column:2;grid-row:2}#results{grid-column:1/-1;grid-row:3;width:min(520px,100%);justify-self:center}.selected-card{padding:22px}}
+@media(max-width:650px){.layout{display:flex;flex-direction:column;gap:18px;padding:0 16px}.sidebar:first-child{display:contents}.searchbar{order:0}.maparea{order:1;width:100%}#map{width:min(95vw,520px);height:auto}.my-location-btn{bottom:8px}#results{order:2;width:100%}#neighborhood{order:3;width:100%}.selected-card{border-radius:22px}.brand{padding-top:50px}.tagline{margin-bottom:19px;font-size:14px}}
+</style>
+
+<style>
+/* v0.7 focused refinement */
+.neighbor-action:not(.alt){min-height:56px;font-size:15px;letter-spacing:-.2px;background:#102f25;box-shadow:0 7px 20px #112e261e;border:2px solid #102f25;transition:transform .15s,background .15s}
+.neighbor-action:not(.alt):hover{background:#0a2118;transform:translateY(-2px)}
+.selected-card{position:relative}
+.selected-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.selected-counter{border-radius:20px;background:#eef2ef;color:#234b3b;padding:7px 10px;font-size:11px;font-weight:750;white-space:nowrap}
+.selected-close{border:1px solid #d7ded8;background:#fff;color:#344c40;border-radius:50%;font-size:20px;line-height:1;width:32px;height:32px;cursor:pointer}
+.selected-card-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px}
+.selected-next{display:flex;justify-content:center;align-items:center;gap:8px;background:#172e25;border:0;border-radius:11px;color:white;padding:12px 15px;font-size:13px;font-weight:750;cursor:pointer;flex:1}
+.selected-card .selection-note{margin-top:14px}
+.empty-selection{text-align:left;padding:12px 0}
+.empty-selection .selected-name{margin:10px 0}
+.card-action.alt{font-weight:650}
+@media(max-width:650px){.selected-next{min-height:48px}}
+</style>
+</head><body>
+<header><div class="brand"><span class="mark">the</span><span class="wordmark"><span class="chair">♟</span>Barbergame<sup>®</sup></span></div><div class="header-right" onclick="alert('Sign in is not connected in this design prototype.')">Sign in</div><div class="tagline">Book the best barbers, close to your location, with availability now.</div></header>
+<div class="layout"><aside class="sidebar">
+<div class="searchbar"><div class="searchfield"><label for="distance">Distance</label><select id="distance"><option>Nearby</option><option>Within 1 mile</option><option>Within 5 miles</option><option>Within 10 miles</option></select></div><div class="searchfield"><label for="date">Date</label><select id="date"><option>Today</option><option>Tomorrow</option><option>This week</option></select></div><div class="searchfield"><label for="time">Time</label><select id="time"><option>Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div><button class="searchgo" onclick="document.getElementById('results').scrollIntoView({behavior:'smooth',block:'center'})" title="Show available barbers">⌕</button></div>
+<div class="smallcaps step" id="step">01 / DISCOVERY</div><h1 id="headline">A great haircut.</h1><p class="sub" id="intro"></p><div class="progressbar"><div id="progress" style="--progress:20%"></div></div></aside>
+<main class="maparea"><div id="map"></div><button class="my-location-btn" id="locate" onclick="locateMe()"><span class="dot"></span>Use my location</button><div class="location-note" id="locnote">Blue dot shows a demo location</div><div class="mapbadge"><strong id="maptitle">Explore Seattle</strong><small id="mapsub"></small></div><div id="hint" class="centerhint"></div><div id="sheet" class="bottom-sheet hidden"></div></main><section id="neighborhood" aria-label="Nearby neighborhood opportunities"></section>
+<aside class="sidebar" id="results" style="padding-top:0"><div id="panel"></div></aside></div><div class="footer">TBG Network LLC © 2026<br/>Neighborhood Spotlight · interactive design study<br/><span style="color:#777">Shop details, openings, and offers are illustrative.</span></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
+const shops=[{id:'atlas',name:'Atlas Barber Studio',hood:'Capitol Hill',address:'Pike / Broadway',coords:[47.6147,-122.3205],price:38,open:'11:15 AM',icon:'✂',desc:'An independent studio a few steps from Capitol Hill cafés and small businesses.',opps:[{name:'Juniper Coffee',type:'Coffee',icon:'☕',coords:[47.6156,-122.3200],walk:'2 min',offer:'$2 off your next coffee',copy:'A neighborhood welcome after your appointment.'},{name:'Pike Street Records',type:'Local shop',icon:'♫',coords:[47.6141,-122.3175],walk:'4 min',offer:'Discover something new',copy:'Browse vinyl and spend a few minutes getting lost in the shelves.'},{name:'Cal Anderson Park',type:'Park',icon:'🌳',coords:[47.6171,-122.3192],walk:'5 min',offer:'Take the scenic way',copy:'A little green space for the walk home.'},{name:'Little Fern Bakery',type:'Bakery',icon:'🥐',coords:[47.6152,-122.3230],walk:'3 min',offer:'A pastry for the road',copy:'A local stop worth knowing about.'},{name:'Studio Bookshop',type:'Bookshop',icon:'📚',coords:[47.6135,-122.3225],walk:'3 min',offer:'Browse a new story',copy:'Make your afternoon a little longer.'}]},{id:'union',name:'Union & Co. Barbers',hood:'Pioneer Square',address:'1st Ave / Main St',coords:[47.6009,-122.3342],price:42,open:'12:30 PM',icon:'✂',desc:'Classic cuts in one of Seattle’s most distinctive neighborhoods.',opps:[{name:'First Cup Café',type:'Coffee',icon:'☕',coords:[47.6014,-122.3332],walk:'2 min',offer:'$2 off a coffee',copy:'A warm hello from just around the corner.'},{name:'Brick & Paper',type:'Bookshop',icon:'📚',coords:[47.6023,-122.3337],walk:'3 min',offer:'Take a look inside',copy:'An unexpected place to spend fifteen minutes.'},{name:'Occidental Square',type:'Public square',icon:'🌳',coords:[47.6005,-122.3331],walk:'2 min',offer:'Take the long way home',copy:'A neighborhood landmark worth a look.'},{name:'Gallery 98',type:'Art',icon:'🎨',coords:[47.6001,-122.3360],walk:'4 min',offer:'See something inspiring',copy:'Explore the creative side of the neighborhood.'}]},{id:'north',name:'Northline Grooming',hood:'Fremont',address:'N 36th / Fremont Ave',coords:[47.6509,-122.3503],price:40,open:'1:45 PM',icon:'✂',desc:'A modern barbershop surrounded by Fremont’s eclectic local businesses.',opps:[{name:'Canal Coffee',type:'Coffee',icon:'☕',coords:[47.6502,-122.3488],walk:'3 min',offer:'$2 off your next coffee',copy:'Keep the good feeling going.'},{name:'Fremont Troll',type:'Landmark',icon:'📍',coords:[47.6510,-122.3473],walk:'4 min',offer:'Meet a local icon',copy:'A landmark you won’t see anywhere else.'},{name:'Sunday Market',type:'Shopping',icon:'🛍',coords:[47.6504,-122.3519],walk:'3 min',offer:'Meet local makers',copy:'A different kind of discovery on market days.'},{name:'Canal Walk',type:'Outdoors',icon:'🌊',coords:[47.6487,-122.3495],walk:'5 min',offer:'Follow the water',copy:'Explore the canal after your cut.'}]}];
+let chosen=null,opp=0,stage=0,shopMarkers=[],oppMarkers=[],circle=null,flow=[];let myCoords=[47.6143,-122.3225],hasRealLocation=false,myMarker;const map=L.map('map',{zoomControl:false,scrollWheelZoom:true}).setView([47.6147,-122.3205],16);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19}).addTo(map);L.control.zoom({position:'topleft'}).addTo(map);
+function drawMyLocation(){if(myMarker)map.removeLayer(myMarker);myMarker=L.marker(myCoords,{icon:L.divIcon({html:'<div class="you-marker '+(hasRealLocation?'':'demo')+'"></div>',className:'',iconSize:[20,20],iconAnchor:[10,10]}),zIndexOffset:900}).addTo(map);myMarker.bindTooltip(hasRealLocation?'Your current location':'Sample location · Seattle',{direction:'top',offset:[0,-12]})}function locateMe(){const btn=document.getElementById('locate'),note=document.getElementById('locnote');if(!navigator.geolocation){note.textContent='Location is unavailable in this browser';return}btn.textContent='Locating…';navigator.geolocation.getCurrentPosition(pos=>{myCoords=[pos.coords.latitude,pos.coords.longitude];hasRealLocation=true;drawMyLocation();map.flyTo(myCoords,12,{duration:1});btn.innerHTML='<span class="dot"></span>My location';note.textContent='Blue dot shows your location';},()=>{btn.innerHTML='<span class="dot"></span>Use my location';note.textContent='Location permission unavailable · showing Seattle demo location';},{enableHighAccuracy:false,timeout:9000})}function icon(content,cls='marker'){return L.divIcon({html:'<div class="'+cls+'">'+content+'</div>',className:'',iconSize:[44,44],iconAnchor:[22,22]})}function clearOpp(){oppMarkers.forEach(m=>map.removeLayer(m));oppMarkers=[];if(circle){map.removeLayer(circle);circle=null}}function redrawShops(){shopMarkers.forEach(m=>map.removeLayer(m));shopMarkers=shops.map((s,i)=>{const m=L.marker(s.coords,{icon:icon('✂',chosen===i?'marker chosen':'marker')}).addTo(map);m.on('click',()=>selectShop(i));return m})}function showOppMarkers(){clearOpp();const s=shops[chosen];circle=L.circle(s.coords,{radius:380,weight:1.5,color:'#578266',fillColor:'#76ae8e',fillOpacity:.075,dashArray:'6,7'}).addTo(map);s.opps.forEach((o,i)=>{const m=L.marker(o.coords,{icon:icon(o.icon,i===opp?'opp-marker active':'opp-marker'),zIndexOffset:i===opp?500:100}).addTo(map);m.on('click',()=>selectOpp(i));oppMarkers.push(m)})}function fly(coords,zoom=16){map.flyTo(coords,zoom,{duration:1.0})}function setStage(n){stage=n;document.getElementById('step').textContent=['01 / DISCOVERY','02 / NEIGHBORHOOD','03 / THE OPPORTUNITIES','04 / YOUR COURTESY','05 / AFTER THE CUT'][n];document.getElementById('progress').style.setProperty('--progress',((n+1)*20)+'%');render()}
+function selectShop(i){chosen=i;opp=0;redrawShops();clearOpp();setStage(1)}function reveal(){if(chosen===null)return;opp=0;showOppMarkers();fly(shops[chosen].coords,16);setStage(2)}function selectOpp(i){opp=i;showOppMarkers();const s=shops[chosen],o=s.opps[i];map.flyToBounds([s.coords,o.coords],{padding:[130,130],maxZoom:17,duration:.8});if(stage!==2)setStage(2);else render()}function nextOpp(){selectOpp((opp+1)%shops[chosen].opps.length)}function confirm(){setStage(3);fly(shops[chosen].opps[opp].coords,17)}function after(){setStage(4)}function back(){if(stage===4)setStage(3);else if(stage===3)setStage(2);else if(stage===2){clearOpp();fly(shops[chosen].coords,15);setStage(1)}else reset()}function reset(){chosen=0;clearOpp();redrawShops();map.flyTo([47.6147,-122.3205],16,{duration:.9});setStage(0)}function shopHTML(s,i){return `<button class="shop-card ${chosen===i?'active':''}" onclick="selectShop(${i})"><div class="avatar">✂</div><div><strong>${s.name}</strong><small>${s.hood} · ${s.address}</small><em>Next opening ${s.open} · from $${s.price}</em></div></button>`}function listHTML(){return shops.map(shopHTML).join('')}
+function render(){const panel=document.getElementById('panel'),sheet=document.getElementById('sheet'),hint=document.getElementById('hint'),heading=document.getElementById('headline'),intro=document.getElementById('intro'),maptitle=document.getElementById('maptitle'),mapsub=document.getElementById('mapsub');sheet.classList.add('hidden');hint.classList.toggle('hidden',stage!==0);if(stage===0){heading.innerHTML='A great haircut.<br/>A little more.';intro.textContent='Choose a shop and see what happens when a haircut becomes a neighborhood experience.';panel.innerHTML=`<div class="appointment-card"><div class="appointment-person"><span class="chair-icon">♟<span class="count">3</span></span><div>Available barbers near you<small>Choose an opening or explore a shop on the map</small></div></div><div class="slot-row"><button onclick="selectShop(0)">11:15am</button><button onclick="selectShop(1)">12:30pm</button><button onclick="selectShop(2)">1:45pm</button></div><div class="panel-follow">Demo openings · choose any time to explore the neighborhood</div></div>`;maptitle.textContent='Explore Seattle';mapsub.textContent='Choose a barber to reveal the neighborhood.'}
+if(stage===1){const s=shops[chosen];heading.innerHTML='Meet your new<br/>neighborhood.';intro.textContent='The map has moved to your barber. Now discover what you could do right after the appointment.';panel.innerHTML=`<div class="stage-panel"><div class="stageLabel">YOUR SELECTED SHOP</div>${shopHTML(s,chosen)}<div class="context"><strong>One appointment. An entire neighborhood.</strong>${s.desc}</div><button class="primary full" onclick="reveal()">Explore around this shop →</button><div style="height:10px"></div><button class="secondary full" onclick="reset()">← Choose a different shop</button></div>`;sheet.classList.remove('hidden');sheet.innerHTML=`<div class="eyebrow">Your barber</div><h2>${s.name}</h2><p>${s.hood} · Sample opening ${s.open}</p><div class="actions"><button class="secondary" onclick="reset()">Change shop</button><button class="primary" onclick="reveal()">Explore nearby →</button></div>`;maptitle.textContent=s.hood;mapsub.textContent='The shop is now in focus. Nearby discovery stays hidden until you ask.'}
+if(stage===2){const s=shops[chosen],o=s.opps[opp];heading.innerHTML='Good things<br/>around the corner.';intro.textContent='Only a handful of nearby opportunities appear. Select a pin or move through the places one by one.';panel.innerHTML=`<div class="stage-panel"><div class="section-head"><span>NEIGHBORHOOD SPOTLIGHT</span><span>${s.opps.length} PLACES</span></div><div class="opp-list">${s.opps.map((v,i)=>`<button class="opp-item ${opp===i?'active':''}" onclick="selectOpp(${i})"><span class="sym">${v.icon}</span><span><strong>${v.name}</strong><small>${v.type} · ${v.walk} walk</small></span><span class="num">0${i+1}</span></button>`).join('')}</div><div class="context"><strong>Designed to stay quiet</strong>These locations appear only while exploring this shop. Change shops and the spotlight resets.</div><button class="secondary full" onclick="back()">← Back to shop</button></div>`;sheet.classList.remove('hidden');sheet.innerHTML=`<div class="crumbs">${s.opps.map((v,i)=>`<span class="${i===opp?'on':''}"></span>`).join('')}</div><div class="eyebrow">${o.type} · ${o.walk} walk</div><h2>${o.icon} ${o.name}</h2><p>${o.copy}</p><div class="offer"><span>NEIGHBORHOOD OPPORTUNITY</span><strong>${o.offer}</strong><span>Illustrative experience, not a live promotion.</span></div><div class="nav"><button class="secondary" onclick="nextOpp()">Next place →</button><button class="primary" onclick="confirm()">Choose this stop</button></div>`;maptitle.textContent='Neighborhood Spotlight';mapsub.textContent='A small, intentional cluster of local discoveries.'}
+if(stage===3){const s=shops[chosen],o=s.opps[opp];heading.innerHTML='Welcome to<br/>the neighborhood.';intro.textContent='Imagine this arriving after the haircut: a thoughtful neighborhood gesture, not an advertisement.';panel.innerHTML=`<div class="context"><strong>The post-appointment moment</strong>BarberGame knows where your appointment happened and can introduce a relevant nearby business after the visit.</div><div class="stageLabel">EXAMPLE CUSTOMER MESSAGE</div><div class="offer"><span>A LITTLE SOMETHING FROM ${s.hood.toUpperCase()}</span><strong>${o.offer}</strong><span>${o.name} · ${o.walk} walk</span></div><div class="actions"><button class="secondary" onclick="back()">← Change stop</button><button class="primary" onclick="after()">Imagine the next step →</button></div>`;sheet.classList.remove('hidden');sheet.innerHTML=`<div class="eyebrow">A neighborhood courtesy</div><h2>You're welcome here.</h2><p>Thanks for visiting ${s.name}. Here's a little something from ${o.name}.</p><div class="offer"><span>DEMO COURTESY</span><strong>${o.offer}</strong><span>No real coupon is generated in this prototype.</span></div><button class="primary full" onclick="after()">Continue the journey →</button>`;maptitle.textContent='Your next stop';mapsub.textContent='The map follows the opportunity you selected.'}
+if(stage===4){const s=shops[chosen],o=s.opps[opp];heading.innerHTML='One haircut.<br/>More connection.';intro.textContent='The haircut becomes a reason to explore. The neighborhood becomes part of the BarberGame experience.';panel.innerHTML=`<div class="context"><strong>Journey completed</strong>Discovered ${s.name}, explored ${s.hood}, chose ${o.name}, and received a sample neighborhood courtesy.</div><div class="stageLabel">DESIGN QUESTIONS TO TEST NEXT</div><p class="tiny">Should discovery happen before booking or only after? What makes an opportunity helpful rather than promotional? How do we choose five truly useful local places?</p><div class="actions"><button class="secondary" onclick="back()">← Previous</button><button class="primary" onclick="reset()">Try another shop ↻</button></div>`;sheet.classList.remove('hidden');sheet.innerHTML=`<div class="eyebrow">A little more, locally</div><h2>That's the journey.</h2><p>From finding a barber, to exploring a place, to feeling welcomed by the neighborhood.</p><button class="primary full" onclick="reset()">Explore a different neighborhood ↻</button>`;maptitle.textContent='Beyond the appointment';mapsub.textContent='A more meaningful local discovery experience.'}}
+redrawShops();drawMyLocation();render();window.addEventListener('resize',()=>setTimeout(()=>map.invalidateSize(),200));</script>
+<script>
+/* v0.6 presentation layer: leaves original map, motion and place data in place */
+let selectedTime = 0;
+const originalRender = render;
+function insightLine(emoji,title,detail,click){
+ return `<div class="insight" ${click ? `role="button" tabindex="0" style="cursor:pointer" onclick="${click}" onkeydown="if(event.key==='Enter')${click}"` : ''}><div class="insight-icon">${emoji}</div><div><strong>${title}</strong><small>${detail}</small></div></div>`;
+}
+function renderNeighborhood(){
+ let node=document.getElementById('neighborhood');
+ const s=shops[chosen ?? 0];
+ if(stage <= 1){
+  node.innerHTML=`<div class="intro-label">Welcome to the neighborhood</div><h2 class="neighborhood-head">${s.hood}, Seattle</h2><p class="neighborhood-copy">Your haircut is the starting point. See what is within an easy walk.</p>` +
+  insightLine('☕','Coffee & cafés','A place to linger after your cut')+
+  insightLine('🍽','Food & drink','Make an afternoon of it')+
+  insightLine('🌳','Outdoors & landmarks','Take a different way home')+
+  insightLine('✦','Local discoveries','Up to five curated nearby stops')+
+  `<button class="neighbor-action" onclick="selectShop(${chosen ?? 0});reveal()">Explore nearby opportunities →</button><p class="selection-note">Illustrative neighborhood suggestions, not paid placements.</p>`;
+ }else{
+  const o=s.opps[opp];
+  node.innerHTML=`<div class="intro-label">Neighborhood spotlight · ${s.opps.length} stops</div><h2 class="neighborhood-head">Around ${s.hood}</h2><p class="neighborhood-copy">Select a place to bring it into focus on the map.</p>`+
+    s.opps.map((v,i)=>insightLine(v.icon,v.name,`${v.type} · ${v.walk} walk ${opp===i?'· Selected':''}`,`selectOpp(${i})`)).join('')+
+    `<button class="neighbor-action" onclick="nextOpp()">Next place →</button><button class="neighbor-action alt" onclick="selectShop(${chosen})">Back to the barber</button>`;
+ }
+}
+function renderSelected(){
+ const s=shops[chosen ?? 0], panel=document.getElementById('panel');
+ const timeLabels=[s.open,'12:45 PM','3:00 PM'];
+ let html=`<div class="selected-card"><div class="selected-eyebrow">● Selected on the map</div><h2 class="selected-name">${s.name}</h2><div class="selected-meta">${s.hood} · ${s.address}<br/>Haircuts from $${s.price}</div><div class="selected-person"><span class="chair-icon">✂</span><span><strong>Your barber</strong><small>Available appointments · demo</small></span></div><div class="selected-eyebrow">Choose an opening</div><div class="selected-times">${timeLabels.map((t,i)=>`<button class="${selectedTime===i?'active':''}" onclick="chooseTime(${i})">${t.replace(' ','')}</button>`).join('')}</div>`;
+ if(stage===0 || stage===1){
+  html += `<button class="card-action" onclick="selectShop(${chosen ?? 0});reveal()">Explore this neighborhood →</button>`;
+ } else {
+  const o=s.opps[opp];
+  html += `<div class="opps-in-card"><strong>${o.icon} ${o.name}</strong><small>${o.walk} walk · ${o.offer}</small></div><button class="card-action" onclick="confirm()">See neighborhood courtesy →</button><button class="card-action alt" onclick="nextOpp()">Next nearby place →</button>`;
+ }
+ html += `<button class="card-action alt" onclick="switchShop()">Choose another barber</button><div class="selection-note">This is a design prototype. Openings, barbers and offers are illustrative.</div></div>`;
+ panel.innerHTML=html;
+}
+function chooseTime(i){selectedTime=i;renderSelected()}
+function switchShop(){selectedTime=0;selectShop(((chosen ?? 0)+1)%shops.length)}
+render=function(){ originalRender();renderNeighborhood();renderSelected(); document.getElementById('sheet').classList.add('hidden') };
+chosen=0;redrawShops();render();
+</script>
+
+<script>
+/* v0.7 – fixed-camera shop carousel, close affordance, shop counter */
+function nextShopFixed(){
+  chosen = ((chosen===null?-1:chosen)+1) % shops.length;
+  selectedTime=0;
+  clearOpp();
+  stage=0;
+  redrawShops();
+  render(); // intentionally does not call fly or map.setView
+}
+function closeSelectedShop(){
+  chosen=null;
+  clearOpp();
+  stage=0;
+  redrawShops();
+  render(); // leave the camera fixed on the city
+}
+renderSelected=function(){
+  const panel=document.getElementById('panel');
+  if(chosen===null){
+    panel.innerHTML=`<div class="selected-card empty-selection"><div class="selected-eyebrow">Barbers near you</div><h2 class="selected-name">Choose a barber</h2><div class="selected-meta">Select any barber pin on the map, or browse available shops.</div><button class="card-action" onclick="nextShopFixed()">Show first barber →</button></div>`;
+    return;
+  }
+  const s=shops[chosen];
+  const times=[s.open,'12:45 PM','3:00 PM'];
+  let html=`<div class="selected-card">
+    <div class="selected-card-head">
+      <span class="selected-eyebrow">● Selected on the map</span>
+      <button class="selected-close" onclick="closeSelectedShop()" aria-label="Close selected barber" title="Close selected barber">×</button>
+    </div>
+    <h2 class="selected-name">${s.name}</h2>
+    <div class="selected-meta">${s.hood} · ${s.address}<br>Haircuts from $${s.price}</div>
+    <div class="selected-person"><span class="chair-icon">✂</span><span><strong>Your barber</strong><small>Available appointments · demo</small></span></div>
+    <div class="selected-eyebrow">Choose an opening</div>
+    <div class="selected-times">${times.map((t,i)=>`<button class="${selectedTime===i?'active':''}" onclick="chooseTime(${i})">${t.replace(' ','')}</button>`).join('')}</div>`;
+  if(stage<=1){
+    html+=`<button class="card-action alt" onclick="reveal()">See neighborhood opportunities →</button>`;
+  }else{
+    const o=s.opps[opp];
+    html+=`<div class="opps-in-card"><strong>${o.icon} ${o.name}</strong><small>${o.walk} walk · ${o.offer}</small></div><button class="card-action" onclick="confirm()">See neighborhood courtesy →</button>`;
+  }
+  html+=`<div class="selected-card-controls"><span class="selected-counter">${chosen+1} of ${shops.length}</span><button class="selected-next" onclick="nextShopFixed()">Next barber <span aria-hidden="true">→</span></button></div>
+  <div class="selection-note">Neighborhood view: approximately half a mile across. Next keeps the map fixed.</div></div>`;
+  panel.innerHTML=html;
+};
+const previousRender=render;
+render=function(){
+  if(chosen===null){
+    const node=document.getElementById('neighborhood');
+    previousRender();
+    node.innerHTML=`<div class="intro-label">Neighborhood discovery</div><h2 class="neighborhood-head">Welcome to the neighborhood</h2><p class="neighborhood-copy">Select a barber on the map to discover what you might do after your haircut.</p><button class="neighbor-action" onclick="nextShopFixed()">Browse barbers →</button>`;
+    return;
+  }
+  previousRender();
+};
+</script>
+</body></html>
