@@ -227,4 +227,23 @@ render=function(){
   previousRender();
 };
 </script>
+
+<style id="barbergame-close-v09">
+#results .selected-card{position:relative!important}
+#results .selected-close{position:absolute!important;top:16px!important;right:16px!important;display:flex!important;align-items:center!important;justify-content:center!important;width:36px!important;height:36px!important;border:1px solid #cfd6d0!important;border-radius:50%!important;background:#fff!important;color:#182820!important;font:400 23px/1 Arial,sans-serif!important;cursor:pointer!important;z-index:50!important}
+#results .selected-close:hover{background:#eaf0eb!important}
+#results .selected-card-head{padding-right:40px!important}
+</style>
+<script id="barbergame-close-v09">
+(function(){
+const panel=document.getElementById('panel');if(!panel)return;
+function ensureClose(){
+const card=panel.querySelector('.selected-card');if(!card||card.classList.contains('empty-selection'))return;
+let close=card.querySelector('.selected-close');
+if(!close){close=document.createElement('button');close.type='button';close.className='selected-close';close.setAttribute('aria-label','Close selected barber');close.title='Close selected barber';close.textContent='×';card.prepend(close)}
+close.onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof closeSelectedShop==='function')closeSelectedShop()};
+}
+new MutationObserver(ensureClose).observe(panel,{childList:true});ensureClose();
+})();
+</script>
 </body></html>
