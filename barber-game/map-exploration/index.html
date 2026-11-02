@@ -110,8 +110,14 @@ header{max-width:1160px}
 .card-action.alt{font-weight:650}
 @media(max-width:650px){.selected-next{min-height:48px}}
 </style>
+
+<style id="official-barbergame-logo-style">
+.brand .official-barbergame-logo{display:block;width:100%;height:auto;object-fit:contain}
+header .brand{display:block;width:clamp(260px,34vw,410px);height:auto;max-width:calc(100vw - 120px);line-height:0}
+@media(max-width:650px){header .brand{width:min(82vw,370px);max-width:82vw}}
+</style>
 </head><body>
-<header><div class="brand"><span class="mark">the</span><span class="wordmark"><span class="chair">♟</span>Barbergame<sup>®</sup></span></div><div class="header-right" onclick="alert('Sign in is not connected in this design prototype.')">Sign in</div><div class="tagline">Book the best barbers, close to your location, with availability now.</div></header>
+<header><div class="brand"><img class="official-barbergame-logo" src="./barbergame-logo-blk.svg" alt="The Barbergame" width="670" height="164"></div><div class="header-right" onclick="alert('Sign in is not connected in this design prototype.')">Sign in</div><div class="tagline">Book the best barbers, close to your location, with availability now.</div></header>
 <div class="layout"><aside class="sidebar">
 <div class="searchbar"><div class="searchfield"><label for="distance">Distance</label><select id="distance"><option>Nearby</option><option>Within 1 mile</option><option>Within 5 miles</option><option>Within 10 miles</option></select></div><div class="searchfield"><label for="date">Date</label><select id="date"><option>Today</option><option>Tomorrow</option><option>This week</option></select></div><div class="searchfield"><label for="time">Time</label><select id="time"><option>Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div><button class="searchgo" onclick="document.getElementById('results').scrollIntoView({behavior:'smooth',block:'center'})" title="Show available barbers">⌕</button></div>
 <div class="smallcaps step" id="step">01 / DISCOVERY</div><h1 id="headline">A great haircut.</h1><p class="sub" id="intro"></p><div class="progressbar"><div id="progress" style="--progress:20%"></div></div></aside>
