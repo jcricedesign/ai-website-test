@@ -168,7 +168,46 @@ function pick(s,b,slot=''){state.shop=s;state.barber=b;state.slot=slot;state.day
 function claim(s,b,t,day='Today'){state.shop=s;state.barber=b;state.slot=t;state.day=day;state.service=services[serviceIndexFor(s,b,t,day)];state.generalBooking=false;go('service')}
 function directions(shop){if(shop?.address)window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(shop.address),'_blank','noopener')}
 document.addEventListener('click',async e=>{const btn=e.target.closest('[data-action]');if(!btn)return;const a=btn.dataset.action,s=shops.find(x=>x.id===btn.dataset.shop),b=s?.barbers[Number(btn.dataset.barber)];
- if(a==='jump'){const step=btn.dataset.step;if(['discover','all-barbers','booking-location','signin','recover'].includes(step)||step==='customer-profile'&&state.profileReady||step==='profile'&&state.barber||step==='service'&&state.shop&&(state.generalBooking||state.barber)||step==='booking-barber'&&state.generalBooking&&state.shop&&state.service||step==='time'&&state.barber&&state.service||step==='confirm'&&state.barber&&state.service&&state.slot||['confirmed','account'].includes(step)&&state.confirmed)go(step);return}
+ if(a==='jump'){
+  // The sidebar is a prototype screen index, not the customer's gated booking flow.
+  // Supply illustrative context so every screen can be inspected independently.
+  const step=btn.dataset.step;
+  if(!steps.some(([key])=>key===step))return;
+  if(step==='discover'){state.generalBooking=false;go(step);return}
+  if(step==='all-barbers'||step==='signin'||step==='recover'){go(step);return}
+  if(step==='booking-location'){
+    state.generalBooking=true;
+    state.shop=null;state.barber=null;state.service=null;state.slot='';
+    go(step);return;
+  }
+  const sampleShop=shops.find(shop=>shop.barbers?.length);
+  if(!sampleShop){go('discover');return}
+  if(!state.shop?.barbers?.length)state.shop=sampleShop;
+  if(!state.barber||!state.shop.barbers.includes(state.barber))state.barber=state.shop.barbers[0];
+  if(!state.service||requiresInquiry(state.service))state.service=services.find(service=>!requiresInquiry(service));
+  if(!state.slot){
+    const next=nextForService(state.shop,state.barber,state.service);
+    state.day=next?.day||'Today';
+    state.slot=next?.time||'2:30';
+  }
+  state.generalBooking=step==='booking-barber';
+  if(step==='profile'){state.profileReturn='discover';state.returnShop=state.shop.id}
+  if(step==='customer-profile'){
+    state.profileReady=true;
+    state.name=state.name||'Alex Morgan';
+    state.email=state.email||'alex@example.com';
+    state.phone=state.phone||'(425) 555-0142';
+    state.accountEmail=state.accountEmail||state.email;
+    state.accountUsername=state.accountUsername||'alexm';
+  }
+  if(step==='confirmed'||step==='account'){
+    state.confirmed=true;
+    state.name=state.name||'Alex Morgan';
+    state.email=state.email||'alex@example.com';
+    state.phone=state.phone||'(425) 555-0142';
+  }
+  go(step);return
+}
  if(a==='all-barbers'){state.directoryFromMenu=state.overlay==='menu';go('all-barbers');return}
  if(a==='signin'){go('signin');return}
  if(a==='signin-saved'){restoreDemoAccount();return}
