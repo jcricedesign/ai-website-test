@@ -23,7 +23,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 | Barber profile | Partial | Editable display name and biography in memory; photo upload locally | Profile API, identity, photo storage, cropping and moderation |
 | Shop profile | Partial | Shop details displayed; shop photo upload/removal locally | Shop/location/hours API, role-aware editing |
 | Earnings/expenses | Read-only | Static sample financial totals | Billing ledger, reconciliation, reporting and authorization |
-| Barber messaging inbox | Yes (new, post-checkpoint) | Fictional unread and past messages, read-to-mark-as-read, sent-message draft simulation; browser `localStorage` only | Real messaging API, inbox history, barber recipient identity, read receipts, secure send/delivery, notifications and moderation | 
+| Barber messaging inbox + multi-recipient compose | Yes (new, post-checkpoint) | Unread/past/sent folders, read state; compose to all barbers, multiple shops, or named barbers from a fictional location roster; locally saved sent messages only | Real recipient directory, selection permissions, group fan-out, delivery/read APIs, notifications, privacy controls and moderation | 
 | Navigation and sheets | Yes | Browser client-side interactions; responsive mobile layout | Accessibility and device testing; route/state integration |
 | Authentication | Demo gate only | Dashboard checks `sessionStorage` key `tbg-auth`; login page contains client-side credentials | Replace with real server-side authentication and authorization **before exposing real data** |
 
@@ -36,7 +36,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 
 ## What is *not* connected
 - **No API calls or database** (no server persistence for bookings, clients, services, availability, financials).
-- **No messaging service**: inbox samples are fictional; composing a message saves a local sample sent record but sends nothing. No outbound delivery, recipient lookup, shared message state, push or email notifications.
+- **No messaging service**: inbox samples and the barber/shop recipient directory are fictional; composing a message saves a local sample sent record but sends nothing. No real broadcast, per-location fan-out, role enforcement, outbound delivery, shared message state, push or email notifications.
 - **No live appointment creation or status mutation**, notifications, reminders, payments, calendar syncing, or booking enforcement.
 - **No server-side image storage**; photos are resized into `localStorage`.
 - **No verified customer information**: names/transactions are illustrative; contact details are fictional examples.
@@ -57,7 +57,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 - Source of truth for shop hours versus individual barber hours.
 
 ## After approved checkpoint
-- **2026-11-07 inbox addition:** Mervis identified that each barber needs a message inbox, with unread messages and historical communications. Added a mobile-friendly Messages section and Create Message prototype to the live demo. This change is **after** the preserved v0.3 approval branch; the branch remains frozen. Integration and verification are still required before declaring messaging production-ready.
+- **2026-11-07 inbox and compose additions:** Mervis identified that each barber needs an inbox and all barbers should be able to compose to all barbers, selected shops or individually selected barbers. Messages is placed at the bottom of the one-page dashboard. Composer provides multi-select recipient lists and a demo-only sent record; no message delivery, real directory, or access enforcement. This change is **after** the preserved v0.3 approval branch; the branch remains frozen. Integration and verification are still required before declaring messaging production-ready.
 
 ## Review notes
 - Owner validated the new mobile layout through live feedback on November 7, 2026.
