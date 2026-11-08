@@ -19,7 +19,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 | Block / unblock clients | Yes | Search name/email/phone; preview and confirmation; blocked list/details; persists using browser `localStorage` | Customer lookup, block scope rules, permissions, enforcement, audit log and undo policy |
 | Weekly availability | Yes | Editable sample day/time values in memory | Availability API, holiday/time-off exceptions, overlap checking |
 | Block time | UI only | Date/time modal and demo success message; does **not** change calendar availability | Persisted time blocks, conflicts, calendar refresh |
-| Services and pricing | Yes | Add/edit sample service name, duration and price in memory; 52px up/down arrow controls | Service CRUD endpoints, validation, booking dependency handling |
+| Services and pricing | Yes | Choose from a preset service dropdown (with Other / Custom fallback); optional freeform service details; editable duration/price with 52px arrow controls; in-memory only | Backend service catalog, IDs, ownership and service CRUD, descriptions, validation, booking dependency handling |
 | Barber profile | Partial | Editable display name and biography in memory; photo upload locally | Profile API, identity, photo storage, cropping and moderation |
 | Shop profile | Partial | Shop details displayed; shop photo upload/removal locally | Shop/location/hours API, role-aware editing |
 | Earnings/expenses | Read-only | Static sample financial totals | Billing ledger, reconciliation, reporting and authorization |
@@ -57,6 +57,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 - Source of truth for shop hours versus individual barber hours.
 
 ## After approved checkpoint
+- **2026-11-07 service editor refinement:** Mervis requested standardized services selected from a dropdown with optional custom descriptions. The live demo now offers predefined service types, an Other / Custom fallback, and an editable service-details field. The preset catalog is illustrative; engineering should map entries to the canonical backend service taxonomy.
 - **2026-11-07 inbox and compose additions:** Mervis identified that each barber needs an inbox and all barbers should be able to compose to all barbers, selected shops or individually selected barbers. Messages is placed at the bottom of the one-page dashboard. Composer provides multi-select recipient lists and a demo-only sent record; no message delivery, real directory, or access enforcement. This change is **after** the preserved v0.3 approval branch; the branch remains frozen. Integration and verification are still required before declaring messaging production-ready.
 
 ## Review notes
