@@ -13,12 +13,12 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 | Feature | UI implemented | Data and behavior | Production integration required |
 | --- | --- | --- | --- |
 | Today dashboard & KPI tiles | Yes | Static 8-booking / 6-slot / $285 sample values; booking count updated from in-memory list | Real-time booking counts, open-slot calculation, revenue aggregation |
-| Today's appointments | Yes | Eight fictional records; summary opens full list; status edits remain in browser memory | Appointment list API, status transitions, permissions, validation |
+| Today's appointments | Yes | Eight fictional records; summary opens full list; status edits remain in browser memory. New Appointment has date and 15-minute up/down time selection, with a sample blocked-slot check | Appointment list API, status transitions, permissions, booking and real availability validation |
 | Past appointments | Yes | Six fictional records; Completed/Cancelled filters, load more, detail sheet | Paginated historical bookings API, dates/time zones, auditing |
 | Customer detail sheets | Yes | Shows name, fictional `example.com` email, `555` phone and available sample appointment history | Real customer identity/contact fields, secure access controls, data retention |
 | Block / unblock clients | Yes | Search name/email/phone; preview and confirmation; blocked list/details; persists using browser `localStorage` | Customer lookup, block scope rules, permissions, enforcement, audit log and undo policy |
 | Weekly availability | Yes | Touch-friendly 15-minute up/down time steppers for start/end, AM/PM display, open/closed toggle; edits are in-memory | Availability API, holiday/time-off exceptions, overlap checking |
-| Block time | UI only | Date/time modal and demo success message; does **not** change calendar availability | Persisted time blocks, conflicts, calendar refresh |
+| Block time | Interactive demo | Choose a specific date and start/end using 15-minute arrow controls, save a visible time block, remove it later; browser `localStorage` persistence; demo overlap validation | Availability API persistence, real booking conflicts, access permissions, calendar and search availability propagation |
 | Services and pricing | Yes | Choose from a preset service dropdown (with Other / Custom fallback); optional freeform service details; editable duration/price with 52px arrow controls; in-memory only | Backend service catalog, IDs, ownership and service CRUD, descriptions, validation, booking dependency handling |
 | Barber profile | Partial | Editable display name and biography in memory; photo upload locally | Profile API, identity, photo storage, cropping and moderation |
 | Shop information | Removed from barber demo | Entire Shop Information section and its navigation link removed at owner request | Shop identity, hours, special hours, and photos belong in the separate owner/admin experience |
@@ -32,7 +32,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 - Existing Barbergame demo index links to the dashboard in its Barber demos section.
 - Official Chop It Up logo is referenced from existing website assets.
 - Client-side JS provides real click behavior: bottom sheets, appointment filters, selection, edits, search, counters and confirmations.
-- Browser-local `localStorage` stores resized barber photo previews, blocked-client selections and **demo inbox state** (including read/unread and locally composed messages) **only on that device/browser**. Most other edits reset on refresh.
+- Browser-local `localStorage` stores resized barber photo previews, blocked-client selections, date-specific time blocks and **demo inbox state** (including read/unread and locally composed messages) **only on that device/browser**. Most other edits reset on refresh.
 
 ## What is *not* connected
 - **No API calls or database** (no server persistence for bookings, clients, services, availability, financials).
@@ -57,6 +57,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 - Source of truth for shop hours versus individual barber hours.
 
 ## After approved checkpoint
+- **2026-11-07 appointment and availability refinement:** New Appointment and Block Time use the same 15-minute up/down arrow time controls as Weekly Hours. Blocks are date-specific, visible in Availability, removable, and persisted only in the browser. The demo checks for overlapping blocks and existing sample bookings on today's date, and prevents creating new sample appointments over a blocked slot. This is not integrated with actual booking search or backend availability.
 - **2026-11-07 time controls refinement:** Weekly day-hours editor now uses 15-minute up/down arrow steppers for Start/End instead of native typed time fields. Closing a day disables the steppers; the UI displays readable AM/PM time. Edits remain in-memory.
 - **2026-11-07 role boundary correction:** First removed shop-photo display/editing, then removed the **entire Shop Information section** and its More-menu link following Mervis's clarification. Shop name, hours, exceptions, and photos belong to a separate owner/admin experience. Barber profile photo editing remains. The approved v0.3 checkpoint remains unchanged.
 - **2026-11-07 service editor refinement:** Mervis requested standardized services selected from a dropdown with optional custom descriptions. The live demo now offers predefined service types, an Other / Custom fallback, and an editable service-details field. The preset catalog is illustrative; engineering should map entries to the canonical backend service taxonomy.
