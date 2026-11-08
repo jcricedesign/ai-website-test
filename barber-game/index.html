@@ -291,6 +291,16 @@ const dashboard=document.getElementById('dashboard');
 const form=document.getElementById('loginForm');
 const status=document.getElementById('status');
 
+function hasPendingBarberNotices(){
+  const mandatoryDefaults=['msg-welcome','msg-schedule'];
+  let confirmed=[];
+  try{const saved=JSON.parse(localStorage.getItem('tbg-demo-message-ack-v1')||'[]');if(Array.isArray(saved))confirmed=saved.filter(x=>typeof x==='string')}catch(e){}
+  let inbox=null;
+  try{const saved=JSON.parse(localStorage.getItem('tbg-demo-inbox-v1')||'null');if(Array.isArray(saved))inbox=saved}catch(e){}
+  const required=inbox?inbox.filter(m=>m&&m.folder==='inbox'&&(m.requiresAck===true||(!('requiresAck' in m)&&mandatoryDefaults.includes(m.id)))).map(m=>m.id):mandatoryDefaults;
+  return required.some(id=>!confirmed.includes(id));
+}
+
 function showDashboard(){
   loginWrap.style.display='none';
   dashboard.classList.add('active');
@@ -308,6 +318,12 @@ form.addEventListener('submit',e=>{
   const password=document.getElementById('password').value;
   if(USERS.has(username) && password===PASSWORD){
     sessionStorage.setItem('tbg-auth','1');
+    // In the demo, mandatory barber notices interrupt the first login view.
+    // The production flow must instead be enforced by authenticated server-side receipts.
+    if(hasPendingBarberNotices()){
+      location.assign('/barber-game/barber-admin-dashboard/');
+      return;
+    }
     showDashboard();
     return;
   }
