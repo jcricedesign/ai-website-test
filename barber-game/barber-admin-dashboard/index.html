@@ -116,6 +116,46 @@ function dayPeriodInputs(period,index){
 }
 function currentDayPeriods(){return days[selected]?.periods.map(p=>({...p}))||[]}
 function showDayPeriods(periods){const target=$('dayPeriods');if(!target)return;target.innerHTML=periods.length?periods.map(dayPeriodInputs).join(''):'<p class="sub" style="padding:12px 0">No hours added yet.</p>';toggleDayHours()}
+
+let activeDayTimeField=null;
+let dayTimeSelection={hour:9,minute:0,ampm:'AM'};
+function dayTimeField(name,label){return '<div><span class="sub" style="font-weight:750;display:block;margin-bottom:6px">'+label+'</span><button type="button" id="'+name+'Button" class="minibutton" aria-haspopup="true" aria-expanded="false" onclick="openDayTimePicker(&quot;'+name+'&quot;)" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px"><span id="'+name+'Display">Select time</span><span aria-hidden="true">⌄</span></button><input type="hidden" id="'+name+'" value=""></div>'}
+function openDayTimePicker(name){
+ if($('f_status')?.value==='Closed')return;
+ if(activeDayTimeField===name){closeDayTimePicker();return}
+ activeDayTimeField=name;
+ const value=parseClock($(name)?.value);
+ const fallback=name==='dayStart'?540:1080;
+ const minutes=value===null?fallback:value;
+ dayTimeSelection={hour:Math.floor(minutes/60)%12||12,minute:minutes%60,ampm:minutes>=720?'PM':'AM'};
+ renderDayTimePicker();
+}
+function closeDayTimePicker(){activeDayTimeField=null;const panel=$('dayTimePicker');if(panel)panel.hidden=true;for(const name of ['dayStart','dayEnd']){const button=$(name+'Button');if(button)button.setAttribute('aria-expanded','false')}}
+function chooseDayTimePart(part,value){dayTimeSelection[part]=value;renderDayTimePicker()}
+function renderDayTimePicker(){
+ const panel=$('dayTimePicker');if(!panel||!activeDayTimeField)return;
+ panel.hidden=false;
+ for(const name of ['dayStart','dayEnd']){const button=$(name+'Button');if(button)button.setAttribute('aria-expanded',String(name===activeDayTimeField))}
+ const columns=[
+  {part:'hour',label:'Hour',values:Array.from({length:12},(_,i)=>i+1)},
+  {part:'minute',label:'Minute',values:Array.from({length:12},(_,i)=>i*5)},
+  {part:'ampm',label:'AM / PM',values:['AM','PM']}
+ ];
+ panel.innerHTML='<div class="between" style="margin-bottom:10px"><strong>'+ (activeDayTimeField==='dayStart'?'Start time':'End time')+'</strong><button type="button" class="minibutton" onclick="closeDayTimePicker()" aria-label="Close time picker">×</button></div>'+
+ '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+columns.map(col=>'<div><div class="sub" style="font-weight:750;text-align:center;margin-bottom:6px">'+col.label+'</div><div style="height:175px;overflow-y:auto;overscroll-behavior:contain;border:1px solid #dbe6dc;border-radius:10px;padding:4px" role="group" aria-label="'+col.label+'">'+col.values.map(value=>{const selected=dayTimeSelection[col.part]===value;return '<button type="button" aria-pressed="'+selected+'" onclick="chooseDayTimePart(&quot;'+col.part+'&quot;,'+(typeof value==='string'?'&quot;'+value+'&quot;':value)+')" style="display:block;width:100%;min-height:44px;border:0;border-radius:7px;margin:2px 0;background:'+(selected?'#205d40':'transparent')+';color:'+(selected?'white':'#205d40')+';font-weight:'+(selected?'800':'600')+'">'+(col.part==='minute'?String(value).padStart(2,'0'):value)+'</button>'}).join('')+'</div></div>').join('')+'</div>'+
+ '<button type="button" class="action secondary" style="width:100%;margin-top:12px;min-height:48px" onclick="confirmDayTimePicker()">Set '+dayTimeSelection.hour+':'+String(dayTimeSelection.minute).padStart(2,'0')+' '+dayTimeSelection.ampm+'</button>';
+}
+function confirmDayTimePicker(){
+ if(!activeDayTimeField)return;
+ const {hour,minute,ampm}=dayTimeSelection;
+ const total=(hour%12+(ampm==='PM'?12:0))*60+minute;
+ const field=$(activeDayTimeField),display=$(activeDayTimeField+'Display');
+ if(field)field.value=slotClock(total);
+ if(display)display.textContent=formatClock(total);
+ const next=activeDayTimeField==='dayStart'&&!$('dayEnd')?.value?'dayEnd':null;
+ closeDayTimePicker();
+ if(next)openDayTimePicker(next);
+}
 function addDayPeriod(){
  const start=parseClock($('dayStart')?.value),end=parseClock($('dayEnd')?.value);
  if(start===null||end===null){toast('Choose a start and end time');return}
@@ -123,7 +163,7 @@ function addDayPeriod(){
  const periods=currentDayPeriods();
  if(periods.some(p=>start<p.end&&end>p.start)){toast('These hours overlap an existing range');return}
  if(!saveDaySchedulePeriods([...periods,{start,end}],false))return;
- $('dayStart').value='';$('dayEnd').value='';$('dayStart').focus();toast('Hours added');
+ $('dayStart').value='';$('dayEnd').value='';$('dayStartDisplay').textContent='Select time';$('dayEndDisplay').textContent='Select time';closeDayTimePicker();toast('Hours added');
 }
 function removeDayPeriod(index){const periods=currentDayPeriods();if(index<0||index>=periods.length)return;periods.splice(index,1);if(saveDaySchedulePeriods(periods,false))toast('Hours deleted')}
 function scheduleBookingKey(b){return [b.date||localDateISO(),b.name,b.time,b.service].join('|')}
@@ -203,7 +243,7 @@ function setDayAvailability(value){
 }
 function toggleDayHours(){
  const closed=$('f_status')?.value==='Closed';
- for(const id of ['dayStart','dayEnd','addDayPeriod']){const el=$(id);if(el)el.disabled=closed}
+ for(const id of ['dayStartButton','dayEndButton','addDayPeriod']){const el=$(id);if(el)el.disabled=closed}if(closed)closeDayTimePicker()
  for(const [id,active] of [['dayOpenButton',!closed],['dayClosedButton',closed]]){
   const button=$(id);if(!button)continue;
   button.setAttribute('aria-pressed',String(active));
@@ -232,7 +272,7 @@ else if(type==='day'){
  fields='<label id="dayAvailabilityLabel">Availability</label><input type="hidden" id="f_status" name="status" value="'+(day.periods.length?'Open':'Closed')+'">'+
  '<div role="group" aria-labelledby="dayAvailabilityLabel" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 14px"><button type="button" id="dayOpenButton" class="minibutton" onclick="setDayAvailability(&quot;Open&quot;)">Open</button><button type="button" id="dayClosedButton" class="minibutton" onclick="setDayAvailability(&quot;Closed&quot;)">Closed</button></div>'+
  '<div class="sub" style="font-weight:750;margin:10px 0 3px">Added hours</div><div id="dayPeriods">'+(day.periods.length?day.periods.map(dayPeriodInputs).join(''):'<p class="sub" style="padding:12px 0">No hours added yet.</p>')+'</div>'+
- '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px"><label for="dayStart">Start<input id="dayStart" type="time" value="" aria-label="New start time"></label><label for="dayEnd">End<input id="dayEnd" type="time" value="" aria-label="New end time"></label></div>'+
+ '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">'+dayTimeField('dayStart','Start')+dayTimeField('dayEnd','End')+'</div><div id="dayTimePicker" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div>'+
  '<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add hours</button>'+
  '<p class="photo-hint">Add morning, afternoon, or evening hours separately. New hours appear above immediately.</p>';
 }
