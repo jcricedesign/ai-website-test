@@ -10,19 +10,41 @@
 </nav>
 <main class="page">
 <header class="top"><img class="logo" src="/barber-game/chop-it-up/ChopItUp-Logo.png" alt="Chop It Up Barbershops logo"><div class="stamp">SAMPLE — NOT VALID<br>FOR INCOME VERIFICATION</div></header>
-<div class="header"><div class="eyebrow">Independent contractor · Earnings summary</div><h1>Independent Contractor<br>Earnings Statement</h1><p class="muted">An example of a printable statement that could be generated from verified Chop It Up records.</p></div>
+<div class="header"><div class="eyebrow">Independent contractor · Earnings summary</div><h1>Independent Contractor<br>Earnings Statement</h1><p class="muted" id="reportIntro">An example of a printable statement that could be generated from verified Chop It Up records.</p></div>
 <div class="disclaimer">DEMO / SAMPLE DATA ONLY. The figures, barber identity, and statement below are illustrative. This document is not an official income statement, proof of earnings, certification, tax record, or verification of employment or contractor income.</div>
 <section class="details" aria-label="Statement information">
 <div class="detail"><span>Independent contractor (sample)</span><strong>Kyle Brown</strong></div>
 <div class="detail"><span>Shop</span><strong>Chop It Up Barbershops · Kirkland, WA</strong></div>
-<div class="detail"><span>Reporting period</span><strong>2026 year to date · illustrative</strong></div>
+<div class="detail"><span>Reporting period</span><strong id="reportPeriod">2026 year to date · illustrative</strong></div>
 <div class="detail"><span>Statement status</span><strong>Design demonstration · unverified</strong></div>
 </section>
 <table class="table"><thead><tr><th>Category</th><th>Illustrative amount</th></tr></thead><tbody>
-<tr><td>Year-to-date gross earnings</td><td class="figure">$109,285.00</td></tr>
-<tr><td>Work Re-Up expenses (shown separately)</td><td>$10,920.00</td></tr>
+<tr id="grossRow"><td>Year-to-date gross earnings</td><td class="figure">$109,285.00</td></tr>
+<tr id="expensesRow"><td>Work Re-Up expenses (shown separately)</td><td>$10,920.00</td></tr>
+<tr id="unavailableRow" hidden><td colspan="2" style="text-align:left">No verified earnings or expense records are connected for this year. No amount can be reported.</td></tr>
 </tbody></table>
-<p class="muted">Gross earnings are shown separately from reported Work Re-Up expenses. These figures do not establish net income, taxable income, or total business expenses. Actual reporting periods, deductions, and reconciliation must come from the production ledger.</p>
+<p class="muted" id="reportExplanation">Gross earnings are shown separately from reported Work Re-Up expenses. These figures do not establish net income, taxable income, or total business expenses. Actual reporting periods, deductions, and reconciliation must come from the production ledger.</p>
 <section class="statement"><h2>Independent contractor statement — proposed production wording</h2><p>This statement is intended to summarize earnings recorded by Chop It Up Barbershops for an independent barber during the reporting period shown. The barber provides services as an independent contractor, not as an employee solely by virtue of this statement.</p><p>For a real statement, the amounts, dates, contractor identity, shop identity, and source transactions must be verified against the official business records before the document can be used to support an income-verification request.</p></section>
 <footer class="footer"><div class="verification">SAMPLE DOCUMENT · NOT PROOF OF INCOME</div><div>TBG Network LLC · Barber Admin Dashboard prototype · No live financial system connected.</div><div>Production requirement: authenticated contractor, reconciled transactions, owner-approved wording, issuance date and statement ID, and auditable PDF generation.</div></footer>
-</main></body></html>
+</main>
+<script>
+(function(){
+ const params=new URLSearchParams(location.search);
+ const requested=Number(params.get('year'));
+ const year=[2021,2022,2023,2024,2025,2026].includes(requested)?requested:2026;
+ const historical=year!==2026;
+ document.title=year+' Earnings Statement — SAMPLE';
+ document.getElementById('reportPeriod').textContent=historical?('January 1 – December 31, '+year+' · records unavailable'):('2026 year to date · illustrative');
+ document.getElementById('grossRow').hidden=historical;
+ document.getElementById('expensesRow').hidden=historical;
+ document.getElementById('unavailableRow').hidden=!historical;
+ if(historical){
+  document.getElementById('reportIntro').textContent='Historical report placeholder. No verified transactions or financial totals are available for '+year+'.';
+  document.getElementById('reportExplanation').textContent='This is not a financial statement for '+year+'. It is a placeholder identifying the selected reporting period and absence of connected records. No earnings, expenses, or income are represented.';
+ }
+ if(params.get('download')==='1'){
+  const note=document.createElement('p');note.className='muted';note.textContent='Choose Save as PDF in your browser’s print dialog to save this sample statement.';document.querySelector('.toolbar').appendChild(note);
+  window.addEventListener('load',()=>setTimeout(()=>window.print(),350));
+ }
+})();
+</script></body></html>
