@@ -58,6 +58,7 @@ A mobile-first, one-scroll-page redesign of the legacy Chop It Up barber adminis
 - Source of truth for shop hours versus individual barber hours.
 
 ## After approved checkpoint
+- **2026-11-09 New Appointment service selection repair:** Replaced the native HTML service dropdown (which could render its menu outside the slide-up sheet on mobile browsers) with accessible, large touch-first service choices inside the sheet. Each choice shows the duration and triggers recalculation of open slots. The chosen service remains submitted via a hidden input; keyboard arrows and focus states are supported.
 - **2026-11-09 New Appointment contextual availability:** Replaced the manual time entry with a date-based, touch-selectable appointment start grid. Selecting a date/service shows the barber’s hours and existing sample bookings, highlights which start times can fit the entire selected service, marks overlapping booked/blocked/elapsed times as unavailable, and confirms the selected slot. Revalidates at Save. Current demo records are in-memory; no authoritative production inventory, concurrent hold handling, or server persistence. 15-minute start increments are illustrative.
 
 - **2026-11-09 location permission refinement:** Removed the Location selector from Edit Barber Profile. The shop location remains visible in the profile but is not editable by an individual barber. Location assignment belongs to a separate administrative workflow.
