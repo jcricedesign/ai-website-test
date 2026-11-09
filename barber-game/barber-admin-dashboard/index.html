@@ -121,13 +121,13 @@ let activeDayTimeField=null;
 let dayTimeSelection={hour:9,minute:0,ampm:'AM'};
 function dayTimeField(name,label){return '<div><span class="sub" style="font-weight:750;display:block;margin-bottom:6px">'+label+'</span><button type="button" id="'+name+'Button" class="minibutton" aria-haspopup="true" aria-expanded="false" onclick="openDayTimePicker(&quot;'+name+'&quot;)" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px"><span id="'+name+'Display">Select time</span><span aria-hidden="true">⌄</span></button><input type="hidden" id="'+name+'" value=""></div>'}
 function openDayTimePicker(name){
- if($('f_status')?.value==='Closed')return;
+ if($('f_status')?.value==='Closed')setDayAvailability('Open');
  if(activeDayTimeField===name){closeDayTimePicker();return}
  activeDayTimeField=name;
  const value=parseClock($(name)?.value);
  const fallback=name==='dayStart'?540:1080;
  const minutes=value===null?fallback:value;
- dayTimeSelection={hour:Math.floor(minutes/60)%12||12,minute:minutes%60,ampm:minutes>=720?'PM':'AM'};
+ dayTimeSelection={hour:Math.floor(minutes/60)%12||12,minute:Math.round(minutes%60/5)*5%60,ampm:minutes>=720?'PM':'AM'};
  renderDayTimePicker();
 }
 function closeDayTimePicker(){activeDayTimeField=null;const panel=$('dayTimePicker');if(panel)panel.hidden=true;for(const name of ['dayStart','dayEnd']){const button=$(name+'Button');if(button)button.setAttribute('aria-expanded','false')}}
@@ -160,6 +160,7 @@ function addDayPeriod(){
  const start=parseClock($('dayStart')?.value),end=parseClock($('dayEnd')?.value);
  if(start===null||end===null){toast('Choose a start and end time');return}
  if(start>=end){toast('End time must be after start time');return}
+ if(start%5!==0||end%5!==0){toast('Choose times in five-minute increments');return}
  const periods=currentDayPeriods();
  if(periods.some(p=>start<p.end&&end>p.start)){toast('These hours overlap an existing range');return}
  if(!saveDaySchedulePeriods([...periods,{start,end}],false))return;
@@ -169,7 +170,7 @@ function removeDayPeriod(index){const periods=currentDayPeriods();if(index<0||in
 function scheduleBookingKey(b){return [b.date||localDateISO(),b.name,b.time,b.service].join('|')}
 function dayAppointmentConflicts(oldPeriods,newPeriods){const weekday=selected,today=localDateISO();return [...bookings,...futureBookings].filter(b=>{if(b.status==='Cancelled')return false;const date=b.date||today;if(date<today)return false;const d=new Date(date+'T12:00:00');if(Number.isNaN(d.getTime())||(d.getDay()+6)%7!==weekday)return false;const start=parseClock(b.time),duration=services.find(s=>s.name===b.service)?.duration||30;if(start===null)return false;const fits=periods=>periods.some(p=>start>=p.start&&start+duration<=p.end);return fits(oldPeriods)&&!fits(newPeriods)})}
 function saveDaySchedulePeriods(raw,closeAfter=false){
- if(raw.some(p=>p.start===null||p.end===null||p.start<0||p.end>1440||p.start>=p.end)){toast('Enter valid start and end times');return false}
+ if(raw.some(p=>p.start===null||p.end===null||p.start<0||p.end>1440||p.start>=p.end||p.start%5!==0||p.end%5!==0)){toast('Enter valid start and end times');return false}
  const periods=raw.map(p=>({...p})).sort((a,b)=>a.start-b.start);
  if(periods.some((p,i)=>i>0&&p.start<periods[i-1].end)){toast('Time periods cannot overlap');return false}
  const day=days[selected],old=day.periods.map(p=>({...p})),affected=dayAppointmentConflicts(old,periods);
