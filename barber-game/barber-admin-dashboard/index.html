@@ -157,7 +157,7 @@ function openDayTimePicker(name){
  dayTimeSelection={hour:Math.floor(minutes/60)%12||12,minute:Math.round(minutes%60/5)*5%60,ampm:minutes>=720?'PM':'AM'};
  renderDayTimePicker();
 }
-function closeDayTimePicker(){activeDayTimeField=null;const panel=$('dayTimePicker');if(panel)panel.hidden=true;for(const name of ['dayStart','dayEnd']){const button=$(name+'Button');if(button)button.setAttribute('aria-expanded','false')}}
+function closeDayTimePicker(){const name=activeDayTimeField,panel=$('dayTimePicker'),restore=panel?.contains(document.activeElement);activeDayTimeField=null;if(panel)panel.hidden=true;for(const id of ['dayStart','dayEnd']){const button=$(id+'Button');if(button)button.setAttribute('aria-expanded','false')}if(restore&&name)$(name+'Button')?.focus()}
 function chooseDayTimePart(part,value){
  dayTimeSelection[part]=value;
  const panel=$('dayTimePicker');if(!panel)return;
@@ -207,18 +207,32 @@ function confirmDayTimePicker(){
  const field=$(activeDayTimeField),display=$(activeDayTimeField+'Display');
  if(field)field.value=slotClock(total);
  if(display)display.textContent=formatClock(total);
+ clearDayTimeError();
  const next=activeDayTimeField==='dayStart'&&!$('dayEnd')?.value?'dayEnd':null;
  closeDayTimePicker();
  if(next)openDayTimePicker(next);
 }
+function showDayTimeError(message,field='dayStart'){
+ const error=$('dayTimeError');
+ if(error){error.textContent=message;error.hidden=false}
+ else toast(message);
+ for(const name of ['dayStart','dayEnd'])$(name+'Button')?.removeAttribute('aria-invalid');
+ $(field+'Button')?.setAttribute('aria-invalid','true');
+ $(field+'Button')?.focus();
+}
+function clearDayTimeError(){
+ const error=$('dayTimeError');if(error){error.textContent='';error.hidden=true}
+ for(const name of ['dayStart','dayEnd'])$(name+'Button')?.removeAttribute('aria-invalid');
+}
 function addDayPeriod(){
  const start=parseClock($('dayStart')?.value),end=parseClock($('dayEnd')?.value);
- if(start===null||end===null){toast('Choose a start and end time');return}
- if(start>=end){toast('End time must be after start time');return}
- if(start%5!==0||end%5!==0){toast('Choose times in five-minute increments');return}
+ if(start===null||end===null){showDayTimeError('Choose a start and end time',start===null?'dayStart':'dayEnd');return}
+ if(start>=end){showDayTimeError('End time must be after start time','dayEnd');return}
+ if(start%5!==0||end%5!==0){showDayTimeError('Choose times in five-minute increments',start%5!==0?'dayStart':'dayEnd');return}
  const periods=currentDayPeriods();
- if(periods.some(p=>start<p.end&&end>p.start)){toast('These hours overlap an existing range');return}
+ if(periods.some(p=>start<p.end&&end>p.start)){showDayTimeError('These hours overlap an existing range','dayStart');return}
  if(!saveDaySchedulePeriods([...periods,{start,end}],false))return;
+ clearDayTimeError();
  const suggestion=suggestDayPeriod();
  if(suggestion)setDayTimeValues(suggestion.start,suggestion.end);
  else { $('dayStart').value='';$('dayEnd').value='';$('dayStartDisplay').textContent='Select time';$('dayEndDisplay').textContent='Select time';closeDayTimePicker() }
@@ -391,7 +405,7 @@ else if(type==='day'){
  '<div style="border:1px solid #dbe6dc;border-radius:12px;padding:12px;margin-top:18px">'+
  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+dayTimeField('dayStart','Start')+dayTimeField('dayEnd','End')+'</div>'+
  '<div id="dayTimePicker" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div></div>'+
- '<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add time</button>'+
+ '<p id="dayTimeError" role="alert" hidden style="color:#9d2920;font-weight:700;font-size:13px;margin:9px 0"></p>'+'<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add time</button>'+
  '</div>';
 }
 
