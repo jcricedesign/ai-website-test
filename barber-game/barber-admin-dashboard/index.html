@@ -146,7 +146,7 @@ function setDayTimeValues(start,end){
  $('dayEndDisplay').textContent=formatClock(end);
  closeDayTimePicker();
 }
-function dayTimeField(name,label){return '<div><span class="sub" style="font-weight:750;display:block;margin-bottom:6px">'+label+'</span><button type="button" id="'+name+'Button" class="minibutton" aria-haspopup="true" aria-expanded="false" onclick="openDayTimePicker(&quot;'+name+'&quot;)" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px"><span id="'+name+'Display">Select time</span><span aria-hidden="true">⌄</span></button><input type="hidden" id="'+name+'" value=""></div>'}
+function dayTimeField(name,label){return '<div><span class="sub" style="font-weight:750;display:block;margin-bottom:6px">'+label+'</span><button type="button" id="'+name+'Button" class="minibutton" aria-haspopup="dialog" aria-expanded="false" aria-describedby="dayTimeHelp dayTimeError" onclick="openDayTimePicker(&quot;'+name+'&quot;)" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px"><span id="'+name+'Display">Select time</span><span aria-hidden="true">⌄</span></button><input type="hidden" id="'+name+'" value=""></div>'}
 function openDayTimePicker(name){
  if($('f_status')?.value==='Closed')return;
  if(activeDayTimeField===name){closeDayTimePicker();return}
@@ -403,6 +403,7 @@ else if(type==='day'){
  '<div id="dayScheduleEditor" hidden>'+
  '<div id="dayPeriodsWrap" '+(day.periods.length?'':'hidden')+'><div class="sub" style="font-weight:750;margin:8px 0 4px">Added hours</div><div id="dayPeriods" aria-live="polite">'+day.periods.map(dayPeriodInputs).join('')+'</div></div>'+
  '<div style="border:1px solid #dbe6dc;border-radius:12px;padding:12px;margin-top:18px">'+
+ '<p class="sub" id="dayTimeHelp" style="margin:0 0 9px">Suggested hours — not saved until you select Add time.</p>'+
  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+dayTimeField('dayStart','Start')+dayTimeField('dayEnd','End')+'</div>'+
  '<div id="dayTimePicker" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div></div>'+
  '<p id="dayTimeError" role="alert" hidden style="color:#9d2920;font-weight:700;font-size:13px;margin:9px 0"></p>'+'<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add time</button>'+
