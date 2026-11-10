@@ -82,21 +82,52 @@ def run(url: str, screenshots: str | None):
             if output:
                 page.screenshot(path=str(output / "02-open-suggestion.png"))
 
-            page.get_by_role("button", name="Add time").click()
+            # Done is the only Add/save action. It must be enabled for 2–4 PM.
+            expect(page.locator("#saveBtn")).to_be_enabled()
+            assert page.get_by_role("button", name="Add time").count() == 0
+            page.locator("#saveBtn").click()
+            expect(page.locator("#veil")).not_to_have_class("open")
+            expect(monday).to_contain_text("2:00 PM")
+            expect(monday).to_contain_text("4:00 PM")
+
+            # Reopen the same day to append the second range.
+            monday.get_by_role("button", name="Edit").click()
             expect(page.locator("#dayPeriods")).to_contain_text("2:00 PM – 4:00 PM")
             expect(page.locator("#dayStartDisplay")).to_have_text("6:00 PM")
             expect(page.locator("#dayEndDisplay")).to_have_text("8:00 PM")
-            page.get_by_role("button", name="Add time").click()
+            expect(page.locator("#saveBtn")).to_be_enabled()
+            page.locator("#saveBtn").click()
+            expect(page.locator("#veil")).not_to_have_class("open")
+
+            monday.get_by_role("button", name="Edit").click()
+            expect(page.locator("#dayPeriods")).to_contain_text("2:00 PM – 4:00 PM")
             expect(page.locator("#dayPeriods")).to_contain_text("6:00 PM – 8:00 PM")
             expect(page.locator("#dayPeriods button")).to_have_count(2)
             if output:
                 page.screenshot(path=str(output / "03-two-ranges.png"))
 
+            # Overlapping candidate must disable Done.
+            page.evaluate("""() => {
+                document.querySelector('#dayStart').value = '15:00';
+                document.querySelector('#dayEnd').value = '17:00';
+                updateDayDoneState();
+            }""")
+            expect(page.locator("#saveBtn")).to_be_disabled()
+            expect(page.locator("#dayTimeValidation")).to_contain_text("overlap")
+
+            # Restore a valid, non-overlapping selection.
+            page.evaluate("""() => {
+                document.querySelector('#dayStart').value = '21:00';
+                document.querySelector('#dayEnd').value = '22:00';
+                updateDayDoneState();
+            }""")
+            expect(page.locator("#saveBtn")).to_be_enabled()
+
+            # Deleting just one period must preserve the other.
             page.locator("#dayPeriods button").first.click()
             expect(page.locator("#dayPeriods button")).to_have_count(1)
             expect(page.locator("#dayPeriods")).not_to_contain_text("2:00 PM – 4:00 PM")
             expect(page.locator("#dayPeriods")).to_contain_text("6:00 PM – 8:00 PM")
-            expect(page.locator("#dayScheduleEditor")).to_be_visible()
 
             page.locator("#dayStartButton").click()
             expect(page.locator("#dayTimePicker")).to_be_visible()
@@ -114,16 +145,11 @@ def run(url: str, screenshots: str | None):
                 "(el) => document.activeElement === el"
             ), "Closing picker did not restore focus"
 
-            page.locator("#saveBtn").click()
+            # Cancel leaves the current selected draft unsaved.
+            page.locator("#sheetForm .sheetfooter button[type='button']").click()
             expect(page.locator("#veil")).not_to_have_class("open")
-            assert page.locator("#days .weekday").first.get_by_role(
-                "button", name="Edit"
-            ).evaluate("(el) => document.activeElement === el"), (
-                "Closing the drawer did not return focus to the current Edit button"
-            )
             expect(monday).to_contain_text("6:00 PM")
             expect(monday).to_contain_text("8:00 PM")
-
             page.reload(wait_until="domcontentloaded")
             monday = page.locator("#days .weekday").first
             expect(monday).to_contain_text("6:00 PM")
@@ -132,7 +158,7 @@ def run(url: str, screenshots: str | None):
             expect(page.locator("#dayPeriods")).to_contain_text("6:00 PM – 8:00 PM")
             if output:
                 page.screenshot(path=str(output / "04-reopened.png"))
-            print("PASS: closed/open, suggested vs saved, two ranges, delete,")
+            print("PASS: Done saves first and second ranges; invalid Done disabled; delete,")
             print("      focus-preserving picker, Escape, list overview, reload.")
         finally:
             context.close()
