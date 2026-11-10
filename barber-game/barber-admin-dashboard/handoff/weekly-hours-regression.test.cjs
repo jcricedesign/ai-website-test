@@ -124,6 +124,13 @@ test("remove one range without clearing others", () => {
 });
 const booking = { date: "2026-11-11", name: "Sample Client", time: "3:00 PM",
   service: "Haircut", status: "Confirmed" };
+test("deleting last period leaves editor Open for another addition", () => {
+  const t = testState({ periods: [{ start: 840, end: 960 }] });
+  t.actual.removeDayPeriod(0);
+  assert.deepEqual(t.env.days[2].periods, []);
+  assert.equal(t.controls.f_status.value, "Open");
+  assert.deepEqual(JSON.parse(t.storage.weekly), []);
+});
 test("reject cancellation leaves schedule and booking untouched", () => {
   const t = testState({ periods: [{ start: 840, end: 960 }], bookings: [booking], confirm: false });
   assert.equal(t.actual.saveDaySchedulePeriods([], false), false);
