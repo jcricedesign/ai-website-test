@@ -200,25 +200,40 @@ function removeDayPeriod(index){const periods=currentDayPeriods();if(index<0||in
 function scheduleBookingKey(b){return [b.date||localDateISO(),b.name,b.time,b.service].join('|')}
 function dayAppointmentConflicts(oldPeriods,newPeriods){const weekday=selected,today=localDateISO();return [...bookings,...futureBookings].filter(b=>{if(b.status==='Cancelled')return false;const date=b.date||today;if(date<today)return false;const d=new Date(date+'T12:00:00');if(Number.isNaN(d.getTime())||(d.getDay()+6)%7!==weekday)return false;const start=parseClock(b.time),duration=services.find(s=>s.name===b.service)?.duration||30;if(start===null)return false;const fits=periods=>periods.some(p=>start>=p.start&&start+duration<=p.end);return fits(oldPeriods)&&!fits(newPeriods)})}
 function saveDaySchedulePeriods(raw,closeAfter=false){
- if(raw.some(p=>p.start===null||p.end===null||p.start<0||p.end>1440||p.start>=p.end||p.start%5!==0||p.end%5!==0)){toast('Enter valid start and end times');return false}
+ if(raw.some(p=>p.start===null||p.end===null||!Number.isInteger(p.start)||!Number.isInteger(p.end)||p.start<0||p.end>1440||p.start>=p.end||p.start%5!==0||p.end%5!==0)){toast('Enter valid start and end times in five-minute increments');return false}
  const periods=raw.map(p=>({...p})).sort((a,b)=>a.start-b.start);
  if(periods.some((p,i)=>i>0&&p.start<periods[i-1].end)){toast('Time periods cannot overlap');return false}
  const day=days[selected],old=day.periods.map(p=>({...p})),affected=dayAppointmentConflicts(old,periods);
  if(affected.length){
   const lines=affected.map(b=>(b.date||localDateISO())+' · '+b.time+' · '+b.name).join('\n');
   if(!window.confirm(affected.length+' demo appointment(s) would be affected:\n\n'+lines+'\n\nConfirm cancellation of these appointments and save the hours? No real customers will be notified.'))return false;
-  let cancelled=[];try{cancelled=JSON.parse(localStorage.getItem('tbg-demo-schedule-cancellations-v1')||'[]');if(!Array.isArray(cancelled))cancelled=[]}catch{cancelled=[]}
-  const ids=new Set(cancelled);affected.forEach(b=>ids.add(scheduleBookingKey(b)));
-  try{localStorage.setItem('tbg-demo-schedule-cancellations-v1',JSON.stringify([...ids]))}catch{toast('Could not record cancellation decisions');return false}
  }
- day.periods=periods;day.hours=periods.length?periods.map(p=>formatClock(p.start)+' – '+formatClock(p.end)).join(' / '):'Closed';
+ // Persist the schedule first. Only mark bookings as cancelled after BOTH
+ // schedule and cancellation records are safely stored.
+ day.periods=periods;
+ day.hours=periods.length?periods.map(p=>formatClock(p.start)+' – '+formatClock(p.end)).join(' / '):'Closed';
  if(!saveWeeklyHours()){day.periods=old;day.hours=old.length?old.map(p=>formatClock(p.start)+' – '+formatClock(p.end)).join(' / '):'Closed';return false}
- affected.forEach(b=>{b.status='Cancelled';b.cancelReason='Working hours changed (demo)'});
+ if(affected.length){
+  try{
+   const key='tbg-demo-schedule-cancellations-v1';
+   let prior=JSON.parse(localStorage.getItem(key)||'[]');
+   if(!Array.isArray(prior))prior=[];
+   const ids=new Set(prior);
+   affected.forEach(b=>ids.add(scheduleBookingKey(b)));
+   localStorage.setItem(key,JSON.stringify([...ids]));
+  }catch{
+   day.periods=old;
+   day.hours=old.length?old.map(p=>formatClock(p.start)+' – '+formatClock(p.end)).join(' / '):'Closed';
+   if(!saveWeeklyHours())toast('Could not restore prior hours. Reload and verify your schedule.');
+   else toast('Could not save demo cancellation records. Hours were not changed.');
+   return false;
+  }
+  affected.forEach(b=>{b.status='Cancelled';b.cancelReason='Working hours changed (demo)'});
+ }
  render();
  if(!closeAfter){showDayPeriods(periods);if($('f_status'))$('f_status').value=periods.length?'Open':'Closed';toggleDayHours()}
  return true;
 }
-
 const profileDefaults={username:'kyle',firstName:'Kyle',lastName:'Brown',nickname:'KB',barberId:'17',location:'Kirkland',email:'kyle@example.com',phone:'(206) 555-0101',twitter:'',facebook:'',instagram:'',description:'Experienced barber specializing in tailored cuts and classic grooming.',yearsExperience:'8'};
 let barberProfile=(()=>{try{const saved=JSON.parse(localStorage.getItem('tbg-demo-barber-profile-v1')||'null');return saved&&typeof saved==='object'&&!Array.isArray(saved)?{...profileDefaults,...saved,barberId:profileDefaults.barberId,username:profileDefaults.username}:{...profileDefaults}}catch{return {...profileDefaults}}})();
 let mode='',selected=-1,previousFocus=null,photoDraft=null,photoBusy=false;
