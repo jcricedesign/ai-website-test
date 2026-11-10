@@ -11,7 +11,7 @@ function setupFit(){
  const dayPeriods=[{start:840,end:960},{start:1080,end:1200}];
  const booked=[],blocked=[],services=[{name:'Haircut',duration:30},{name:'Color',duration:60}];
  const env={localDateISO:()=>today,days:[],services,bookings:[],futureBookings:booked,timeBlocks:blocked,
- dayHoursOn:()=>dayPeriods,parseClock:value=>{const v=String(value||'').match(/^(\d{1,2}):(\d{2}) (AM|PM)$/);return v?(+v[1]%12+(v[3]==='PM'?12:0))*60+(+v[2]):null},
+ dayHoursOn:()=>dayPeriods,parseClock:value=>{const h=String(value||'').match(/^(\d{2}):(\d{2})$/);if(h)return +h[1]*60+(+h[2]);const v=String(value||'').match(/^(\d{1,2}):(\d{2}) (AM|PM)$/);return v?(+v[1]%12+(v[3]==='PM'?12:0))*60+(+v[2]):null},
  slotClock:min=>String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0'),
  SLOT_MINUTES:15,toast:()=>{},$:()=>null,render:()=>{},getDailySlots:null};
  const f=new Function('env',`with(env){${fitCode};return {fit:appointmentFit,booked:slotBooked,blocked:slotBlocked}}`)(env);
@@ -32,7 +32,7 @@ function setupPersistence(failKey=null){
  localDateISO:()=>today,scheduleBookingKey:b=>[b.date||today,b.name,b.time,b.service].join('|'),
  toast:m=>notifications.push(m),
  localStorage:{getItem:key=>db[key]||null,setItem:(key,value)=>{if(key===failKey)throw Error('quota');db[key]=value}}};
- const f=new Function('env',`with(env){const manualCancellationReasons={};${saved};return {create:saveNewDemoAppointment,cancel:saveManualCancellation,load:loadDemoAppointments,manualCancellationReasons}}`)(env);
+ const f=new Function('env',`with(env){${saved};return {create:saveNewDemoAppointment,cancel:saveManualCancellation,load:loadDemoAppointments,manualCancellationReasons}}`)(env);
  return {f,db,bookings,futureBookings,notifications,env};
 }
 const sample=()=>({name:'Client',date:future,time:'2:00 PM',service:'Haircut',status:'Confirmed'});
