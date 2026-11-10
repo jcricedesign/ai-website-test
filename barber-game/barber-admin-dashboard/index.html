@@ -67,7 +67,7 @@ function loadDemoAppointments(){
   const saved=JSON.parse(localStorage.getItem(demoAppointmentsKey)||'[]');
   if(!Array.isArray(saved))return;
   for(const b of saved){
-   if(!b||typeof b.name!=='string'||typeof b.service!=='string'||typeof b.time!=='string'||typeof b.date!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(b.date))continue;
+   if(!b||typeof b.name!=='string'||typeof b.service!=='string'||typeof b.time!=='string'||typeof b.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(b.date))continue;
    const entry={id:String(b.id||''),name:b.name,service:b.service,time:b.time,date:b.date,status:'Confirmed'};
    if(entry.date>localDateISO())futureBookings.push(entry);else bookings.push(entry);
   }
