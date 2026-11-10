@@ -405,7 +405,7 @@ else if(type==='day'){
  '<div style="border:1px solid #dbe6dc;border-radius:12px;padding:12px;margin-top:18px">'+
  '<p class="sub" id="dayTimeHelp" style="margin:0 0 9px">Suggested hours — not saved until you select Add time.</p>'+
  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+dayTimeField('dayStart','Start')+dayTimeField('dayEnd','End')+'</div>'+
- '<div id="dayTimePicker" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div></div>'+
+ '<div id="dayTimePicker" role="dialog" aria-labelledby="dayTimePickerTitle" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div></div>'+
  '<p id="dayTimeError" role="alert" hidden style="color:#9d2920;font-weight:700;font-size:13px;margin:9px 0"></p>'+'<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add time</button>'+
  '</div>';
 }
