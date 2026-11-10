@@ -119,13 +119,36 @@ function dayPeriodInputs(period,index){
  return '<div class="between" style="gap:10px;padding:11px 0;border-bottom:1px solid #e1e9df"><strong>'+safe(formatClock(period.start))+' – '+safe(formatClock(period.end))+'</strong><button type="button" class="minibutton" aria-label="Delete hours '+safe(formatClock(period.start))+' to '+safe(formatClock(period.end))+'" onclick="removeDayPeriod('+index+')">× Delete</button></div>'
 }
 function currentDayPeriods(){return days[selected]?.periods.map(p=>({...p}))||[]}
-function showDayPeriods(periods){const target=$('dayPeriods');if(!target)return;target.innerHTML=periods.length?periods.map(dayPeriodInputs).join(''):'<p class="sub" style="padding:12px 0">No hours added yet.</p>';toggleDayHours()}
+function showDayPeriods(periods){
+ const target=$('dayPeriods'),wrap=$('dayPeriodsWrap');if(!target)return;
+ target.innerHTML=periods.map(dayPeriodInputs).join('');
+ if(wrap)wrap.hidden=!periods.length;
+ toggleDayHours();
+}
 
 let activeDayTimeField=null;
 let dayTimeSelection={hour:9,minute:0,ampm:'AM'};
+function suggestDayPeriod(){
+ const periods=currentDayPeriods().slice().sort((a,b)=>a.start-b.start);
+ if(!periods.length)return {start:840,end:960};
+ const candidates=[...periods.map(p=>p.end+120),840,1080,540].filter(n=>n>=0&&n+60<=1440);
+ for(const start of candidates){
+  const end=Math.min(1440,start+120);
+  if(!periods.some(p=>start<p.end&&end>p.start))return {start,end};
+ }
+ return null;
+}
+function setDayTimeValues(start,end){
+ const from=$('dayStart'),to=$('dayEnd');
+ if(!from||!to)return;
+ from.value=slotClock(start);to.value=slotClock(end);
+ $('dayStartDisplay').textContent=formatClock(start);
+ $('dayEndDisplay').textContent=formatClock(end);
+ closeDayTimePicker();
+}
 function dayTimeField(name,label){return '<div><span class="sub" style="font-weight:750;display:block;margin-bottom:6px">'+label+'</span><button type="button" id="'+name+'Button" class="minibutton" aria-haspopup="true" aria-expanded="false" onclick="openDayTimePicker(&quot;'+name+'&quot;)" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px"><span id="'+name+'Display">Select time</span><span aria-hidden="true">⌄</span></button><input type="hidden" id="'+name+'" value=""></div>'}
 function openDayTimePicker(name){
- if($('f_status')?.value==='Closed')setDayAvailability('Open');
+ if($('f_status')?.value==='Closed')return;
  if(activeDayTimeField===name){closeDayTimePicker();return}
  activeDayTimeField=name;
  const value=parseClock($(name)?.value);
@@ -168,7 +191,10 @@ function addDayPeriod(){
  const periods=currentDayPeriods();
  if(periods.some(p=>start<p.end&&end>p.start)){toast('These hours overlap an existing range');return}
  if(!saveDaySchedulePeriods([...periods,{start,end}],false))return;
- $('dayStart').value='';$('dayEnd').value='';$('dayStartDisplay').textContent='Select time';$('dayEndDisplay').textContent='Select time';closeDayTimePicker();toast('Hours added');
+ const suggestion=suggestDayPeriod();
+ if(suggestion)setDayTimeValues(suggestion.start,suggestion.end);
+ else { $('dayStart').value='';$('dayEnd').value='';$('dayStartDisplay').textContent='Select time';$('dayEndDisplay').textContent='Select time';closeDayTimePicker() }
+ toast('Hours added');
 }
 function removeDayPeriod(index){const periods=currentDayPeriods();if(index<0||index>=periods.length)return;periods.splice(index,1);if(saveDaySchedulePeriods(periods,false))toast('Hours deleted')}
 function scheduleBookingKey(b){return [b.date||localDateISO(),b.name,b.time,b.service].join('|')}
@@ -271,18 +297,29 @@ function shiftTime(name,delta){const input=$('f_'+name);if(!input)return;const o
 function setDayAvailability(value){
  const control=$('f_status');if(!control)return;
  if(value==='Closed'&&days[selected].periods.length){if(!saveDaySchedulePeriods([],false))return}
- control.value=value;toggleDayHours();
+ control.value=value;
+ if(value==='Open'&&!$('dayStart')?.value){
+  const suggestion=suggestDayPeriod();
+  if(suggestion)setDayTimeValues(suggestion.start,suggestion.end);
+ }
+ toggleDayHours();
 }
 function toggleDayHours(){
  const closed=$('f_status')?.value==='Closed';
- for(const id of ['dayStartButton','dayEndButton','addDayPeriod']){const el=$(id);if(el)el.disabled=closed}if(closed)closeDayTimePicker()
+ const area=$('dayScheduleEditor'),empty=$('dayClosedState');
+ if(area)area.hidden=closed;
+ if(empty)empty.hidden=!closed;
+ const periods=$('dayPeriodsWrap');
+ if(periods)periods.hidden=closed||!days[selected].periods.length;
+ for(const id of ['dayStartButton','dayEndButton','addDayPeriod']){const el=$(id);if(el)el.disabled=closed}
+ if(closed)closeDayTimePicker();
  for(const [id,active] of [['dayOpenButton',!closed],['dayClosedButton',closed]]){
   const button=$(id);if(!button)continue;
   button.setAttribute('aria-pressed',String(active));
   button.style.background=active?'#205d40':'#fff';
   button.style.color=active?'#fff':'#205d40';
   button.style.borderColor=active?'#205d40':'#d4e2d6';
-  button.style.minHeight='46px'
+  button.style.minHeight='46px';
  }
 }
 function requiredProfileField(label,name,value,type='text'){return field(label,name,value,type).replace('<label for="f_'+name+'">'+label+'</label>','<label for="f_'+name+'">'+label+' <span style="color:#cc2424" aria-label="required">*</span></label>')}
@@ -303,12 +340,16 @@ else if(type==='service'){const s=services[index]||{name:'Haircut',price:25,dura
 
 else if(type==='day'){
  const day=days[index];title=day.name+' hours';save='Done';
- fields='<label id="dayAvailabilityLabel">Availability</label><input type="hidden" id="f_status" name="status" value="'+(day.periods.length?'Open':'Closed')+'">'+
- '<div role="group" aria-labelledby="dayAvailabilityLabel" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 14px"><button type="button" id="dayOpenButton" class="minibutton" onclick="setDayAvailability(&quot;Open&quot;)">Open</button><button type="button" id="dayClosedButton" class="minibutton" onclick="setDayAvailability(&quot;Closed&quot;)">Closed</button></div>'+
- '<div class="sub" style="font-weight:750;margin:10px 0 3px">Added hours</div><div id="dayPeriods">'+(day.periods.length?day.periods.map(dayPeriodInputs).join(''):'<p class="sub" style="padding:12px 0">No hours added yet.</p>')+'</div>'+
- '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">'+dayTimeField('dayStart','Start')+dayTimeField('dayEnd','End')+'</div><div id="dayTimePicker" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div>'+
- '<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add hours</button>'+
- '<p class="photo-hint">Add morning, afternoon, or evening hours separately. New hours appear above immediately.</p>';
+ fields='<input type="hidden" id="f_status" name="status" value="'+(day.periods.length?'Open':'Closed')+'">'+
+ '<div role="group" aria-label="Day availability" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 18px"><button type="button" id="dayOpenButton" class="minibutton" onclick="setDayAvailability(&quot;Open&quot;)">Open</button><button type="button" id="dayClosedButton" class="minibutton" onclick="setDayAvailability(&quot;Closed&quot;)">Closed</button></div>'+
+ '<div id="dayClosedState" style="text-align:center;min-height:175px;display:flex;align-items:center;justify-content:center"><strong>Closed</strong></div>'+
+ '<div id="dayScheduleEditor" hidden>'+
+ '<div id="dayPeriodsWrap" '+(day.periods.length?'':'hidden')+'><div class="sub" style="font-weight:750;margin:8px 0 4px">Added hours</div><div id="dayPeriods" aria-live="polite">'+day.periods.map(dayPeriodInputs).join('')+'</div></div>'+
+ '<div style="border:1px solid #dbe6dc;border-radius:12px;padding:12px;margin-top:18px">'+
+ '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+dayTimeField('dayStart','Start')+dayTimeField('dayEnd','End')+'</div>'+
+ '<div id="dayTimePicker" hidden style="border:1px solid #dbe6dc;border-radius:14px;padding:12px;margin-top:12px;background:#fbfcf9"></div></div>'+
+ '<button type="button" id="addDayPeriod" class="action secondary" style="width:100%;margin:12px 0" onclick="addDayPeriod()">+ Add time</button>'+
+ '</div>';
 }
 
 else if(type==='block'){title='Block available slots';fields='<p class="photo-hint">Choose a date. Tap any unbooked time slot to block it, or tap a blocked slot to make it available again. Changes save immediately in this demo.</p>'+'<label for="f_date">Date</label><input id="f_date" type="date" name="date" min="'+localDateISO()+'" value="'+nextWorkingDay()+'" onchange="renderSlotPicker()"><div class="slot-legend"><span><i></i>Available</span><span class="selected"><i></i>Blocked</span><span class="occupied"><i></i>Booked</span></div><div id="slotSummary" class="photo-hint" role="status"></div><div id="timeSlotGrid" class="slot-grid"></div>';save='Close'}
@@ -318,7 +359,7 @@ else if(type==='readmessage'){const m=messages.find(x=>x.id===index);if(!m){clos
 else if(type==='composemessage'){title='Create message';recipientMode='all';selectedShops=new Set();selectedBarbers=new Set();fields='<p class="photo-hint">All barbers can compose a message in this concept. Select recipients before writing. This demo never delivers messages.</p><label>Send to</label><div class="recipient-modes" role="group" aria-label="Choose recipients"><button type="button" class="recipient-mode" data-recipient-mode="all" aria-pressed="true" onclick="selectRecipientMode(&quot;all&quot;)">All barbers</button><button type="button" class="recipient-mode" data-recipient-mode="shops" aria-pressed="false" onclick="selectRecipientMode(&quot;shops&quot;)">Shops</button><button type="button" class="recipient-mode" data-recipient-mode="barbers" aria-pressed="false" onclick="selectRecipientMode(&quot;barbers&quot;)">Specific barbers</button></div><input id="recipientSearch" class="recipient-search" type="search" placeholder="Search shops or barbers" aria-label="Search recipients" oninput="renderRecipientPicker()" hidden><div id="recipientOptions"></div><div class="recipient-summary" id="recipientSummary" aria-live="polite"></div><label for="messageSubject">Subject</label><input id="messageSubject" name="subject" required maxlength="120" placeholder="Message subject"><label for="messageBody">Message</label><textarea id="messageBody" name="body" required maxlength="4000" placeholder="Write your message" rows="6"></textarea>';save='Save demo message'}
 else if(type==='boothvoucher'){if(voucherClaimed){toast('Voucher already claimed in demo');return}title='Re-Up Voucher';fields='<p style="font-size:18px;font-weight:750;margin:8px 0 12px">Use your 7-day voucher?</p><p class="photo-hint">Demo only. No actual rent credit will be applied.</p>';save='Yes'}
 else if(type==='more'){title='More sections';fields='<div class="stack">'+[['messages','Messages inbox'],['services','Services & pricing'],['profile','Barber profile'],['earnings','Earnings & expenses']].map(x=>'<button class="action secondary" type="button" onclick="go(\''+x[0]+'\',null)">'+x[1]+'</button>').join('')+'</div>'}
-$('sheetTitle').textContent=title;$('sheetFields').innerHTML=fields;$('saveBtn').textContent=save;$('saveBtn').classList.toggle('block-client-danger',type==='blockclientdirect'||type==='blockclient');document.querySelector('#sheetForm .sheetfooter button[type="button"]').textContent=type==='block'?'Done':'Cancel';$('saveBtn').classList.toggle('hidden',type==='more'||type==='block'||type==='manageblocked'||type==='allfuture'||type==='futurebooking'||type==='readmessage'||type==='pastbooking'||type==='clientdetail'||type==='allbookings'||(type==='blockclient'&&getClients().every(name=>blockedClients.has(name))));$('veil').classList.add('open');document.body.style.overflow='hidden';if(type==='profile-photo')renderPhotoPreview();if(type==='blockclient')filterClientChoices('');if(type==='composemessage')renderRecipientPicker();if(type==='service')toggleInquiryOnly();if(type==='day')toggleDayHours();if(type==='block')renderSlotPicker();if(type==='newbooking'){renderBookingServiceChoices();renderAppointmentSlots()}setTimeout(()=>{const first=$('sheet').querySelector('input,select,textarea,button');if(first)first.focus()},25)}
+$('sheetTitle').textContent=title;$('sheetFields').innerHTML=fields;$('saveBtn').textContent=save;$('saveBtn').classList.toggle('block-client-danger',type==='blockclientdirect'||type==='blockclient');document.querySelector('#sheetForm .sheetfooter button[type="button"]').textContent=type==='block'?'Done':'Cancel';$('saveBtn').classList.toggle('hidden',type==='more'||type==='block'||type==='manageblocked'||type==='allfuture'||type==='futurebooking'||type==='readmessage'||type==='pastbooking'||type==='clientdetail'||type==='allbookings'||(type==='blockclient'&&getClients().every(name=>blockedClients.has(name))));$('veil').classList.add('open');document.body.style.overflow='hidden';if(type==='profile-photo')renderPhotoPreview();if(type==='blockclient')filterClientChoices('');if(type==='composemessage')renderRecipientPicker();if(type==='service')toggleInquiryOnly();if(type==='day'){toggleDayHours();if(days[index].periods.length){const suggestion=suggestDayPeriod();if(suggestion)setDayTimeValues(suggestion.start,suggestion.end)}}if(type==='block')renderSlotPicker();if(type==='newbooking'){renderBookingServiceChoices();renderAppointmentSlots()}setTimeout(()=>{const first=$('sheet').querySelector('input,select,textarea,button');if(first)first.focus()},25)}
 function filterClientChoices(query){const target=$('clientChoices');if(!target)return;const q=query.trim().toLowerCase();const available=getClients().filter(name=>!blockedClients.has(name));const matches=available.filter(name=>{const c=demoClientContact(name);return [name,c.email,c.phone].some(x=>x.toLowerCase().includes(q))});$('clientChoiceCount').textContent=matches.length+' matching clients';target.innerHTML=matches.map(name=>{const contact=demoClientContact(name);return '<label class="client-choice"><input type="radio" name="client" value="'+safe(name)+'" onchange="previewSelectedClient(this.value)" required><span class="client-choice-content"><strong>'+safe(name)+'</strong><span>'+safe(contact.email)+'</span><span>'+safe(contact.phone)+'</span></span></label>'}).join('')||'<p class="sub">No matching clients.</p>';const preview=$('clientPreview');if(preview){preview.innerHTML='<div class="notice">Select a customer to review their details before blocking.</div>'}}
 function previewSelectedClient(name){const preview=$('clientPreview');if(preview)preview.innerHTML='<h3 style="font-size:18px;margin:16px 0 10px">Review selected client</h3>'+clientDetailsContent(name)}
 function openBookingFromList(index){closeSheet();openSheet('booking',index)}
