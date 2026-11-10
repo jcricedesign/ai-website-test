@@ -15,11 +15,11 @@
 6. **Delete-last-period behavior.** Removing the last saved range no longer collapses the editor immediately. It stays Open in the current sheet so another period can be added; with zero saved ranges, the weekly overview remains Closed. Closing the sheet without adding a range does not persist an empty Open day.
 7. **Picker semantics.** Nested in-sheet time chooser has a labeled dialog and touch-sized options.
 
-Source commits: `c478c5f`, `276cc90`, `3896501`, `8ec4362`. Week-availability data-integrity fix from Pass 01: `f55a211`.
+Source commits: `c478c5f`, `276cc90`, `3896501`, `8ec4362`, and `2eaa88d` (restore focus to the current Edit button after the saved list re-renders). Week-availability data-integrity fix from Pass 01: `f55a211`.
 
 ## Regression evidence
 - Repeatable source-level suite: `handoff/weekly-hours-regression.test.cjs`.
-- **8/8 passed** after these changes:
+- **8/8 passed** after these changes and the final focus-restoration patch:
   1. Add two separate periods, preserve and order saved ranges.
   2. Reject overlaps.
   3. Reject non-five-minute entries.
@@ -38,7 +38,7 @@ These tests execute extracted production-prototype JavaScript against mock state
   - Add 2–4 and 6–8; saved list contains both.
   - Remove first period; second preserved.
   - Time picker keyboard arrow selection maintains focus; Escape returns focus.
-  - Done, weekly overview, reload and persistence.
+  - Done, focus returns to the current weekday Edit button, weekly overview, reload and persistence.
   - Optional screenshots of key states.
 - Run (in separate terminals, from repo root):
 
@@ -68,3 +68,9 @@ python3 barber-game/barber-admin-dashboard/handoff/mobile-weekly-hours-smoke.py 
 
 ## Exit criteria
 This screen is **source-stabilized, browser-acceptance pending**, not ready for production. Close this workstream only after the browser smoke suite and physical mobile accessibility tests pass and any defects are resolved.
+
+## Final checkpoint for this pass
+- Current dashboard state: post-stabilization commit `2eaa88deaed58d8b21a9b677e19c30e608d6b104`.
+- Regression script after patch: **8/8 passing** against current dashboard code.
+- Browser smoke script prepared, **execution still pending** on a locally served full repository copy.
+- The earlier frozen checkpoint branch remains unchanged.
