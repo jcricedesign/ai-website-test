@@ -116,6 +116,11 @@ def run(url: str, screenshots: str | None):
 
             page.locator("#saveBtn").click()
             expect(page.locator("#veil")).not_to_have_class("open")
+            assert page.locator("#days .weekday").first.get_by_role(
+                "button", name="Edit"
+            ).evaluate("(el) => document.activeElement === el"), (
+                "Closing the drawer did not return focus to the current Edit button"
+            )
             expect(monday).to_contain_text("6:00 PM")
             expect(monday).to_contain_text("8:00 PM")
 
