@@ -74,3 +74,15 @@ This screen is **source-stabilized, browser-acceptance pending**, not ready for 
 - Regression script after patch: **8/8 passing** against current dashboard code.
 - Browser smoke script prepared, **execution still pending** on a locally served full repository copy.
 - The earlier frozen checkpoint branch remains unchanged.
+
+## UX acceptance update — November 10, 2026
+
+The product owner tested the deployed Weekly hours experience and reported that the simplified **Done-only** flow is behaving correctly. Supplied screenshots show two saved non-overlapping ranges listed individually (Monday 8:00 AM–2:00 PM and 6:00 PM–10:00 PM), a suggested next range, and both ranges in the weekly overview.
+
+- **UX status:** Accepted for this prototype interaction.
+- **Accepted behavior:** No "+ Add time" action; **Done** saves a valid range, with validity-gating for overlapping/invalid ranges. Reopen the day to append a second range. Each saved range has an independent Delete action.
+- **Implementation checkpoint:** `checkpoint/weekly-hours-ux-approved-2026-11-10` in `jcricedesign/ai-website-test` (created from main after the fix).
+- **Main implementation commit:** `24b257015b478a7dadff8927cdfbaa48dfed8428`.
+- **Remaining gates:** Formal physical-device screen-reader/accessibility acceptance, production API integration, concurrency/cancellation transaction tests. These were **not** approved by this UX sign-off.
+
+Next stabilization area: Appointments, booking availability and cancellations.
