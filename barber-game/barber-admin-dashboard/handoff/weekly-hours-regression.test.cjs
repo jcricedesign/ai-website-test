@@ -75,6 +75,7 @@ function testState({ periods = [], bookings = [], confirm = true, failCancellati
     render: () => { renders++; },
     showDayPeriods: () => {},
     toggleDayHours: () => {},
+    updateDayDoneState: () => {},
     closeDayTimePicker: () => {},
     setDayTimeValues: () => {},
     scheduleBookingKey: b => [b.date, b.name, b.time, b.service].join("|"),
