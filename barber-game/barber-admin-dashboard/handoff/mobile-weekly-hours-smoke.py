@@ -38,7 +38,7 @@ def run(url: str, screenshots: str | None):
             has_touch=True,
         )
         context.add_init_script(
-            """() => {
+            """(() => {
                 sessionStorage.setItem('tbg-auth', '1');
                 if (!sessionStorage.getItem('weekly-qa-seeded')) {
                     localStorage.setItem('tbg-demo-weekly-hours-v2',
@@ -49,12 +49,21 @@ def run(url: str, screenshots: str | None):
                         ]));
                     sessionStorage.setItem('weekly-qa-seeded', '1');
                 }
-            }"""
+            })();"""
         )
         page = context.new_page()
         page.set_default_timeout(7000)
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            # First-time users must acknowledge example messages before the demo unlocks.
+            for _ in range(5):
+                if not page.locator("#ackGate").evaluate("(el) => el.classList.contains('active')"):
+                    break
+                page.locator("#ackCheck").check()
+                page.locator("#ackContinue").click()
+            assert not page.locator("#ackGate").evaluate(
+                "(el) => el.classList.contains('active')"
+            ), "Acknowledgment overlay could not be dismissed"
             monday = page.locator("#days .weekday").first
             expect(monday).to_contain_text("Monday")
             expect(monday).to_contain_text("Closed")
