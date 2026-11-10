@@ -47,9 +47,9 @@ function testState({ periods = [], bookings = [], confirm = true, failCancellati
     $: id => controls[id] || null,
     localDateISO: () => "2026-11-10",
     parseClock: value => {
-      const twentyFour = String(value || "").match(/^(\\d{2}):(\\d{2})$/);
+      const twentyFour = String(value || "").match(/^(\d{2}):(\d{2})$/);
       if (twentyFour) return Number(twentyFour[1]) * 60 + Number(twentyFour[2]);
-      const twelve = String(value || "").match(/^(\\d{1,2}):(\\d{2}) (AM|PM)$/);
+      const twelve = String(value || "").match(/^(\d{1,2}):(\d{2}) (AM|PM)$/);
       if (!twelve) return null;
       return (Number(twelve[1]) % 12 + (twelve[3] === "PM" ? 12 : 0)) * 60 + Number(twelve[2]);
     },
