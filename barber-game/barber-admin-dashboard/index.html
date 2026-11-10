@@ -308,7 +308,7 @@ function toggleDayHours(){
  const closed=$('f_status')?.value==='Closed';
  const area=$('dayScheduleEditor'),empty=$('dayClosedState');
  if(area)area.hidden=closed;
- if(empty)empty.hidden=!closed;
+ if(empty){empty.hidden=!closed;empty.style.display=closed?'flex':'none'}
  const periods=$('dayPeriodsWrap');
  if(periods)periods.hidden=closed||!days[selected].periods.length;
  for(const id of ['dayStartButton','dayEndButton','addDayPeriod']){const el=$(id);if(el)el.disabled=closed}
