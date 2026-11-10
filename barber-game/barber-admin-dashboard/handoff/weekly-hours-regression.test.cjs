@@ -21,7 +21,7 @@ function extract(start, end) {
 }
 const source =
   extract("function suggestDayPeriod()", "function dayTimeField(") +
-  extract("function addDayPeriod()", "const profileDefaults=");
+  extract("function showDayTimeError(", "const profileDefaults=");
 
 function testState({ periods = [], bookings = [], confirm = true, failCancellation = false } = {}) {
   const controls = {
