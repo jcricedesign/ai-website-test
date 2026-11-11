@@ -14,14 +14,14 @@
   },
   "metrics": [
     {
-      "id": "live_city_subset",
-      "label": "20-city directory subtotal",
+      "id": "production_total",
+      "label": "Production directory shops",
       "value": 597,
-      "unit": "city-count sum",
+      "unit": "shops",
       "as_of": "2026-11-10",
-      "quality": "production-api-user-snapshot",
-      "description": "Sum of 20 city counts returned by production API. Not yet overall corpus total.",
-      "source": "api.thebarbergame.com/directory/cities"
+      "quality": "production-api-user-confirmed",
+      "description": "Total returned by /directory/shops, confirmed in browser; does not imply independently verified.",
+      "source": "api.thebarbergame.com/directory/shops?page=1&pageSize=1"
     },
     {
       "id": "covered_cities",
@@ -29,27 +29,27 @@
       "value": 20,
       "unit": "cities",
       "as_of": "2026-11-10",
-      "quality": "production-api-user-snapshot",
-      "description": "Coded city summaries returned; other city records may exist.",
+      "quality": "production-api-user-confirmed",
+      "description": "Sum of returned per-city counts equals overall 597.",
       "source": "api.thebarbergame.com/directory/cities"
     },
     {
       "id": "intake_submissions",
-      "label": "Separate shop submissions",
+      "label": "Shop intake submissions",
       "value": 7,
       "unit": "submissions",
       "as_of": "2026-11-10",
       "quality": "production-d1-user-snapshot",
-      "description": "5 pending. Stored in shop_intake, separate from live directory.",
-      "source": "Cloudflare D1 shop_intake count and /admin/submissions"
+      "description": "5 pending; separate Cloudflare D1 intake records, not additional published shops.",
+      "source": "Cloudflare D1 shop_intake and /admin/submissions"
     }
   ],
   "live_metrics": [
     {
       "key": "production_shops",
       "label": "All production directory shops",
-      "state": "unverified",
-      "value": null
+      "state": "user_verified_api",
+      "value": 597
     },
     {
       "key": "city_sum",
@@ -255,26 +255,26 @@
   "next_actions": [
     {
       "priority": "P0",
-      "title": "Confirm /directory/shops total from production API",
+      "title": "Identify database and deployment behind production /directory/shops",
       "owner": "Owner + developer",
       "status": "Next"
     },
     {
       "priority": "P0",
-      "title": "Identify production directory's backing database and owner",
+      "title": "Connect authenticated read-only production metrics to Control Center",
       "owner": "Developer",
       "status": "Pending"
     },
     {
       "priority": "P0",
-      "title": "Compare meaningful staged records for duplicates before owner-approved import",
+      "title": "Reconcile D1 submissions and candidate imports against the 597 live shops",
       "owner": "Owner + developer",
       "status": "Pending"
     },
     {
       "priority": "P1",
-      "title": "Connect authenticated read-only production corpus metrics to this page",
-      "owner": "Developer",
+      "title": "Establish owner-approved production publish and rollback procedure",
+      "owner": "Owner + developer",
       "status": "Pending"
     }
   ],
@@ -283,7 +283,7 @@
     "city_endpoint": "/directory/cities",
     "search_endpoint": "/directory/shops",
     "overall_count_endpoint": "/directory/shops?page=1&pageSize=1",
-    "status": "confirmed responding in user's browser; direct automated API access unavailable",
+    "status": "Verified: the production directory API returned total=597 in the user's browser.",
     "cities_snapshot": [
       {
         "city": "Tacoma",
@@ -368,8 +368,11 @@
     ],
     "city_count": 20,
     "city_count_sum": 597,
-    "caveat": "Sum of 20 returned city summaries. Not the statewide total and not yet compared with total from /directory/shops.",
-    "snapshot_date": "2026-11-10"
+    "caveat": "The overall total returned by /directory/shops is 597 and matches the 20 returned city counts. Verification and claims statuses are independent of being publicly listed.",
+    "snapshot_date": "2026-11-10",
+    "overall_count": 597,
+    "overall_count_source": "https://api.thebarbergame.com/directory/shops?page=1&pageSize=1",
+    "overall_count_verified": "2026-11-10"
   },
   "intake": {
     "database": "TBG Network LLC Cloudflare D1 barbergame-shop-intake",
