@@ -221,8 +221,8 @@
         "priority": 1,
         "phase": "Now",
         "title": "Stabilization & recovery",
-        "scope": "Smoke tests and intake verification; legacy API dependency audit; D1 backup/restore/rollback",
-        "status": "proposed"
+        "scope": "Confirm built-in Cloudflare D1 Time Travel/version and bookmark; original SQLite/export and deployment history are existing recovery layers; rehearse restore only on disposable test DB; no new scheduler",
+        "status": "in_progress"
       },
       {
         "id": "admin",
@@ -256,6 +256,24 @@
         "scope": "Review coordinate gaps, duplicates, hours and chain/city additions with source provenance",
         "status": "proposed"
       }
+    ]
+  },
+  "stabilization": {
+    "as_of": "2026-11-11",
+    "approach": "Use existing recovery layers and built-in D1 Time Travel; avoid extra backup scheduler",
+    "cloudflare_time_travel": {
+      "automatic": "documented_by_Cloudflare",
+      "production_database_version": "not_yet_verified_with_wranger_info",
+      "current_bookmark": "not_yet_verified",
+      "retention": "7 days Workers Free or 30 days Workers Paid; plan not verified",
+      "docs": "https://developers.cloudflare.com/d1/reference/time-travel/"
+    },
+    "source_baseline": "Original Designworks SQLite and private SQL exports retained; not a snapshot of future edits",
+    "website_recovery": "Git commits and Cloudflare Worker deployment versions available; code rollback separate from data",
+    "restore_test": "not_performed; must be on disposable database; production restore destructive",
+    "next_readonly_check": [
+      "npx wrangler d1 info barbergame-directory",
+      "npx wrangler d1 time-travel info barbergame-directory"
     ]
   }
 }
