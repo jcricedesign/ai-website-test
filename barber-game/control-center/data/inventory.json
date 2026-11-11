@@ -205,7 +205,7 @@
   },
   "roadmap": {
     "status": "proposed_not_approved",
-    "version": "0.3",
+    "version": "0.4",
     "as_of": "2026-11-11",
     "guiding_rule": "Only an explicit owner action may publish a proposed shop or edit; review queue and published directory remain separate until approval; log approval and support rollback.",
     "workflow": [
@@ -254,6 +254,14 @@
         "phase": "After",
         "title": "Bronze data quality and expansion",
         "scope": "Review coordinate gaps, duplicates, hours and chain/city additions with source provenance",
+        "status": "proposed"
+      },
+      {
+        "id": "latent-silver-gold-fields",
+        "priority": 6,
+        "phase": "After",
+        "title": "Latent Silver & Gold enrichment fields",
+        "scope": "Design the directory schema and customer shop profile to accommodate valuable optional Silver/Gold information before every shop has it. Silver candidates: richer descriptions, verified hours, service/menu offerings, booking links, social links and photos. Gold candidates: barber/team profiles, specialties, accessibility, amenities and richer portfolio content. Fields remain nullable/private or absent on public profiles until verified, owner-approved and useful; selectively reveal populated fields without empty UI, and record source/provenance. Examples are illustrative, not a mandatory checklist or a promise of automatic tier upgrades.",
         "status": "proposed"
       }
     ]
