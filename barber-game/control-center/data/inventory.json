@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "updated_at": "2026-11-10",
-  "scope": "BarberGame internal operating inventory",
+  "scope": "Live directory data at thebarbergame.com — production first",
   "security_note": "Public-safe snapshot only. No personal emails or credentials. Route-level Cloudflare Access must be configured before enabling private operational data or approval actions.",
   "team_access": {
     "current": "Owner only; delegated Access approvals not configured here",
@@ -14,88 +14,64 @@
   },
   "metrics": [
     {
-      "id": "wa_corpus",
-      "label": "WA working corpus",
-      "value": 351,
-      "unit": "records",
+      "id": "live_city_subset",
+      "label": "20-city directory subtotal",
+      "value": 597,
+      "unit": "city-count sum",
       "as_of": "2026-11-10",
-      "quality": "historical-checkpoint",
-      "description": "Scanned working WA records; not verified live production count",
-      "source": "WA Directory project checkpoint"
+      "quality": "production-api-user-snapshot",
+      "description": "Sum of 20 city counts returned by production API. Not yet overall corpus total.",
+      "source": "api.thebarbergame.com/directory/cities"
     },
     {
-      "id": "chain_imports",
-      "label": "Three chain imports",
-      "value": 187,
-      "unit": "locations",
-      "as_of": "2026-10-31",
-      "quality": "historical-checkpoint",
-      "description": "Great Clips 113, Supercuts 37, Sport Clips 37; included within corpus, not additive",
-      "source": "Three-chain import checkpoint"
+      "id": "covered_cities",
+      "label": "Cities returned by API",
+      "value": 20,
+      "unit": "cities",
+      "as_of": "2026-11-10",
+      "quality": "production-api-user-snapshot",
+      "description": "Coded city summaries returned; other city records may exist.",
+      "source": "api.thebarbergame.com/directory/cities"
     },
     {
-      "id": "seattle_review",
-      "label": "Seattle review candidates",
-      "value": 210,
-      "unit": "records",
+      "id": "intake_submissions",
+      "label": "Separate shop submissions",
+      "value": 7,
+      "unit": "submissions",
       "as_of": "2026-11-10",
-      "quality": "local-checkpoint",
-      "description": "210 records; 58 reviewed, 152 pending at last local screenshot",
-      "source": "MBP wa-seattle-review.csv and local extension"
-    },
-    {
-      "id": "seattle_reviewed",
-      "label": "Seattle reviewed",
-      "value": 58,
-      "unit": "decisions",
-      "as_of": "2026-11-10",
-      "quality": "local-checkpoint",
-      "description": "Snapshot, potentially superseded by local decisions",
-      "source": "Local Washington Review panel"
-    },
-    {
-      "id": "bronze_local",
-      "label": "Local Bronze viewer",
-      "value": 30,
-      "unit": "records",
-      "as_of": "2026-11-10",
-      "quality": "local-checkpoint",
-      "description": "Small local CSV snapshot, not the statewide corpus",
-      "source": "MBP wa-barbershops-bronze.csv"
-    },
-    {
-      "id": "rudys",
-      "label": "Rudy's proposed new",
-      "value": 12,
-      "unit": "candidates",
-      "as_of": "2026-11-10",
-      "quality": "dry-run",
-      "description": "14 researched, 2 held as possible duplicates; no insert confirmed",
-      "source": "WA-RUDYS-001"
+      "quality": "production-d1-user-snapshot",
+      "description": "5 pending. Stored in shop_intake, separate from live directory.",
+      "source": "Cloudflare D1 shop_intake count and /admin/submissions"
     }
   ],
   "live_metrics": [
     {
       "key": "production_shops",
-      "label": "Published shops",
-      "state": "not_connected",
+      "label": "All production directory shops",
+      "state": "unverified",
       "value": null
     },
     {
-      "key": "corpus_updated_at",
-      "label": "Corpus last sync",
-      "state": "not_connected",
-      "value": null
+      "key": "city_sum",
+      "label": "20-city shop subtotal",
+      "state": "user_verified_api",
+      "value": 597
+    },
+    {
+      "key": "intake",
+      "label": "Shop submissions (separate)",
+      "state": "user_verified_d1",
+      "value": 7
     },
     {
       "key": "review_pending",
-      "label": "Review backlog (all cities)",
-      "state": "not_connected",
-      "value": null
+      "label": "Submitted shops pending",
+      "state": "user_verified_admin",
+      "value": 5
     },
     {
-      "key": "api_health",
-      "label": "API / service health",
+      "key": "corpus_updated_at",
+      "label": "Corpus last import",
       "state": "not_connected",
       "value": null
     }
@@ -279,33 +255,128 @@
   "next_actions": [
     {
       "priority": "P0",
-      "title": "Confirm the authoritative corpus and reconcile exact totals",
+      "title": "Confirm /directory/shops total from production API",
       "owner": "Owner + developer",
+      "status": "Next"
+    },
+    {
+      "priority": "P0",
+      "title": "Identify production directory's backing database and owner",
+      "owner": "Developer",
       "status": "Pending"
     },
     {
       "priority": "P0",
-      "title": "Connect authenticated read-only metrics endpoint",
-      "owner": "Developer",
-      "status": "Pending"
-    },
-    {
-      "priority": "P1",
-      "title": "Integrate existing Designworks service health and backup status",
-      "owner": "Developer",
-      "status": "Pending"
-    },
-    {
-      "priority": "P1",
-      "title": "Define approval and publication audit contract",
+      "title": "Compare meaningful staged records for duplicates before owner-approved import",
       "owner": "Owner + developer",
       "status": "Pending"
     },
     {
-      "priority": "Later",
-      "title": "Cloudflare Access delegation for Morgan, Mervis and Judd",
-      "owner": "Owner",
-      "status": "Not yet enabled"
+      "priority": "P1",
+      "title": "Connect authenticated read-only production corpus metrics to this page",
+      "owner": "Developer",
+      "status": "Pending"
     }
-  ]
+  ],
+  "production_directory": {
+    "api": "https://api.thebarbergame.com",
+    "city_endpoint": "/directory/cities",
+    "search_endpoint": "/directory/shops",
+    "overall_count_endpoint": "/directory/shops?page=1&pageSize=1",
+    "status": "confirmed responding in user's browser; direct automated API access unavailable",
+    "cities_snapshot": [
+      {
+        "city": "Tacoma",
+        "shopCount": 56
+      },
+      {
+        "city": "Spokane",
+        "shopCount": 54
+      },
+      {
+        "city": "Yakima",
+        "shopCount": 52
+      },
+      {
+        "city": "Bellingham",
+        "shopCount": 44
+      },
+      {
+        "city": "Vancouver",
+        "shopCount": 36
+      },
+      {
+        "city": "Seattle",
+        "shopCount": 35
+      },
+      {
+        "city": "Lakewood",
+        "shopCount": 34
+      },
+      {
+        "city": "Pasco",
+        "shopCount": 33
+      },
+      {
+        "city": "Kennewick",
+        "shopCount": 31
+      },
+      {
+        "city": "Everett",
+        "shopCount": 29
+      },
+      {
+        "city": "Auburn",
+        "shopCount": 29
+      },
+      {
+        "city": "Kent",
+        "shopCount": 28
+      },
+      {
+        "city": "Renton",
+        "shopCount": 25
+      },
+      {
+        "city": "Federal Way",
+        "shopCount": 24
+      },
+      {
+        "city": "Spokane Valley",
+        "shopCount": 23
+      },
+      {
+        "city": "Kirkland",
+        "shopCount": 20
+      },
+      {
+        "city": "Marysville",
+        "shopCount": 14
+      },
+      {
+        "city": "Bellevue",
+        "shopCount": 12
+      },
+      {
+        "city": "Shoreline",
+        "shopCount": 11
+      },
+      {
+        "city": "Redmond",
+        "shopCount": 7
+      }
+    ],
+    "city_count": 20,
+    "city_count_sum": 597,
+    "caveat": "Sum of 20 returned city summaries. Not the statewide total and not yet compared with total from /directory/shops.",
+    "snapshot_date": "2026-11-10"
+  },
+  "intake": {
+    "database": "TBG Network LLC Cloudflare D1 barbergame-shop-intake",
+    "table": "shop_intake",
+    "total": 7,
+    "pending": 5,
+    "as_of": "2026-11-10",
+    "relationship": "Separate public Add a Barbershop submissions; Approve for intake does not publish"
+  }
 }
