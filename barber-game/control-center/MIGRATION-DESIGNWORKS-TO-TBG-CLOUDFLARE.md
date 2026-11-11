@@ -60,3 +60,10 @@ Record source shop IDs, types, unique/index constraints, and whether the 351 inc
 `351 source -> approved export -> 351 staged D1 -> 351 served by new API -> production search verified -> manual signoff -> old backend retired`.
 
 The exact final count may differ from 351 only if owner explicitly excludes particular records during source review; no silent merge.
+
+## Owner-approved migration simplification — first pass
+- **Transfer all 351 source records unchanged** to a dedicated TBG Network LLC Cloudflare D1 staging database. No pre-migration deletion, duplicate consolidation, or coordinates enrichment required.
+- Keep original names, addresses, IDs, statuses and other existing fields. The Arlington Great Clips potential duplicate and nine missing coordinates are flagged for the later enrichment pass, not blockers.
+- Only errors preventing a lossless transfer (schema mismatch, duplicate primary keys, missing source, or import count mismatch) stop the data migration.
+- After confirming D1 has 351 records, focus on connecting and testing the public website. Owner controls manual Cloudflare production deployment.
+- Continue to distinguish `entered` from `confirmed` without making verification a first-pass migration dependency.
