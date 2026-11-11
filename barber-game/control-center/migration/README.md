@@ -19,7 +19,7 @@ sqlite3 -readonly "$DB" "SELECT name, sql FROM sqlite_master WHERE type='index' 
 
 ## Export
 
-The accompanying `export_from_designworks.py` does a **read-only preview** by default. Explicit `--write` outputs a private SQL file for import. It never touches D1, Cloudflare, or the public website. It validates column layout, number of rows, statuses, and duplicate-looking names+addresses. Use `--expected 351` for first migration.
+The accompanying `export_from_designworks.py` does a **read-only preview** by default. Explicit `--write` outputs a private SQL file for import. It never touches D1, Cloudflare, or the public website. It validates column layout, number of rows, and IDs. It reports duplicate-looking businesses and missing coordinates without excluding them. The first pass preserves all 351 source records unchanged; reconciliation and enrichment follow after migration. Use `--expected 351` for first migration.
 
 ```bash
 python3 export_from_designworks.py --db "$DB" --expected 351
