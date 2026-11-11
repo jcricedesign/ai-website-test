@@ -94,8 +94,10 @@ def main():
         if not args.write:
             print("Read-only preview complete. No export file written.")
             return
-        if missing or duplicate_ids or duplicate_groups:
-            raise RuntimeError("Potential source quality issues exist; export blocked pending review")
+        if duplicate_ids:
+            raise RuntimeError("Duplicate primary-key IDs prevent a lossless import")
+        # Potential duplicate shops and incomplete geography are reported, not removed.
+        # This first-pass export preserves all source rows for later enrichment.
         destination = args.output.expanduser().resolve()
         destination.parent.mkdir(parents=True, exist_ok=True)
         if destination.exists():
