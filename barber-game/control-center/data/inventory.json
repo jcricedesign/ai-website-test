@@ -1,385 +1,117 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "updated_at": "2026-11-10",
-  "scope": "Live directory data at thebarbergame.com — production first",
-  "security_note": "Public-safe snapshot only. No personal emails or credentials. Route-level Cloudflare Access must be configured before enabling private operational data or approval actions.",
+  "scope": "Designworks-owned canonical shop corpus. Owner's instruction: this is the only approved BarberGame directory corpus.",
+  "canonical": {
+    "name": "BarberGame Original Corpus",
+    "host": "Designworks Mac mini",
+    "database_path": "~/designworks/projects/barber-directory/data/barbergame-original.sqlite3",
+    "table": "shops",
+    "count": 351,
+    "count_checked_at": "2026-11-10",
+    "count_method": "Direct sqlite3 SELECT COUNT(*) FROM shops run by owner over SSH",
+    "connected_to_public_site": "not_verified",
+    "authority": "owner-designated",
+    "verified_status": "Owner confirmed database and count directly"
+  },
+  "production_dependency": {
+    "status": "UNRESOLVED — do not delete any serving backend yet",
+    "public_site_dependency_verified": false,
+    "explanation": "Customer-facing search currently shows a different set of records. Identify where requests resolve, switch safely to Designworks-authorized corpus, validate before retiring obsolete serving data.",
+    "changes_authorized": "Read-only investigation and planning; no production deletions or corpus merges"
+  },
+  "intake": {
+    "name": "Add a Barbershop submissions",
+    "store": "Cloudflare D1 barbergame-shop-intake / shop_intake",
+    "count": 7,
+    "pending": 5,
+    "as_of": "2026-11-10",
+    "publication": "Separate from canonical corpus; approval for intake is not approval to publish"
+  },
+  "metrics": [
+    {
+      "id": "canonical_shops",
+      "label": "Owned corpus — Designworks",
+      "value": 351,
+      "unit": "shops",
+      "as_of": "2026-11-10",
+      "quality": "owner-verified-sqlite",
+      "description": "Only directory corpus designated authoritative by owner.",
+      "source": "Direct sqlite3 count in Designworks"
+    },
+    {
+      "id": "submissions",
+      "label": "Separate intake submissions",
+      "value": 7,
+      "unit": "requests",
+      "as_of": "2026-11-10",
+      "quality": "owner-verified-d1",
+      "description": "5 pending; do not treat as live shops.",
+      "source": "TBG Cloudflare D1"
+    }
+  ],
+  "live_metrics": [
+    {
+      "key": "authoritative",
+      "label": "Owned corpus (Designworks)",
+      "state": "user_verified",
+      "value": 351
+    },
+    {
+      "key": "public_wiring",
+      "label": "Public website uses owned corpus",
+      "state": "not_verified",
+      "value": null
+    },
+    {
+      "key": "new_records",
+      "label": "Approved for production",
+      "state": "not_connected",
+      "value": null
+    },
+    {
+      "key": "intake_pending",
+      "label": "Separate intake pending",
+      "state": "user_verified",
+      "value": 5
+    }
+  ],
+  "action_plan": [
+    {
+      "priority": "1",
+      "title": "Map public website's shop requests to the actual backend",
+      "status": "Pending; read-only"
+    },
+    {
+      "priority": "2",
+      "title": "Confirm deployment/access route that serves exactly the 351 approved records",
+      "status": "Pending"
+    },
+    {
+      "priority": "3",
+      "title": "Switch production to owned corpus using manual Cloudflare deployment after owner review",
+      "status": "Blocked pending tests and explicit approval"
+    },
+    {
+      "priority": "4",
+      "title": "Verify search, locate me, city pages, shop profiles and count after cutover",
+      "status": "Required before cleanup"
+    },
+    {
+      "priority": "5",
+      "title": "Retire legacy records/services and references only after verified replacement and rollback",
+      "status": "Blocked until safe"
+    }
+  ],
   "team_access": {
-    "current": "Owner only; delegated Access approvals not configured here",
     "planned_members": [
       "Morgan",
       "Mervis",
       "Judd"
     ],
-    "phase": "Later"
+    "enabled": false
   },
-  "metrics": [
-    {
-      "id": "production_total",
-      "label": "Production directory shops",
-      "value": 597,
-      "unit": "shops",
-      "as_of": "2026-11-10",
-      "quality": "production-api-user-confirmed",
-      "description": "Total returned by /directory/shops, confirmed in browser; does not imply independently verified.",
-      "source": "api.thebarbergame.com/directory/shops?page=1&pageSize=1"
-    },
-    {
-      "id": "covered_cities",
-      "label": "Cities returned by API",
-      "value": 20,
-      "unit": "cities",
-      "as_of": "2026-11-10",
-      "quality": "production-api-user-confirmed",
-      "description": "Sum of returned per-city counts equals overall 597.",
-      "source": "api.thebarbergame.com/directory/cities"
-    },
-    {
-      "id": "intake_submissions",
-      "label": "Shop intake submissions",
-      "value": 7,
-      "unit": "submissions",
-      "as_of": "2026-11-10",
-      "quality": "production-d1-user-snapshot",
-      "description": "5 pending; separate Cloudflare D1 intake records, not additional published shops.",
-      "source": "Cloudflare D1 shop_intake and /admin/submissions"
-    }
-  ],
-  "live_metrics": [
-    {
-      "key": "production_shops",
-      "label": "All production directory shops",
-      "state": "user_verified_api",
-      "value": 597
-    },
-    {
-      "key": "city_sum",
-      "label": "20-city shop subtotal",
-      "state": "user_verified_api",
-      "value": 597
-    },
-    {
-      "key": "intake",
-      "label": "Shop submissions (separate)",
-      "state": "user_verified_d1",
-      "value": 7
-    },
-    {
-      "key": "review_pending",
-      "label": "Submitted shops pending",
-      "state": "user_verified_admin",
-      "value": 5
-    },
-    {
-      "key": "corpus_updated_at",
-      "label": "Corpus last import",
-      "state": "not_connected",
-      "value": null
-    }
-  ],
-  "workstreams": [
-    {
-      "name": "Barber Admin — Weekly Hours",
-      "stage": "UX approved",
-      "release": "Production not verified",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "/barber-game/barber-admin-dashboard/",
-      "note": "Done-only split hours; frozen approval checkpoint"
-    },
-    {
-      "name": "Barber Admin — Appointments",
-      "stage": "Source QA",
-      "release": "Demo only",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "/barber-game/barber-admin-dashboard/",
-      "note": "12 source-level regression tests passed; mobile acceptance pending"
-    },
-    {
-      "name": "Customer Booking",
-      "stage": "Active development",
-      "release": "Prototype",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "/barber-game/customer-v2/",
-      "note": "Service selection and booking interaction"
-    },
-    {
-      "name": "Washington Shop Directory",
-      "stage": "Intake & verification",
-      "release": "Publication not verified",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "/barber-game/washington-shop-directory/",
-      "note": "351-record source checkpoint; Rudy's batch dry-run"
-    },
-    {
-      "name": "Seattle Licensing Review",
-      "stage": "Local working review",
-      "release": "Private local queue",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "",
-      "note": "Chrome extension + local 8456 server; data on MBP"
-    },
-    {
-      "name": "BarberGame Atlas",
-      "stage": "Prototype refinement",
-      "release": "Demo",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "/barber-game/map-exploration/",
-      "note": "Neighborhood and mobile exploration"
-    },
-    {
-      "name": "Design Patterns / Figma",
-      "stage": "Team feedback planned",
-      "release": "Not production",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "",
-      "note": "Favoriting and pattern library"
-    },
-    {
-      "name": "Public Directory Site",
-      "stage": "Development",
-      "release": "Deployment not verified",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "https://github.com/barbergame/site",
-      "note": "Next.js site and public directory API"
-    },
-    {
-      "name": "California Discovery",
-      "stage": "Bronze screening",
-      "release": "Private only",
-      "owner": "Owner",
-      "updated": "2026-11-10",
-      "link": "",
-      "note": "City reviews and dry-runs; no implied production publication"
-    }
-  ],
-  "sources": [
-    {
-      "title": "Canonical Washington shop corpus",
-      "system": "Designworks SQLite",
-      "location": "barber-directory/data/barbergame-original.sqlite3",
-      "type": "Database",
-      "authority": "Working internal corpus",
-      "connection": "Not connected to this status page"
-    },
-    {
-      "title": "Legacy OSM discovery",
-      "system": "Designworks SQLite",
-      "location": "barber-directory/directory.sqlite3",
-      "type": "Database",
-      "authority": "Read-only discovery input",
-      "connection": "Not connected"
-    },
-    {
-      "title": "Seattle licensing decisions",
-      "system": "MBP local review CSV",
-      "location": "wa-seattle-review.csv + local decision overlay",
-      "type": "Local CSV / JSON",
-      "authority": "Review source, not production",
-      "connection": "Not connected"
-    },
-    {
-      "title": "WA Bronze research snapshot",
-      "system": "MBP local CSV",
-      "location": "wa-barbershops-bronze.csv",
-      "type": "CSV",
-      "authority": "Reference / evidence",
-      "connection": "Not connected"
-    },
-    {
-      "title": "Public directory API",
-      "system": "BarberGame backend",
-      "location": "api.thebarbergame.com",
-      "type": "API",
-      "authority": "Publication path to verify",
-      "connection": "Not connected"
-    },
-    {
-      "title": "Working UI & checkpoints",
-      "system": "GitHub",
-      "location": "jcricedesign/ai-website-test",
-      "type": "Repository",
-      "authority": "Prototype code / docs",
-      "connection": "Repository accessible"
-    },
-    {
-      "title": "Public Next.js site",
-      "system": "GitHub",
-      "location": "barbergame/site",
-      "type": "Repository",
-      "authority": "Public site source",
-      "connection": "Repository accessible"
-    },
-    {
-      "title": "Directory development",
-      "system": "GitHub",
-      "location": "jcricedesign/barber-directory",
-      "type": "Repository",
-      "authority": "Data tool source",
-      "connection": "Path documented; repository access to verify"
-    }
-  ],
-  "publication_policy": {
-    "stages": [
-      "Discovered",
-      "Evidence collected",
-      "Duplicate review",
-      "Reviewer decision",
-      "Ready for owner approval",
-      "Owner approved",
-      "Published",
-      "Reverification due"
-    ],
-    "approval_required": true,
-    "automatic_publish": false,
-    "roles": "Owner only until later delegation",
-    "audit_fields": [
-      "record_id",
-      "source",
-      "source_checked_at",
-      "reviewer",
-      "decision",
-      "approved_by",
-      "approved_at",
-      "published_at",
-      "public_shop_id",
-      "rollback_reference"
-    ]
-  },
-  "next_actions": [
-    {
-      "priority": "P0",
-      "title": "Identify database and deployment behind production /directory/shops",
-      "owner": "Owner + developer",
-      "status": "Next"
-    },
-    {
-      "priority": "P0",
-      "title": "Connect authenticated read-only production metrics to Control Center",
-      "owner": "Developer",
-      "status": "Pending"
-    },
-    {
-      "priority": "P0",
-      "title": "Reconcile D1 submissions and candidate imports against the 597 live shops",
-      "owner": "Owner + developer",
-      "status": "Pending"
-    },
-    {
-      "priority": "P1",
-      "title": "Establish owner-approved production publish and rollback procedure",
-      "owner": "Owner + developer",
-      "status": "Pending"
-    }
-  ],
-  "production_directory": {
-    "api": "https://api.thebarbergame.com",
-    "city_endpoint": "/directory/cities",
-    "search_endpoint": "/directory/shops",
-    "overall_count_endpoint": "/directory/shops?page=1&pageSize=1",
-    "status": "Verified: the production directory API returned total=597 in the user's browser.",
-    "cities_snapshot": [
-      {
-        "city": "Tacoma",
-        "shopCount": 56
-      },
-      {
-        "city": "Spokane",
-        "shopCount": 54
-      },
-      {
-        "city": "Yakima",
-        "shopCount": 52
-      },
-      {
-        "city": "Bellingham",
-        "shopCount": 44
-      },
-      {
-        "city": "Vancouver",
-        "shopCount": 36
-      },
-      {
-        "city": "Seattle",
-        "shopCount": 35
-      },
-      {
-        "city": "Lakewood",
-        "shopCount": 34
-      },
-      {
-        "city": "Pasco",
-        "shopCount": 33
-      },
-      {
-        "city": "Kennewick",
-        "shopCount": 31
-      },
-      {
-        "city": "Everett",
-        "shopCount": 29
-      },
-      {
-        "city": "Auburn",
-        "shopCount": 29
-      },
-      {
-        "city": "Kent",
-        "shopCount": 28
-      },
-      {
-        "city": "Renton",
-        "shopCount": 25
-      },
-      {
-        "city": "Federal Way",
-        "shopCount": 24
-      },
-      {
-        "city": "Spokane Valley",
-        "shopCount": 23
-      },
-      {
-        "city": "Kirkland",
-        "shopCount": 20
-      },
-      {
-        "city": "Marysville",
-        "shopCount": 14
-      },
-      {
-        "city": "Bellevue",
-        "shopCount": 12
-      },
-      {
-        "city": "Shoreline",
-        "shopCount": 11
-      },
-      {
-        "city": "Redmond",
-        "shopCount": 7
-      }
-    ],
-    "city_count": 20,
-    "city_count_sum": 597,
-    "caveat": "The overall total returned by /directory/shops is 597 and matches the 20 returned city counts. Verification and claims statuses are independent of being publicly listed.",
-    "snapshot_date": "2026-11-10",
-    "overall_count": 597,
-    "overall_count_source": "https://api.thebarbergame.com/directory/shops?page=1&pageSize=1",
-    "overall_count_verified": "2026-11-10"
-  },
-  "intake": {
-    "database": "TBG Network LLC Cloudflare D1 barbergame-shop-intake",
-    "table": "shop_intake",
-    "total": 7,
-    "pending": 5,
-    "as_of": "2026-11-10",
-    "relationship": "Separate public Add a Barbershop submissions; Approve for intake does not publish"
-  }
+  "no_automatic_imports": true,
+  "no_automatic_publication": true,
+  "previous_snapshots": "Noncanonical historical counts intentionally omitted from the operating dashboard."
 }
