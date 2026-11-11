@@ -24,6 +24,16 @@ footer{margin-top:68px;padding-top:20px;border-top:1px solid var(--line);font-si
 <section><h2>Authoritative data.</h2><div class="stats">
 <div class="stat"><div class="label">Live canonical directory / shops</div><div class="big" id="ownedCount">—</div><div class="sub">Imported from Designworks and verified in TBG Cloudflare D1. Last recorded verification: <span id="asOf">—</span>. Counts are a verified checkpoint, not a live query.</div><div style="margin-top:15px"><span class="pill">Live on thebarbergame.com</span></div></div>
 <div class="stat"><div class="label">Separate intake submissions</div><div class="big" id="intakeCount">—</div><div class="sub"><span id="pendingCount">—</span> pending in Cloudflare D1; not automatically part of the directory.</div></div></div></section>
+<section id="feature-roadmap"><p class="eyebrow">Next / proposed feature roadmap</p><h2>What we build next.</h2>
+<p>A small, staged roadmap for the directory now that the 351-shop Cloudflare foundation is live. These are proposals, not implemented features or automatic publication approvals.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Priority</th><th>Feature</th><th>Outcome</th><th>State</th></tr></thead><tbody>
+<tr><td>01 · First</td><td><strong>Directory admin: edit &amp; confirm shops</strong></td><td>Search a record, correct details, mark entered/confirmed, and save changes to the authoritative D1 database with an audit trail.</td><td><span class="pill">Proposed</span></td></tr>
+<tr><td>02 · Next</td><td><strong>Approve new shop submissions</strong></td><td>Review Add a Barbershop requests, detect matches, and explicitly promote approved submissions into the directory. No automatic publishing.</td><td><span class="pill">Proposed</span></td></tr>
+<tr><td>03 · Next</td><td><strong>Bronze-record quality queue</strong></td><td>Surface missing coordinates, outdated contact information, duplicate candidates, and incomplete hours; prioritize corrections without blocking publication.</td><td><span class="pill">Proposed</span></td></tr>
+<tr><td>04 · After</td><td><strong>Chain and city expansion</strong></td><td>Repeatable source-linked imports for additional Washington chains and cities, with deduplication and manual review before publication.</td><td><span class="pill">Proposed</span></td></tr>
+<tr><td>05 · Foundation</td><td><strong>Backups and change history</strong></td><td>Automated D1 snapshots, tested restoration, and an edit history so the growing directory remains recoverable.</td><td><span class="pill">Proposed</span></td></tr>
+</tbody></table></div>
+<p class="sub">Immediate housekeeping (separate from feature work): check the seven existing intake submissions and audit any remaining consumers of the legacy API before retiring it.</p></section>
 <section><h2>Production connection.</h2><div style="overflow-x:auto"><table><thead><tr><th>Component</th><th>Current state</th><th>Next</th></tr></thead><tbody>
 <tr><td><strong>Original Designworks shops</strong><div class="sub">barbergame-original.sqlite3 · recovery copy</div></td><td><span class="pill">Preserved</span></td><td>351 original rows and private SQL export retained</td></tr>
 <tr><td><strong>TBG Cloudflare directory storage</strong><div class="sub"><code>barbergame-directory / shops</code></div></td><td><span class="pill">351 imported and verified</span></td><td>Worker binding: <code>DIRECTORY_DB</code>; 7 confirmed / 344 entered</td></tr>
@@ -64,7 +74,7 @@ footer{margin-top:68px;padding-top:20px;border-top:1px solid var(--line);font-si
 </tbody></table></div></section>
 <section><h2>Migration record and remaining actions.</h2><p>The beta cutover is complete. This checklist records the accomplished migration and the small number of remaining cleanup tasks.</p><ol class="steps" id="actions"></ol></section>
 <section><h2>Related destinations.</h2><p>These remain separate from the canonical published data until you approve an import.</p><div class="links"><a href="https://thebarbergame.com/shops">Live customer directory</a><a href="https://thebarbergame.com/sitemap.xml">Production sitemap</a><a href="https://thebarbergame.com/admin/submissions">Shop intake review</a><a href="/barber-game/washington-shop-directory/">Directory research checkpoint</a><a href="/barber-game/">Project index</a></div></section>
-<footer>BarberGame Directory Operations v0.3 · Source: <code>control-center/data/inventory.json</code> · This page contains only non-sensitive status notes and is not a verified Cloudflare Access-protected admin interface.</footer>
+<footer>BarberGame Directory Operations v0.4 · Source: <code>control-center/data/inventory.json</code> · This page contains only non-sensitive status notes and is not a verified Cloudflare Access-protected admin interface.</footer>
 </main>
 <script>
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
