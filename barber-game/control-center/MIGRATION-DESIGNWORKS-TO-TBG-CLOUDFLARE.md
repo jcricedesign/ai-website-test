@@ -109,3 +109,38 @@ The exact final count may differ from 351 only if owner explicitly excludes part
 - Temporary test-only worktree, D1 `barbergame-intake-preview`, and separate Turnstile widget were created during investigation. They are not part of production and can be removed after confirming no use.
 
 The production deployment does not automatically publish new submissions or synchronize updates from Designworks. Future edits should be made through an explicit versioned update pathway.
+
+
+---
+
+## Minimal stabilization and recovery — November 11, 2026
+
+**Goal:** Protect the deployed directory with the safeguards already in place, without new backup infrastructure.
+
+### Current layers
+1. **Baseline copy:** `~/designworks/projects/barber-directory/data/barbergame-original.sqlite3` and private `~/barbergame-private/d1-directory-shops.sql` / `d1-directory-import.sql`. These protect the initial 351-shop snapshot, but do **not** automatically include future edits to D1.
+2. **Cloudflare D1 built-in Time Travel:** Cloudflare documents automatic point-in-time history with no activation required for databases reporting `version: production`. Recovery window is **7 days on Workers Free** or **30 days on Workers Paid**; confirm account plan and actual database version before relying on it. This is the current default backup approach; do not build a parallel cron system just for this.
+3. **Website:** Source is retained in Git with commits `5d8cd52`, `7c25777`; Cloudflare Worker deploy version `ea48fe7c-302d-41cc-84d2-6e737991df17`. A Worker code rollback does not restore overwritten D1 records.
+
+### Read-only verification on the Designworks Mac mini
+
+```bash
+export CLOUDFLARE_ACCOUNT_ID=707cdd30dab4f1606629739fce05a265
+npx wrangler d1 info barbergame-directory
+npx wrangler d1 time-travel info barbergame-directory
+npx wrangler d1 execute barbergame-directory --remote --command="SELECT COUNT(*) AS shops FROM shops;"
+```
+
+Expect `version: production`, a current Time Travel bookmark and 351 shops **until edits begin**. If a read-only check fails, investigate before using any restore operation; do not infer recovery is enabled merely from the existence of the database.
+
+### Recovery procedure (requires owner authorization; do not execute as a routine check)
+
+- First diagnose whether the failure is website code, a D1 write, or external service. For code problems, roll back the Worker version with Cloudflare deployments; leave D1 data unchanged.
+- For accidental database writes, stop new directory edits and record **both the current Time Travel bookmark and the intended recovery timestamp**, plus a list of changes that would be lost. Recover only after explicit owner approval.
+- D1 `time-travel restore` **overwrites the target database in place**. Do **not** test it on `barbergame-directory` or `barbergame-shop-intake`. First exercise the recovery procedure on a disposable test D1 database, using test-only rows, and verify the restore changes the row count as expected.
+- After an authorized production recovery, recheck the shop count, representative shop IDs, customer search, sitemap, and any approved changes made since the selected timestamp. Restore of earlier data can remove later approved edits.
+- If the mistake is outside the Time Travel retention window, the original private 351-shop SQL export can rebuild the **initial snapshot**, but later approved edits require newer snapshots or an audit trail. Revisit offsite/long-retention exports when the admin editor launches and real record changes begin accumulating.
+
+**Status:** Recovery instructions recorded; production D1 version and bookmark still need a read-only check; disposable restore rehearsal not yet performed. No new backup automations created or production restore executed.
+
+Sources: https://developers.cloudflare.com/d1/reference/time-travel/ and https://developers.cloudflare.com/workers/wrangler/commands/d1/
