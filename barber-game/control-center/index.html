@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>BarberGame Control Center · Operations</title>
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<style>
+:root{color-scheme:light;--bg:#f6f6f3;--ink:#171919;--muted:#5d6764;--line:#cbd0ca;--green:#235f46;--surface:#fff;--soft:#e9eeeb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+a{color:inherit;text-underline-offset:3px}a:hover{color:var(--green)}
+button,input{font:inherit}button{cursor:pointer}
+header{border-bottom:1px solid var(--line);background:#fff}
+.bar{max-width:1250px;margin:auto;padding:19px 26px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{font-size:14px;font-weight:850;letter-spacing:.1em;text-decoration:none}
+.bar nav{display:flex;gap:24px;font-size:13px;font-weight:700}
+main{max-width:1250px;padding:52px 26px 120px;margin:auto}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+h1{font-size:clamp(50px,7.2vw,100px);line-height:.98;letter-spacing:-.065em;margin:14px 0 20px;font-weight:800}
+.lede{max-width:770px;font-size:clamp(17px,2vw,23px);line-height:1.42;margin:0 0 22px}
+.metadata{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.tag{display:inline-block;padding:5px 9px;border:1px solid var(--line);border-radius:99px;background:var(--surface);font-size:11px;font-weight:800}
+.tag.ok{border-color:#9cb8a7;color:#145c40;background:#e7f2eb}
+.tag.pending{color:#6b551c;background:#f8f2dc;border-color:#e4d4a7}
+.note{border-left:4px solid #566b60;padding:12px 16px;background:#e9eeeb;font-size:14px;margin-top:25px;max-width:920px}
+section{margin-top:63px}
+.heading{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-bottom:15px;border-bottom:2px solid var(--ink)}
+h2{margin:0;font-size:clamp(25px,3.3vw,39px);line-height:1.12;letter-spacing:-.04em}
+.sub{color:var(--muted);font-size:13px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.metric{padding:22px;background:var(--surface);border:1px solid var(--line);min-height:164px}
+.metric strong{display:block;font-size:clamp(36px,4.4vw,56px);letter-spacing:-.07em;line-height:1}
+.metric .title{font-weight:760;margin:10px 0 5px}
+.metric .meta{font-size:12px;color:var(--muted)}
+.metric .meta strong{display:inline;font-size:inherit;letter-spacing:normal}
+table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}
+th{text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-size:11px}
+th,td{padding:15px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td strong{display:block}
+tbody tr:hover{background:rgba(255,255,255,.58)}
+.tablewrap{overflow:auto}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 9px}
+input[type=search]{width:min(460px,100%);min-width:230px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);border-radius:40px;background:#fff;padding:8px 12px;font-size:12px}
+.tab[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.empty{padding:20px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.card{background:#fff;border:1px solid var(--line);padding:20px}
+.card h3{font-size:19px;margin:0 0 8px}
+.card p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.card .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px}
+.steps{margin:20px 0 0;padding:0;list-style:none;counter-reset:step}
+.steps li{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.steps li:before{counter-increment:step;content:counter(step,decimal-leading-zero);font-weight:800;color:var(--green)}
+.footer{margin-top:65px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);font-size:12px}
+:focus-visible{outline:3px solid #2b8060;outline-offset:3px}
+@media(max-width:740px){main{padding:32px 17px 70px}.bar{padding:16px 17px}.bar nav{gap:12px}.metrics,.cards{grid-template-columns:1fr 1fr}th,td{min-width:135px}.metric{padding:16px;min-height:145px}}
+@media(max-width:490px){.metrics,.cards{grid-template-columns:1fr}.bar nav{font-size:11px}.heading{align-items:start;flex-direction:column}.metric{min-height:0}.lede{font-size:17px}}
+@media(prefers-reduced-motion:no-preference){a,button{transition:background-color .15s,color .15s}}
+</style></head>
+<body>
+<header><div class="bar"><a class="brand" href="/barber-game/">THE BARBERGAME / OPS</a><nav aria-label="Site"><a href="/barber-game/">Project index</a><a href="/barber-game/washington-shop-directory/">WA directory</a></nav></div></header>
+<main>
+<div class="kicker">TBG Network LLC / Operating overview / v0.1</div>
+<h1>Control Center.</h1>
+<p class="lede">One view of our workstreams, directory evidence, approval pipeline, and the systems that need to be connected before we can trust live production totals.</p>
+<div class="metadata"><span class="tag">Inventory snapshot</span><span id="updated">Loading inventory…</span><span>Read-only · no publish actions</span></div>
+<div class="note"><strong>Access notice:</strong> This page is an operational inventory, not an authenticated admin console. Site-level Cloudflare Access protection and backend authorization have not been verified for this route. Do not store credentials, private source records, or approval controls here until those controls are configured.</div>
+
+<section aria-labelledby="totalsTitle">
+<div class="heading"><h2 id="totalsTitle">Directory at a glance.</h2><span class="sub">Historical snapshots — not live production metrics</span></div>
+<div id="metrics" class="metrics" aria-live="polite"><p>Loading checkpoint data…</p></div>
+<p class="sub">The above datasets overlap. They are not additive. Exact published record totals require reconciliation with the authoritative directory database and public API.</p>
+<div class="tablewrap" style="margin-top:18px"><table><thead><tr><th>Live metric</th><th>Current connection</th><th>Value</th></tr></thead><tbody id="liveMetrics"></tbody></table></div>
+</section>
+
+<section aria-labelledby="projectsTitle">
+<div class="heading"><h2 id="projectsTitle">Workstreams &amp; approvals.</h2><span class="sub" id="workCount"></span></div>
+<div class="controls"><label for="query" class="sub" style="align-self:center">Filter:</label><input type="search" id="query" placeholder="Search workstreams, status, notes…" aria-label="Search workstreams">
+<div class="tabs" id="tabs" role="group" aria-label="Workstream filter">
+<button class="tab" aria-pressed="true" data-stage="all">All</button>
+<button class="tab" aria-pressed="false" data-stage="approved">UX approved</button>
+<button class="tab" aria-pressed="false" data-stage="review">In review / QA</button>
+<button class="tab" aria-pressed="false" data-stage="other">Other</button>
+</div></div>
+<div class="tablewrap"><table><thead><tr><th>Workstream</th><th>Stage</th><th>Release status</th><th>Updated</th><th>Details</th></tr></thead><tbody id="workstreams"></tbody></table></div>
+</section>
+
+<section aria-labelledby="sourcesTitle">
+<div class="heading"><h2 id="sourcesTitle">Inventory &amp; source of truth.</h2><span class="sub">One register, multiple underlying systems</span></div>
+<p>Directory databases remain in their operational locations. This page records their purpose and connection status; it does not duplicate or silently synchronize records.</p>
+<div class="tablewrap"><table><thead><tr><th>Asset</th><th>System</th><th>Purpose</th><th>Connection</th></tr></thead><tbody id="sources"></tbody></table></div>
+</section>
+
+<section aria-labelledby="policyTitle">
+<div class="heading"><h2 id="policyTitle">Approval to production.</h2><span class="tag pending">Owner authorization required</span></div>
+<p>Every intake method — corporate import, licensing review, manual entry, or future photo capture — should use the same candidate and approval pipeline.</p>
+<ol class="steps" id="steps"></ol>
+<div class="cards">
+<article class="card"><h3>Software release</h3><p>UX acceptance → logic tests → accessibility and security checks → owner approval → deploy → verify and log.</p><div class="foot"><span class="tag">Separate from directory publication</span></div></article>
+<article class="card"><h3>Directory publication</h3><p>Evidence → duplicate reconciliation → reviewer decision → owner approval → publish → audit and reverify.</p><div class="foot"><span class="tag">Never publish automatically</span></div></article>
+</div>
+</section>
+
+<section aria-labelledby="nextTitle">
+<div class="heading"><h2 id="nextTitle">Next operating tasks.</h2><span class="sub">Proposed, not auto-executed</span></div>
+<div id="nextActions" class="cards"></div>
+</section>
+<section aria-labelledby="teamTitle">
+<div class="heading"><h2 id="teamTitle">Team access.</h2><span class="sub">Planning only</span></div>
+<p>Owner approval and publication remain owner-only. Morgan, Mervis and Judd are noted as future team administrators, to be enabled individually through Cloudflare Access and application-level roles when required. No team access has been granted through this page.</p>
+</section>
+<div class="footer"><strong>BarberGame Operations v0.1.</strong> Read-only source inventory. Data file: <code>control-center/data/inventory.json</code>. Site deploy and route-level access status must be verified independently. No secrets or business license-level private data are stored in this view.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+let data=null,stage='all';
+function stageMatch(item){
+ const s=item.stage.toLowerCase();
+ return stage==='all'||(stage==='approved'&&s.includes('approved'))||(stage==='review'&&(s.includes('qa')||s.includes('review')||s.includes('verification')))||(stage==='other'&&!s.includes('approved')&&!s.includes('qa')&&!s.includes('review')&&!s.includes('verification'));
+}
+function renderWork(){
+ const term=$('query').value.trim().toLowerCase();
+ const rows=data.workstreams.filter(x=>stageMatch(x)&&[x.name,x.stage,x.release,x.note,x.owner].join(' ').toLowerCase().includes(term));
+ $('workCount').textContent=rows.length+' shown / '+data.workstreams.length+' registered';
+ $('workstreams').innerHTML=rows.map(x=>'<tr><td><strong>'+esc(x.name)+'</strong><span class="sub">'+esc(x.note)+'</span></td><td><span class="tag">'+esc(x.stage)+'</span></td><td>'+esc(x.release)+'</td><td>'+esc(x.updated)+'</td><td>'+(x.link?'<a href="'+esc(x.link)+'">View ↗</a>':'<span class="sub">Not linked</span>')+'</td></tr>').join('')||'<tr><td colspan="5" class="empty">No workstreams match.</td></tr>';
+}
+function render(){
+ $('updated').textContent='As of '+data.updated_at+' · manual status register';
+ $('metrics').innerHTML=data.metrics.map(m=>'<article class="metric"><strong>'+esc(m.value.toLocaleString())+'</strong><div class="title">'+esc(m.label)+'</div><div class="meta">'+esc(m.description)+'</div><div class="meta" style="margin-top:7px">Source: '+esc(m.source)+' · '+esc(m.as_of)+'</div></article>').join('');
+ $('liveMetrics').innerHTML=data.live_metrics.map(m=>'<tr><td>'+esc(m.label)+'</td><td><span class="tag pending">Not connected</span></td><td>—</td></tr>').join('');
+ $('sources').innerHTML=data.sources.map(x=>'<tr><td><strong>'+esc(x.title)+'</strong><span class="sub">'+esc(x.location)+'</span></td><td>'+esc(x.system)+'<br><span class="sub">'+esc(x.type)+'</span></td><td>'+esc(x.authority)+'</td><td>'+esc(x.connection)+'</td></tr>').join('');
+ $('steps').innerHTML=data.publication_policy.stages.map(x=>'<li>'+esc(x)+'</li>').join('');
+ $('nextActions').innerHTML=data.next_actions.map(x=>'<article class="card"><span class="tag">'+esc(x.priority)+'</span><h3 style="margin-top:11px">'+esc(x.title)+'</h3><p>'+esc(x.owner)+' · '+esc(x.status)+'</p></article>').join('');
+ renderWork();
+}
+$('query').addEventListener('input',()=>data&&renderWork());
+$('tabs').addEventListener('click',event=>{const b=event.target.closest('button[data-stage]');if(!b)return;stage=b.dataset.stage;for(const node of $('tabs').querySelectorAll('button'))node.setAttribute('aria-pressed',String(node===b));if(data)renderWork()});
+fetch('./data/inventory.json',{cache:'no-store'}).then(response=>{if(!response.ok)throw Error('HTTP '+response.status);return response.json()}).then(json=>{data=json;render()}).catch(err=>{$('updated').textContent='Inventory unavailable';$('metrics').innerHTML='<div class="note">Could not load the status inventory: '+esc(err.message)+'. Verify that data/inventory.json is deployed alongside this page.</div>'});
+</script></body></html>
