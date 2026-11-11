@@ -18,7 +18,15 @@
       "entered": 344
     },
     "status_checked_at": "2026-11-10",
-    "publication_note": "Status labels preserved during migration; owner approval and explicit publication policy are distinct."
+    "publication_note": "Status labels preserved during migration; owner approval and explicit publication policy are distinct.",
+    "quality_check": {
+      "total": 351,
+      "missing_coordinates": 9,
+      "incomplete_name_street_or_city": 0,
+      "checked_at": "2026-11-10",
+      "method": "Owner's read-only SQLite aggregate query",
+      "note": "Missing coordinates require review before location-based search; preserve all source rows in D1 staging."
+    }
   },
   "production_dependency": {
     "status": "UNRESOLVED — do not delete any serving backend yet",
