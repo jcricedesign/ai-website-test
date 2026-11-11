@@ -106,11 +106,11 @@ def main():
         with destination.open("x", encoding="utf-8") as out:
             destination.chmod(0o600)
             out.write("-- Private shop corpus export. Do not commit to GitHub.\n")
-            out.write("BEGIN TRANSACTION;\n")
+            # D1 import rejects explicit SQL transaction statements; Wrangler handles import.
             for row in rows:
                 values = ",".join(sql_literal(row[column]) for column in COLUMNS)
                 out.write("INSERT INTO shops (" + ",".join(COLUMNS) + ") VALUES (" + values + ");\n")
-            out.write("COMMIT;\n")
+            # D1 import rejects explicit SQL transaction statements; Wrangler handles import.
         print(f"Private SQL export created: {destination} ({total} rows).")
     finally:
         con.close()
