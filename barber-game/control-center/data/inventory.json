@@ -202,5 +202,52 @@
       "Production four route HTTP 200",
       "Owner screenshots of 5 Shades of Fades and Chop It Up Barbershop detail pages"
     ]
+  },
+  "roadmap": {
+    "status": "proposed_not_approved",
+    "version": "0.1",
+    "as_of": "2026-11-11",
+    "items": [
+      {
+        "id": "directory-admin",
+        "priority": 1,
+        "phase": "First",
+        "title": "Directory admin: edit & confirm shops",
+        "scope": "Search/edit canonical D1 records, confirm status, audit changes",
+        "status": "proposed"
+      },
+      {
+        "id": "intake-promotion",
+        "priority": 2,
+        "phase": "Next",
+        "title": "Approve new shop submissions",
+        "scope": "Review intake, detect matches, owner-approved promotion into directory",
+        "status": "proposed"
+      },
+      {
+        "id": "bronze-queue",
+        "priority": 3,
+        "phase": "Next",
+        "title": "Bronze-record quality queue",
+        "scope": "Coordinate/contact/hour gaps and duplicate candidates",
+        "status": "proposed"
+      },
+      {
+        "id": "chain-city-expansion",
+        "priority": 4,
+        "phase": "After",
+        "title": "Chain and city expansion",
+        "scope": "Source-linked repeatable imports with review/deduplication",
+        "status": "proposed"
+      },
+      {
+        "id": "d1-backups",
+        "priority": 5,
+        "phase": "Foundation",
+        "title": "Backups and change history",
+        "scope": "D1 snapshots, restore testing and per-shop audit history",
+        "status": "proposed"
+      }
+    ]
   }
 }
