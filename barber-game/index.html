@@ -7,6 +7,7 @@
 <title>Chop it Up Barbershops</title>
 <script>(()=>{const s=localStorage.getItem('theme'),d=matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.dataset.theme=s||(d?'dark':'light')})();</script>
 <link rel="stylesheet" href="/assets/common/site-shell.css">
+<link rel="stylesheet" href="/barber-game/assets/team-resource-finder.css">
 <style>
 :root{--bg:#f3f3ef;--text:#111;--muted:#6f6f6a;--line:#c9c9c4;--panel:#fff;--soft:#e5e5e1}
 :root[data-theme=dark]{--bg:#111;--text:#f5f5f2;--muted:#9a9a95;--line:#33332f;--panel:#181817;--soft:#242421}
@@ -109,6 +110,24 @@ button{font:inherit}
     <h1>Chop it Up Barbershops</h1>
     <p class="dashboard-intro">Working prototypes and product demos for customer booking, barber onboarding, and shop operations. These screens document how the product is evolving—from finding a barber and booking time to trust, discovery, and day-to-day business management.</p>
 
+
+
+    <section class="finder" id="team-resource-finder" aria-labelledby="finder-heading">
+      <div class="finder-heading"><h2 id="finder-heading">Find a project.</h2><span class="finder-count" id="finder-count" aria-live="polite"></span></div>
+      <p class="finder-summary">Search the team’s working links, prototypes, documents and demos. Filter by workstream, resource type or project status, then open the experience you need.</p>
+      <div class="finder-controls" role="search" aria-label="Project resource search">
+        <div class="finder-field"><label for="finder-query">Search</label><input id="finder-query" type="search" autocomplete="off" placeholder="Booking, map, admin, handoff…"></div>
+        <div class="finder-field"><label for="finder-workstream">Workstream</label><select id="finder-workstream"><option value="">All workstreams</option></select></div>
+        <div class="finder-field"><label for="finder-type">Type</label><select id="finder-type"><option value="">All types</option></select></div>
+        <div class="finder-field"><label for="finder-status">Status</label><select id="finder-status"><option value="">All statuses</option></select></div>
+      </div>
+      <p class="finder-hint">Live means published for its intended audience; Demo and Prototype identify the kind of resource. Dates are only shown when recorded, not inferred from when a link was added.</p>
+      <div class="finder-results" id="finder-results" aria-live="polite"></div>
+      <div class="finder-utils">
+        <p class="finder-board-notice">Version 1: Browse and filter together. Changes made in the detail panel are personal browser drafts—not shared team updates. Export drafts to submit for a published board update.</p>
+        <button id="finder-export" type="button">Export changes (JSON) ↓</button>
+      </div>
+    </section>
 
     <section class="workstreams" id="active-workstreams" aria-labelledby="workstreams-heading">
       <div class="workstreams-head"><h2 id="workstreams-heading">5 active workstreams.</h2><span class="workstreams-date">Project index · November 10, 2026</span></div>
@@ -375,5 +394,6 @@ document.getElementById('logout').addEventListener('click',()=>{
 </script>
 <script src="/assets/common/site-shell.js"></script>
 <script src="/assets/common/display-mode.js"></script>
+<script src="/barber-game/assets/team-resource-finder.js"></script>
 </body>
 </html>
