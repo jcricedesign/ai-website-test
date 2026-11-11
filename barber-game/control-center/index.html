@@ -64,19 +64,20 @@ input[type=search]{width:min(460px,100%);min-width:230px;background:#fff;border:
 <main>
 <div class="kicker">TBG Network LLC / Operating overview / v0.1</div>
 <h1>Control Center.</h1>
-<p class="lede">One view of our workstreams, directory evidence, approval pipeline, and the systems that need to be connected before we can trust live production totals.</p>
-<div class="metadata"><span class="tag">Inventory snapshot</span><span id="updated">Loading inventory…</span><span>Read-only · no publish actions</span></div>
-<div class="note"><strong>Access notice:</strong> This page is an operational inventory, not an authenticated admin console. Site-level Cloudflare Access protection and backend authorization have not been verified for this route. Do not store credentials, private source records, or approval controls here until those controls are configured.</div>
+<p class="lede">Production directory first. See what thebarbergame.com serves, track pending submissions separately, and add verified shops to the live corpus only with explicit approval.</p>
+<div class="metadata"><span class="tag">Production directory snapshot</span><span id="updated">Loading inventory…</span><span>Read-only · no publish actions</span></div>
+<div class="note"><strong>Access notice:</strong> This page is a public-safe, read-only status summary. This route's Cloudflare Access protection has not been verified. No private records or publication actions belong here until protected access and server-side authorization are in place.</div>
 
 <section aria-labelledby="totalsTitle">
-<div class="heading"><h2 id="totalsTitle">Directory at a glance.</h2><span class="sub">Historical snapshots — not live production metrics</span></div>
+<div class="heading"><h2 id="totalsTitle">Production directory.</h2><span class="sub">Observed production API results · statewide total unconfirmed</span></div>
 <div id="metrics" class="metrics" aria-live="polite"><p>Loading checkpoint data…</p></div>
-<p class="sub">The above datasets overlap. They are not additive. Exact published record totals require reconciliation with the authoritative directory database and public API.</p>
+<p class="sub">The 597 figure sums the 20 returned city summaries; it is not a proven statewide count. The seven Cloudflare D1 intake submissions are a separate dataset.</p>
 <div class="tablewrap" style="margin-top:18px"><table><thead><tr><th>Live metric</th><th>Current connection</th><th>Value</th></tr></thead><tbody id="liveMetrics"></tbody></table></div>
+<div style="margin-top:24px"><h3 style="font-size:21px;margin:0 0 8px">City counts from the production API</h3><p class="sub">Snapshot supplied from <a href="https://api.thebarbergame.com/directory/cities">/directory/cities</a>. To determine the complete corpus, check <a href="https://api.thebarbergame.com/directory/shops?page=1&amp;pageSize=1">/directory/shops?page=1&amp;pageSize=1</a> for its total.</p><div class="tablewrap"><table><thead><tr><th>City</th><th>Shop count</th></tr></thead><tbody id="cityCounts"></tbody></table></div></div>
 </section>
 
 <section aria-labelledby="projectsTitle">
-<div class="heading"><h2 id="projectsTitle">Workstreams &amp; approvals.</h2><span class="sub" id="workCount"></span></div>
+<div class="heading"><h2 id="projectsTitle">Other workstreams (secondary).</h2><span class="sub" id="workCount"></span></div>
 <div class="controls"><label for="query" class="sub" style="align-self:center">Filter:</label><input type="search" id="query" placeholder="Search workstreams, status, notes…" aria-label="Search workstreams">
 <div class="tabs" id="tabs" role="group" aria-label="Workstream filter">
 <button class="tab" aria-pressed="true" data-stage="all">All</button>
@@ -88,7 +89,7 @@ input[type=search]{width:min(460px,100%);min-width:230px;background:#fff;border:
 </section>
 
 <section aria-labelledby="sourcesTitle">
-<div class="heading"><h2 id="sourcesTitle">Inventory &amp; source of truth.</h2><span class="sub">One register, multiple underlying systems</span></div>
+<div class="heading"><h2 id="sourcesTitle">Backing systems and evidence.</h2><span class="sub">Production API and intake first; historical datasets separate</span></div>
 <p>Directory databases remain in their operational locations. This page records their purpose and connection status; it does not duplicate or silently synchronize records.</p>
 <div class="tablewrap"><table><thead><tr><th>Asset</th><th>System</th><th>Purpose</th><th>Connection</th></tr></thead><tbody id="sources"></tbody></table></div>
 </section>
@@ -128,9 +129,13 @@ function renderWork(){
  $('workstreams').innerHTML=rows.map(x=>'<tr><td><strong>'+esc(x.name)+'</strong><span class="sub">'+esc(x.note)+'</span></td><td><span class="tag">'+esc(x.stage)+'</span></td><td>'+esc(x.release)+'</td><td>'+esc(x.updated)+'</td><td>'+(x.link?'<a href="'+esc(x.link)+'">View ↗</a>':'<span class="sub">Not linked</span>')+'</td></tr>').join('')||'<tr><td colspan="5" class="empty">No workstreams match.</td></tr>';
 }
 function render(){
- $('updated').textContent='As of '+data.updated_at+' · manual status register';
+ $('updated').textContent='As of '+data.updated_at+' · observed API snapshot; not live-refreshing';
  $('metrics').innerHTML=data.metrics.map(m=>'<article class="metric"><strong>'+esc(m.value.toLocaleString())+'</strong><div class="title">'+esc(m.label)+'</div><div class="meta">'+esc(m.description)+'</div><div class="meta" style="margin-top:7px">Source: '+esc(m.source)+' · '+esc(m.as_of)+'</div></article>').join('');
- $('liveMetrics').innerHTML=data.live_metrics.map(m=>'<tr><td>'+esc(m.label)+'</td><td><span class="tag pending">Not connected</span></td><td>—</td></tr>').join('');
+ $('liveMetrics').innerHTML=data.live_metrics.map(m=>{
+ const observed=['user_verified_api','user_verified_d1','user_verified_admin'].includes(m.state);
+ return '<tr><td>'+esc(m.label)+'</td><td><span class="tag '+(observed?'ok':'pending')+'">'+(observed?'Observed snapshot':'Not yet confirmed')+'</span></td><td>'+(m.value===null?'—':esc(m.value))+'</td></tr>';
+ }).join('');
+ $('cityCounts').innerHTML=(data.production_directory?.cities_snapshot||[]).map(c=>'<tr><td>'+esc(c.city)+'</td><td>'+esc(c.shopCount)+'</td></tr>').join('');
  $('sources').innerHTML=data.sources.map(x=>'<tr><td><strong>'+esc(x.title)+'</strong><span class="sub">'+esc(x.location)+'</span></td><td>'+esc(x.system)+'<br><span class="sub">'+esc(x.type)+'</span></td><td>'+esc(x.authority)+'</td><td>'+esc(x.connection)+'</td></tr>').join('');
  $('steps').innerHTML=data.publication_policy.stages.map(x=>'<li>'+esc(x)+'</li>').join('');
  $('nextActions').innerHTML=data.next_actions.map(x=>'<article class="card"><span class="tag">'+esc(x.priority)+'</span><h3 style="margin-top:11px">'+esc(x.title)+'</h3><p>'+esc(x.owner)+' · '+esc(x.status)+'</p></article>').join('');
