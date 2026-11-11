@@ -12,7 +12,13 @@
     "count_method": "Direct sqlite3 SELECT COUNT(*) FROM shops run by owner over SSH",
     "connected_to_public_site": "not_verified",
     "authority": "owner-designated",
-    "verified_status": "Owner confirmed database and count directly"
+    "verified_status": "Owner confirmed database and count directly",
+    "status_breakdown": {
+      "confirmed": 7,
+      "entered": 344
+    },
+    "status_checked_at": "2026-11-10",
+    "publication_note": "Status labels preserved during migration; owner approval and explicit publication policy are distinct."
   },
   "production_dependency": {
     "status": "UNRESOLVED — do not delete any serving backend yet",
@@ -58,20 +64,26 @@
       "value": 351
     },
     {
+      "key": "confirmed",
+      "label": "Status: confirmed",
+      "state": "user_verified",
+      "value": 7
+    },
+    {
+      "key": "entered",
+      "label": "Status: entered",
+      "state": "user_verified",
+      "value": 344
+    },
+    {
       "key": "public_wiring",
-      "label": "Public website uses owned corpus",
+      "label": "Customer website uses owned corpus",
       "state": "not_verified",
       "value": null
     },
     {
-      "key": "new_records",
-      "label": "Approved for production",
-      "state": "not_connected",
-      "value": null
-    },
-    {
       "key": "intake_pending",
-      "label": "Separate intake pending",
+      "label": "Separate submissions pending",
       "state": "user_verified",
       "value": 5
     }
