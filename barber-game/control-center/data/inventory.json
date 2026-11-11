@@ -283,5 +283,29 @@
       "npx wrangler d1 info barbergame-directory",
       "npx wrangler d1 time-travel info barbergame-directory"
     ]
+  },
+  "directory_admin_checkpoint": {
+    "checkpoint": "v0.1 — live publishing and permanent team domain",
+    "date": "2026-11-11",
+    "verification": "Owner screenshots of 351/344/7 dashboard, edit draft before/after review, owner-approved change to Chop it Up Bellevue (designworks-24), and live customer page showing changed description; Cloudflare Access and admin-password double sign-in at permanent domain.",
+    "admin_url": "https://directory.thebarbergame.com",
+    "worker": "barbergame-directory-admin-poc",
+    "cloudflare_binding": "DIRECTORY_DB",
+    "database": "barbergame-directory",
+    "domain": "directory.thebarbergame.com",
+    "domain_status": "Connected as production custom domain; owner visited and signed in successfully",
+    "access": {
+      "scope": "all traffic",
+      "policy": "BarberGame Team Members",
+      "signed_in_verified": true,
+      "existing_allow_emails_count": 3,
+      "second_factor": "existing shared ADMIN_PASSWORD; do not distribute to Editors",
+      "roles_enforced": false
+    },
+    "publish_flow": "search → edit → save private draft → review before/after → owner approve → write published D1 shop → customer page displays field",
+    "customer_worker": "barbergame-customer",
+    "customer_worker_version": "f5cc36ff-3eaa-449f-8593-5ec045769d60",
+    "next": "Implement email-identity-based Editor and Publisher server-enforced roles, verify team membership and no unauthorized publish; avoid sharing shared publishing password.",
+    "source_checkpoint": "Local Git tags directory-admin-v0.1.0 and directory-live-publishing-20261111 created by owner earlier; custom-domain and Access settings are Cloudflare configuration, not captured by local Git tags."
   }
 }
