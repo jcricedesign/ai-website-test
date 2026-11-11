@@ -117,14 +117,26 @@ const sampleAccount={name:'Alex Morgan',username:'alexm',email:'alex@example.com
 function demoAccount(){try{return JSON.parse(localStorage.getItem(ACCOUNT_KEY))||sampleAccount}catch{return sampleAccount}}
 function saveDemoAccount(){const appointment=state.confirmed&&state.shop&&state.barber&&state.service?{shop:state.shop.id,barber:state.shop.barbers.indexOf(state.barber),service:services.indexOf(state.service),day:state.day,slot:state.slot}:null;try{localStorage.setItem(ACCOUNT_KEY,JSON.stringify({name:state.name,username:state.accountUsername,email:state.accountEmail||state.email,phone:state.phone,notes:state.notes,appointment}))}catch{}}
 function restoreDemoAccount(){const account=demoAccount();state.name=account.name||'';state.accountUsername=account.username||'';state.accountEmail=account.email||'';state.email=account.email||'';state.phone=account.phone||'';state.notes=account.notes||'';const a=account.appointment;state.shop=shops.find(shop=>shop.id===a?.shop)||null;state.barber=state.shop?.barbers[a?.barber]||null;state.service=services[a?.service]||null;state.day=a?.day||'Today';state.slot=a?.slot||'';state.confirmed=!!(state.shop&&state.barber&&state.service&&state.slot);state.profileReady=true;go('customer-profile')}
-const services=[{name:'Haircut Only (no beard)',duration:'30 min',price:35},{name:'Haircut and Beard',duration:'45 min',price:50},{name:'Kids Haircut',duration:'30 min',price:30},{name:'Senior Haircut',duration:'30 min',get price(){return services[0].price-5}},{name:'Braids',duration:'1 hr',price:60},{name:'Dreads/Twist',duration:'Varies by barber',price:null},{name:'Flat Iron Press',duration:'Varies by barber',price:null},{name:'Style Set',duration:'Varies by barber',price:null},{name:'Line Up',duration:'Varies by barber',price:null},{name:'Hair and Beard Line-Up',duration:'Varies by barber',price:null}];
+// Illustrative service definitions supplied for the booking UX prototype.
+const services=[
+  {name:'Haircut Only (no beard)',duration:'30 min',price:35},
+  {name:'Haircut and Beard',duration:'45 min',price:50},
+  {name:'Kids Haircut',duration:'45 min',price:30},
+  {name:'Senior Haircut',duration:'45 min',price:30},
+  {name:'Braids',duration:'Inquire',price:null},
+  {name:'Dreads/Twist',duration:'1.5 hr',price:null},
+  {name:'Flat Iron Press',duration:'1 hr',price:null},
+  {name:'Style Set',duration:'1 hr+',price:null},
+  {name:'Line Up',duration:'15 min',price:null},
+  {name:'Hair and Beard Line-Up',duration:'45 min',price:null}
+];
 function serviceDurationMinutes(service){
   const duration=service?.duration||'';
-  const match=duration.match(/^(\d+)\s*(min|hr)/i);
+  const match=duration.match(/^(\d+(?:\.\d+)?)\s*(min|hr)/i);
   return match?Number(match[1])*(match[2].toLowerCase()==='hr'?60:1):null;
 }
-const requiresInquiry=service=>Boolean(service&&(service.price==null||serviceDurationMinutes(service)==null));
-const priceLabel=service=>service?.price==null?'Price varies by barber':`$${service.price}`;
+const requiresInquiry=service=>Boolean(service&&serviceDurationMinutes(service)==null);
+const priceLabel=service=>service?.price==null?'Price to confirm':`${service.price}`;
 const dayLabel=day=>{const offset={Today:0,Tomorrow:1,Later:2}[day]||0;return `${day} · ${new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric'}).format(new Date(Date.now()+offset*86400000))}`};
 const futureSlots=['10:00','10:30','11:15','1:00','2:30','3:45','5:00','5:30','6:15','7:00'];
 // SAMPLE booking windows only: actual availability will come from barber schedules and reservations.
@@ -136,6 +148,7 @@ function demoWindowMinutes(shop,barber,time,day='Today'){
   if(day==='Today'&&time==='2:15')return 30;
   if(day==='Today'&&time==='7:00')return 45;
   if(day==='Tomorrow'&&time==='10:00')return 60;
+  if(day==='Tomorrow'&&time==='11:15')return 90;
   return [30,45,30,60][[0,1,2,4].indexOf(serviceIndexFor(shop,barber,time,day))]||30;
 }
 function sampleTimesFor(day,barber){
@@ -158,6 +171,7 @@ function nextForService(shop,barber,service){
     return {day:state.offerDay||'Today',time:state.offerTime};
   // Illustrative longer-service opportunities for the customer prototype.
   if(minutes===45)return {day:'Today',time:'7:00'};
+  if(minutes>=90)return {day:'Tomorrow',time:'11:15'};
   if(minutes>=60)return {day:'Tomorrow',time:'10:00'};
   for(const day of ['Today','Tomorrow','Later']){
     const time=slotsForService(shop,barber,service,day)[0];
