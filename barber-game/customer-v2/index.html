@@ -37,6 +37,17 @@
 
 .service-screen .service{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px}.service-screen .service>strong{text-align:right}.service .service-next-time{grid-column:1 / -1;justify-self:end;text-align:right;color:var(--green);font-weight:700;margin-top:8px;font-size:12px}
 .inquire-pill{align-self:start;justify-self:end;border:1px solid var(--green);border-radius:999px;padding:9px 16px;color:var(--green);background:#fff;font-size:13px;font-weight:700;cursor:pointer}.inquiry-email{display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:24px}
+
+/* Service opportunities: one opening can accommodate multiple services. */
+.service-screen .offer-context{background:#eaf2ec;border:1px solid #bad3c2;border-radius:12px;padding:15px 16px;display:flex;flex-direction:column;gap:5px}
+.service-screen .offer-context strong{font-size:17px;color:#326648}
+.service-screen .offer-context span{font-size:12px;color:#52675c}
+.service-screen .service-group-heading{font-size:15px;font-weight:800;color:#1d2921;margin:23px 0 10px}
+.service-screen .later-heading{padding-top:24px;border-top:2px solid #e0e4df;margin-top:28px}
+.service-screen .service{min-height:105px;padding:15px 4px}
+.service-screen .service .service-next-time{font-size:12px;line-height:1.4;margin-top:9px}
+.service-screen .service.selected{box-shadow:0 0 0 5px #edf5ee}
+
 </style>
 </head>
 <body>
@@ -100,25 +111,86 @@ const shops=[
 const areas={lynnwood:{name:'Lynnwood',lat:47.83,lng:-122.28},kirkland:{name:'Kirkland',lat:47.68,lng:-122.20},everett:{name:'Everett',lat:47.98,lng:-122.21},seattle:{name:'Seattle',lat:47.61,lng:-122.33}};
 const steps=[['discover','Discover'],['all-barbers','All barbers'],['profile','Barber profile'],['booking-location','Location'],['service','Service'],['booking-barber','Barber'],['time','Time'],['confirm','Confirm'],['confirmed','Confirmed'],['account','Claim account'],['customer-profile','Customer profile'],['signin','Sign in'],['recover','Recover access']];
 const captions={inquiry:'Confirm service details before booking.',discover:'Discover shops · nearest first, with availability up front.','all-barbers':'All barbers · compact directory by location.',profile:'Barber profile · view details without losing the shop context.','booking-location':'Choose the shop before your service.',service:'Choose a service · then a barber.','booking-barber':'Choose a barber at your selected shop.',time:'Choose another time · up to three times per barber in discovery.',confirm:'Claim the time · contact details, no account required.',confirmed:'Appointment confirmed · optional account comes afterward.',account:'Optional account · details after booking.','customer-profile':'Customer profile · booking details carried forward.','customer-profile-edit':'Edit customer details in this prototype.',signin:'Returning customer · saved or remembered password.',recover:'Recover access by email.','recover-code':'Enter the example verification code.'};
-const state={recoveryChannel:'email',recoveryTarget:'',refer:null,step:'discover',area:'lynnwood',overlay:'',expanded:{},allTimes:{},menu:'',shop:null,barber:null,slot:'',day:'Today',service:null,generalBooking:false,name:'',email:'',phone:'',notes:'',accountUsername:'',accountEmail:'',demoCaptcha:false,profileReady:false,confirmed:false,profileTab:'about',profileReturn:'discover',barberLocation:'all',returnShop:null,directoryFromMenu:false,locationsFromMenu:false};
+const state={recoveryChannel:'email',recoveryTarget:'',refer:null,step:'discover',area:'lynnwood',overlay:'',expanded:{},allTimes:{},menu:'',shop:null,barber:null,slot:'',day:'Today',service:null,offerTime:'',offerDay:'Today',offerMinutes:0,generalBooking:false,name:'',email:'',phone:'',notes:'',accountUsername:'',accountEmail:'',demoCaptcha:false,profileReady:false,confirmed:false,profileTab:'about',profileReturn:'discover',barberLocation:'all',returnShop:null,directoryFromMenu:false,locationsFromMenu:false};
 const ACCOUNT_KEY='chopitup-customer-demo-account-v1';
 const sampleAccount={name:'Alex Morgan',username:'alexm',email:'alex@example.com',phone:'(425) 555-0142',notes:'',appointment:{shop:'kirkland',barber:0,service:0,day:'Tomorrow',slot:'2:00'}};
 function demoAccount(){try{return JSON.parse(localStorage.getItem(ACCOUNT_KEY))||sampleAccount}catch{return sampleAccount}}
 function saveDemoAccount(){const appointment=state.confirmed&&state.shop&&state.barber&&state.service?{shop:state.shop.id,barber:state.shop.barbers.indexOf(state.barber),service:services.indexOf(state.service),day:state.day,slot:state.slot}:null;try{localStorage.setItem(ACCOUNT_KEY,JSON.stringify({name:state.name,username:state.accountUsername,email:state.accountEmail||state.email,phone:state.phone,notes:state.notes,appointment}))}catch{}}
 function restoreDemoAccount(){const account=demoAccount();state.name=account.name||'';state.accountUsername=account.username||'';state.accountEmail=account.email||'';state.email=account.email||'';state.phone=account.phone||'';state.notes=account.notes||'';const a=account.appointment;state.shop=shops.find(shop=>shop.id===a?.shop)||null;state.barber=state.shop?.barbers[a?.barber]||null;state.service=services[a?.service]||null;state.day=a?.day||'Today';state.slot=a?.slot||'';state.confirmed=!!(state.shop&&state.barber&&state.service&&state.slot);state.profileReady=true;go('customer-profile')}
-const services=[{name:'Haircut Only (no beard)',duration:'30 min',price:35},{name:'Haircut and Beard',duration:'45 min',price:50},{name:'Kids Haircut',duration:'30 min',price:30},{name:'Senior Haircut',duration:'Varies by barber',get price(){return services[0].price-5}},{name:'Braids',duration:'1 hr',price:60},{name:'Dreads/Twist',duration:'Varies by barber',price:null},{name:'Flat Iron Press',duration:'Varies by barber',price:null},{name:'Style Set',duration:'Varies by barber',price:null},{name:'Line Up',duration:'Varies by barber',price:null},{name:'Hair and Beard Line-Up',duration:'Varies by barber',price:null}];
-const requiresInquiry=service=>Boolean(service&&service.price==null);
+const services=[{name:'Haircut Only (no beard)',duration:'30 min',price:35},{name:'Haircut and Beard',duration:'45 min',price:50},{name:'Kids Haircut',duration:'30 min',price:30},{name:'Senior Haircut',duration:'30 min',get price(){return services[0].price-5}},{name:'Braids',duration:'1 hr',price:60},{name:'Dreads/Twist',duration:'Varies by barber',price:null},{name:'Flat Iron Press',duration:'Varies by barber',price:null},{name:'Style Set',duration:'Varies by barber',price:null},{name:'Line Up',duration:'Varies by barber',price:null},{name:'Hair and Beard Line-Up',duration:'Varies by barber',price:null}];
+function serviceDurationMinutes(service){
+  const duration=service?.duration||'';
+  const match=duration.match(/^(\d+)\s*(min|hr)/i);
+  return match?Number(match[1])*(match[2].toLowerCase()==='hr'?60:1):null;
+}
+const requiresInquiry=service=>Boolean(service&&(service.price==null||serviceDurationMinutes(service)==null));
 const priceLabel=service=>service?.price==null?'Price varies by barber':`$${service.price}`;
 const dayLabel=day=>{const offset={Today:0,Tomorrow:1,Later:2}[day]||0;return `${day} · ${new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric'}).format(new Date(Date.now()+offset*86400000))}`};
-const futureSlots=['10:30','11:15','1:00','2:30','3:45','5:00','5:30','6:15'];
-function serviceIndexFor(s,b,t,day='Today'){const times=day==='Today'?b.slots:futureSlots,index=times.indexOf(t);return [0,1,2,4][(shops.findIndex(x=>x.id===s.id)*2+s.barbers.indexOf(b)+index+(day==='Later'?1:0)+4)%4]}
-// Service availability uses the prototype's sample slot categories.
-function serviceCategory(service){return [0,1,2,0,4,4,4,4,0,1][services.indexOf(service)]}
-function slotsForService(shop,barber,service,day){return (day==='Today'?barber.slots:futureSlots).filter(t=>serviceIndexFor(shop,barber,t,day)===serviceCategory(service))}
-function slotLabel(time){const hour=Number(time.split(':')[0]);return time+(hour>=9&&hour<12?' AM':' PM')}
-function nextForService(shop,barber,service){if(requiresInquiry(service))return null;for(const day of ['Today','Tomorrow','Later']){const time=slotsForService(shop,barber,service,day)[0];if(time)return {day,time}}return null}
-function nextServiceLabel(service){if(requiresInquiry(service)||state.generalBooking||!state.barber)return '';const next=nextForService(state.shop,state.barber,service);return '<small class="service-next-time">'+(next?'Next: '+next.day+' · '+slotLabel(next.time):'No openings available')+'</small>'}
-function offerButton(s,b,t,day='Today',featured=false){const index=serviceIndexFor(s,b,t,day),service=services[index];return `<button class="time slot-offer ${featured?'featured':''}" data-action="slot" data-shop="${s.id}" data-barber="${s.barbers.indexOf(b)}" data-time="${t}" data-day="${day}" aria-label="Choose a service with ${safe(b.name)} at ${t} PM, ${service.duration}"><strong>${t} PM</strong><span>Choose a service</span><small>${service.duration}</small></button>`}
+const futureSlots=['10:00','10:30','11:15','1:00','2:30','3:45','5:00','5:30','6:15','7:00'];
+// SAMPLE booking windows only: actual availability will come from barber schedules and reservations.
+function serviceIndexFor(s,b,t,day='Today'){
+  const times=day==='Today'?b.slots:futureSlots,index=times.indexOf(t);
+  return [0,1,2,4][(shops.findIndex(x=>x.id===s.id)*2+s.barbers.indexOf(b)+index+(day==='Later'?1:0)+4)%4];
+}
+function demoWindowMinutes(shop,barber,time,day='Today'){
+  if(day==='Today'&&time==='2:15')return 30;
+  if(day==='Today'&&time==='7:00')return 45;
+  if(day==='Tomorrow'&&time==='10:00')return 60;
+  return [30,45,30,60][[0,1,2,4].indexOf(serviceIndexFor(shop,barber,time,day))]||30;
+}
+function sampleTimesFor(day,barber){
+  if(day==='Today')return [...new Set([...barber.slots,'7:00'])];
+  return futureSlots;
+}
+function slotsForService(shop,barber,service,day){
+  const minutes=serviceDurationMinutes(service);
+  return minutes==null?[]:sampleTimesFor(day,barber).filter(time=>demoWindowMinutes(shop,barber,time,day)>=minutes);
+}
+function slotLabel(time){
+  const hour=Number(time.split(':')[0]);
+  return time+(hour>=9&&hour<12?' AM':' PM');
+}
+function nextForService(shop,barber,service){
+  if(!shop||!barber||requiresInquiry(service))return null;
+  const minutes=serviceDurationMinutes(service);
+  // A selected duration window may support several different services.
+  if(!state.generalBooking&&state.offerTime&&state.offerMinutes>=minutes)
+    return {day:state.offerDay||'Today',time:state.offerTime};
+  // Illustrative longer-service opportunities for the customer prototype.
+  if(minutes===45)return {day:'Today',time:'7:00'};
+  if(minutes>=60)return {day:'Tomorrow',time:'10:00'};
+  for(const day of ['Today','Tomorrow','Later']){
+    const time=slotsForService(shop,barber,service,day)[0];
+    if(time)return {day,time};
+  }
+  return null;
+}
+function nextServiceLabel(service){
+  if(requiresInquiry(service)||state.generalBooking||!state.barber)return '';
+  const next=nextForService(state.shop,state.barber,service);
+  if(!next)return '<small class="service-next-time">No sample opening available</small>';
+  const fitsSelected=Boolean(state.offerTime&&next.time===state.offerTime&&next.day===state.offerDay);
+  return '<small class="service-next-time">'+(fitsSelected?'At your chosen time: ':'Next: ')+safe(next.day)+' · '+safe(slotLabel(next.time))+'</small>';
+}
+function serviceOptionMarkup(service,i){
+  const inquire=requiresInquiry(service),selected=state.service===service;
+  return `<button class="service ${selected?'selected':''}" data-action="${inquire?'service-inquire':'service-select'}" data-index="${i}" aria-pressed="${selected}"><span>${safe(service.name)}<small>${inquire?'Confirm price and duration':safe(service.duration)}</small></span>${inquire?'<span class="inquire-pill">Inquire</span>':`<strong>${priceLabel(service)}</strong>`}${nextServiceLabel(service)}</button>`;
+}
+function serviceChoicesMarkup(){
+  if(state.generalBooking||!state.offerTime)return services.map(serviceOptionMarkup).join('');
+  const fits=[],other=[];
+  for(const [i,service] of services.entries()){
+    const minutes=serviceDurationMinutes(service);
+    (minutes!=null&&!requiresInquiry(service)&&minutes<=state.offerMinutes?fits:other).push([service,i]);
+  }
+  const chosen=safe(slotLabel(state.offerTime));
+  return `<div class="offer-context"><strong>${chosen} · ${state.offerMinutes} min available</strong><span>${safe(state.offerDay)} · Book with ${safe(state.barber.name)}</span></div>
+    <h3 class="service-group-heading">Services that fit ${chosen}</h3>
+    ${fits.map(([service,i])=>serviceOptionMarkup(service,i)).join('')}
+    <h3 class="service-group-heading later-heading">Other services · next openings</h3>
+    ${other.map(([service,i])=>serviceOptionMarkup(service,i)).join('')}`;
+}
+function offerButton(s,b,t,day='Today',featured=false){const minutes=demoWindowMinutes(s,b,t,day);return `<button class="time slot-offer ${featured?'featured':''}" data-action="slot" data-shop="${s.id}" data-barber="${s.barbers.indexOf(b)}" data-time="${t}" data-day="${day}" aria-label="Choose a service with ${safe(b.name)} at ${slotLabel(t)}, ${minutes} minutes available"><strong>${slotLabel(t)}</strong><span>Choose a service</span><small>${minutes} min</small></button>`}
 const $=s=>document.querySelector(s); const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function miles(a,b){const R=3959,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
 function ordered(){return shops.map(s=>({...s,distance:s.lat==null||s.lng==null?null:miles(areas[state.area],s)})).sort((a,b)=>(a.distance??Infinity)-(b.distance??Infinity))}
@@ -139,7 +211,7 @@ if(state.step==='discover')html=`<section class="screen"><p class="eyebrow">WELC
 if(state.step==='all-barbers'){const entries=catalogEntries(),locations=shops,shown=state.barberLocation==='all'?entries:entries.filter(entry=>entry.shop.id===state.barberLocation);html=`<section class="screen catalog-screen"><div class="destination-nav"><button class="link" data-action="menu-back">← Back</button><button class="link" data-action="home">Home</button></div><p class="eyebrow">Chop It Up</p><h2>All barbers.</h2><p class="intro">Meet the barbers across our locations. Tap a card to see their profile.</p><label class="catalog-filter" for="barber-location">By location<select id="barber-location"><option value="all" ${state.barberLocation==='all'?'selected':''}>All locations</option>${locations.map(shop=>`<option value="${shop.id}" ${state.barberLocation===shop.id?'selected':''}>${safe(shop.name)}</option>`).join('')}</select></label><p class="small catalog-count">${shown.length} ${shown.length===1?'barber':'barbers'} · sample directory</p><div class="catalog-grid">${shown.map(({shop,barber,index})=>`<button class="catalog-card" data-action="profile" data-origin="catalog" data-shop="${shop.id}" data-barber="${index}" aria-label="View ${safe(barber.name)}'s profile at ${safe(shop.name)}">${avatar(barber)}<strong>${safe(barber.name)}</strong><span class="rank">${safe(barber.rank)}</span><small>${safe(shop.name)}</small><span class="catalog-view">View profile →</span></button>`).join('')}</div><p class="demo">Sample directory · additional barber profiles pending.</p></section>`}
 if(state.step==='profile')html=profileMarkup();
 if(state.step==='booking-location')html=`<section class="screen"><button class="link" data-action="back-discover">← Home</button><p class="booking-step">Step 1 of 4</p><h2>Choose a location.</h2><p class="intro">Select the shop where you want your appointment.</p><div style="margin-top:24px">${sorted.map(shop=>`<button class="list-shop booking-location" ${shop.barbers.length?'':'disabled'} data-action="booking-location-select" data-shop="${shop.id}"><strong>${safe(shop.name)}</strong><span>${shop.barbers.length?distanceLabel(shop)+' →':'Booking coming soon'}</span></button>`).join('')}</div><p class="demo">Shop distances are approximate.</p></section>`;
-if(state.step==='service')html=`<section class="screen service-screen"><button class="link" data-action="${state.generalBooking?'back-booking-location':'back-discover'}">← ${state.generalBooking?'Location':safe(state.shop.name)}</button><p class="booking-step">${state.generalBooking?'Step 2 of 4':'Book with '+safe(state.barber.name)}</p><h2>Choose a service.</h2><p class="intro">${state.generalBooking?'All listed services can be selected for any barber.':'Choose a service and its next opening with this barber.'}</p><div style="margin-top:24px">${services.map((service,i)=>`<button class="service ${state.service===service?'selected':''}" data-action="${requiresInquiry(service)?'service-inquire':'service-select'}" data-index="${i}" aria-pressed="${state.service===service}"><span>${safe(service.name)}<small>${requiresInquiry(service)?'Confirm price and duration':safe(service.duration)}</small></span>${requiresInquiry(service)?'<span class="inquire-pill">Inquire</span>':`<strong>${priceLabel(service)}</strong>`}${nextServiceLabel(service)}</button>`).join('')}</div>${state.generalBooking?'':'<p class="demo">Sample next openings · not live availability</p>'}<div class="service-actions"><button class="primary" data-action="service-next" ${state.service?'':'disabled'}>${requiresInquiry(state.service)?'Inquire':state.generalBooking?'Choose a barber':state.slot?'Claim '+(state.day==='Today'?'':state.day+' · ')+slotLabel(state.slot):'See available times'}</button>${state.generalBooking||requiresInquiry(state.service)?'':`<button class="secondary" data-action="time" ${state.service?'':'disabled'}>See additional times</button>`}</div></section>`;
+if(state.step==='service')html=`<section class="screen service-screen"><button class="link" data-action="${state.generalBooking?'back-booking-location':'back-discover'}">← ${state.generalBooking?'Location':safe(state.shop.name)}</button><p class="booking-step">${state.generalBooking?'Step 2 of 4':'Book with '+safe(state.barber.name)}</p><h2>Choose a service.</h2><p class="intro">${state.generalBooking?'Choose a service before selecting your barber.':'Choose a service that fits the selected opening, or see the next available time for a longer service.'}</p><div style="margin-top:24px">${serviceChoicesMarkup()}</div>${state.generalBooking?'':'<p class="demo">Illustrative availability only · not live booking times</p>'}<div class="service-actions"><button class="primary" data-action="service-next" ${state.service?'':'disabled'}>${requiresInquiry(state.service)?'Inquire':state.generalBooking?'Choose a barber':state.slot?'Claim '+(state.day==='Today'?'':state.day+' · ')+slotLabel(state.slot):'See available times'}</button>${state.generalBooking||requiresInquiry(state.service)?'':`<button class="secondary" data-action="time" ${state.service?'':'disabled'}>See additional times</button>`}</div></section>`;
 if(state.step==='inquiry'){const subject='Service inquiry: '+state.service.name;const body='Hello, I would like to inquire about '+state.service.name+' at '+state.shop.name+(state.barber?' with '+state.barber.name:'')+'. Please confirm the price, duration, and availability before booking.\n\nDetails about the style I want: ';html=`<section class="screen"><button class="link" data-action="inquiry-back">← Back to services</button><p class="booking-step">Service inquiry</p><h2>Let’s confirm the details.</h2><div class="card"><h3>${safe(state.service.name)}</h3><p>${safe(state.shop.name)}${state.barber?' · '+safe(state.barber.name):''}</p></div><p class="intro">The barber needs to confirm the price and duration before offering an appointment time.</p><a class="primary inquiry-email" href="mailto:chopitupbarbershop@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}">Email your inquiry</a><p class="small">Opens an email draft for you to review and send. No appointment time is reserved.</p></section>`}
 if(state.step==='booking-barber')html=`<section class="screen"><button class="link" data-action="service">← Service</button><p class="booking-step">Step 3 of 4</p><h2>Choose a barber.</h2><p class="intro">${safe(state.shop.name)} · ${safe(state.service.name)} · ${priceLabel(state.service)}</p><div style="margin-top:22px">${state.shop.barbers.filter(barber=>!barber.off).map(barber=>`<button class="booking-barber" data-action="booking-barber-select" data-shop="${state.shop.id}" data-barber="${state.shop.barbers.indexOf(barber)}">${avatar(barber)}<span><strong>${safe(barber.name)}</strong><small>${safe(barber.rank)}</small></span><span>→</span></button>`).join('')}</div><p class="demo">Appointments shown next are sample openings.</p></section>`;
 
@@ -164,8 +236,8 @@ function overlayMarkup(sorted){
  return `<div class="overlay"><div class="overlay-head"><h2>Menu</h2><button class="link" data-action="close">Close ✕</button></div><nav class="menu-nav" aria-label="Main menu"><button class="list-shop" data-action="book-now"><strong>Book Appointment</strong><span>→</span></button><button class="list-shop" data-action="all-barbers"><strong>All Barbers</strong><span>→</span></button><button class="list-shop" data-action="locations"><strong>Locations</strong><span>→</span></button><a class="list-shop" href="https://www.chopitupbarbershop.com/chair-rental/apply" target="_blank" rel="noopener"><strong>Join Our Team</strong><span>↗</span></a><button class="list-shop" data-action="${state.profileReady?'logout':'signin'}"><strong>${state.profileReady?'Log out':'Log in'}</strong><span>→</span></button></nav><div class="menu-contact"><strong>Contact us</strong><a href="mailto:chopitupbarbershop@gmail.com">chopitupbarbershop@gmail.com</a><a href="tel:+18558002482">855-800-2482</a><div class="menu-social" aria-label="Social media"><a href="https://www.facebook.com/chopitupbarbershopwoodinville/" target="_blank" rel="noopener noreferrer" aria-label="Chop It Up on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.3 21v-8.2H17l.4-3.2h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.2c-.3 0-1.3-.2-2.5-.2-2.6 0-4.3 1.6-4.3 4.5v2.1H8v3.2h2.8V21h3.5Z"/></svg></a><a href="https://www.instagram.com/chopitupbarbershop/" target="_blank" rel="noopener noreferrer" aria-label="Chop It Up on Instagram"><svg class="instagram-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg></a><a href="https://x.com/search?q=Chop%20It%20Up%20Barbershop" target="_blank" rel="noopener noreferrer" aria-label="Search Chop It Up on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-7.4L5.5 22H2.4l7.3-8.5L1.9 2h6.5l4.4 6.8L18.9 2Zm-1.1 18h1.7L7.5 3.9H5.7L17.8 20Z"/></svg></a></div></div></div>`
 }
 function go(step){if(requiresInquiry(state.service)&&['time','confirm','confirmed'].includes(step)){state.slot='';step='inquiry'}state.step=step;state.overlay='';if(step==='all-barbers'&&location.hash!=='#barbers')history.replaceState(null,'',location.pathname+location.search+'#barbers');else if(step!=='profile'&&location.hash.startsWith('#barber='))history.replaceState(null,'',location.pathname+location.search);else if(step!=='all-barbers'&&location.hash==='#barbers')history.replaceState(null,'',location.pathname+location.search);render();$('#device').scrollTop=0}
-function pick(s,b,slot=''){state.shop=s;state.barber=b;state.slot=slot;state.day='Today';state.service=null;state.generalBooking=false;go('service')}
-function claim(s,b,t,day='Today'){state.shop=s;state.barber=b;state.slot=t;state.day=day;state.service=services[serviceIndexFor(s,b,t,day)];state.generalBooking=false;go('service')}
+function pick(s,b,slot=''){state.shop=s;state.barber=b;state.slot='';state.day='Today';state.service=null;state.offerTime='';state.offerMinutes=0;state.generalBooking=false;go('service')}
+function claim(s,b,t,day='Today'){state.shop=s;state.barber=b;state.slot='';state.day=day;state.offerTime=t;state.offerDay=day;state.offerMinutes=demoWindowMinutes(s,b,t,day);state.service=null;state.generalBooking=false;go('service')}
 function directions(shop){if(shop?.address)window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(shop.address),'_blank','noopener')}
 document.addEventListener('click',async e=>{const btn=e.target.closest('[data-action]');if(!btn)return;const a=btn.dataset.action,s=shops.find(x=>x.id===btn.dataset.shop),b=s?.barbers[Number(btn.dataset.barber)];
  if(a==='jump'){
