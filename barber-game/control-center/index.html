@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>BarberGame — Corpus Control</title><link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>BarberGame — Directory Operations</title><link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
 <style>
 :root{color-scheme:light;--ink:#15251c;--sub:#526259;--line:#c8d2c9;--paper:#f6f7f4;--green:#1d5a41}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
@@ -17,23 +17,54 @@ table{width:100%;border-collapse:collapse;text-align:left}td,th{padding:14px 7px
 footer{margin-top:68px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--sub)}
 @media(max-width:600px){.stats{grid-template-columns:1fr}.stat{padding:19px}.top{padding:15px}main{padding:34px 18px 60px}.lede{font-size:17px}}
 </style></head><body>
-<header><div class="top"><a href="/barber-game/">THE BARBERGAME / CORPUS OPERATIONS</a><a href="/barber-game/">Project index</a></div></header>
-<main><p class="eyebrow">TBG Network LLC / Canonical directory / Read-only</p><h1>Your directory.</h1>
-<p class="lede">One approved corpus: the Designworks shop database, moving to permanent Cloudflare hosting under TBG Network LLC.</p>
-<div class="note"><strong>Beta cutover:</strong> The public site currently uses a different directory connection. Keep it operational until the 351-shop corpus is loaded, validated, and connected to the customer website. No automatic imports, deletions, or publications from this page.</div>
+<header><div class="top"><a href="/barber-game/">THE BARBERGAME / DIRECTORY OPERATIONS</a><a href="/barber-game/">Project index</a></div></header>
+<main><p class="eyebrow">TBG Network LLC / Production directory / Read-only status</p><h1>Your directory.</h1>
+<p class="lede">One authoritative corpus: 351 Designworks shops now hosted in TBG Cloudflare D1 and serving thebarbergame.com.</p>
+<div class="note"><strong>Production cutover complete · November 11, 2026.</strong> Customer shop search, city pages, profiles and sitemap now use the TBG-owned D1 directory. Verified: 351 shops and 351 unique shop URLs in the sitemap. The prior directory API remains online pending a dependency audit; the separate submission intake is unchanged. No automatic imports or publications from this page.</div>
 <section><h2>Authoritative data.</h2><div class="stats">
-<div class="stat"><div class="label">Designworks corpus / shops</div><div class="big" id="ownedCount">—</div><div class="sub">Direct SQLite count confirmed <span id="asOf">—</span>. Snapshot; live synchronization pending.</div><div style="margin-top:15px"><span class="pill">Owner designated</span></div></div>
+<div class="stat"><div class="label">Live canonical directory / shops</div><div class="big" id="ownedCount">—</div><div class="sub">Imported from Designworks and verified in TBG Cloudflare D1. Last recorded verification: <span id="asOf">—</span>. Counts are a verified checkpoint, not a live query.</div><div style="margin-top:15px"><span class="pill">Live on thebarbergame.com</span></div></div>
 <div class="stat"><div class="label">Separate intake submissions</div><div class="big" id="intakeCount">—</div><div class="sub"><span id="pendingCount">—</span> pending in Cloudflare D1; not automatically part of the directory.</div></div></div></section>
-<section><h2>Connection status.</h2><div style="overflow-x:auto"><table><thead><tr><th>Component</th><th>Current state</th><th>Next</th></tr></thead><tbody>
-<tr><td><strong>Original Designworks shops</strong><div class="sub">barbergame-original.sqlite3</div></td><td><span class="pill">Confirmed authority</span></td><td>Export schema and 351 records</td></tr>
-<tr><td><strong>TBG Cloudflare directory storage</strong></td><td>Not created/verified</td><td>Use a dedicated directory D1 database, separate from submissions</td></tr>
-<tr><td><strong>Customer shop search</strong></td><td>Serving an older connection</td><td>Cut over only after API compatibility and search tests</td></tr>
-<tr><td><strong>Shop submissions</strong></td><td>Existing D1 intake queue</td><td>Keep separate; owner approvals required</td></tr>
-<tr><td><strong>Owner production approval</strong></td><td>Not implemented</td><td>Manual deployment stays in place until a safe publish flow exists</td></tr>
+<section><h2>Production connection.</h2><div style="overflow-x:auto"><table><thead><tr><th>Component</th><th>Current state</th><th>Next</th></tr></thead><tbody>
+<tr><td><strong>Original Designworks shops</strong><div class="sub">barbergame-original.sqlite3 · recovery copy</div></td><td><span class="pill">Preserved</span></td><td>351 original rows and private SQL export retained</td></tr>
+<tr><td><strong>TBG Cloudflare directory storage</strong><div class="sub"><code>barbergame-directory / shops</code></div></td><td><span class="pill">351 imported and verified</span></td><td>Worker binding: <code>DIRECTORY_DB</code>; 7 confirmed / 344 entered</td></tr>
+<tr><td><strong>Customer shop search and profiles</strong></td><td><span class="pill">Production live</span></td><td>Cloudflare Worker <code>barbergame-customer</code>; stable <code>designworks-{id}</code> shop URLs</td></tr>
+<tr><td><strong>Shop submissions</strong></td><td>Separate D1 <code>barbergame-shop-intake</code></td><td>7 previously recorded; new end-to-end submission check remains outstanding</td></tr>
+<tr><td><strong>Release and legacy API</strong></td><td>Owner-deployed Nov 11</td><td>Retain old public API until other consumers are audited; no automatic publishing</td></tr>
 </tbody></table></div></section>
-<section><h2>Migration checklist.</h2><p>The 351 records should be treated as a complete initial snapshot. The beta cutover is complete only when the public directory reads those records from TBG Cloudflare, with an auditable rollback path.</p><ol class="steps" id="actions"></ol></section>
-<section><h2>Existing working tools.</h2><p>These remain separate from the canonical published data until you approve an import.</p><div class="links"><a href="https://thebarbergame.com/admin/submissions">Shop intake review</a><a href="/barber-game/washington-shop-directory/">Directory research checkpoint</a><a href="/barber-game/">Project index</a></div></section>
-<footer>BarberGame Corpus Control v0.2 · Source: <code>control-center/data/inventory.json</code> · This page contains only non-sensitive status notes and is not a verified Cloudflare Access-protected admin interface.</footer>
+
+<section id="migration-history"><p class="eyebrow">Migration history · November 10–11, 2026</p><h2>How we got here.</h2>
+<p>The goal was to establish one owner-controlled BarberGame shop directory. We started with an authoritative Designworks SQLite file, moved its complete contents into TBG Networks LLC’s Cloudflare account, and changed the existing customer Worker to read that database. This page records the decisions and locations so the setup can be recovered later.</p>
+<ol class="steps">
+<li><div><strong>Selected the authoritative corpus.</strong><div class="sub">351 Designworks-owned shop records, not the larger unrelated directory returned by the old API. No merges and no pre-migration cleanup.</div></div></li>
+<li><div><strong>Imported and verified all 351 rows.</strong><div class="sub">Private SQL export on Designworks → <code>barbergame-directory</code> D1. Verification: 7 confirmed, 344 entered; 88 distinct raw city values. Nine missing/invalid coordinates retained for later enrichment.</div></div></li>
+<li><div><strong>Rewired the customer website.</strong><div class="sub">The existing <code>barbergame-customer</code> Cloudflare Worker now reads via <code>DIRECTORY_DB</code>. Search, city browsing, location radius, maps, shop detail pages and sitemap use D1. Stable profile IDs: <code>designworks-{id}</code>.</div></div></li>
+<li><div><strong>Preserved the separate intake workflow.</strong><div class="sub">The form checks duplicates against the directory but still writes to <code>SHOP_INTAKE_DB</code>; seven earlier submissions remain distinct from published shops. No automatic publication.</div></div></li>
+<li><div><strong>Built, tested and deployed manually.</strong><div class="sub">Shop search/map/profile tests passed locally; sitemap had 351 unique shop IDs. Production /shops, /city/seattle, /sitemap.xml and /add-barbershop returned HTTP 200. Owner visually verified live Seattle and Bothell profiles.</div></div></li>
+</ol></section>
+<section id="where-it-lives"><p class="eyebrow">Recovery reference</p><h2>Where everything lives.</h2>
+<div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Location / identifier</th><th>Why it matters</th></tr></thead><tbody>
+<tr><td>Original database</td><td><code>Designworks: ~/designworks/projects/barber-directory/data/barbergame-original.sqlite3</code></td><td>Preserved source / recovery copy</td></tr>
+<tr><td>Private SQL exports</td><td><code>~/barbergame-private/d1-directory-shops.sql</code><div class="sub"><code>d1-directory-import.sql</code></div></td><td>Original and D1-ready snapshots; private, not website assets</td></tr>
+<tr><td>TBG Cloudflare account</td><td><code>707cdd30dab4f1606629739fce05a265</code></td><td>Owner-controlled Cloudflare account</td></tr>
+<tr><td>Production directory D1</td><td><code>barbergame-directory</code><div class="sub"><code>8427bee6-6d91-4bc3-aac9-3b2a8f644aec</code></div></td><td><code>shops</code> table · Worker binding <code>DIRECTORY_DB</code></td></tr>
+<tr><td>Separate intake D1</td><td><code>barbergame-shop-intake</code><div class="sub">Worker binding <code>SHOP_INTAKE_DB</code></div></td><td>Submitted shops are review records, not automatically in the directory</td></tr>
+<tr><td>Customer website source</td><td><code>Designworks: ~/designworks/projects/barbergame-map-home-v01</code></td><td>Existing project; unfinished Map Home edits preserved separately</td></tr>
+<tr><td>Clean release worktree</td><td><code>~/designworks/projects/barbergame-d1-release</code><div class="sub"><code>release/cloudflare-d1-directory</code></div></td><td>Release snapshot that was deployed</td></tr>
+<tr><td>Integration code</td><td><code>cloudflare.config.ts</code><div class="sub"><code>src/lib/directory/public-json.ts</code> (D1 reader)</div><div class="sub"><code>src/app/sitemap.ts</code> and <code>src/app/api/shop-intake/route.ts</code></div></td><td>Bindings, public search/data mapping, sitemap and intake duplicate check</td></tr>
+<tr><td>Production Worker</td><td><code>barbergame-customer</code><div class="sub">Version <code>ea48fe7c-302d-41cc-84d2-6e737991df17</code></div></td><td>Serves <a href="https://thebarbergame.com/shops">thebarbergame.com</a> and www</td></tr>
+<tr><td>Git checkpoints</td><td><code>5d8cd52</code> · <code>7c25777</code></td><td>Binding addition and D1 reader/sitemap/intake integration</td></tr>
+</tbody></table></div></section>
+<section id="principles"><p class="eyebrow">Owner decisions</p><h2>What we decided.</h2><div style="overflow-x:auto"><table><thead><tr><th>Decision</th><th>Reason / operating rule</th></tr></thead><tbody>
+<tr><td>One directory corpus</td><td>The 351 Designworks rows are the only approved authoritative directory; no silent merge with the old API’s larger dataset.</td></tr>
+<tr><td>Preserve the complete snapshot</td><td>Keep existing IDs, provenance and statuses. Defer potential duplicates, coordinate gaps and city-name cleanup rather than delaying deployment.</td></tr>
+<tr><td>Keep publication separate from intake</td><td>Existing submissions stay in a different D1 database and do not become public shops automatically.</td></tr>
+<tr><td>Use the existing Worker</td><td>Read directory data directly through <code>DIRECTORY_DB</code> instead of introducing another customer API service.</td></tr>
+<tr><td>Owner-controlled deployment</td><td>Build with vinext, deploy manually to Cloudflare, and retain Git/Cloudflare release history for rollback.</td></tr>
+<tr><td>Do not retire legacy services prematurely</td><td>Audit any other consumers of the former directory API before removing it. A working customer site does not prove all other integrations have moved.</td></tr>
+</tbody></table></div></section>
+<section><h2>Migration record and remaining actions.</h2><p>The beta cutover is complete. This checklist records the accomplished migration and the small number of remaining cleanup tasks.</p><ol class="steps" id="actions"></ol></section>
+<section><h2>Related destinations.</h2><p>These remain separate from the canonical published data until you approve an import.</p><div class="links"><a href="https://thebarbergame.com/shops">Live customer directory</a><a href="https://thebarbergame.com/sitemap.xml">Production sitemap</a><a href="https://thebarbergame.com/admin/submissions">Shop intake review</a><a href="/barber-game/washington-shop-directory/">Directory research checkpoint</a><a href="/barber-game/">Project index</a></div></section>
+<footer>BarberGame Directory Operations v0.3 · Source: <code>control-center/data/inventory.json</code> · This page contains only non-sensitive status notes and is not a verified Cloudflare Access-protected admin interface.</footer>
 </main>
 <script>
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
