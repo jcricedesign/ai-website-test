@@ -67,3 +67,45 @@ The exact final count may differ from 351 only if owner explicitly excludes part
 - Only errors preventing a lossless transfer (schema mismatch, duplicate primary keys, missing source, or import count mismatch) stop the data migration.
 - After confirming D1 has 351 records, focus on connecting and testing the public website. Owner controls manual Cloudflare production deployment.
 - Continue to distinguish `entered` from `confirmed` without making verification a first-pass migration dependency.
+
+
+---
+
+## Production completion checkpoint — November 11, 2026
+
+**Status:** Owner-deployed to production; primary directory migration complete. Previous planning sections above are preserved for decision history and may describe steps that have since been completed.
+
+### What actually shipped
+
+- The sole approved corpus is the **351 shop** Designworks SQLite `~/designworks/projects/barber-directory/data/barbergame-original.sqlite3`.
+- Owner made a private export at `~/barbergame-private/d1-directory-shops.sql` and the import-ready copy at `~/barbergame-private/d1-directory-import.sql`. The source SQLite and SQL export are preserved on Designworks, outside the public repository.
+- TBG Networks LLC Cloudflare D1: `barbergame-directory` (ID `8427bee6-6d91-4bc3-aac9-3b2a8f644aec`) with the `shops` table. Import executed **351** statements and wrote **351** shop rows. Remote aggregate: **7 confirmed, 344 entered**, and **88 distinct raw city strings**.
+- Cloudflare Worker `barbergame-customer` in account `707cdd30dab4f1606629739fce05a265`, bound to `DIRECTORY_DB` for the new directory and `SHOP_INTAKE_DB` for existing separate submissions. The latter was not overwritten.
+- The existing customer website source at `~/designworks/projects/barbergame-map-home-v01` uses `cloudflare.config.ts`, `src/lib/directory/public-json.ts` (the name is historical; its reader now queries D1), `src/app/sitemap.ts`, and `src/app/api/shop-intake/route.ts`. Public URLs preserve `designworks-{id}` identifiers.
+- Git snapshots: `5d8cd52` (D1 binding) and `7c25777` (D1 customer reader, sitemap, intake duplicate check). The release was made from the clean worktree `~/designworks/projects/barbergame-d1-release` at branch `release/cloudflare-d1-directory`, preserving unrelated unfinished Map Home edits in the original worktree.
+- Owner initiated `npm run deploy:vinext` to production. Cloudflare reported success for Worker `barbergame-customer` serving `thebarbergame.com` and `www.thebarbergame.com`. **Version ID:** `ea48fe7c-302d-41cc-84d2-6e737991df17`.
+
+### Verified after cutover
+
+1. Production `/shops`, `/city/seattle`, `/sitemap.xml`, and `/add-barbershop` each returned HTTP 200.
+2. The production sitemap contained **351 unique `designworks-{id}`** shop URLs.
+3. The owner visually confirmed live shop detail pages for **5 Shades of Fades, Seattle** (`designworks-34`) and **Chop It Up Barbershop, Bothell** (`designworks-1`), with business details and maps.
+4. Local production preview had previously passed directory search, shop profiles, and location/map behavior against an isolated local D1 copy of all 351 rows.
+
+### Decisions
+
+- Do not silently mix the old larger directory with the owned corpus.
+- All 351 rows are kept for the first release; **9 missing/invalid coordinates** and potential duplicate(s) are subsequent enrichment work, not blockers.
+- Keep `entered` separate from `confirmed` and retain source IDs and provenance.
+- Shop submissions remain in `barbergame-shop-intake`. Seven total / five pending is a previously verified snapshot, **not a newly checked post-deployment count**.
+- Prefer manual deployment and an auditable rollback trail, not auto-publication.
+- Old `api.thebarbergame.com` / Railway services may still have other consumers. **Do not retire or delete** until dependencies have been audited, even though the primary customer directory no longer relies on the old packaged JSON.
+
+### Remaining follow-up
+
+- Recheck the seven existing shop submissions and perform one production beta submission test (the /add-barbershop HTTP 200 alone does not establish POST success).
+- Audit all other dependencies before retiring the legacy directory API.
+- Configure recurring D1 backups and test restoration; consider city normalization, coordinates and duplicate review later.
+- Temporary test-only worktree, D1 `barbergame-intake-preview`, and separate Turnstile widget were created during investigation. They are not part of production and can be removed after confirming no use.
+
+The production deployment does not automatically publish new submissions or synchronize updates from Designworks. Future edits should be made through an explicit versioned update pathway.
