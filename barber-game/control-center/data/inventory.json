@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "scope": "Designworks-owned canonical shop corpus. Owner's instruction: this is the only approved BarberGame directory corpus.",
   "canonical": {
     "name": "BarberGame Original Corpus",
@@ -8,11 +8,11 @@
     "database_path": "~/designworks/projects/barber-directory/data/barbergame-original.sqlite3",
     "table": "shops",
     "count": 351,
-    "count_checked_at": "2026-11-10",
+    "count_checked_at": "2026-11-11",
     "count_method": "Direct sqlite3 SELECT COUNT(*) FROM shops run by owner over SSH",
-    "connected_to_public_site": "not_yet",
+    "connected_to_public_site": "deployed_and_owner_visually_verified",
     "authority": "owner-designated",
-    "verified_status": "Owner confirmed database and count directly",
+    "verified_status": "351 imported and verified in TBG Cloudflare D1; production site shop list and profiles verified by owner",
     "status_breakdown": {
       "confirmed": 7,
       "entered": 344
@@ -25,7 +25,7 @@
       "incomplete_name_street_or_city": 0,
       "checked_at": "2026-11-10",
       "method": "Owner's read-only SQLite aggregate query",
-      "note": "Missing coordinates require review before location-based search; preserve all source rows in D1 staging."
+      "note": "9 missing or invalid coordinates retained in D1; location-radius results naturally exclude rows without valid coordinates. Enrichment later."
     },
     "cloudflare": {
       "account": "TBG Networks LLC",
@@ -37,15 +37,20 @@
       "imported_rows": 351,
       "confirmed": 7,
       "entered": 344,
-      "verified_at": "2026-11-10",
-      "verification": "Remote D1 SELECT status, COUNT(*) matched original"
+      "verified_at": "2026-11-11",
+      "verification": "Remote D1 351 rows (7 confirmed, 344 entered); live site 200 for /shops, /city/seattle, /sitemap.xml, /add-barbershop; 351 unique shop URLs in sitemap; owner visually confirmed shop profiles",
+      "worker": "barbergame-customer",
+      "binding": "DIRECTORY_DB",
+      "production_version": "ea48fe7c-302d-41cc-84d2-6e737991df17",
+      "raw_distinct_city_values": 88,
+      "raw_distinct_city_note": "D1 COUNT(DISTINCT city) reported 88; historical 86 count used different normalization. City value harmonization deferred."
     }
   },
   "production_dependency": {
-    "status": "UNRESOLVED — do not delete any serving backend yet",
-    "public_site_dependency_verified": false,
-    "explanation": "Customer-facing search currently shows a different set of records. Identify where requests resolve, switch safely to Designworks-authorized corpus, validate before retiring obsolete serving data.",
-    "changes_authorized": "Read-only investigation and planning; no production deletions or corpus merges"
+    "status": "CUTOVER COMPLETE — legacy dependency audit pending",
+    "public_site_dependency_verified": true,
+    "explanation": "Customer site primary directory is served by D1 via its own Worker (rather than the old packaged JSON). Old api.thebarbergame.com or Railway may still serve other integrations; do not retire without dependency audit.",
+    "changes_authorized": "Owner manually deployed customer Worker and confirmed public profiles; legacy API removal not authorized yet."
   },
   "intake": {
     "name": "Add a Barbershop submissions",
@@ -53,7 +58,8 @@
     "count": 7,
     "pending": 5,
     "as_of": "2026-11-10",
-    "publication": "Separate from canonical corpus; approval for intake is not approval to publish"
+    "publication": "Separate from canonical corpus; approval for intake is not approval to publish",
+    "public_flow_status": "HTTP 200 for /add-barbershop; no end-to-end production submission test or new post-cutover D1 queue count recorded."
   },
   "metrics": [
     {
@@ -63,7 +69,7 @@
       "unit": "shops",
       "as_of": "2026-11-10",
       "quality": "owner-verified-sqlite",
-      "description": "Only directory corpus designated authoritative by owner.",
+      "description": "Canonical corpus: 351 imported into TBG Cloudflare D1 and wired to production customer website.",
       "source": "Direct sqlite3 count in Designworks"
     },
     {
@@ -80,7 +86,7 @@
   "live_metrics": [
     {
       "key": "authoritative",
-      "label": "Owned corpus (Designworks)",
+      "label": "TBG Cloudflare directory: live shops",
       "state": "user_verified",
       "value": 351
     },
@@ -99,8 +105,8 @@
     {
       "key": "public_wiring",
       "label": "Customer website uses owned corpus",
-      "state": "not_verified",
-      "value": null
+      "state": "owner_verified",
+      "value": 351
     },
     {
       "key": "intake_pending",
@@ -112,23 +118,33 @@
   "action_plan": [
     {
       "priority": "1",
-      "title": "Implement D1-backed directory API compatible with customer site",
-      "status": "Next; not deployed"
+      "title": "Canonical 351-shop corpus migrated to TBG Cloudflare D1",
+      "status": "Complete · 351 rows preserved; 7 confirmed / 344 entered"
     },
     {
       "priority": "2",
-      "title": "Preview shop search/city/location/profile views using 351 D1 records",
-      "status": "Pending"
+      "title": "Customer directory, profiles, city browsing, radius search and map",
+      "status": "Complete · local tested; production shop URLs and pages owner verified"
     },
     {
       "priority": "3",
-      "title": "Owner-controlled Cloudflare cutover and verification",
-      "status": "Pending"
+      "title": "Production Worker cutover and sitemap",
+      "status": "Complete · 2026-11-11 · 351 shop URLs; Worker version ea48fe7c"
     },
     {
       "priority": "4",
-      "title": "Retire old serving directory API after successful replacement",
-      "status": "Pending"
+      "title": "Confirm seven prior intake submissions and a fresh submission",
+      "status": "Outstanding · intake DB preserved; end-to-end recheck recommended"
+    },
+    {
+      "priority": "5",
+      "title": "Audit consumers of the old public directory API before retiring it",
+      "status": "Outstanding · do not turn off Railway/old API until all consumers are accounted for"
+    },
+    {
+      "priority": "6",
+      "title": "Backups, restoration drill, city name cleanup and coordinate enrichment",
+      "status": "Later · optional hardening, not a cutover blocker"
     }
   ],
   "team_access": {
@@ -141,5 +157,50 @@
   },
   "no_automatic_imports": true,
   "no_automatic_publication": true,
-  "previous_snapshots": "Noncanonical historical counts intentionally omitted from the operating dashboard."
+  "previous_snapshots": "Noncanonical historical counts intentionally omitted from the operating dashboard.",
+  "migration_record": {
+    "completed_on": "2026-11-11",
+    "released_by": "owner via npm run deploy:vinext",
+    "worker": "barbergame-customer",
+    "production_urls": [
+      "https://thebarbergame.com/shops",
+      "https://thebarbergame.com/sitemap.xml"
+    ],
+    "version": "ea48fe7c-302d-41cc-84d2-6e737991df17",
+    "code": {
+      "project": "~/designworks/projects/barbergame-map-home-v01",
+      "release_worktree": "~/designworks/projects/barbergame-d1-release",
+      "release_branch": "release/cloudflare-d1-directory",
+      "commits": [
+        "5d8cd52",
+        "7c25777"
+      ],
+      "configuration": "cloudflare.config.ts",
+      "reader": "src/lib/directory/public-json.ts",
+      "sitemap": "src/app/sitemap.ts",
+      "intake_route": "src/app/api/shop-intake/route.ts"
+    },
+    "source": {
+      "sqlite": "~/designworks/projects/barber-directory/data/barbergame-original.sqlite3",
+      "private_export": "~/barbergame-private/d1-directory-shops.sql",
+      "import_ready": "~/barbergame-private/d1-directory-import.sql"
+    },
+    "decisions": [
+      "351 Designworks rows only; no merge with previously served larger directory",
+      "Keep all 351 rows and status distinctions; defer duplicates and 9 missing coordinates",
+      "Stable public identifiers designworks-{id}",
+      "Keep separate SHOP_INTAKE_DB and no automatic publication of submissions",
+      "Manual production Cloudflare Worker deployment",
+      "Preserve Map Home work separately in original working tree",
+      "Audit old API consumers before retiring legacy backend"
+    ],
+    "validation": [
+      "Remote D1 query 351, status 7 confirmed/344 entered",
+      "Raw D1 city strings 88",
+      "Local production preview successfully served search/map/shop pages",
+      "Sitemap 351 unique designworks shop URLs",
+      "Production four route HTTP 200",
+      "Owner screenshots of 5 Shades of Fades and Chop It Up Barbershop detail pages"
+    ]
+  }
 }
