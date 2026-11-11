@@ -205,61 +205,55 @@
   },
   "roadmap": {
     "status": "proposed_not_approved",
-    "version": "0.2",
+    "version": "0.3",
     "as_of": "2026-11-11",
+    "guiding_rule": "Only an explicit owner action may publish a proposed shop or edit; review queue and published directory remain separate until approval; log approval and support rollback.",
+    "workflow": [
+      "submitted",
+      "pending_review",
+      "changes_reviewed",
+      "owner_approved",
+      "published"
+    ],
     "items": [
       {
-        "id": "directory-admin",
+        "id": "stabilization",
         "priority": 1,
-        "phase": "First",
-        "title": "Directory admin: edit & confirm shops",
-        "scope": "Search/edit canonical D1 records, confirm status, audit changes",
+        "phase": "Now",
+        "title": "Stabilization & recovery",
+        "scope": "Smoke tests and intake verification; legacy API dependency audit; D1 backup/restore/rollback",
+        "status": "proposed"
+      },
+      {
+        "id": "admin",
+        "priority": 2,
+        "phase": "Next",
+        "title": "Protected directory admin panel",
+        "scope": "Authenticated role-gated search, details, editing draft changes, provenance, quality and duplicates",
+        "status": "proposed"
+      },
+      {
+        "id": "approval-publish",
+        "priority": 3,
+        "phase": "Next",
+        "title": "Review → approve → publish",
+        "scope": "Private draft queue, compare/preview, duplicate resolution, explicit owner approval action, publication audit and rollback; avoid direct writes to published entries before approval",
         "status": "proposed"
       },
       {
         "id": "photo-first-crowdsourcing",
-        "priority": 2,
-        "phase": "Next",
-        "title": "Photo-first crowdsourced shop additions",
-        "scope": "Customer/barber/owner takes or uploads a single shop photo; no required typing; optional consent-based location, attempt to read signage, draft intake with possible duplicate matches for human review; do not auto-publish",
-        "status": "proposed",
-        "constraints": [
-          "Do not require text fields for submitter",
-          "Obtain permission for use/publication of uploaded image; no automatic public display",
-          "Avoid assuming photo contains GPS or readable signage",
-          "Protect privacy: remove unnecessary EXIF and avoid keeping bystanders' personal information"
-        ]
-      },
-      {
-        "id": "intake-promotion",
-        "priority": 3,
-        "phase": "Next",
-        "title": "Approve new shop submissions",
-        "scope": "Review intake, detect matches, owner-approved promotion into directory",
-        "status": "proposed"
-      },
-      {
-        "id": "bronze-queue",
         "priority": 4,
-        "phase": "Next",
-        "title": "Bronze-record quality queue",
-        "scope": "Coordinate/contact/hour gaps and duplicate candidates",
+        "phase": "After",
+        "title": "Photo-first crowdsourced shop additions",
+        "scope": "Anyone can submit one storefront photo without required text; derive tentative fields from signage and optional permission-based location; review before publication; privacy-safe handling",
         "status": "proposed"
       },
       {
-        "id": "chain-city-expansion",
+        "id": "bronze-quality-expansion",
         "priority": 5,
         "phase": "After",
-        "title": "Chain and city expansion",
-        "scope": "Source-linked repeatable imports with review/deduplication",
-        "status": "proposed"
-      },
-      {
-        "id": "d1-backups",
-        "priority": 6,
-        "phase": "Foundation",
-        "title": "Backups and change history",
-        "scope": "D1 snapshots, restore testing and per-shop audit history",
+        "title": "Bronze data quality and expansion",
+        "scope": "Review coordinate gaps, duplicates, hours and chain/city additions with source provenance",
         "status": "proposed"
       }
     ]
