@@ -69,11 +69,11 @@ input[type=search]{width:min(460px,100%);min-width:230px;background:#fff;border:
 <div class="note"><strong>Access notice:</strong> This page is a public-safe, read-only status summary. This route's Cloudflare Access protection has not been verified. No private records or publication actions belong here until protected access and server-side authorization are in place.</div>
 
 <section aria-labelledby="totalsTitle">
-<div class="heading"><h2 id="totalsTitle">Production directory.</h2><span class="sub">Observed production API results · statewide total unconfirmed</span></div>
+<div class="heading"><h2 id="totalsTitle">Production directory.</h2><span class="sub">Production API reports 597 total shops · verified snapshot</span></div>
 <div id="metrics" class="metrics" aria-live="polite"><p>Loading checkpoint data…</p></div>
-<p class="sub">The 597 figure sums the 20 returned city summaries; it is not a proven statewide count. The seven Cloudflare D1 intake submissions are a separate dataset.</p>
+<p class="sub">The production /directory/shops endpoint reports 597 total shops, matching the 20 city counts. Published is not the same as verified. Seven Cloudflare D1 intake submissions are separate and must not be added to this total.</p>
 <div class="tablewrap" style="margin-top:18px"><table><thead><tr><th>Live metric</th><th>Current connection</th><th>Value</th></tr></thead><tbody id="liveMetrics"></tbody></table></div>
-<div style="margin-top:24px"><h3 style="font-size:21px;margin:0 0 8px">City counts from the production API</h3><p class="sub">Snapshot supplied from <a href="https://api.thebarbergame.com/directory/cities">/directory/cities</a>. To determine the complete corpus, check <a href="https://api.thebarbergame.com/directory/shops?page=1&amp;pageSize=1">/directory/shops?page=1&amp;pageSize=1</a> for its total.</p><div class="tablewrap"><table><thead><tr><th>City</th><th>Shop count</th></tr></thead><tbody id="cityCounts"></tbody></table></div></div>
+<div style="margin-top:24px"><h3 style="font-size:21px;margin:0 0 8px">City counts from the production API</h3><p class="sub">Snapshot supplied from <a href="https://api.thebarbergame.com/directory/cities">/directory/cities</a>. The overall <a href="https://api.thebarbergame.com/directory/shops?page=1&amp;pageSize=1">/directory/shops</a> total has been confirmed as <strong>597</strong>.</p><div class="tablewrap"><table><thead><tr><th>City</th><th>Shop count</th></tr></thead><tbody id="cityCounts"></tbody></table></div></div>
 </section>
 
 <section aria-labelledby="projectsTitle">
