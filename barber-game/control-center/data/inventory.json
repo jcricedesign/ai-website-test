@@ -10,7 +10,7 @@
     "count": 351,
     "count_checked_at": "2026-11-10",
     "count_method": "Direct sqlite3 SELECT COUNT(*) FROM shops run by owner over SSH",
-    "connected_to_public_site": "not_verified",
+    "connected_to_public_site": "not_yet",
     "authority": "owner-designated",
     "verified_status": "Owner confirmed database and count directly",
     "status_breakdown": {
@@ -26,6 +26,19 @@
       "checked_at": "2026-11-10",
       "method": "Owner's read-only SQLite aggregate query",
       "note": "Missing coordinates require review before location-based search; preserve all source rows in D1 staging."
+    },
+    "cloudflare": {
+      "account": "TBG Networks LLC",
+      "account_id": "707cdd30dab4f1606629739fce05a265",
+      "database": "barbergame-directory",
+      "database_id": "8427bee6-6d91-4bc3-aac9-3b2a8f644aec",
+      "table": "shops",
+      "import_status": "completed",
+      "imported_rows": 351,
+      "confirmed": 7,
+      "entered": 344,
+      "verified_at": "2026-11-10",
+      "verification": "Remote D1 SELECT status, COUNT(*) matched original"
     }
   },
   "production_dependency": {
@@ -99,28 +112,23 @@
   "action_plan": [
     {
       "priority": "1",
-      "title": "Map public website's shop requests to the actual backend",
-      "status": "Pending; read-only"
+      "title": "Implement D1-backed directory API compatible with customer site",
+      "status": "Next; not deployed"
     },
     {
       "priority": "2",
-      "title": "Confirm deployment/access route that serves exactly the 351 approved records",
+      "title": "Preview shop search/city/location/profile views using 351 D1 records",
       "status": "Pending"
     },
     {
       "priority": "3",
-      "title": "Switch production to owned corpus using manual Cloudflare deployment after owner review",
-      "status": "Blocked pending tests and explicit approval"
+      "title": "Owner-controlled Cloudflare cutover and verification",
+      "status": "Pending"
     },
     {
       "priority": "4",
-      "title": "Verify search, locate me, city pages, shop profiles and count after cutover",
-      "status": "Required before cleanup"
-    },
-    {
-      "priority": "5",
-      "title": "Retire legacy records/services and references only after verified replacement and rollback",
-      "status": "Blocked until safe"
+      "title": "Retire old serving directory API after successful replacement",
+      "status": "Pending"
     }
   ],
   "team_access": {
