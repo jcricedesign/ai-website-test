@@ -263,6 +263,14 @@
         "title": "Latent Silver & Gold enrichment fields",
         "scope": "Design the directory schema and customer shop profile to accommodate valuable optional Silver/Gold information before every shop has it. Silver candidates: richer descriptions, verified hours, service/menu offerings, booking links, social links and photos. Gold candidates: barber/team profiles, specialties, accessibility, amenities and richer portfolio content. Fields remain nullable/private or absent on public profiles until verified, owner-approved and useful; selectively reveal populated fields without empty UI, and record source/provenance. Examples are illustrative, not a mandatory checklist or a promise of automatic tier upgrades.",
         "status": "proposed"
+      },
+      {
+        "id": "nearby-walking-compass",
+        "priority": 7,
+        "phase": "Future consideration",
+        "title": "Optional close-range Walking Compass",
+        "scope": "Explore an optional walking-direction mode on the existing circular shop-detail map for customers who are very close to the shop but cannot tell which way to walk. With separate explicit device-orientation permission when supported, show the bearing toward the shop relative to the phone's facing direction, alongside straight-line distance. Keep the current fixed-zoom, shop-centered map and blue location dot unchanged by default; retain Directions for actual pedestrian routing. Assess mobile Safari support and compass accuracy before implementation. This is deliberately deferred, not part of current work.",
+        "status": "idea_on_hold"
       }
     ]
   },
