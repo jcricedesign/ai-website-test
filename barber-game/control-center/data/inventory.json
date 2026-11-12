@@ -307,5 +307,15 @@
     "customer_worker_version": "f5cc36ff-3eaa-449f-8593-5ec045769d60",
     "next": "Implement email-identity-based Editor and Publisher server-enforced roles, verify team membership and no unauthorized publish; avoid sharing shared publishing password.",
     "source_checkpoint": "Local Git tags directory-admin-v0.1.0 and directory-live-publishing-20261111 created by owner earlier; custom-domain and Access settings are Cloudflare configuration, not captured by local Git tags."
+  },
+  "customer_discovery_principle": {
+    "name": "Closest shop first, every time",
+    "status": "owner_approved",
+    "recorded_on": "2026-11-11",
+    "rule": "On every opening of the BarberGame customer app, display the geographically closest barbershop, whether open or closed. Distance determines the initial shop; never rank by paid placement, advertising, popularity or ratings.",
+    "location": "Use permission-based current location; without permission, use explicitly selected or previously saved location when available, otherwise invite location entry; never invent a position.",
+    "navigation": "Allow immediate browsing to the next closest shop in distance order.",
+    "availability": "Opening hours and booking availability are distinct information, not proximity filters. When real-time bookings are connected, provide an explicit alternative sort by next available appointment; do not silently replace closest-first default.",
+    "advertising": "No paid placement or sponsored ranking, ever."
   }
 }
