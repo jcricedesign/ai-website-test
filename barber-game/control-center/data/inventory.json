@@ -245,7 +245,7 @@
         "priority": 4,
         "phase": "After",
         "title": "Photo-first crowdsourced shop additions",
-        "scope": "Anyone can submit one storefront photo without required text; derive tentative fields from signage and optional permission-based location; review before publication; privacy-safe handling",
+        "scope": "Future, not current implementation: in the closest-shop-first customer experience, offer a simple 'Shop missing? Add it' action. Customer takes or uploads a storefront photo, with no required typing; optionally capture consent-based location and infer tentative shop details from signage. The submission becomes a private review record, not a published listing. Owner/admin verifies identity, location, duplicates and suitability before explicitly adding the shop to the directory. Purpose: let customers help discover and fill gaps in the closest-shop coverage. No paid placement or sponsored ranking.",
         "status": "proposed"
       },
       {
@@ -316,6 +316,7 @@
     "location": "Use permission-based current location; without permission, use explicitly selected or previously saved location when available, otherwise invite location entry; never invent a position.",
     "navigation": "Allow immediate browsing to the next closest shop in distance order.",
     "availability": "Opening hours and booking availability are distinct information, not proximity filters. When real-time bookings are connected, provide an explicit alternative sort by next available appointment; do not silently replace closest-first default.",
-    "advertising": "No paid placement or sponsored ranking, ever."
+    "advertising": "No paid placement or sponsored ranking, ever.",
+    "missing_shop_contribution": "Future roadmap only: if the nearest shop is missing from BarberGame, offer a photo-first 'Shop missing? Add it' submission requiring no typed fields; human review and explicit approval precede publication."
   }
 }
