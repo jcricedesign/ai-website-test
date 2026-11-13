@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="How hard it is to build a national directory of US barber schools: state-by-state coverage, state lists vs. federal data, and every school found.">
+<title>Barber School Census — The BarberGame</title>
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+/* Layout: same editorial column as the other BarberGame project pages; data sections use the 240px label column. */
+:root{color-scheme:light dark;--bg:#f3f3ef;--ink:#111;--muted:#666660;--rule:#bdbdb6;--card:#fff;
+  --s-full:#1d6b47;--s-caveat:#79ad8c;--s-lookup:#d2a03c;--s-paid:#a9714a;--s-blocked:#b8452d;--s-none:#c8c8c0;--s-onink:#fff;
+  --t-full:#fff;--t-caveat:#111;--t-lookup:#111;--t-paid:#fff;--t-blocked:#fff;--t-none:#111;
+  --bar-a:#111;--bar-b:#d2a03c}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111;--ink:#f5f5f2;--muted:#a8a8a0;--rule:#41413e;--card:#181817;
+  --s-full:#3fa874;--s-caveat:#2f6b48;--s-lookup:#c9963a;--s-paid:#8f5f3e;--s-blocked:#c5543b;--s-none:#3a3a37;--s-onink:#fff;--t-full:#111;--t-caveat:#f5f5f2;--t-lookup:#111;--t-paid:#f5f5f2;--t-blocked:#fff;--t-none:#f5f5f2;--bar-a:#f5f5f2;--bar-b:#d2a03c}}
+:root[data-theme="dark"]{--bg:#111;--ink:#f5f5f2;--muted:#a8a8a0;--rule:#41413e;--card:#181817;
+  --s-full:#3fa874;--s-caveat:#2f6b48;--s-lookup:#c9963a;--s-paid:#8f5f3e;--s-blocked:#c5543b;--s-none:#3a3a37;--s-onink:#fff;--t-full:#111;--t-caveat:#f5f5f2;--t-lookup:#111;--t-paid:#f5f5f2;--t-blocked:#fff;--t-none:#f5f5f2;--bar-a:#f5f5f2;--bar-b:#d2a03c}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--ink);font-family:"Nimbus Sans","Helvetica Neue",Arial,sans-serif;margin:0;line-height:1.5}
+a{color:inherit;text-underline-offset:3px}a:hover{text-decoration-thickness:2px}
+main{width:min(1060px,calc(100% - 40px));margin:auto;padding:60px 0 110px}
+nav.crumbs{font-size:13px;font-weight:700;margin-bottom:76px}
+.kicker,.label{font-size:12px;text-transform:uppercase;letter-spacing:.13em;font-weight:700;color:var(--muted)}
+h1{font-size:clamp(48px,8vw,100px);line-height:.94;letter-spacing:-.067em;margin:18px 0 25px;max-width:880px;text-wrap:balance}
+.dek{font-size:clamp(17px,2vw,22px);max-width:770px;margin:0 0 46px;color:var(--muted)}
+.dek b{color:var(--ink);font-variant-numeric:tabular-nums}
+.stamp{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin:0 0 70px}
+.metric{padding:23px 12px 24px 22px;border-right:1px solid var(--rule)}.metric:first-child{padding-left:0}.metric:last-child{border-right:0}
+.metric strong{display:block;font-size:clamp(32px,5vw,54px);line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums}.metric span{font-size:12px;color:var(--muted);display:block;margin-top:9px}
+section{display:grid;grid-template-columns:240px minmax(0,1fr);gap:45px;padding:31px 0;border-top:1px solid var(--rule)}
+section h2{font-size:20px;letter-spacing:-.03em;margin:0;text-wrap:balance}section h2 + p{margin-top:10px}
+section > div{min-width:0}section p,section li{font-size:15px}section p:first-child{margin-top:0}
+section ul,section ol{padding-left:20px;margin:0 0 18px}section li{margin:0 0 10px}
+.small{font-size:13px;color:var(--muted)}
+.chart{position:relative;min-width:0}.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--rule);padding:9px 12px;font-size:13px;line-height:1.4;max-width:250px;z-index:3;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.tip strong{display:block;font-size:14px}.tip span{display:block;color:var(--muted)}
+.legend{list-style:none;padding:0;margin:22px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 26px}
+.legend li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;margin:0;font-size:14px}
+.legend i{width:12px;height:12px;align-self:center}.legend b{font-variant-numeric:tabular-nums}.legend small{grid-column:2/4;color:var(--muted);font-size:12px}
+.tile:focus{outline:none}.tile:focus rect,.tile:hover rect{stroke:var(--ink);stroke-width:2}
+.key{display:flex;flex-wrap:wrap;gap:18px;font-size:12px;color:var(--muted);margin:0 0 10px}.key i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.axis{fill:var(--muted);font-size:12px;font-family:inherit}
+.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:0 0 14px}
+select{font:inherit;font-size:15px;padding:8px 12px;border:1px solid var(--rule);background:var(--card);color:var(--ink)}
+input[type=search]{font:inherit;font-size:15px;padding:8px 12px;border:1px solid var(--rule);background:var(--card);color:var(--ink);min-width:0;flex:1 1 200px}
+select:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.tablewrap{overflow:auto;max-height:560px;border-top:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%}th,td{padding:11px 8px;border-bottom:1px solid var(--rule);font-size:14px;text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);position:sticky;top:0;background:var(--bg);z-index:1}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.yes{font-weight:700}.no{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}.pill i{width:9px;height:9px;flex:none}
+td.note{color:var(--muted);min-width:220px}
+.downloads a{font-weight:700}
+footer{border-top:1px solid var(--rule);padding-top:28px;font-size:13px;color:var(--muted)}
+.loading{color:var(--muted);font-size:14px}
+@media(max-width:750px){main{padding-top:28px}nav.crumbs{margin-bottom:56px}.metrics{grid-template-columns:1fr 1fr}.metric{padding-left:0}.metric:nth-child(2n){border-right:0;padding-left:16px}.metric:nth-child(-n+2){border-bottom:1px solid var(--rule)}section{display:block}section h2{margin-bottom:18px}}
+</style>
+</head>
+<body>
+<main>
+<nav class="crumbs"><a href="/barber-game/">← Back to BarberGame projects</a> <span aria-hidden="true"> · </span> <a href="/barber-game/washington-shop-directory/">Washington Shop Directory</a></nav>
+<p class="kicker">Research / The BarberGame</p>
+<h1>Barber School Census.</h1>
+<p class="dek">How hard is it to list every barber school in the United States? Federal data shows <b id="lede-fed">—</b> of the <b id="lede-total">—</b> schools on the <b id="lede-states">—</b> cleanest state lists, about 1 in <b id="lede-ratio">—</b>. A real directory has to be built state by state.</p>
+<p class="stamp">Checkpoint: November 13, 2026 · All 50 states, DC and Puerto Rico checked · 22 state lists collected</p>
+
+<div class="metrics" aria-label="Census snapshot">
+<div class="metric"><strong id="m-locations">—</strong><span>School locations found, state and federal combined</span></div>
+<div class="metric"><strong id="m-state">—</strong><span>From official state board lists</span></div>
+<div class="metric"><strong id="m-confirmed">—</strong><span>Confirmed barber programs</span></div>
+<div class="metric"><strong id="m-states">—</strong><span>States with a list collected</span></div>
+</div>
+
+<section id="coverage-map"><h2>How hard each state was to get</h2><div>
+<p>Every state licenses barber schools, but there's no national list. Each board publishes something different, from a clean download to nothing at all. Point at a state to see what its board offers.</p>
+<div class="chart" id="tilemap"><p class="loading">Loading map…</p></div>
+<ul class="legend" id="legend"></ul>
+</div></section>
+
+<section id="gap"><h2>State lists find far more schools than federal data</h2><div>
+<p>The federal IPEDS survey only covers schools that take federal student aid. Small independent barber colleges, community college programs, high-school academies and prison programs mostly don't appear. These are the states with a clean, current board list.</p>
+<div class="key"><span><i style="background:var(--bar-a)"></i>On the state board's list</span><span><i style="background:var(--bar-b)"></i>In federal data</span></div>
+<div class="chart" id="gapchart"><p class="loading">Loading chart…</p></div>
+</div></section>
+
+<section id="schools"><h2>Browse the schools</h2><div>
+<div class="controls">
+<label class="label" for="state-pick">State</label>
+<select id="state-pick" aria-label="State"></select>
+<input type="search" id="school-search" placeholder="Filter by school or city" aria-label="Filter by school or city">
+</div>
+<p class="small" id="school-count">—</p>
+<div class="tablewrap"><table>
+<thead><tr><th>School</th><th>City</th><th>Phone</th><th>On state list</th><th>In federal data</th><th>Barber program</th></tr></thead>
+<tbody id="school-rows"></tbody>
+</table></div>
+</div></section>
+
+<section id="states"><h2>Every state's status</h2><div>
+<div class="tablewrap"><table>
+<thead><tr><th>State</th><th>Status</th><th>What the board publishes</th><th class="n">State list</th><th class="n">Federal</th><th class="n">Total</th></tr></thead>
+<tbody id="state-rows"></tbody>
+</table></div>
+</div></section>
+
+<section id="method"><h2>How it was built</h2><div><ul>
+<li><strong>Federal data:</strong> the Department of Education's IPEDS 2023–24 completions survey, filtered to schools that reported barbering graduates (program code 12.0402).</li>
+<li><strong>State data:</strong> each state board's own school list, as a download, web page, PDF or dashboard. Lists were read in November 2026.</li>
+<li><strong>Matching:</strong> state and federal rows are matched by state, ZIP code and name similarity. A school listed under a legal name in one source and a trading name in the other can appear twice.</li>
+<li><strong>Mixed lists:</strong> California, Ohio, New Jersey and West Virginia list cosmetology and barber schools together. Those rows count as barber programs only when the name says barber or federal data shows barber graduates.</li>
+<li><strong>Known gaps:</strong> Texas's state file misses large barber colleges that appear in federal data. Connecticut's list dates from 2016 and South Dakota's from 2022. Blocked states use bot checks or refused automated downloads.</li>
+</ul>
+<p class="downloads small">Download the data: <a href="data/barber_schools.csv">all schools (CSV)</a> · <a href="data/state_coverage.csv">state coverage (CSV)</a></p>
+</div></section>
+
+<section id="next"><h2>Next steps</h2><div><ol>
+<li><strong>Missouri:</strong> download the free list from the state's MOPRO "Downloadable Listings" page by hand.</li>
+<li><strong>Blocked states</strong> (Arizona, Georgia, Alaska, Massachusetts, Mississippi, New Mexico, Rhode Island): open the board pages in a normal browser and save their lists.</li>
+<li><strong>Lookup-only and paid states:</strong> file public records requests, starting with the largest (Florida, New York, Georgia, Pennsylvania).</li>
+<li><strong>Decide on scope:</strong> whether prison and high-school programs belong in a public directory, since they're licensed but not open to the public.</li>
+</ol></div></section>
+
+<footer>BarberGame research checkpoint · November 13, 2026 · Counts reflect public state and federal sources as read on that date, not a live connection.</footer>
+</main>
+
+<script>
+(() => {
+  const fmt = (n) => Number(n).toLocaleString('en-US');
+  const $ = (id) => document.getElementById(id);
+
+  // Minimal CSV parser (handles quoted fields with commas and quotes).
+  function parseCSV(text) {
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') q = false;
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    const head = rows.shift().map((h) => h.replace(/^﻿/, ''));
+    return rows.filter((r) => r.length > 1).map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
+  }
+
+  const GROUPS = [
+    { key: 'full', label: 'Full list collected', def: 'Current list from the state board', color: 'var(--s-full)' },
+    { key: 'caveat', label: 'List with caveats', def: 'Mixed with cosmetology, stale, names only or incomplete', color: 'var(--s-caveat)' },
+    { key: 'lookup', label: 'Lookup tool only', def: 'License search, no published roster', color: 'var(--s-lookup)' },
+    { key: 'paid', label: 'Paid or by request', def: 'Board sells or mails the list', color: 'var(--s-paid)' },
+    { key: 'blocked', label: 'Blocked or needs a person', def: 'Bot check, refused download, or a page that needs a person', color: 'var(--s-blocked)' },
+    { key: 'none', label: 'No barber list online', def: 'Nothing published, or cosmetology schools only', color: 'var(--s-none)' }
+  ];
+  const groupOf = (s) => {
+    s = String(s || '');
+    if (s === 'Collected') return 'full';
+    if (s.startsWith('Collected')) return 'caveat';
+    if (s === 'Search tool only') return 'lookup';
+    if (s.startsWith('Paid')) return 'paid';
+    if (s === 'Blocked' || s.startsWith('Free download')) return 'blocked';
+    return 'none';
+  };
+  const colorOf = (s) => GROUPS.find((g) => g.key === groupOf(s)).color;
+  const CLEAN = ['NC', 'VA', 'SC', 'TN', 'IL', 'KS', 'KY', 'MN', 'CT', 'NE', 'SD', 'OK', 'NH', 'NV'];
+  const TILES = {
+    AK: [0, 0], ME: [11, 0], WI: [6, 1], VT: [10, 1], NH: [11, 1],
+    WA: [1, 2], ID: [2, 2], MT: [3, 2], ND: [4, 2], MN: [5, 2], IL: [6, 2], MI: [7, 2], NY: [9, 2], MA: [10, 2],
+    OR: [1, 3], NV: [2, 3], WY: [3, 3], SD: [4, 3], IA: [5, 3], IN: [6, 3], OH: [7, 3], PA: [8, 3], NJ: [9, 3], CT: [10, 3], RI: [11, 3],
+    CA: [1, 4], UT: [2, 4], CO: [3, 4], NE: [4, 4], MO: [5, 4], KY: [6, 4], WV: [7, 4], VA: [8, 4], MD: [9, 4], DE: [10, 4],
+    AZ: [2, 5], NM: [3, 5], KS: [4, 5], AR: [5, 5], TN: [6, 5], NC: [7, 5], SC: [8, 5], DC: [9, 5],
+    OK: [4, 6], LA: [5, 6], MS: [6, 6], AL: [7, 6], GA: [8, 6],
+    HI: [0, 7], TX: [4, 7], FL: [9, 7], PR: [11, 7]
+  };
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs = {}, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+
+  function tipFor(box) {
+    let t = box.querySelector('.tip');
+    if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
+    return t;
+  }
+  function showTip(box, tip, x, y, lines) {
+    tip.replaceChildren(...lines.map((l, i) => { const e = document.createElement(i ? 'span' : 'strong'); e.textContent = l; return e; }));
+    tip.hidden = false;
+    const w = tip.offsetWidth, h = tip.offsetHeight, W = box.clientWidth;
+    tip.style.left = Math.max(0, Math.min(W - w, x + 12)) + 'px';
+    tip.style.top = Math.max(0, y - h - 10) + 'px';
+  }
+
+  let coverage = [], schools = [];
+
+  function drawMap() {
+    const box = $('tilemap');
+    box.querySelectorAll('svg, .loading').forEach((n) => n.remove());
+    const tip = tipFor(box);
+    const W = Math.max(280, box.clientWidth), gap = 4, s = (W - gap * 11) / 12, H = s * 8 + gap * 7;
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Grid map of US states colored by how available their barber school list is' });
+    box.prepend(svg);
+    coverage.filter((r) => TILES[r.state]).forEach((r) => {
+      const [c, ro] = TILES[r.state];
+      const g = el('g', { class: 'tile', tabindex: 0, transform: `translate(${c * (s + gap)},${ro * (s + gap)})` }, svg);
+      const rect = el('rect', { width: s, height: s }, g); rect.style.fill = colorOf(r.status);
+      const t = el('text', { x: s / 2, y: s / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central' }, g);
+      t.textContent = r.state;
+      t.style.cssText = `fill:var(--t-${groupOf(r.status)});font-size:${Math.max(9, Math.min(14, s * .3))}px;font-weight:700;pointer-events:none`;
+      const lines = [r.state + ' · ' + r.status, r.note, +r.rows_total ? `${fmt(r.rows_total)} locations (${fmt(r.from_state_list)} from state list, ${fmt(r.in_federal_ipeds)} federal)` : 'No schools found yet'];
+      g.addEventListener('pointermove', (ev) => { const b = box.getBoundingClientRect(); showTip(box, tip, ev.clientX - b.left, ev.clientY - b.top, lines); });
+      g.addEventListener('pointerleave', () => { tip.hidden = true; });
+      g.addEventListener('focus', () => showTip(box, tip, c * (s + gap) + s / 2, ro * (s + gap), lines));
+      g.addEventListener('blur', () => { tip.hidden = true; });
+    });
+    const counts = {}; coverage.forEach((r) => { const k = groupOf(r.status); counts[k] = (counts[k] || 0) + 1; });
+    $('legend').replaceChildren(...GROUPS.map((g) => {
+      const li = document.createElement('li');
+      const i = document.createElement('i'); i.style.background = g.color;
+      const l = document.createElement('span'); l.textContent = g.label;
+      const b = document.createElement('b'); b.textContent = counts[g.key] || 0;
+      const d = document.createElement('small'); d.textContent = g.def;
+      li.append(i, l, b, d); return li;
+    }));
+  }
+
+  function drawGap() {
+    const box = $('gapchart');
+    box.querySelectorAll('svg, .loading').forEach((n) => n.remove());
+    const tip = tipFor(box);
+    const rows = coverage.filter((r) => CLEAN.includes(r.state))
+      .map((r) => ({ state: r.state, list: +r.from_state_list, fed: +r.in_federal_ipeds }))
+      .sort((a, b) => b.list - a.list);
+    const W = Math.max(280, box.clientWidth), band = 38, top = 4, bottom = 26, left = 34, right = 34;
+    const H = top + rows.length * band + bottom;
+    const max = Math.ceil(Math.max(...rows.map((r) => Math.max(r.list, r.fed))) / 10) * 10 || 10;
+    const x = (v) => left + (v / max) * (W - left - right);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Bar chart comparing schools on each state board list with schools in federal data, for 14 states' });
+    box.prepend(svg);
+    const step = W < 420 ? 20 : 10;
+    for (let v = 0; v <= max; v += step) {
+      const l = el('line', { x1: x(v), x2: x(v), y1: top, y2: top + rows.length * band }, svg); l.style.stroke = 'var(--rule)';
+      const t = el('text', { x: x(v), y: H - 6, 'text-anchor': 'middle', class: 'axis' }, svg); t.textContent = v;
+    }
+    rows.forEach((r, i) => {
+      const y0 = top + i * band + 5, h = (band - 12) / 2;
+      const lab = el('text', { x: left - 8, y: y0 + h, 'text-anchor': 'end', 'dominant-baseline': 'central', class: 'axis' }, svg); lab.textContent = r.state;
+      const a = el('rect', { x: x(0), y: y0, width: Math.max(1, x(r.list) - x(0)), height: h - 1 }, svg); a.style.fill = 'var(--bar-a)';
+      const b = el('rect', { x: x(0), y: y0 + h, width: Math.max(1, x(r.fed) - x(0)), height: h - 1 }, svg); b.style.fill = 'var(--bar-b)';
+      const ta = el('text', { x: x(r.list) + 5, y: y0 + h / 2, 'dominant-baseline': 'central', class: 'axis' }, svg); ta.textContent = r.list;
+      const tb = el('text', { x: x(r.fed) + 5, y: y0 + h * 1.5, 'dominant-baseline': 'central', class: 'axis' }, svg); tb.textContent = r.fed;
+      const hit = el('rect', { x: 0, y: y0 - 4, width: W, height: band - 2 }, svg); hit.style.fill = 'transparent';
+      hit.addEventListener('pointermove', (ev) => { const bb = box.getBoundingClientRect(); showTip(box, tip, ev.clientX - bb.left, ev.clientY - bb.top, [r.state, `${fmt(r.list)} on the state list`, `${fmt(r.fed)} in federal data`]); });
+      hit.addEventListener('pointerleave', () => { tip.hidden = true; });
+    });
+  }
+
+  const yn = (v) => v === 'Y' ? ['Yes', 'yes'] : v === 'unknown' ? ['Not sure', 'no'] : v === 'N' ? ['No', 'no'] : v ? ['List not collected', 'no'] : ['No', 'no'];
+  function drawSchools() {
+    const st = $('state-pick').value, q = $('school-search').value.trim().toLowerCase();
+    const inState = schools.filter((r) => r.state === st);
+    const rows = inState.filter((r) => !q || (r.name + ' ' + r.city).toLowerCase().includes(q))
+      .sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+    $('school-count').textContent = q ? `${fmt(rows.length)} of ${fmt(inState.length)} locations in ${st}` : `${fmt(inState.length)} locations in ${st}`;
+    $('school-rows').replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      const td = (t, c) => { const d = document.createElement('td'); d.textContent = t; if (c) d.className = c; return d; };
+      const [a, ac] = yn(r.in_state_list), [b, bc] = yn(r.in_ipeds), [c, cc] = yn(r.barber_program_confirmed);
+      tr.append(td(r.name), td(r.city || '—'), td(r.phone || '—'), td(a, ac), td(b, bc), td(c, cc));
+      return tr;
+    }));
+  }
+
+  function drawStates() {
+    const order = GROUPS.map((g) => g.key);
+    const rows = [...coverage].sort((a, b) => order.indexOf(groupOf(a.status)) - order.indexOf(groupOf(b.status)) || a.state.localeCompare(b.state));
+    $('state-rows').replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr');
+      const td = (t, c) => { const d = document.createElement('td'); d.textContent = t; if (c) d.className = c; return d; };
+      const s = document.createElement('td'), p = document.createElement('span'), i = document.createElement('i'), t = document.createElement('span');
+      p.className = 'pill'; i.style.background = colorOf(r.status); t.textContent = r.status; p.append(i, t); s.append(p);
+      tr.append(td(r.state), s, td(r.note, 'note'), td(fmt(r.from_state_list), 'n'), td(fmt(r.in_federal_ipeds), 'n'), td(fmt(r.rows_total), 'n'));
+      return tr;
+    }));
+  }
+
+  function drawNumbers() {
+    const clean = coverage.filter((r) => CLEAN.includes(r.state));
+    const total = clean.reduce((s, r) => s + +r.rows_total, 0), fed = clean.reduce((s, r) => s + +r.in_federal_ipeds, 0);
+    $('lede-fed').textContent = fmt(fed); $('lede-total').textContent = fmt(total);
+    $('lede-states').textContent = clean.length; $('lede-ratio').textContent = fed ? Math.round(total / fed) : '—';
+    $('m-locations').textContent = fmt(schools.length);
+    $('m-state').textContent = fmt(schools.filter((r) => r.in_state_list === 'Y').length);
+    $('m-confirmed').textContent = fmt(schools.filter((r) => r.barber_program_confirmed === 'Y').length);
+    $('m-states').textContent = coverage.filter((r) => r.status.startsWith('Collected')).length;
+  }
+
+  Promise.all([fetch('data/state_coverage.csv').then((r) => r.text()), fetch('data/barber_schools.csv').then((r) => r.text())])
+    .then(([c, s]) => {
+      coverage = parseCSV(c); schools = parseCSV(s);
+      const sel = $('state-pick');
+      const states = coverage.filter((r) => +r.rows_total > 0).map((r) => r.state).sort();
+      sel.replaceChildren(...states.map((st) => new Option(st, st)));
+      sel.value = states.includes('NC') ? 'NC' : states[0];
+      sel.addEventListener('change', drawSchools);
+      $('school-search').addEventListener('input', drawSchools);
+      drawNumbers(); drawMap(); drawGap(); drawSchools(); drawStates();
+      let w = 0; new ResizeObserver(() => { const nw = $('tilemap').clientWidth; if (Math.abs(nw - w) > 4) { w = nw; drawMap(); drawGap(); } }).observe($('tilemap'));
+    })
+    .catch(() => { document.querySelectorAll('.loading').forEach((n) => { n.textContent = 'The data files didn’t load. Try refreshing the page.'; }); });
+})();
+</script>
+<script src="/assets/common/site-shell.js"></script>
+</body>
+</html>
