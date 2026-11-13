@@ -1,0 +1,53 @@
+state,status,note,rows_total,from_state_list,in_federal_ipeds,in_both
+AK,Blocked,Board school search returns 403,0,0,0,0
+AL,Collected - names only,"Board map, Barbering filter; region but no address",24,20,5,1
+AR,Paid / request,Board sells lists ($15),7,0,7,0
+AZ,Blocked,Board site has a bot check,1,0,1,0
+CA,Collected - mixed,Board approved-school list mixes cosmetology and barber schools with no program flag,286,278,68,60
+CO,Collected - partial,All-occupations school list; only barber-named schools kept,11,4,7,0
+CT,Collected - stale,DPH PDF revised Feb 2016; hand-read,24,23,3,2
+DC,Search tool only,DLCP; no roster found,1,0,1,0
+DE,Search tool only,DELPROS license lookup,2,0,2,0
+FL,Search tool only,Commission for Independent Education school search,60,0,60,0
+GA,Blocked,Board site returns 403,17,0,17,0
+HI,Search tool only,PVL license lookup; no roster found,1,0,1,0
+IA,Not found,Old 2022 PDF unreachable; now under DIAL,1,0,1,0
+ID,Search tool only,DOPL license lookup; no roster published,9,0,9,0
+IL,Collected,"IDFPR PDF, updated quarterly",40,31,13,4
+IN,Paid / request,State license download costs $150+,7,0,7,0
+KS,Collected,Board web page,10,9,4,3
+KY,Collected,Board web page,13,13,2,2
+LA,Not found,Board has no public school list online; call 225-925-1701,12,0,12,0
+MA,Blocked,mass.gov page returns 403,5,0,5,0
+MD,No board list,Schools approved by MHEC (private) / MSDE (public),8,0,8,0
+ME,Search tool only,Board schools page has rules but no roster,2,0,2,0
+MI,Search tool only,LARA license lookup,5,0,5,0
+MN,Collected,"Board web page (says 8, lists 7)",7,7,1,1
+MO,"Free download, needs a person","MOPRO ""Downloadable Listings"" page; its board picker would not load for automated reading",9,0,9,0
+MS,Blocked,"Board posts a ""Licensed Schools"" PDF; download refused",10,0,10,0
+MT,Search tool only,Board licensee lookup,2,0,2,0
+NC,Collected,"Board web page, current",56,54,8,6
+ND,Collected - names only,"Barber board page lists 3 schools, no addresses",3,3,0,0
+NE,Collected,Board home page,2,2,2,2
+NH,Collected,OPLC licensed schools page; 2 barbering programs,4,2,2,0
+NJ,Collected - mixed,Cosmetology & Hairstyling board list; no program flag (NJ has no separate barber school license),31,31,9,9
+NM,Blocked,"Board ""Approved Schools by City"" PDF; download refused",11,0,11,0
+NV,Collected,"Board school locations page (says 5, lists 6)",6,6,0,0
+NY,Search tool only,NYSED BPSS licensed private career schools,8,0,8,0
+OH,Collected - mixed,Private school list mixes cosmetology and barber schools,79,77,10,8
+OK,Collected,Board schools page; kept only schools offering the BARBER course,35,28,16,9
+OR,Search tool only,HECC private career schools,12,0,12,0
+PA,Paid / request,Board list request process,12,0,12,0
+PR,Not found,Junta Examinadora de Barberos (Dept. of State); no roster online,30,0,30,0
+RI,Blocked,Health department page returns 403,0,0,0,0
+SC,Collected,LLR PDF,44,43,5,4
+SD,Collected - stale,Board page dated April 2022,1,1,0,0
+TN,Collected,State dashboard (read in browser),54,47,11,4
+TX,Collected - incomplete,"TDLR open data, ""Barber School"" license type; misses big barber colleges that appear in federal data; most expiry dates read 2025",154,117,55,18
+UT,Search tool only,DOPL license lookup; no roster found,8,0,8,0
+VA,Collected,"DPOR PDF, Nov 2026",63,61,5,3
+VT,Search tool only,OPR license lookup,1,0,1,0
+WA,Search tool only,DOL license lookup,10,0,10,0
+WI,Search tool only,DSPS license lookup,12,0,12,0
+WV,Collected - mixed,Barbers & Cosmetologists board list; no program flag,39,38,4,3
+WY,Not barber,State page lists cosmetology schools only; barber board posts no school list,2,0,2,0
