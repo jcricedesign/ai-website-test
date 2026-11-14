@@ -399,14 +399,18 @@ function bookingRow(b,i){return '<div class="blocked-row"><div style="min-width:
 const voucherClaimKey='tbg-demo-reup-voucher-claimed-v1';
 let voucherClaimed=(()=>{try{return localStorage.getItem(voucherClaimKey)==='1'}catch{return false}})();
 function renderVoucher(){const status=$('voucherStatus'),button=$('voucherClaimBtn');if(status)status.textContent=voucherClaimed?'Claimed in this demo — no rent credit has been applied.':'No real credit has been issued or applied.';if(button){button.textContent=voucherClaimed?'Claimed':'Claim';button.disabled=voucherClaimed;button.setAttribute('aria-label',voucherClaimed?'Voucher already claimed in demo':'Claim Re-Up Voucher')}}
+let showAllYearlyReports=false;
+function toggleYearlyReports(){showAllYearlyReports=!showAllYearlyReports;renderYearlyReports();$('yearlyReportsToggle')?.focus({preventScroll:true})}
 function renderYearlyReports(){
  const list=$('yearlyReportList');if(!list)return;
- list.innerHTML=[2021,2022,2023,2024,2025,2026].map(year=>{
+ const years=[2026,2025,2024,2023,2022,2021];
+ list.innerHTML=(showAllYearlyReports?years:years.slice(0,2)).map(year=>{
   const period=year===2026?'2026 YTD':'Full year '+year;
   const href='/barber-game/barber-admin-dashboard/income-statement/?year='+year;
   const download=href+'&download=1';
   return '<div class="listrow" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:125px"><b>'+period+'</b><div class="sub">'+(year===2026?'Illustrative demo figures':'Historical figures not connected')+'</div></div><div class="block-tools" style="gap:6px"><a class="minibutton" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center" href="'+href+'">View</a><a class="minibutton" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center" href="'+download+'">Download PDF</a></div></div>';
  }).join('');
+ list.innerHTML+='<button type="button" id="yearlyReportsToggle" class="action ghost" style="width:100%;margin-top:13px" aria-expanded="'+showAllYearlyReports+'" onclick="toggleYearlyReports()">'+(showAllYearlyReports?'Show less':'See all')+'</button>';
 }
 
 function renderClientDirectory(){const q=($('clientDirectorySearch')?.value||'').trim().toLowerCase(),names=getClients().filter(n=>n.toLowerCase().includes(q));$('clientDirectoryResults').innerHTML=names.length?names.map(name=>'<div class="listrow">'+clientNameLink(name)+'</div>').join(''):'<p class="photo-hint">No clients match this search.</p>'}
