@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Shop Policies Exploration — The BarberGame</title>
+<link rel="icon" href="/assets/common/JCR_sigil.png" type="image/png">
+<script>if(sessionStorage.getItem('tbg-auth')!=='1')location.replace('/barber-game/'); const theme=localStorage.getItem('theme');if(theme)document.documentElement.dataset.theme=theme;</script>
+<link rel="stylesheet" href="/assets/common/site-shell.css">
+<style>
+:root{--bg:#f3f3ef;--ink:#171715;--muted:#686863;--line:#c8c8c1;--card:#fff}
+:root[data-theme=dark]{--bg:#111;--ink:#f4f4f0;--muted:#aaa9a1;--line:#393935;--card:#1b1b1a}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif}
+a{color:inherit}main{max-width:940px;margin:auto;padding:44px 24px 110px}
+.back{font-size:13px;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:42px 0 13px;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;font-size:11px;font-weight:700}
+h1{font-size:clamp(48px,7vw,78px);line-height:.94;letter-spacing:-.058em;margin:0 0 24px;font-weight:750;max-width:780px}
+.lede{font-size:clamp(19px,2.5vw,24px);max-width:730px;line-height:1.35;margin:0 0 36px}
+.rule{border:0;border-top:1px solid var(--line);margin:36px 0}
+h2{font-size:clamp(25px,3vw,35px);letter-spacing:-.04em;line-height:1.1;margin:0 0 14px}
+h3{font-size:17px;margin:0 0 7px;line-height:1.2}
+p{margin:0 0 14px}.muted{color:var(--muted)}.section{margin:38px 0}
+.summary{border-top:5px solid var(--ink);padding:24px 0 0}
+.summary strong{font-size:19px}
+.categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:22px 0}
+.category{background:var(--card);padding:20px 22px}.category h3{margin-bottom:7px}.category p{font-size:14px;color:var(--muted);margin:0;line-height:1.5}
+.journey{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);gap:24px;padding:24px 0;margin:23px 0}
+.journey .num,.steps .num{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:11px}
+.journey p{font-size:14px;color:var(--muted);margin:0}
+.example{background:var(--card);border:1px solid var(--line);padding:24px 27px;margin:20px 0}.example ul{margin:9px 0 0;padding-left:21px}.example li{padding:4px 0}
+.steps{margin:21px 0 0;list-style:none;padding:0;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.steps .num{margin:4px 0 0}.steps p{font-size:14px;color:var(--muted);margin:5px 0 0}
+.note{font-size:13px;color:var(--muted);border-left:2px solid var(--line);padding-left:16px;margin-top:24px}
+footer{padding-top:18px;margin-top:42px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:650px){main{padding:26px 20px 75px}.meta{margin-top:36px}.categories,.journey{grid-template-columns:1fr}.journey{gap:17px}.example{padding:19px}}
+@media print{body,html{background:#fff;color:#111}main{max-width:none;padding:0}.back{display:none}.section{break-inside:avoid}.categories{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<a class="back" href="/barber-game/">← Back to The BarberGame projects</a>
+<div class="meta"><span>The BarberGame / Product discovery</span><span>November 18, 2026</span><span>For Morgan &amp; team</span></div>
+<h1>Shop Policies Exploration</h1>
+<p class="lede">Help clients know what to expect before they book or arrive—without making barbers write a lengthy policy document.</p>
+<section class="summary section">
+<h2>Opportunity</h2>
+<p>Every barber and shop operates differently. Cancellation windows, late arrivals, deposits, guests, hair preparation and practical arrival instructions are often communicated verbally, buried on a website, or discovered too late.</p>
+<p><strong>Recommendation:</strong> Add an optional <strong>“Know Before You Go”</strong> section to barber and shop profiles: a short list of selectable rules and helpful tips, with editable details and room for a custom instruction.</p>
+</section>
+<section class="section">
+<h2>What we found</h2>
+<p>Booking platforms including Booksy, Square Appointments and Fresha already support business-specific policies such as cancellation windows, no-show fees, deposits and pre-appointment instructions. The opportunity for The BarberGame is to make these expectations easier to discover and understand across shops—even when booking happens elsewhere.</p>
+<p class="muted" style="font-size:14px">The starting example: a shop requires 24-hour cancellation notice and charges 100% of the scheduled service after a no-call/no-show, before allowing another booking. This should appear as a clear client-facing statement, not just a block of policy text.</p>
+</section>
+<section class="section">
+<h2>Suggested policy menu</h2>
+<p>Barbers select only what applies. Where a rule needs a number or condition, the editor offers simple choices and a custom option.</p>
+<div class="categories">
+<div class="category"><h3>Appointments</h3><p>Cancellation notice (12/24/48 hours); late-arrival grace period; no-show fees; rescheduling.</p></div>
+<div class="category"><h3>Payments</h3><p>Deposits and prepayment; accepted payment methods; refund and correction procedures.</p></div>
+<div class="category"><h3>Shop expectations</h3><p>Walk-ins or appointments only; additional guests; children; pets and service animals.</p></div>
+<div class="category"><h3>Before your visit</h3><p>Clean or dry hair; consultation requirements; arrive early; check-in and parking instructions.</p></div>
+<div class="category"><h3>Service details</h3><p>Choose the correct service; variable prices; extra time; accessibility and entry details.</p></div>
+<div class="category"><h3>Custom instructions</h3><p>One short, optional shop- or barber-specific tip that preset options do not cover.</p></div>
+</div>
+</section>
+<section class="section">
+<h2>Recommended experience</h2>
+<div class="journey">
+<div><span class="num">01 / Barber setup</span><h3>Pick rules</h3><p>Select items from a short checklist, set a notice period or fee where needed, and preview exactly what clients will read.</p></div>
+<div><span class="num">02 / Shop or barber profile</span><h3>Read at a glance</h3><p>Show a compact “Know Before You Go” list before clients commit to a visit.</p></div>
+<div><span class="num">03 / Booking checkout</span><h3>Confirm important terms</h3><p>Repeat relevant fees and cancellation terms before booking; capture acknowledgment where appropriate.</p></div>
+</div>
+<div class="example">
+<h3>Client preview · Know Before You Go</h3>
+<ul>
+<li><strong>24-hour cancellation notice.</strong> Cancel or reschedule at least one day ahead.</li>
+<li><strong>10-minute late-arrival grace period.</strong> A late appointment may need to be rescheduled.</li>
+<li><strong>No-show fee.</strong> A missed appointment may incur a fee equal to the full service price.</li>
+<li><strong>No additional guests.</strong> Please arrive alone unless assistance is needed.</li>
+<li><strong>Arrive with clean hair.</strong> Unless your selected service includes a wash.</li>
+</ul>
+</div>
+<p class="muted" style="font-size:13px">Illustrative rules, not defaults or policies adopted by The BarberGame.</p>
+</section>
+<section class="section">
+<h2>Important distinction</h2>
+<p><strong>Helpful tips</strong> (parking, guests, hair preparation, accessibility) can be shown without formal acceptance. <strong>Financial or contractual policies</strong> (cancellations, no-show charges, deposits, refunds) should be shown clearly before confirmation; if enforced through our booking system, retain the policy version accepted with the booking.</p>
+<p>Allow shop-wide rules to apply by default while supporting authorized barber-specific exceptions. Clearly indicate whose policy governs each appointment. Financial policies should be checked against applicable law and payment-provider requirements before enforcement.</p>
+</section>
+<section class="section">
+<h2>Recommended next steps</h2>
+<ol class="steps">
+<li><span class="num">01</span><div><h3>Agree on the initial list</h3><p>Morgan and a few participating shop owners review the categories. Identify the 10–15 most useful rules and any missing expectations.</p></div></li>
+<li><span class="num">02</span><div><h3>Prototype the selection editor</h3><p>Checkboxes, straightforward dropdowns, a short custom instruction, and a live client preview. No long-form document authoring required.</p></div></li>
+<li><span class="num">03</span><div><h3>Add public display to profiles</h3><p>Introduce “Know Before You Go” on shop and barber pages. Start as informational content without automated fee collection.</p></div></li>
+<li><span class="num">04</span><div><h3>Connect policies to booking later</h3><p>Surface relevant terms in checkout and confirmations; decide ownership, acknowledgment records, dispute handling and payment enforcement before enabling charges.</p></div></li>
+<li><span class="num">05</span><div><h3>Validate with real clients</h3><p>Check whether customers notice and understand the rules, and whether barbers can configure them in minutes.</p></div></li>
+</ol>
+<p class="note"><strong>Proposed first release:</strong> A voluntary policy library, configurable values, one custom tip, and a compact public summary. Avoid fee enforcement or a complex legal-policy builder in the pilot.</p>
+</section>
+<footer><span>The BarberGame · Internal product exploration</span><span>Discovery brief · 18 Nov 2026</span></footer>
+</main>
+<script src="/assets/common/site-shell.js"></script>
+</body></html>
