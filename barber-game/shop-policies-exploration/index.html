@@ -8,96 +8,138 @@
 <script>if(sessionStorage.getItem('tbg-auth')!=='1')location.replace('/barber-game/'); const theme=localStorage.getItem('theme');if(theme)document.documentElement.dataset.theme=theme;</script>
 <link rel="stylesheet" href="/assets/common/site-shell.css">
 <style>
-:root{--bg:#f3f3ef;--ink:#171715;--muted:#686863;--line:#c8c8c1;--card:#fff}
-:root[data-theme=dark]{--bg:#111;--ink:#f4f4f0;--muted:#aaa9a1;--line:#393935;--card:#1b1b1a}
-*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif}
-a{color:inherit}main{max-width:940px;margin:auto;padding:44px 24px 110px}
-.back{font-size:13px;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:42px 0 13px;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;font-size:11px;font-weight:700}
-h1{font-size:clamp(48px,7vw,78px);line-height:.94;letter-spacing:-.058em;margin:0 0 24px;font-weight:750;max-width:780px}
-.lede{font-size:clamp(19px,2.5vw,24px);max-width:730px;line-height:1.35;margin:0 0 36px}
-.rule{border:0;border-top:1px solid var(--line);margin:36px 0}
-h2{font-size:clamp(25px,3vw,35px);letter-spacing:-.04em;line-height:1.1;margin:0 0 14px}
-h3{font-size:17px;margin:0 0 7px;line-height:1.2}
-p{margin:0 0 14px}.muted{color:var(--muted)}.section{margin:38px 0}
-.summary{border-top:5px solid var(--ink);padding:24px 0 0}
-.summary strong{font-size:19px}
-.categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:22px 0}
-.category{background:var(--card);padding:20px 22px}.category h3{margin-bottom:7px}.category p{font-size:14px;color:var(--muted);margin:0;line-height:1.5}
-.journey{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);gap:24px;padding:24px 0;margin:23px 0}
-.journey .num,.steps .num{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:11px}
-.journey p{font-size:14px;color:var(--muted);margin:0}
-.example{background:var(--card);border:1px solid var(--line);padding:24px 27px;margin:20px 0}.example ul{margin:9px 0 0;padding-left:21px}.example li{padding:4px 0}
-.steps{margin:21px 0 0;list-style:none;padding:0;border-top:1px solid var(--line)}
-.steps li{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
-.steps .num{margin:4px 0 0}.steps p{font-size:14px;color:var(--muted);margin:5px 0 0}
-.note{font-size:13px;color:var(--muted);border-left:2px solid var(--line);padding-left:16px;margin-top:24px}
-footer{padding-top:18px;margin-top:42px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
-@media(max-width:650px){main{padding:26px 20px 75px}.meta{margin-top:36px}.categories,.journey{grid-template-columns:1fr}.journey{gap:17px}.example{padding:19px}}
-@media print{body,html{background:#fff;color:#111}main{max-width:none;padding:0}.back{display:none}.section{break-inside:avoid}.categories{break-inside:avoid}}
+:root{--bg:#f3f3ef;--ink:#171715;--muted:#686863;--line:#c8c8c1;--card:#fff;--soft:#eaeae5}
+:root[data-theme=dark]{--bg:#111;--ink:#f4f4f0;--muted:#aaa9a1;--line:#393935;--card:#1b1b1a;--soft:#262624}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Nimbus Sans","Helvetica Neue",Helvetica,Arial,sans-serif}
+a{color:inherit}main{max-width:1020px;margin:auto;padding:44px 24px 100px}
+.back{font-size:13px;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;margin:40px 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;font-size:11px;font-weight:700}
+h1{font-size:clamp(46px,7vw,76px);line-height:.98;letter-spacing:-.055em;margin:0 0 20px;font-weight:750}
+.lede{font-size:clamp(19px,2.5vw,24px);max-width:730px;line-height:1.35;margin:0 0 21px}
+p{margin:0 0 13px}.muted{color:var(--muted)}
+.intro{max-width:770px}.summary-line{display:flex;align-items:flex-start;gap:15px;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:17px 0;margin:29px 0 0;font-size:15px}
+.num{font-size:11px;letter-spacing:.11em;font-weight:700;color:var(--muted);white-space:nowrap;padding-top:4px}
+section{margin:44px 0 0}h2{font-size:clamp(26px,3.6vw,36px);line-height:1.13;letter-spacing:-.04em;margin:0 0 10px}
+.section-intro{font-size:15px;color:var(--muted);max-width:720px;margin-bottom:22px}
+.policy-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px;border-top:1px solid var(--line)}
+.policy-group{border-bottom:1px solid var(--line);padding:21px 0 19px}
+.policy-group h3{font-size:17px;margin:0 0 10px;letter-spacing:-.015em}
+.policy-group ul{list-style:none;margin:0;padding:0}
+.policy-group li{font-size:14px;line-height:1.45;color:var(--muted);padding:4px 0 4px 20px;position:relative}
+.policy-group li::before{content:"";position:absolute;top:12px;left:1px;width:6px;height:6px;border:1px solid var(--muted);border-radius:2px}
+.examples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:24px 0}
+.shop{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:21px;min-width:0;display:flex;flex-direction:column}
+.shop-type{text-transform:uppercase;letter-spacing:.09em;font-size:10px;color:var(--muted);font-weight:700}
+.shop h3{font-size:22px;line-height:1.16;letter-spacing:-.035em;margin:7px 0 8px}
+.shop .sub{color:var(--muted);font-size:13px;min-height:39px;margin-bottom:17px}
+.shop .before{font-size:11px;letter-spacing:.07em;font-weight:700;text-transform:uppercase;border-top:1px solid var(--line);padding-top:17px;margin-bottom:9px}
+.shop ul{padding:0;margin:0;list-style:none;flex:1}
+.shop li{font-size:14px;line-height:1.45;padding:8px 0;border-bottom:1px solid var(--line)}
+.shop li:last-child{border-bottom:0}
+.shop .disclaimer{margin:19px 0 0;font-size:11px;color:var(--muted)}
+.principle{margin-top:30px;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:15px}
+.principle strong{font-weight:700}.next{margin-top:28px;font-size:14px;color:var(--muted)}
+footer{padding-top:17px;margin-top:58px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:760px){.examples{grid-template-columns:1fr}.shop .sub{min-height:0}.policy-list{gap:0 22px}}
+@media(max-width:580px){main{padding:26px 20px 74px}.meta{margin-top:34px}.policy-list{grid-template-columns:1fr}.policy-group{padding:19px 0}.summary-line{gap:10px}.examples{gap:12px}}
+@media print{html,body{background:#fff;color:#111}main{max-width:none;padding:0}.back{display:none}.shop,.policy-group{break-inside:avoid}}
 </style>
 </head>
 <body><main>
 <a class="back" href="/barber-game/">← Back to The BarberGame projects</a>
-<div class="meta"><span>The BarberGame / Product discovery</span><span>November 18, 2026</span><span>For Morgan &amp; team</span></div>
-<h1>Shop Policies Exploration</h1>
-<p class="lede">Help clients know what to expect before they book or arrive—without making barbers write a lengthy policy document.</p>
-<section class="summary section">
-<h2>Opportunity</h2>
-<p>Every barber and shop operates differently. Cancellation windows, late arrivals, deposits, guests, hair preparation and practical arrival instructions are often communicated verbally, buried on a website, or discovered too late.</p>
-<p><strong>Recommendation:</strong> Add an optional <strong>“Know Before You Go”</strong> section to barber and shop profiles: a short list of selectable rules and helpful tips, with editable details and room for a custom instruction.</p>
-</section>
-<section class="section">
-<h2>What we found</h2>
-<p>Booking platforms including Booksy, Square Appointments and Fresha already support business-specific policies such as cancellation windows, no-show fees, deposits and pre-appointment instructions. The opportunity for The BarberGame is to make these expectations easier to discover and understand across shops—even when booking happens elsewhere.</p>
-<p class="muted" style="font-size:14px">The starting example: a shop requires 24-hour cancellation notice and charges 100% of the scheduled service after a no-call/no-show, before allowing another booking. This should appear as a clear client-facing statement, not just a block of policy text.</p>
-</section>
-<section class="section">
-<h2>Suggested policy menu</h2>
-<p>Barbers select only what applies. Where a rule needs a number or condition, the editor offers simple choices and a custom option.</p>
-<div class="categories">
-<div class="category"><h3>Appointments</h3><p>Cancellation notice (12/24/48 hours); late-arrival grace period; no-show fees; rescheduling.</p></div>
-<div class="category"><h3>Payments</h3><p>Deposits and prepayment; accepted payment methods; refund and correction procedures.</p></div>
-<div class="category"><h3>Shop expectations</h3><p>Walk-ins or appointments only; additional guests; children; pets and service animals.</p></div>
-<div class="category"><h3>Before your visit</h3><p>Clean or dry hair; consultation requirements; arrive early; check-in and parking instructions.</p></div>
-<div class="category"><h3>Service details</h3><p>Choose the correct service; variable prices; extra time; accessibility and entry details.</p></div>
-<div class="category"><h3>Custom instructions</h3><p>One short, optional shop- or barber-specific tip that preset options do not cover.</p></div>
+<div class="meta"><span>The BarberGame / Product exploration</span><span>November 18, 2026</span><span>For Morgan &amp; team</span></div>
+<header class="intro">
+<h1>Shop Policies</h1>
+<p class="lede">Know before you go. A few clear expectations can make every appointment easier.</p>
+<p class="muted">Each barber or shop chooses only the policies that apply. Customers see a short, readable summary—not a long policy document.</p>
+</header>
+<div class="summary-line"><span class="num">THE IDEA</span><span><strong>Choose rules → add details → show customers.</strong> Start as optional information on a barber or shop profile. Connect important booking terms later.</span></div>
+
+<section aria-labelledby="menu-heading">
+<h2 id="menu-heading">Possible policies</h2>
+<p class="section-intro">A menu to choose from—not rules imposed by The BarberGame. Each selected item can include a short detail such as a time, amount, or instruction.</p>
+<div class="policy-list">
+<div class="policy-group"><h3>Appointments</h3><ul>
+<li>Cancellation notice (12, 24, or 48 hours)</li>
+<li>Late-arrival grace period</li>
+<li>No-shows and missed appointments</li>
+<li>Rescheduling and same-day changes</li>
+</ul></div>
+<div class="policy-group"><h3>Payments</h3><ul>
+<li>Deposit or prepayment required</li>
+<li>Accepted forms of payment</li>
+<li>Refunds and service corrections</li>
+<li>Extra charges or variable pricing</li>
+</ul></div>
+<div class="policy-group"><h3>At the shop</h3><ul>
+<li>Walk-ins or appointments only</li>
+<li>Guests and children</li>
+<li>Pets and service animals</li>
+<li>Accessibility and accommodations</li>
+</ul></div>
+<div class="policy-group"><h3>Before you arrive</h3><ul>
+<li>Clean or dry hair requirements</li>
+<li>Consultations or preparation</li>
+<li>Check-in and arrival instructions</li>
+<li>Parking or entrance details</li>
+</ul></div>
+<div class="policy-group"><h3>Services</h3><ul>
+<li>Choose the right service and duration</li>
+<li>Additional time for certain services</li>
+<li>Service-specific restrictions</li>
+</ul></div>
+<div class="policy-group"><h3>Personal instructions</h3><ul>
+<li>One short custom note from the shop or barber</li>
+<li>Preferred communication or other helpful expectations</li>
+</ul></div>
 </div>
 </section>
-<section class="section">
-<h2>Recommended experience</h2>
-<div class="journey">
-<div><span class="num">01 / Barber setup</span><h3>Pick rules</h3><p>Select items from a short checklist, set a notice period or fee where needed, and preview exactly what clients will read.</p></div>
-<div><span class="num">02 / Shop or barber profile</span><h3>Read at a glance</h3><p>Show a compact “Know Before You Go” list before clients commit to a visit.</p></div>
-<div><span class="num">03 / Booking checkout</span><h3>Confirm important terms</h3><p>Repeat relevant fees and cancellation terms before booking; capture acknowledgment where appropriate.</p></div>
-</div>
-<div class="example">
-<h3>Client preview · Know Before You Go</h3>
+
+<section aria-labelledby="examples-heading">
+<h2 id="examples-heading">How it could look at three shops</h2>
+<p class="section-intro">The same “Know Before You Go” section can be short and different for every business.</p>
+<div class="examples">
+<article class="shop">
+<div class="shop-type">Example 01 / Appointment-based</div>
+<h3>The Appointment Studio</h3>
+<p class="sub">A busy shop with scheduled visits.</p>
+<div class="before">Know Before You Go</div>
 <ul>
-<li><strong>24-hour cancellation notice.</strong> Cancel or reschedule at least one day ahead.</li>
-<li><strong>10-minute late-arrival grace period.</strong> A late appointment may need to be rescheduled.</li>
-<li><strong>No-show fee.</strong> A missed appointment may incur a fee equal to the full service price.</li>
-<li><strong>No additional guests.</strong> Please arrive alone unless assistance is needed.</li>
-<li><strong>Arrive with clean hair.</strong> Unless your selected service includes a wash.</li>
+<li><strong>Cancel 24 hours ahead.</strong> Please reschedule at least one day before your visit.</li>
+<li><strong>10-minute grace period.</strong> Later arrivals may need to rebook.</li>
+<li><strong>No-show policy.</strong> Missed appointments may be charged the full service amount.</li>
 </ul>
+<p class="disclaimer">Example only · Not a real shop's stated policy</p>
+</article>
+<article class="shop">
+<div class="shop-type">Example 02 / Neighborhood walk-ins</div>
+<h3>The Neighborhood Shop</h3>
+<p class="sub">A casual barbershop focused on walk-ins.</p>
+<div class="before">Know Before You Go</div>
+<ul>
+<li><strong>Walk-ins welcome.</strong> Service is first come, first served.</li>
+<li><strong>Children welcome.</strong> A parent or guardian should remain present.</li>
+<li><strong>Cash and cards accepted.</strong> Ask about payment before service.</li>
+</ul>
+<p class="disclaimer">Example only · Not a real shop's stated policy</p>
+</article>
+<article class="shop">
+<div class="shop-type">Example 03 / Specialty services</div>
+<h3>The Private Chair</h3>
+<p class="sub">Longer appointments with individual preparation.</p>
+<div class="before">Know Before You Go</div>
+<ul>
+<li><strong>Consultation first.</strong> Please choose a consultation for new specialty services.</li>
+<li><strong>Arrive with clean, dry hair.</strong> Unless your appointment includes washing.</li>
+<li><strong>Guests by arrangement.</strong> Let us know if you need assistance or accommodations.</li>
+</ul>
+<p class="disclaimer">Example only · Not a real shop's stated policy</p>
+</article>
 </div>
-<p class="muted" style="font-size:13px">Illustrative rules, not defaults or policies adopted by The BarberGame.</p>
 </section>
-<section class="section">
-<h2>Important distinction</h2>
-<p><strong>Helpful tips</strong> (parking, guests, hair preparation, accessibility) can be shown without formal acceptance. <strong>Financial or contractual policies</strong> (cancellations, no-show charges, deposits, refunds) should be shown clearly before confirmation; if enforced through our booking system, retain the policy version accepted with the booking.</p>
-<p>Allow shop-wide rules to apply by default while supporting authorized barber-specific exceptions. Clearly indicate whose policy governs each appointment. Financial policies should be checked against applicable law and payment-provider requirements before enforcement.</p>
-</section>
-<section class="section">
-<h2>Recommended next steps</h2>
-<ol class="steps">
-<li><span class="num">01</span><div><h3>Agree on the initial list</h3><p>Morgan and a few participating shop owners review the categories. Identify the 10–15 most useful rules and any missing expectations.</p></div></li>
-<li><span class="num">02</span><div><h3>Prototype the selection editor</h3><p>Checkboxes, straightforward dropdowns, a short custom instruction, and a live client preview. No long-form document authoring required.</p></div></li>
-<li><span class="num">03</span><div><h3>Add public display to profiles</h3><p>Introduce “Know Before You Go” on shop and barber pages. Start as informational content without automated fee collection.</p></div></li>
-<li><span class="num">04</span><div><h3>Connect policies to booking later</h3><p>Surface relevant terms in checkout and confirmations; decide ownership, acknowledgment records, dispute handling and payment enforcement before enabling charges.</p></div></li>
-<li><span class="num">05</span><div><h3>Validate with real clients</h3><p>Check whether customers notice and understand the rules, and whether barbers can configure them in minutes.</p></div></li>
-</ol>
-<p class="note"><strong>Proposed first release:</strong> A voluntary policy library, configurable values, one custom tip, and a compact public summary. Avoid fee enforcement or a complex legal-policy builder in the pilot.</p>
-</section>
+
+<div class="principle"><strong>Important distinction.</strong> Helpful instructions can simply be displayed. Deposits, cancellation charges, and other financial terms should be shown clearly before a booking is confirmed; any enforcement needs legal and payment-provider review.</div>
+<p class="next"><strong>Suggested next step:</strong> Agree on the first 10–15 choices with participating barbers and shop owners, then prototype a simple selection editor with an instant customer preview.</p>
 <footer><span>The BarberGame · Internal product exploration</span><span>Discovery brief · 18 Nov 2026</span></footer>
 </main>
 <script src="/assets/common/site-shell.js"></script>
