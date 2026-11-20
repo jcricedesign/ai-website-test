@@ -235,7 +235,8 @@ function laterBarberRow(s,b,i){
  return `<div class="barber barber-later"><button class="portrait-link" data-action="profile" data-shop="${s.id}" data-barber="${i}" aria-label="View ${safe(b.name)}'s profile">${avatar(b)}</button><div class="barber-main"><button class="barber-name" data-action="profile" data-shop="${s.id}" data-barber="${i}">${safe(b.name)}</button><div class="rank">${safe(b.rank)}</div>${next}</div><button class="schedule-action" data-action="view-schedule" data-shop="${s.id}" data-barber="${i}" aria-label="View future schedule for ${safe(b.name)}">View schedule</button></div>`;
 }
 function shopModule(s){
- const available=s.barbers.filter(b=>b.slots.length).sort((a,b)=>a.slots[0].localeCompare(b.slots[0],undefined,{numeric:true}));
+ const minutes=t=>{const [h,m]=t.split(':').map(Number);return (h>=9&&h<12?h:h===12?12:h+12)*60+m};
+ const available=s.barbers.filter(b=>b.slots.length).sort((a,b)=>minutes(a.slots[0])-minutes(b.slots[0]));
  const later=s.barbers.filter(b=>!b.slots.length);
  const expanded=!!state.expanded[s.id],hasExtra=available.length>3||later.length>2;
  const todayRows=expanded?available:available.slice(0,3);
