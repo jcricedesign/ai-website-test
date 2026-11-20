@@ -61,9 +61,14 @@
 .barber-later .barber-name{font-size:13px}
 .barber-later .rank{font-size:9px}
 .next-opportunity{display:block;margin-top:4px;font-size:11px;color:#737a73}
-.schedule-action{min-height:38px;border:1px solid #bbc4bc;border-radius:10px;background:#fff;padding:7px 10px;font-size:11px;white-space:nowrap;font-weight:700;color:#566359;cursor:pointer}
+.schedule-action{min-height:38px;border:1.5px solid var(--green);border-radius:10px;background:#edf5ee;padding:7px 10px;font-size:11px;white-space:nowrap;font-weight:700;color:var(--green);cursor:pointer}
 .schedule-action:hover,.schedule-action:focus-visible{border-color:var(--green);color:var(--green)}
 .later-expand{display:block;width:100%;border:0;background:transparent;color:var(--green);text-align:left;padding:12px 0;font-size:11px;font-weight:700;cursor:pointer}
+/* Consistent left alignment for location headings, captions and barber details. */
+.shop,.shop-top,.shop-sub,.shop-sub h4,.opportunity-caption,.barber-main,.barber-name,.barber .rank,.barber .meta,.next-opportunity{text-align:left}
+.shop .barber-main{justify-self:stretch}
+.schedule-action:hover,.schedule-action:focus-visible{background:#e0eee3}
+
 </style>
 </head>
 <body>
