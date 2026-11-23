@@ -11,8 +11,9 @@
 .appointment-tab[data-appointment-tab="upcoming"]{--tab-rail:#3c89a4}
 .appointment-tab[data-appointment-tab="past"]{--tab-rail:#cb897d}
 .appointment-tab-count,.appointment-tab[aria-selected="true"] .appointment-tab-count{display:inline-flex;align-items:center;justify-content:center;flex:none;width:23px;min-width:23px;height:23px;padding:0;border:1px solid #cbd3cb;border-radius:50%;background:#fff!important;color:#111!important;font-size:11px;line-height:1;font-weight:800}
-.appointment-tab[aria-selected="true"]{background:#fff!important;color:#18271f!important;border-color:#afbeb1;box-shadow:0 0 0 1px #b4c5b7}
-.appointment-tab[aria-selected="true"]::before{width:6px}
+.appointment-tab[aria-selected="true"]{background:#257a50!important;color:#fff!important;border-color:#257a50;box-shadow:none}
+.appointment-tab[aria-selected="true"] .appointment-tab-count{background:transparent!important;color:#fff!important;border-color:#b2dfc4}
+.appointment-tab[aria-selected="true"]::before{display:none}
 .appointment-tab:hover{border-color:#aebdaf}
 @media(max-width:390px){.appointment-tabs{gap:4px}.appointment-tab{font-size:12px;gap:4px;padding-left:9px;padding-right:4px}.appointment-tab-count,.appointment-tab[aria-selected="true"] .appointment-tab-count{width:20px;min-width:20px;height:20px}}
 .appointment-expand{width:100%;margin-top:13px}.appointment-sub{padding:6px 0 4px}.appointments-card [role="tabpanel"][hidden]{display:none!important}@media(max-width:390px){.appointment-tab{font-size:12px;gap:4px}.appointment-tab-count{min-width:18px;padding:0 4px}}
