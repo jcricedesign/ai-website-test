@@ -73,7 +73,7 @@
 <nav class="bottom" aria-label="Dashboard sections"><div class="navinside">
 <button class="active" onclick="go('today',this)"><span style="font-size:22px;display:block">⌂</span>Home</button>
 <button onclick="go('bookings',this)"><span style="font-size:22px;display:block">▦</span>Appointments</button>
-<button onclick="go('customers',this)"><span style="font-size:22px;display:block" aria-hidden="true">♟</span>Customers</button>
+<button onclick="go('customers',this)"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customers</button>
 <button onclick="openSheet('more')"><span style="font-size:22px;display:block">☷</span>More</button></div></nav>
 <div class="veil" id="veil" onclick="if(event.target===this)closeSheet()"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheet"><div class="handle"></div><div class="between"><h2 id="sheetTitle" tabindex="-1">Edit</h2><button class="minibutton" aria-label="Close dialog" onclick="closeSheet()">✕</button></div><form id="sheetForm" onsubmit="saveSheet(event)"><div id="sheetFields"></div><div class="sheetfooter"><button type="button" class="action ghost" onclick="closeSheet()">Cancel</button><button class="action" type="submit" id="saveBtn">Save changes</button></div></form></div></div><div id="toast" class="toast" role="status"></div>
 <section class="ack-gate" id="ackGate" role="dialog" aria-modal="true" aria-labelledby="ackHeading" aria-describedby="ackDescription" inert>
