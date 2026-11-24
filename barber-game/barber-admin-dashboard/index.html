@@ -550,8 +550,8 @@ function customerBucketPeople(id,search=''){const data=customerFollowupData();co
 function customerActionRow(person,id){const quoted=JSON.stringify(person.name).replace(/"/g,'&quot;'),bucketQuoted=JSON.stringify(id).replace(/"/g,'&quot;');
  const visit=person.days===null?'No completed visit recorded':person.days+' days since last cut · '+safe(person.date);
  const extra=(person.source==='sample'?' · Demo history':'')+(person.blocked?' · Blocked':'');
- const action=person.blocked?'openClientDetails('+quoted+')':'openCustomerFollowup('+bucketQuoted+','+quoted+')';
- return '<button type="button" class="customer-single-row" onclick="'+action+'" aria-label="'+(person.blocked?'View details for ':'Prepare reminder for ')+safe(person.name)+'"><span class="customer-cohort-person"><strong>'+safe(person.name)+'</strong><span class="customer-visit-meta">'+visit+extra+'</span>'+(person.days>=42&&person.days<60?'<span class="customer-six-week">6+ weeks · Follow-up suggested</span>':'')+'</span><span class="customer-row-arrow" aria-hidden="true">→</span></button>';
+ const action=person.blocked||id==='other'?'openClientDetails('+quoted+')':'openCustomerFollowup('+bucketQuoted+','+quoted+')';
+ return '<button type="button" class="customer-single-row" onclick="'+action+'" aria-label="'+(person.blocked||id==='other'?'View details for ':'Prepare reminder for ')+safe(person.name)+'"><span class="customer-cohort-person"><strong>'+safe(person.name)+'</strong><span class="customer-visit-meta">'+visit+extra+'</span>'+(person.days>=42&&person.days<60?'<span class="customer-six-week">6+ weeks · Follow-up suggested</span>':'')+'</span><span class="customer-row-arrow" aria-hidden="true">→</span></button>';
 }
 function renderCustomers(){
  const root=$('customersList'),count=$('customersCount');if(!root||!count)return;
@@ -570,10 +570,10 @@ function renderCustomers(){
  const people=customerBucketPeople(activeCustomerBucket,q),total=customerBucketPeople(activeCustomerBucket).length;
  const heading=bucket?bucket.title:'Other customers',description=bucket?bucket.description:'Seen within 7 days or no completed visit recorded';
  const header='<div class="customer-selected-header"><button type="button" class="customer-back" onclick="backToCustomerBuckets()" aria-label="Back to customer groups">← Back</button><div class="customer-selected-group"><b>'+heading+'</b><span class="customer-cohort-count">'+total+'</span></div><p class="customer-cohort-description">'+description+'</p></div>';
- const first=people.slice(0,3),more=people.length>3;
+ const first=people.slice(0,3),more=people.length>0;
  root.innerHTML=header+'<div class="customer-cohort-list">'+(first.length?first.map(person=>customerActionRow(person,activeCustomerBucket)).join(''):'<p class="customer-cohort-empty">No matching customers.</p>')+'</div>'+
  (more?'<button type="button" class="action secondary customer-see-all" onclick="openSheet(&quot;customerlist&quot;,&quot;'+activeCustomerBucket+'&quot;)">See all '+people.length+' customers <span aria-hidden="true">↗</span></button>':'')+
- '<p class="customer-bucket-hint">Tap a customer to prepare an individual reminder. No message is sent.</p>';
+ '<p class="customer-bucket-hint">'+(bucket?'Tap a customer to prepare an individual reminder. No message is sent.':'Tap a customer to view their details.')+'</p>';
 }
 function openCustomerFollowup(bucketId,name){
  const person=customerBucketPeople(bucketId).find(person=>person.name===name);
